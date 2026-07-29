@@ -1041,7 +1041,6 @@ body {
   align-items: center;
   gap: 12px;
   padding: 10px 0;
-  border-bottom: 1px solid #f3f4f6;
 }
 
 .form-label {
@@ -1102,7 +1101,7 @@ body {
 
 .form-coords .form-input {
   min-width: 0;
-  width: 0;
+  flex: 1;
 }
 
 .coord-pin-btn {
@@ -1195,6 +1194,17 @@ body {
 
 .toast.removing {
   animation: toast-out 0.25s ease forwards;
+}
+
+.toast.toast-error {
+  border-color: #fca5a5;
+  background: #fff5f5;
+  color: #b91c1c;
+}
+
+.toast.toast-error .toast-icon {
+  background: #fee2e2;
+  color: #ef4444;
 }
 
 .toast-icon {

@@ -17,11 +17,11 @@
   --bg-card: #FFFFFF;
 
   /* Primary Palette */
-  --text-base:    #272727;
-  --text-label:   #5E5E5E;
-  --text-heading: #0D0D0D;
-  --text-para:    #474747;
-  --text-muted:   #757575;
+  --text-base:     #272727;
+  --text-label:    #5E5E5E;
+  --text-heading:  #0D0D0D;
+  --text-para:     #474747;
+  --text-muted:    #757575;
   --icon-hover-bg: #E8E8E8;
   --link:          #2C3ED2;
   --link-red:      #D10D0D;
@@ -67,17 +67,17 @@
   --tag-pur-bg: #FAEAFF; --tag-pur-bd: #B82EEA; --tag-pur-tx: #AD16E3;
 
   /* Component – Input (Component.Input tokens) */
-  --input-bg:              #FFFFFF;
-  --input-outline:         #858585;
-  --input-outline-hover:   #404040;
-  --input-outline-focus:   #2C3ED2;
-  --input-shadow-focus:    rgba(76, 94, 253, 0.30);
-  --input-outline-error:   #E61414;
-  --input-bg-error:        #FFF8F8;
-  --input-bg-disabled:     #F5F5F5;
-  --input-outline-disabled:#B0B0B0;
-  --input-placeholder:     #707070;
-  --input-icon-bg:         #F5F5F5;
+  --input-bg:               #FFFFFF;
+  --input-outline:          #858585;
+  --input-outline-hover:    #404040;
+  --input-outline-focus:    #2C3ED2;
+  --input-shadow-focus:     rgba(76, 94, 253, 0.30);
+  --input-outline-error:    #E61414;
+  --input-bg-error:         #FFF8F8;
+  --input-bg-disabled:      #F5F5F5;
+  --input-outline-disabled: #B0B0B0;
+  --input-placeholder:      #707070;
+  --input-icon-bg:          #F5F5F5;
 }
 
 /* ============================================================
@@ -315,7 +315,7 @@ a      { color: var(--link); text-decoration: none; }
 .nav-item:hover i { color: var(--text-label); }
 
 .nav-item.active {
-  background: #EEF1FF;
+  background: #F0F1FF;
   color: var(--btn-primary);
   font-weight: 500;
 }
@@ -619,7 +619,7 @@ a      { color: var(--link); text-decoration: none; }
 }
 .nm-filter-dropdown li:hover { background: var(--bg-3); }
 .nm-filter-dropdown li.selected {
-  background: #EEF1FF;
+  background: #F0F1FF;
   color: var(--btn-primary);
   font-weight: 500;
 }
@@ -701,7 +701,7 @@ a      { color: var(--link); text-decoration: none; }
 .nm-list-item-name {
   font-size: var(--fs-rg);
   font-weight: 500;
-  color: #313949;
+  color: var(--text-base);
   line-height: var(--lh-rg);
   white-space: nowrap;
   overflow: hidden;
@@ -710,7 +710,7 @@ a      { color: var(--link); text-decoration: none; }
 
 .nm-list-item-status {
   font-size: var(--fs-md);
-  color: #616E88;
+  color: var(--text-label);
   margin-top: 2px;
   line-height: var(--lh-md);
   white-space: nowrap;
@@ -884,7 +884,7 @@ a      { color: var(--link); text-decoration: none; }
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(39, 39, 39, 0.5);
+  background: rgba(49, 57, 73, 0.5);
   z-index: 200;
   display: flex;
   align-items: center;
@@ -1004,7 +1004,7 @@ a      { color: var(--link); text-decoration: none; }
   transition: background 0.12s, border-color 0.12s;
 }
 .coord-pin-btn:hover {
-  background: #EEF1FF;
+  background: #F0F1FF;
   border-color: var(--input-outline-focus);
 }
 

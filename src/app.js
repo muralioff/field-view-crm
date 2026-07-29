@@ -579,9 +579,21 @@ document.addEventListener('DOMContentLoaded', () => {
   modalSaveBtn.addEventListener('click', () => {
     if (activeRecordIndex === null) return;
 
+    const flat   = document.getElementById('field-flat').value.trim();
+    const street = document.getElementById('field-street').value.trim();
+    const city   = document.getElementById('field-city').value.trim();
+    const zip    = document.getElementById('field-zip').value.trim();
+    const latVal = document.getElementById('field-lat').value.trim();
+    const lngVal = document.getElementById('field-lng').value.trim();
+
+    if (!flat && !street && !city && !zip && !latVal && !lngVal) {
+      showToast('Please fill in at least one field before saving.', 'error');
+      return;
+    }
+
     const record = NON_MAPPABLE[activeRecordIndex];
-    const lat    = parseFloat(document.getElementById('field-lat').value);
-    const lng    = parseFloat(document.getElementById('field-lng').value);
+    const lat    = parseFloat(latVal);
+    const lng    = parseFloat(lngVal);
 
     /* Convert real-world coords to canvas coords (rough bounding box of Chennai area) */
     const LAT_MAX = 13.15, LAT_MIN = 12.85;
@@ -647,11 +659,12 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ── Toast ── */
   const toastContainer = document.getElementById('toast-container');
 
-  function showToast(message) {
+  function showToast(message, type = 'success') {
     const toast = document.createElement('div');
-    toast.className = 'toast';
+    toast.className = `toast${type === 'error' ? ' toast-error' : ''}`;
+    const icon = type === 'error' ? 'ti-alert-circle' : 'ti-check';
     toast.innerHTML = `
-      <span class="toast-icon"><i class="ti ti-check" aria-hidden="true"></i></span>
+      <span class="toast-icon"><i class="ti ${icon}" aria-hidden="true"></i></span>
       <span>${message}</span>
       <button class="toast-close" aria-label="Dismiss"><i class="ti ti-x" aria-hidden="true"></i></button>
     `;
