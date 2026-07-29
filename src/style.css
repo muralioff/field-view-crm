@@ -556,6 +556,10 @@ body {
   color: #fff;
 }
 
+#btn-v1.active {
+  background: #10b981;
+}
+
 .layers-btn i {
   font-size: 17px;
   color: #374151;
