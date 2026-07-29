@@ -3,13 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Field View — CRM Planner</title>
+  <title>Field View — Day Mode (WCAG)</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
-  <link rel="stylesheet" href="src/style.css" />
-  <style>
-    .ver-btn.active { background: #ef4444; }
-    #btn-v1.active  { background: #ef4444; }
-  </style>
+  <link rel="stylesheet" href="src/style-daymode.css" />
 </head>
 <body>
   <div class="app">
@@ -113,7 +109,7 @@
         <div class="map-area" id="map-area">
           <canvas id="map-canvas" aria-label="Interactive field map"></canvas>
 
-          <!-- Non Mappable Records Sheet -->
+          <!-- Non Mappable Records Sheet (V1) -->
           <div class="nm-sheet" id="nm-sheet" role="dialog" aria-label="Non Mappable Records" aria-hidden="true">
             <div class="nm-header">
               <div class="nm-title">
@@ -151,7 +147,7 @@
             <ul class="nm-list" id="nm-list"></ul>
           </div>
 
-          <!-- Non Mappable Records Sheet V2 -->
+          <!-- Non Mappable Records Sheet (V2) -->
           <div class="nm-sheet nm-sheet-v2" id="nm-sheet-v2" role="dialog" aria-label="Non Mappable Records" aria-hidden="true">
             <div class="nm-header">
               <div class="nm-title">
