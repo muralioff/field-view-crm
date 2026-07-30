@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ── Tooltip ── */
   const tooltip = document.getElementById('tooltip');
   document.getElementById('map-canvas').addEventListener('mousemove', e => {
+    if (fieldMap.pickMode) { tooltip.style.display = 'none'; return; }
     const rect = e.target.getBoundingClientRect();
     const pin  = fieldMap.pinAtScreen(e.clientX - rect.left, e.clientY - rect.top);
     if (pin) {
