@@ -205,19 +205,17 @@ class FieldMap {
     const now = performance.now();
     const DURATION = 900;
 
-    /* Dim existing pins while in pick mode */
-    if (this.pickMode) this.ctx.globalAlpha = 0.25;
-
-    this._visiblePins().forEach(p => {
-      let yOff = 0;
-      if (this._bouncingPins.has(p)) {
-        const t = Math.min((now - this._bouncingPins.get(p)) / DURATION, 1);
-        yOff = this._bounceY(t);
-      }
-      this._drawSinglePin(p.x, p.y, this._colorForPin(p), yOff, false);
-    });
-
-    if (this.pickMode) this.ctx.globalAlpha = 1;
+    /* Hide existing pins entirely while in pick mode */
+    if (!this.pickMode) {
+      this._visiblePins().forEach(p => {
+        let yOff = 0;
+        if (this._bouncingPins.has(p)) {
+          const t = Math.min((now - this._bouncingPins.get(p)) / DURATION, 1);
+          yOff = this._bounceY(t);
+        }
+        this._drawSinglePin(p.x, p.y, this._colorForPin(p), yOff, false);
+      });
+    }
 
     /* Pointer.png preview pin — fixed at chosen location */
     if (this.pickMode && this.previewPin) {
