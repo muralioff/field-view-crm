@@ -906,9 +906,13 @@ body {
 
 .pick-confirm-title {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: #111827;
   margin-bottom: 8px;
+}
+
+.pick-confirm-title #pick-confirm-name {
+  font-weight: 600;
 }
 
 .pick-confirm-desc {
@@ -916,10 +920,16 @@ body {
   color: #6b7280;
   line-height: 1.6;
   margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.pick-confirm-desc strong {
-  color: #374151;
+.pick-confirm-desc span { display: block; }
+
+.pick-confirm-desc #pick-confirm-coords {
+  color: #9ca3af;
+  font-size: 11px;
 }
 
 .pick-confirm-btns {

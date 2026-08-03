@@ -486,8 +486,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const lng = ((wx - 50) / 700 * (LNG_MAX - LNG_MIN) + LNG_MIN).toFixed(5);
 
     pickConfirmName.textContent = NON_MAPPABLE[pickRecordIndex].name;
-    document.getElementById('pick-confirm-coords').textContent = `${lat}, ${lng}`;
+    document.getElementById('pick-confirm-street').textContent  = 'Fetching address…';
+    document.getElementById('pick-confirm-pincode').textContent = '';
+    document.getElementById('pick-confirm-coords').textContent  = `${lat}, ${lng}`;
     positionPickConfirm(wx, wy);
+
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+      .then(r => r.json())
+      .then(data => {
+        const a = data.address || {};
+        const street  = [a.road, a.suburb, a.city || a.town || a.village].filter(Boolean).join(', ');
+        const pincode = a.postcode || '';
+        document.getElementById('pick-confirm-street').textContent  = street  || 'Street unavailable';
+        document.getElementById('pick-confirm-pincode').textContent = pincode ? `Pincode: ${pincode}` : '';
+      })
+      .catch(() => {
+        document.getElementById('pick-confirm-street').textContent = 'Address unavailable';
+      });
     pickConfirmEl.classList.add('visible');
     pickConfirmEl.setAttribute('aria-hidden', 'false');
   });
