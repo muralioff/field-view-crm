@@ -480,7 +480,13 @@ document.addEventListener('DOMContentLoaded', () => {
     fieldMap.setPreviewPin(wx, wy);
     mapCanvas.style.cursor = 'default';
 
+    const LAT_MAX = 13.15, LAT_MIN = 12.85;
+    const LNG_MIN = 80.15, LNG_MAX = 80.35;
+    const lat = (LAT_MAX - (wy - 40) / 560 * (LAT_MAX - LAT_MIN)).toFixed(5);
+    const lng = ((wx - 50) / 700 * (LNG_MAX - LNG_MIN) + LNG_MIN).toFixed(5);
+
     pickConfirmName.textContent = NON_MAPPABLE[pickRecordIndex].name;
+    document.getElementById('pick-confirm-coords').textContent = `${lat}, ${lng}`;
     positionPickConfirm(wx, wy);
     pickConfirmEl.classList.add('visible');
     pickConfirmEl.setAttribute('aria-hidden', 'false');
