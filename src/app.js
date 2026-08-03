@@ -468,17 +468,15 @@ document.addEventListener('DOMContentLoaded', () => {
     pickConfirmEl.style.top    = 'auto';
   }
 
-  /* Click on canvas while in pick mode → place preview pin + show confirm.
-     Blocked while popup is visible — user must Cancel to re-pick. */
+  /* Click on canvas while in pick mode → place/update preview pin.
+     Clicking again while confirm is visible updates the pin without cancelling. */
   mapCanvas.addEventListener('click', e => {
     if (!fieldMap.pickMode) return;
-    if (pickConfirmEl.classList.contains('visible')) return;
 
     const rect = mapCanvas.getBoundingClientRect();
     const [wx, wy] = fieldMap.screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
     pendingPickCoords = { wx, wy };
     fieldMap.setPreviewPin(wx, wy);
-    mapCanvas.style.cursor = 'default';
 
     const LAT_MAX = 13.15, LAT_MIN = 12.85;
     const LNG_MIN = 80.15, LNG_MAX = 80.35;
@@ -486,10 +484,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const lng = ((wx - 50) / 700 * (LNG_MAX - LNG_MIN) + LNG_MIN).toFixed(5);
 
     pickConfirmName.textContent = NON_MAPPABLE[pickRecordIndex].name;
+    document.getElementById('pick-confirm-coords').textContent  = `${lat}, ${lng}`;
     document.getElementById('pick-confirm-street').textContent  = 'Fetching address…';
     document.getElementById('pick-confirm-pincode').textContent = '';
-    document.getElementById('pick-confirm-coords').textContent  = `${lat}, ${lng}`;
     positionPickConfirm(wx, wy);
+
+    pickConfirmEl.classList.add('visible');
+    pickConfirmEl.setAttribute('aria-hidden', 'false');
 
     fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
       .then(r => r.json())
@@ -503,8 +504,6 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(() => {
         document.getElementById('pick-confirm-street').textContent = 'Address unavailable';
       });
-    pickConfirmEl.classList.add('visible');
-    pickConfirmEl.setAttribute('aria-hidden', 'false');
   });
 
   /* Confirm → plot pin, remove record, exit mode */
