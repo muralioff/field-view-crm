@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Beat — Beat Planner</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="src/style-create-beat.css" />
+  <link rel="stylesheet" href="src/map-controls.css" />
+</head>
+<body>
+  <div class="cb-app">
+
+    <!-- Header -->
+    <header class="cb-header">
+      <div class="cb-title">Create Beat</div>
+      <div class="cb-actions">
+        <button class="cb-btn cancel" id="cb-cancel">Cancel</button>
+        <button class="cb-btn save" id="cb-save" disabled>Save</button>
+      </div>
+    </header>
+
+    <!-- Body -->
+    <div class="cb-body">
+
+      <!-- Left panel: Beats Information -->
+      <aside class="cb-panel">
+        <h2 class="cb-panel-title">Beats Information</h2>
+
+        <div class="cb-field-row">
+          <label class="cb-field-label">Assign Rep</label>
+          <div class="cb-field-control">
+            <div class="cb-input" id="cb-assign-rep" role="button" tabindex="0">
+              <span class="cb-fill cb-placeholder">Select</span>
+              <i class="ti ti-chevron-down cb-chevron" aria-hidden="true"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="cb-field-row">
+          <label class="cb-field-label">Beat Duration</label>
+          <div class="cb-field-control">
+            <div class="cb-duration">
+              <div class="cb-input date" id="cb-start-date" role="button" tabindex="0">
+                <span class="cb-fill cb-placeholder">DD/MM/YYYY</span>
+                <i class="ti ti-calendar-event" aria-hidden="true"></i>
+              </div>
+              <div class="cb-input date" id="cb-end-date" role="button" tabindex="0">
+                <span class="cb-fill cb-placeholder">DD/MM/YYYY</span>
+                <i class="ti ti-chevron-down cb-chevron" aria-hidden="true"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Map -->
+      <div class="cb-map-wrapper">
+
+        <!-- Map toolbar -->
+        <div class="cb-map-toolbar">
+          <div class="cb-toolbar-left">
+            <div class="cb-module-wrap" id="cb-module-wrap">
+              <div class="cb-module-select" id="cb-module-select" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
+                <span class="cb-fill" id="cb-module-label">Contacts</span>
+                <i class="ti ti-chevron-down cb-module-caret" aria-hidden="true"></i>
+              </div>
+              <ul class="cb-module-panel" id="cb-module-panel" role="listbox">
+                <li data-module="leads"    role="option"><i class="ti ti-check" aria-hidden="true"></i><span>Leads</span></li>
+                <li data-module="contacts" role="option" class="active"><i class="ti ti-check" aria-hidden="true"></i><span>Contacts</span></li>
+                <li data-module="deals"    role="option"><i class="ti ti-check" aria-hidden="true"></i><span>Deals</span></li>
+                <li data-module="vendors"  role="option"><i class="ti ti-check" aria-hidden="true"></i><span>Vendors</span></li>
+              </ul>
+            </div>
+            <button class="cb-filter-btn" id="cb-filter">
+              <i class="ti ti-filter" aria-hidden="true"></i>
+              <span>Filter</span>
+            </button>
+          </div>
+          <div class="cb-toolbar-right">
+            <div class="cb-pagination">
+              <button class="cb-page-arrow" id="cb-prev" aria-label="Previous page">
+                <i class="ti ti-chevron-left" aria-hidden="true"></i>
+              </button>
+              <span class="cb-page-info"><b>1</b> <span>to</span> <b>50</b></span>
+              <button class="cb-page-arrow" id="cb-next" aria-label="Next page">
+                <i class="ti ti-chevron-right" aria-hidden="true"></i>
+              </button>
+            </div>
+            <button class="cb-settings-btn" id="cb-settings" aria-label="Manage list view">
+              <i class="ti ti-adjustments" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Map canvas -->
+        <div class="map-area" id="map-area">
+          <canvas id="map-canvas" aria-label="Beat map"></canvas>
+
+          <!-- Layers thumbnail -->
+          <button class="cb-layers" id="cb-layers" aria-label="Toggle layers">
+            <span class="cb-layers-label"><i class="ti ti-stack-2" aria-hidden="true"></i>Layers</span>
+          </button>
+
+          <!-- Floating controls -->
+          <div class="cb-map-controls">
+            <button class="cb-ctrl-btn" id="cb-lasso" aria-label="Lasso select">
+              <i class="ti ti-lasso" aria-hidden="true"></i>
+            </button>
+            <button class="cb-ctrl-btn" id="cb-locate" aria-label="Locate">
+              <i class="ti ti-current-location" aria-hidden="true"></i>
+            </button>
+            <div class="cb-zoom">
+              <button id="zoom-in" aria-label="Zoom in">+</button>
+              <button id="zoom-out" aria-label="Zoom out">−</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="src/data.js"></script>
+  <script src="src/map.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const fieldMap = new FieldMap('map-canvas', 'map-area');
+      fieldMap.resize();
+
+      /* Zoom controls */
+      document.getElementById('zoom-in').addEventListener('click', () => {
+        fieldMap.zoom(1.25, fieldMap.canvas.width / 2, fieldMap.canvas.height / 2);
+      });
+      document.getElementById('zoom-out').addEventListener('click', () => {
+        fieldMap.zoom(0.8, fieldMap.canvas.width / 2, fieldMap.canvas.height / 2);
+      });
+
+      /* Enable Save only once both a rep and a duration are chosen (placeholder logic) */
+      const saveBtn = document.getElementById('cb-save');
+      window.cbRefreshSave = () => {
+        const repChosen   = !document.querySelector('#cb-assign-rep .cb-placeholder');
+        const startChosen = !document.querySelector('#cb-start-date .cb-placeholder');
+        const enabled = repChosen && startChosen;
+        saveBtn.classList.toggle('enabled', enabled);
+        saveBtn.disabled = !enabled;
+      };
+
+      /* ── Module switcher dropdown ── */
+      const modWrap   = document.getElementById('cb-module-wrap');
+      const modSelect = document.getElementById('cb-module-select');
+      const modLabel  = document.getElementById('cb-module-label');
+      const modPanel  = document.getElementById('cb-module-panel');
+
+      function openModPanel(open) {
+        modWrap.classList.toggle('open', open);
+        modSelect.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+
+      modSelect.addEventListener('click', () => {
+        openModPanel(!modWrap.classList.contains('open'));
+      });
+
+      modPanel.querySelectorAll('li').forEach(li => {
+        li.addEventListener('click', () => {
+          const module = li.dataset.module;
+          modPanel.querySelectorAll('li').forEach(o => o.classList.remove('active'));
+          li.classList.add('active');
+          modLabel.textContent = li.querySelector('span').textContent;
+          fieldMap.setModules([module]);   /* filter map to the chosen module */
+          openModPanel(false);
+        });
+      });
+
+      /* Close on outside click */
+      document.addEventListener('click', e => {
+        if (!modWrap.contains(e.target)) openModPanel(false);
+      });
+
+      /* Initial filter to the default module (Contacts) */
+      fieldMap.setModules(['contacts']);
+
+      /* Cancel returns to the field view */
+      document.getElementById('cb-cancel').addEventListener('click', () => {
+        window.location.href = 'index.html';
+      });
+    });
+  </script>
+</body>
+</html>

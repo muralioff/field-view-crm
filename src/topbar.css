@@ -1,0 +1,74 @@
+/* ============================================================
+   Top bar — shared component (from Figma Beat Planner)
+   Used by index.html and bottom-up.html.
+   Markup: <header class="bp-topbar"> title + search + icons </header>
+   ============================================================ */
+.bp-topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 50px;
+  padding: 0 20px;
+  background: #fff;
+  border-bottom: 1px solid #e6e9f2;
+  flex-shrink: 0;
+}
+
+.bp-topbar-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #202123;
+  white-space: nowrap;
+}
+
+.bp-search {
+  margin-left: 40px;
+  flex: 1;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px;
+  background: #f4f5f9;
+  border: 1px solid #e0e3ee;
+  border-radius: 6px;
+  color: #8b9bb8;
+  font-size: 13px;
+}
+
+.bp-search input {
+  border: none;
+  background: none;
+  outline: none;
+  flex: 1;
+  font-family: inherit;
+  font-size: 13px;
+  color: #313949;
+}
+.bp-search input::placeholder { color: #8b9bb8; }
+
+.bp-topbar-icons { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+
+.bp-tb-btn {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: none; border-radius: 6px;
+  color: #5a6480; font-size: 18px; cursor: pointer; position: relative;
+}
+.bp-tb-btn:hover { background: #f1f0f7; }
+.bp-tb-btn.plus { background: #f0f2ff; color: #3359db; border: 1px solid #d9def7; }
+
+.bp-tb-badge {
+  position: absolute; top: 2px; right: 2px;
+  min-width: 15px; height: 15px; padding: 0 3px;
+  background: #f5484a; color: #fff; font-size: 9px; font-weight: 700;
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+}
+
+.bp-avatar-photo {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, #f9a03f, #f56f9d);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 12px; font-weight: 600;
+}

@@ -1,0 +1,98 @@
+/* ============================================================
+   Shared map controls — Layers thumbnail + Zoom
+   Used by both index.html and create-beat.html so the
+   components stay identical across pages.
+   ============================================================ */
+
+/* Floating controls container (right edge) */
+.cb-map-controls {
+  position: absolute;
+  right: 20px;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 20;
+}
+
+.cb-ctrl-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 30px;
+  background: #fff;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: #313949;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.cb-ctrl-btn:hover { background: #f7f8fc; }
+
+/* Zoom in / out */
+.cb-zoom {
+  display: flex;
+  flex-direction: column;
+  width: 32px;
+  background: #fff;
+  border-radius: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.cb-zoom button {
+  width: 32px;
+  height: 35px;
+  border: none;
+  background: transparent;
+  color: #313949;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.cb-zoom button:hover { background: #f1f0f7; }
+.cb-zoom button:first-child { border-bottom: 1px solid #eef0f6; }
+
+/* Layers thumbnail (bottom-left of map) */
+.cb-layers {
+  position: absolute;
+  left: 15px;
+  bottom: 24px;
+  width: 79px;
+  height: 79px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: #dfe6ee;
+  cursor: pointer;
+  overflow: hidden;
+  border: none;
+  z-index: 20;
+  transition: left 0.25s ease;
+}
+
+.cb-layers .cb-layers-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 0;
+  background: rgba(32, 33, 35, 0.72);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.cb-layers .cb-layers-label i { font-size: 12px; }

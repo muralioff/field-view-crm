@@ -1,0 +1,153 @@
+/* ============================================================
+   Left Navigation — shared component
+   Colors/specs from Figma "Beat Planner" (node 1963:69357)
+   Rendered by src/sidebar.js into <aside id="app-sidebar" data-active="...">
+   ============================================================ */
+:root {
+  --sb-width:        240px;
+  --sb-bg:           #223458;
+  --sb-active-bg:    #31446f;
+  --sb-text:         #c2cbde;
+  --sb-text-active:  #ffffff;
+  --sb-icon:         #aeb8d0;
+  --sb-divider:      #31446f;
+  --sb-home-icon:    #5a78ff;
+  --sb-config-icon:  #b06bf3;
+  --sb-modules-icon: #f564bb;
+}
+
+.app-sidebar {
+  width: var(--sb-width);
+  flex-shrink: 0;
+  height: 100%;
+  background: var(--sb-bg);
+  display: flex;
+  flex-direction: column;
+  font-family: 'Zoho Puvi', 'Puvi', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow-y: auto;
+}
+
+.app-sidebar::-webkit-scrollbar { width: 6px; }
+.app-sidebar::-webkit-scrollbar-thumb { background: #33456d; border-radius: 3px; }
+
+/* Logo header */
+.sb-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 50px;
+  padding: 0 12px;
+  flex-shrink: 0;
+}
+
+.sb-logo-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #c35bf4 0%, #5a78ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.sb-logo-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.sb-logo .sb-logo-caret {
+  color: var(--sb-text);
+  font-size: 15px;
+}
+
+.sb-logo .sb-collapse {
+  margin-left: auto;
+  color: var(--sb-icon);
+  font-size: 18px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+}
+
+/* Nav lists */
+.sb-nav {
+  list-style: none;
+  margin: 0;
+  padding: 4px 8px;
+}
+
+.sb-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 6px;
+  color: var(--sb-text);
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.sb-item i {
+  font-size: 19px;
+  color: var(--sb-icon);
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.sb-item:hover { background: rgba(255, 255, 255, 0.05); }
+
+.sb-item.active {
+  background: var(--sb-active-bg);
+  color: var(--sb-text-active);
+  font-weight: 500;
+}
+
+.sb-item.active i { color: #fff; }
+
+/* Coloured top-group icons (Home / Planner Configuration) */
+.sb-item[data-key="home"] i    { color: var(--sb-home-icon); }
+.sb-item[data-key="config"] i  { color: var(--sb-config-icon); }
+
+/* Divider */
+.sb-divider {
+  height: 1px;
+  background: var(--sb-divider);
+  margin: 8px 16px;
+}
+
+/* Modules section header */
+.sb-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px 6px;
+}
+
+.sb-section .sb-section-icon {
+  font-size: 18px;
+  color: var(--sb-modules-icon);
+}
+
+.sb-section .sb-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.sb-section .sb-section-more {
+  margin-left: auto;
+  color: var(--sb-icon);
+  font-size: 18px;
+  cursor: pointer;
+}

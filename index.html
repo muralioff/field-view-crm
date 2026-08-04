@@ -5,77 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Field View — CRM Planner</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="src/sidebar.css" />
+  <link rel="stylesheet" href="src/topbar.css" />
   <link rel="stylesheet" href="src/style.css" />
-  <style>
-    .ver-btn.active { background: #ef4444; }
-    #btn-v1.active  { background: #ef4444; }
-  </style>
+  <link rel="stylesheet" href="src/map-controls.css" />
 </head>
 <body>
   <div class="app">
 
-    <!-- Top Bar -->
-    <div class="topbar">
-      <div class="topbar-logo">P</div>
-      <span class="topbar-name">Planner</span>
-      <i class="ti ti-chevron-down topbar-chevron" aria-hidden="true"></i>
-      <div class="ver-toggle">
-        <button class="ver-btn active" id="btn-v1">V1</button>
-        <button class="ver-btn" id="btn-v2">V2</button>
-      </div>
-      <span class="spacer"></span>
-      <div class="search-bar">
-        <i class="ti ti-search" aria-hidden="true"></i>
-        <input type="text" placeholder="Search records" />
-      </div>
-      <div class="tb-icons">
-        <button class="tb-btn plus" title="Add" aria-label="Add new record">
-          <i class="ti ti-plus" aria-hidden="true"></i>
-        </button>
-        <button class="tb-btn" title="Activity" aria-label="Activity">
-          <i class="ti ti-activity" aria-hidden="true"></i>
-        </button>
-        <button class="tb-btn notif-btn" title="Notifications" aria-label="Notifications">
-          <i class="ti ti-bell" aria-hidden="true"></i>
-          <span class="notif-badge" id="notif-count">5</span>
-        </button>
-        <button class="tb-btn" title="Calendar" aria-label="Calendar">
-          <i class="ti ti-calendar" aria-hidden="true"></i>
-        </button>
-        <button class="tb-btn" title="Settings" aria-label="Settings">
-          <i class="ti ti-settings" aria-hidden="true"></i>
-        </button>
-        <div class="avatar" title="Profile" aria-label="User profile">M</div>
-        <button class="tb-btn" title="Apps" aria-label="All apps">
-          <i class="ti ti-grid-dots" aria-hidden="true"></i>
-        </button>
-      </div>
-    </div>
+    <!-- Left navigation component -->
+    <aside id="app-sidebar" class="app-sidebar" data-active="field-view" data-logo="true"></aside>
 
     <!-- Main Layout -->
     <div class="main">
 
-      <!-- Sidebar -->
-      <nav class="sidebar" aria-label="Navigation">
-        <div class="sidebar-header">
-          <span>Modules</span>
-          <i class="ti ti-dots" aria-hidden="true"></i>
+      <!-- Top Bar (shared component) -->
+      <header class="bp-topbar">
+        <h1 class="bp-topbar-title">Field View</h1>
+        <div class="bp-search">
+          <i class="ti ti-search" aria-hidden="true"></i>
+          <input type="text" placeholder="Search records" />
         </div>
-        <ul class="nav-list">
-          <li class="nav-item" data-route="home"><i class="ti ti-home" aria-hidden="true"></i>Home</li>
-          <li class="nav-item" data-route="config"><i class="ti ti-settings" aria-hidden="true"></i>Planner Config</li>
-          <li class="nav-divider" role="separator"></li>
-          <li class="nav-item" data-route="beats"><i class="ti ti-route" aria-hidden="true"></i>Beats</li>
-          <li class="nav-item" data-route="tracking"><i class="ti ti-navigation" aria-hidden="true"></i>Live Tracking</li>
-          <li class="nav-item active" data-route="field-view"><i class="ti ti-map" aria-hidden="true"></i>Field View</li>
-          <li class="nav-item" data-route="visits"><i class="ti ti-briefcase" aria-hidden="true"></i>Visits</li>
-          <li class="nav-item" data-route="expenses"><i class="ti ti-receipt" aria-hidden="true"></i>Expenses</li>
-          <li class="nav-item" data-route="contacts"><i class="ti ti-users" aria-hidden="true"></i>Contacts</li>
-          <li class="nav-item" data-route="deals"><i class="ti ti-topology-star" aria-hidden="true"></i>Deals</li>
-          <li class="nav-item" data-route="accounts"><i class="ti ti-building" aria-hidden="true"></i>Accounts</li>
-          <li class="nav-item" data-route="orders"><i class="ti ti-shopping-cart" aria-hidden="true"></i>Orders</li>
-        </ul>
-      </nav>
+        <div class="bp-topbar-icons">
+          <button class="bp-tb-btn plus" aria-label="Add"><i class="ti ti-plus"></i></button>
+          <button class="bp-tb-btn" aria-label="Zia"><i class="ti ti-sparkles"></i></button>
+          <button class="bp-tb-btn" aria-label="Notifications"><i class="ti ti-bell"></i><span class="bp-tb-badge">5</span></button>
+          <button class="bp-tb-btn" aria-label="Calendar"><i class="ti ti-calendar"></i></button>
+          <button class="bp-tb-btn" aria-label="Help"><i class="ti ti-help-circle"></i></button>
+          <button class="bp-tb-btn" aria-label="Settings"><i class="ti ti-settings"></i></button>
+          <div class="bp-avatar-photo">M</div>
+          <button class="bp-tb-btn" aria-label="Apps"><i class="ti ti-grid-dots"></i></button>
+        </div>
+      </header>
 
       <!-- Map Wrapper -->
       <div class="map-wrapper">
@@ -197,14 +158,15 @@
             </div>
           </div>
 
-          <div class="map-controls">
-            <button class="mc-btn" id="zoom-in" aria-label="Zoom in">+</button>
-            <button class="mc-btn" id="zoom-out" aria-label="Zoom out">−</button>
+          <div class="cb-map-controls">
+            <div class="cb-zoom">
+              <button id="zoom-in" aria-label="Zoom in">+</button>
+              <button id="zoom-out" aria-label="Zoom out">−</button>
+            </div>
           </div>
 
-          <button class="layers-btn" aria-label="Toggle layers">
-            <i class="ti ti-stack-2" aria-hidden="true"></i>
-            <span>Layers</span>
+          <button class="cb-layers" aria-label="Toggle layers">
+            <span class="cb-layers-label"><i class="ti ti-stack-2" aria-hidden="true"></i>Layers</span>
           </button>
 
           <div class="tooltip" id="tooltip" role="tooltip"></div>
@@ -292,6 +254,7 @@
   <!-- Toast Container -->
   <div class="toast-container" id="toast-container"></div>
 
+  <script src="src/sidebar.js"></script>
   <script src="src/data.js"></script>
   <script src="src/map.js"></script>
   <script src="src/app.js"></script>

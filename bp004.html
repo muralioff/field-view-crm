@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BP-004 — Beat Planner</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="src/sidebar.css" />
+  <link rel="stylesheet" href="src/topbar.css" />
+  <link rel="stylesheet" href="src/style-bottom-up.css?v=3" />
+</head>
+<body>
+  <div class="bp-app">
+    <aside id="app-sidebar" class="app-sidebar" data-active="beats"></aside>
+    <main class="bp-main">
+
+      <header class="bp-topbar">
+        <h1 class="bp-topbar-title">Beats</h1>
+        <div class="bp-search"><i class="ti ti-search" aria-hidden="true"></i><span>Search records</span></div>
+        <div class="bp-topbar-icons">
+          <button class="bp-tb-btn plus" aria-label="Add"><i class="ti ti-plus"></i></button>
+          <button class="bp-tb-btn" aria-label="Zia"><i class="ti ti-sparkles"></i></button>
+          <button class="bp-tb-btn" aria-label="Notifications"><i class="ti ti-bell"></i><span class="bp-tb-badge">5</span></button>
+          <button class="bp-tb-btn" aria-label="Calendar"><i class="ti ti-calendar"></i></button>
+          <button class="bp-tb-btn" aria-label="Help"><i class="ti ti-help-circle"></i></button>
+          <button class="bp-tb-btn" aria-label="Settings"><i class="ti ti-settings"></i></button>
+          <div class="bp-avatar-photo">M</div>
+          <button class="bp-tb-btn" aria-label="Apps"><i class="ti ti-grid-dots"></i></button>
+        </div>
+      </header>
+
+      <div class="bp-subheader">
+        <div class="bp-sub-left">
+          <button class="bp-back" aria-label="Back"><i class="ti ti-arrow-left"></i></button>
+          <div class="bp-code-avatar">B</div>
+          <div>
+            <div class="bp-sub-title-row">
+              <span class="bp-code">BP - 004</span>
+              <span class="bp-badge">Upcoming</span>
+            </div>
+            <a class="bp-addtags"><i class="ti ti-tag"></i>Add Tags</a>
+          </div>
+        </div>
+        <div class="bp-sub-right">
+          <button class="bp-round" aria-label="Zia"><i class="ti ti-sparkles"></i></button>
+          <button class="bp-btn default">Edit</button>
+          <button class="bp-navarrow" aria-label="Previous" onclick="location.href='bp003.html'"><i class="ti ti-chevron-left"></i></button>
+          <button class="bp-navarrow" aria-label="Next" disabled><i class="ti ti-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="bp-status-band bp-band-rejected">
+        <i class="ti ti-alert-triangle"></i>
+        <span>Rejected — Route is inefficient — total mileage exceeds 50 km for only "n" visits. <a href="#">Revise &amp; Submit</a></span>
+      </div>
+
+      <div class="bp-tabs">
+        <button class="bp-tab active">Overview</button>
+        <button class="bp-tab">Timeline</button>
+      </div>
+
+      <div class="bp-content">
+        <section class="bp-details card">
+          <h2>Beat Details</h2>
+          <div class="bp-detail-grid">
+            <div class="bp-detail">
+              <i class="ti ti-user-circle" style="color:#5a78ff"></i>
+              <div>
+                <div class="bp-detail-label">Beat Owner</div>
+                <div class="bp-detail-value">Marcus Webb</div>
+              </div>
+            </div>
+            <div class="bp-detail">
+              <i class="ti ti-map-pin" style="color:#c35bf4"></i>
+              <div>
+                <div class="bp-detail-label">Beat Summary</div>
+                <div class="bp-detail-value">6 Visits · 22.6 km</div>
+              </div>
+            </div>
+            <div class="bp-detail">
+              <i class="ti ti-calendar-event" style="color:#f564bb"></i>
+              <div>
+                <div class="bp-detail-label">Beat Duration</div>
+                <div class="bp-detail-value">2 Jun 2026 - 3 Jun 2026</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bp-visits-title">Visits</div>
+
+          <!-- Day 1: 2 Jun (open) -->
+          <div class="bp-day open">
+            <div class="bp-day-header"><i class="ti ti-chevron-right"></i><span>Day 1 : 2 Jun</span></div>
+            <div class="bp-day-body">
+              <div class="bp-home">
+                <i class="ti ti-current-location"></i>
+                <div><div class="bp-home-title">Home</div><div class="bp-home-addr">721 Broadway, New York, NY 10003, USA</div></div>
+              </div>
+              <ol class="bp-visits">
+                <li class="bp-visit">
+                  <div class="bp-visit-rail"><span class="bp-visit-num">1</span><span class="bp-visit-line"></span></div>
+                  <div class="bp-visit-body">
+                    <div class="bp-visit-card">
+                      <div class="bp-vc-left">
+                        <div class="bp-visit-title-row"><span class="bp-visit-title">Dana Cole Visit</span><span class="bp-visit-tag rejected">Rejected</span></div>
+                        <div class="bp-visit-meta">Order Delivery &nbsp;at&nbsp; 10:00 AM</div>
+                      </div>
+                      <button class="bp-visit-more" aria-label="More options"><i class="ti ti-dots"></i></button>
+                      <div class="bp-visit-menu">
+                        <button class="bp-menu-item danger">Cancel Visit</button>
+                        <button class="bp-menu-item">Reschedule Visit</button>
+                        <button class="bp-menu-item">Reassign User</button>
+                        <button class="bp-menu-item">Adjust Location</button>
+                      </div>
+                    </div>
+                    <div class="bp-drive"><i class="ti ti-car"></i>12 min (1.8 km)</div>
+                  </div>
+                </li>
+                <li class="bp-visit">
+                  <div class="bp-visit-rail"><span class="bp-visit-num">2</span><span class="bp-visit-line"></span></div>
+                  <div class="bp-visit-body">
+                    <div class="bp-visit-card">
+                      <div class="bp-vc-left">
+                        <div class="bp-visit-title-row"><span class="bp-visit-title">River James Visit</span><span class="bp-visit-tag rejected">Rejected</span></div>
+                        <div class="bp-visit-meta">Gate Approval &nbsp;at&nbsp; 10:45 AM</div>
+                      </div>
+                      <button class="bp-visit-more" aria-label="More options"><i class="ti ti-dots"></i></button>
+                      <div class="bp-visit-menu">
+                        <button class="bp-menu-item danger">Cancel Visit</button>
+                        <button class="bp-menu-item">Reschedule Visit</button>
+                        <button class="bp-menu-item">Reassign User</button>
+                        <button class="bp-menu-item">Adjust Location</button>
+                      </div>
+                    </div>
+                    <div class="bp-drive"><i class="ti ti-car"></i>15 min (2.2 km)</div>
+                  </div>
+                </li>
+                <li class="bp-visit">
+                  <div class="bp-visit-rail"><span class="bp-visit-num">3</span></div>
+                  <div class="bp-visit-body">
+                    <div class="bp-visit-card">
+                      <div class="bp-vc-left">
+                        <div class="bp-visit-title-row"><span class="bp-visit-title">Sage Thompson Visit</span><span class="bp-visit-tag rejected">Rejected</span></div>
+                        <div class="bp-visit-meta">Shop Delivery &nbsp;at&nbsp; 11:30 AM</div>
+                      </div>
+                      <button class="bp-visit-more" aria-label="More options"><i class="ti ti-dots"></i></button>
+                      <div class="bp-visit-menu">
+                        <button class="bp-menu-item danger">Cancel Visit</button>
+                        <button class="bp-menu-item">Reschedule Visit</button>
+                        <button class="bp-menu-item">Reassign User</button>
+                        <button class="bp-menu-item">Adjust Location</button>
+                      </div>
+                    </div>
+                    <div class="bp-drive"><i class="ti ti-car"></i>18 min (2.8 km)</div>
+                  </div>
+                </li>
+              </ol>
+              <div class="bp-home">
+                <i class="ti ti-map-pin" style="color:#f5484a"></i>
+                <div><div class="bp-home-title">Office</div><div class="bp-home-addr">33 3rd Ave, New York, NY 10003, US</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Day 2: 3 Jun -->
+          <div class="bp-day">
+            <div class="bp-day-header"><i class="ti ti-chevron-right"></i><span>Day 2 : 3 Jun</span></div>
+            <div class="bp-day-body">
+              <div class="bp-home">
+                <i class="ti ti-current-location"></i>
+                <div><div class="bp-home-title">Home</div><div class="bp-home-addr">721 Broadway, New York, NY 10003, USA</div></div>
+              </div>
+              <ol class="bp-visits">
+                <li class="bp-visit">
+                  <div class="bp-visit-rail"><span class="bp-visit-num">1</span><span class="bp-visit-line"></span></div>
+                  <div class="bp-visit-body">
+                    <div class="bp-visit-card">
+                      <div class="bp-vc-left">
+                        <div class="bp-visit-title-row"><span class="bp-visit-title">Phoenix Grant Visit</span><span class="bp-visit-tag rejected">Rejected</span></div>
+                        <div class="bp-visit-meta">Order Approval &nbsp;at&nbsp; 10:00 AM</div>
+                      </div>
+                      <button class="bp-visit-more" aria-label="More options"><i class="ti ti-dots"></i></button>
+                      <div class="bp-visit-menu">
+                        <button class="bp-menu-item danger">Cancel Visit</button>
+                        <button class="bp-menu-item">Reschedule Visit</button>
+                        <button class="bp-menu-item">Reassign User</button>
+                        <button class="bp-menu-item">Adjust Location</button>
+                      </div>
+                    </div>
+                    <div class="bp-drive"><i class="ti ti-car"></i>12 min (1.8 km)</div>
+                  </div>
+                </li>
+                <li class="bp-visit">
+                  <div class="bp-visit-rail"><span class="bp-visit-num">2</span><span class="bp-visit-line"></span></div>
+                  <div class="bp-visit-body">
+                    <div class="bp-visit-card">
+                      <div class="bp-vc-left">
+                        <div class="bp-visit-title-row"><span class="bp-visit-title">Emery Walsh Visit</span><span class="bp-visit-tag rejected">Rejected</span></div>
+                        <div class="bp-visit-meta">Order Delivery &nbsp;at&nbsp; 10:45 AM</div>
+                      </div>
+                      <button class="bp-visit-more" aria-label="More options"><i class="ti ti-dots"></i></button>
+                      <div class="bp-visit-menu">
+                        <button class="bp-menu-item danger">Cancel Visit</button>
+                        <button class="bp-menu-item">Reschedule Visit</button>
+                        <button class="bp-menu-item">Reassign User</button>
+                        <button class="bp-menu-item">Adjust Location</button>
+                      </div>
+                    </div>
+                    <div class="bp-drive"><i class="ti ti-car"></i>15 min (2.2 km)</div>
+                  </div>
+                </li>
+                <li class="bp-visit">
+                  <div class="bp-visit-rail"><span class="bp-visit-num">3</span></div>
+                  <div class="bp-visit-body">
+                    <div class="bp-visit-card">
+                      <div class="bp-vc-left">
+                        <div class="bp-visit-title-row"><span class="bp-visit-title">Rowan Blake Visit</span><span class="bp-visit-tag rejected">Rejected</span></div>
+                        <div class="bp-visit-meta">Gate Approval &nbsp;at&nbsp; 11:30 AM</div>
+                      </div>
+                      <button class="bp-visit-more" aria-label="More options"><i class="ti ti-dots"></i></button>
+                      <div class="bp-visit-menu">
+                        <button class="bp-menu-item danger">Cancel Visit</button>
+                        <button class="bp-menu-item">Reschedule Visit</button>
+                        <button class="bp-menu-item">Reassign User</button>
+                        <button class="bp-menu-item">Adjust Location</button>
+                      </div>
+                    </div>
+                    <div class="bp-drive"><i class="ti ti-car"></i>18 min (2.8 km)</div>
+                  </div>
+                </li>
+              </ol>
+              <div class="bp-home">
+                <i class="ti ti-map-pin" style="color:#f5484a"></i>
+                <div><div class="bp-home-title">Office</div><div class="bp-home-addr">33 3rd Ave, New York, NY 10003, US</div></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="bp-routemap card">
+          <div class="bp-routemap-header">
+            <h2>Route Map</h2>
+            <a href="#">View Full Map <i class="ti ti-arrow-up-right"></i></a>
+          </div>
+          <div class="map-area" id="map-area">
+            <canvas id="map-canvas" aria-label="Route map"></canvas>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="src/data.js"></script>
+  <script src="src/map.js"></script>
+  <script src="src/sidebar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const fieldMap = new FieldMap('map-canvas', 'map-area');
+
+      const BEAT_HOME   = { x: 250, y: 590 };
+      const BEAT_OFFICE = { x: 700, y: 560 };
+      const BEAT_DAYS = [
+        { visits: [{ x:180,y:350 },{ x:220,y:450 },{ x:320,y:490 }] },
+        { visits: [{ x:370,y:240 },{ x:450,y:190 },{ x:560,y:200 }] },
+      ];
+
+      fieldMap._beatDays      = BEAT_DAYS;
+      fieldMap._beatHome      = BEAT_HOME;
+      fieldMap._beatOffice    = BEAT_OFFICE;
+      fieldMap._activeBeatDay = 0;
+
+      fieldMap.draw = function () {
+        const { ctx, canvas } = this;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save();
+        ctx.translate(this.panX, this.panY);
+        ctx.scale(this.scale, this.scale);
+        this._drawBackground(); this._drawBlocks(); this._drawWater(); this._drawRoads();
+        this._drawBeatRoutes(); this._drawBeatPins();
+        ctx.restore();
+      };
+
+      fieldMap._drawBeatRoutes = function () {
+        const { ctx } = this;
+        this._beatDays.forEach((day, i) => {
+          const active = i === this._activeBeatDay;
+          const pts = [this._beatHome, ...day.visits, this._beatOffice];
+          ctx.save();
+          ctx.strokeStyle = active ? '#6c63ff' : '#c0c7d4';
+          ctx.lineWidth   = (active ? 2.5 : 1.5) / this.scale;
+          ctx.globalAlpha = active ? 1 : 0.65;
+          ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+          if (!active) ctx.setLineDash([5 / this.scale, 4 / this.scale]);
+          ctx.beginPath();
+          ctx.moveTo(pts[0].x, pts[0].y);
+          pts.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
+          ctx.stroke();
+          ctx.restore();
+        });
+      };
+
+      fieldMap._drawBeatPins = function () {
+        const { ctx } = this;
+        const ACTIVE = '#6c63ff', GREY = '#9ca3af';
+        const r = 11 / this.scale;
+        this._beatDays.forEach((day, i) => {
+          const active = i === this._activeBeatDay;
+          const col = active ? ACTIVE : GREY;
+          ctx.save();
+          ctx.globalAlpha = active ? 1 : 0.5;
+          day.visits.forEach((v, vi) => {
+            ctx.beginPath(); ctx.arc(v.x, v.y, r, 0, Math.PI * 2);
+            ctx.fillStyle = active ? col : '#ffffff'; ctx.fill();
+            ctx.strokeStyle = col; ctx.lineWidth = 1.5 / this.scale; ctx.stroke();
+            ctx.fillStyle = active ? '#ffffff' : col;
+            ctx.font = `600 ${10 / this.scale}px system-ui, sans-serif`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(vi + 1, v.x, v.y);
+          });
+          ctx.restore();
+        });
+        this._drawSinglePin(this._beatHome.x,   this._beatHome.y,   '#10b981', 0, false);
+        this._drawSinglePin(this._beatOffice.x,  this._beatOffice.y, '#ef4444', 0, false);
+      };
+
+      fieldMap.resize = function () {
+        this.canvas.width  = this.area.offsetWidth;
+        this.canvas.height = this.area.offsetHeight;
+        this.scale = 0.65;
+        this.panX  = this.canvas.width  / 2 - 450 * this.scale;
+        this.panY  = this.canvas.height / 2 - 390 * this.scale;
+        this.draw();
+      };
+      fieldMap.resize();
+
+      document.querySelectorAll('.bp-tabs .bp-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.bp-tabs .bp-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+        });
+      });
+
+      const dayEls = Array.from(document.querySelectorAll('.bp-day'));
+      dayEls.forEach((dayEl, idx) => {
+        dayEl.querySelector('.bp-day-header').addEventListener('click', () => {
+          if (dayEl.classList.contains('open')) return;
+          dayEls.forEach(d => d.classList.remove('open'));
+          dayEl.classList.add('open');
+          fieldMap._activeBeatDay = idx;
+          fieldMap.draw();
+        });
+      });
+
+      document.querySelectorAll('.bp-visit-more').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const card = btn.closest('.bp-visit-card');
+          const isOpen = card.classList.contains('menu-open');
+          document.querySelectorAll('.bp-visit-card.menu-open').forEach(c => c.classList.remove('menu-open'));
+          if (!isOpen) card.classList.add('menu-open');
+        });
+      });
+      document.addEventListener('click', () => {
+        document.querySelectorAll('.bp-visit-card.menu-open').forEach(c => c.classList.remove('menu-open'));
+      });
+    });
+  </script>
+</body>
+</html>

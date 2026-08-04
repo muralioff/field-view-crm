@@ -106,19 +106,22 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ── Search ── */
-  document.querySelector('.search-bar input').addEventListener('input', e => {
-    const query = e.target.value.trim().toLowerCase();
-    if (!query) {
-      fieldMap.setModule(moduleLabel.textContent === 'All Modules' ? 'all' : moduleLabel.textContent.toLowerCase());
-      return;
-    }
-    fieldMap._visiblePinsOverride = PINS.filter(p =>
-      p.label.toLowerCase().includes(query) ||
-      p.module.toLowerCase().includes(query) ||
-      p.status.toLowerCase().includes(query)
-    );
-    fieldMap.draw();
-  });
+  const searchInput = document.querySelector('.bp-search input, .search-bar input');
+  if (searchInput) {
+    searchInput.addEventListener('input', e => {
+      const query = e.target.value.trim().toLowerCase();
+      if (!query) {
+        fieldMap.setModule(moduleLabel.textContent === 'All Modules' ? 'all' : moduleLabel.textContent.toLowerCase());
+        return;
+      }
+      fieldMap._visiblePinsOverride = PINS.filter(p =>
+        p.label.toLowerCase().includes(query) ||
+        p.module.toLowerCase().includes(query) ||
+        p.status.toLowerCase().includes(query)
+      );
+      fieldMap.draw();
+    });
+  }
 
   /* ── Keyboard shortcuts ── */
   document.addEventListener('keydown', e => {
@@ -136,31 +139,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   document.addEventListener('click', () => closeAllDropdowns(null));
 
-  /* ── Version Toggle ── */
-  let activeVersion = 'v1';
-  const btnV1 = document.getElementById('btn-v1');
-  const btnV2 = document.getElementById('btn-v2');
-
-  btnV1.addEventListener('click', () => {
-    if (activeVersion === 'v1') return;
-    activeVersion = 'v1';
-    btnV1.classList.add('active');
-    btnV2.classList.remove('active');
-    if (sheetV2.classList.contains('open')) {
-      closeSheetV2();
-    }
-  });
-
-  btnV2.addEventListener('click', () => {
-    if (activeVersion === 'v2') return;
-    activeVersion = 'v2';
-    btnV2.classList.add('active');
-    btnV1.classList.remove('active');
-    if (sheet.classList.contains('open')) {
-      closeSheet();
-      openSheetV2();
-    }
-  });
+  /* V1 is the only version now (V1/V2 toggle removed). */
+  const activeVersion = 'v1';
 
   /* ════════════════════════════════════════════
      Non Mappable Records Sheet
