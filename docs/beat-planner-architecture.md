@@ -225,7 +225,8 @@ Unassigned/unplaceable list: `{ record, meeting_type, reason_code }`.
 ## 7. This repo (current prototype)
 
 HTML/CSS/JS prototype of the **Field View** (map) side. Existing files:
-- `index.html` — dark-theme Field View (canvas map, pins, V1/V2 NM sheet, address-update modal, pick-on-map mode).
+- `index.html` — landing page; navigation links to Field View, Create Beat and Bottom-Up.
+- `non-map.html` — dark-theme Field View (canvas map, pins, V1/V2 NM sheet, address-update modal, pick-on-map mode).
 - `index-daymode.html` + `src/style-daymode.css` — light/day-mode variant.
 - `src/` — `data.js`, `map.js` (canvas pan/zoom + pins), `app.js` (interactions), `style.css`.
 

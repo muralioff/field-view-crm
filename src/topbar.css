@@ -1,6 +1,6 @@
 /* ============================================================
    Top bar — shared component (from Figma Beat Planner)
-   Used by index.html and bottom-up.html.
+   Used by non-map.html and bottom-up.html.
    Markup: <header class="bp-topbar"> title + search + icons </header>
    ============================================================ */
 .bp-topbar {

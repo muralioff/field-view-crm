@@ -7,14 +7,14 @@
    ============================================================ */
 (function () {
   const TOP_ITEMS = [
-    { key: 'home',   label: 'Home',                  icon: 'ti-home',     href: 'home.html' },
+    { key: 'home',   label: 'Home',                  icon: 'ti-home',     href: 'index.html' },
     { key: 'config', label: 'Planner Configuration', icon: 'ti-settings', href: '#' },
   ];
 
   const MODULE_ITEMS = [
     { key: 'beats',       label: 'Beats',         icon: 'ti-route',          href: 'bottom-up.html' },
     { key: 'tracking',    label: 'Live Tracking', icon: 'ti-navigation',     href: '#' },
-    { key: 'field-view',  label: 'Field View',    icon: 'ti-map',            href: 'index.html' },
+    { key: 'field-view',  label: 'Field View',    icon: 'ti-map',            href: 'non-map.html' },
     { key: 'visits',      label: 'Visits',        icon: 'ti-briefcase',      href: '#' },
     { key: 'expenses',    label: 'Expenses',      icon: 'ti-receipt',        href: '#' },
     { key: 'contacts',    label: 'Contacts',      icon: 'ti-users',          href: '#' },
