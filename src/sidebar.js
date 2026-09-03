@@ -8,7 +8,7 @@
 (function () {
   const TOP_ITEMS = [
     { key: 'home',   label: 'Home',                  icon: 'ti-home',     href: 'index.html' },
-    { key: 'config', label: 'Planner Configuration', icon: 'ti-settings', href: '#' },
+    { key: 'config', label: 'Planner Configuration', icon: 'ti-settings', href: 'planner-config.html' },
   ];
 
   const MODULE_ITEMS = [

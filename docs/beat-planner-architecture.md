@@ -225,7 +225,10 @@ Unassigned/unplaceable list: `{ record, meeting_type, reason_code }`.
 ## 7. This repo (current prototype)
 
 HTML/CSS/JS prototype of the **Field View** (map) side. Existing files:
-- `index.html` — landing page; navigation links to Field View, Create Beat and Bottom-Up.
+- `index.html` — landing page; navigation links to Planner Configuration, Field View, Create Beat and Bottom-Up.
+- `planner-config.html` + `src/style-planner-config.css` + `src/planner-config.js` — Planner Configuration wizard,
+  Visit Types step (Figma 132:15144 initial / 132:18984 added state): multi-colour stepper, visit-type table with
+  add/remove rows, mandatory-field checkboxes.
 - `non-map.html` — dark-theme Field View (canvas map, pins, V1/V2 NM sheet, address-update modal, pick-on-map mode).
 - `index-daymode.html` + `src/style-daymode.css` — light/day-mode variant.
 - `src/` — `data.js`, `map.js` (canvas pan/zoom + pins), `app.js` (interactions), `style.css`.
