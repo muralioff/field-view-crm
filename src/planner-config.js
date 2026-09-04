@@ -3,17 +3,32 @@
    Row behaviour taken from the reference frames:
      4115:774722 — initial state: one empty row, add (+) only,
                    duration prefilled, nothing checked
-     4115:775129 — added state:  every row gets remove (−), the last
-                   row also gets add (+); an invalid field shows a red
-                   outline and an inline message under the input
+     4115:775129 — every row gets remove (−), the last row also gets
+                   add (+); invalid fields are outlined red
    Return in the visit-type field adds the next row.
+
+   An invalid visit-type or duration field gets a red outline only, so
+   the row never grows. One tooltip carries the message: it opens on
+   the first invalid field and hands over to whichever invalid field
+   the pointer moves to, so exactly one is on screen at a time.
    ============================================================ */
 (function () {
   /* Duration a fresh row starts with, per the reference frames */
   const DEFAULT_DURATION = '15';
 
+  const MESSAGES = {
+    emptyName:     'Field cannot be empty.',
+    emptyDuration: 'Field cannot be empty.',
+    duplicateName: 'Visit type already exists.',
+    zeroDuration:  'Duration must be above 0.',
+  };
+
   const rowsEl = document.getElementById('pc-rows');
+  const bodyEl = document.querySelector('.pc-body');
   const toastEl = document.getElementById('pc-toast');
+  const tipEl = document.getElementById('pc-tip');
+
+  let tipField = null;   // the field the tooltip currently points at
 
   function rowHtml(row) {
     return `
@@ -59,26 +74,66 @@
     });
   }
 
-  /* ── Inline field errors ───────────────────────────── */
-  function setError(field, message) {
+  /* ── The one tooltip, moved between invalid fields ─── */
+  function showTip(field) {
+    if (!field || !field.dataset.error) return hideTip();
+    tipField = field;
+    tipEl.textContent = field.dataset.error;
+    tipEl.classList.add('show');
+    tipEl.setAttribute('aria-hidden', 'false');
+    placeTip();
+  }
+
+  function placeTip() {
+    if (!tipField) return;
+    const r = tipField.getBoundingClientRect();
+    /* Hide rather than float loose when the field scrolls out of the table */
+    const body = bodyEl.getBoundingClientRect();
+    if (r.bottom < body.top || r.top > body.bottom) {
+      tipEl.classList.remove('show');
+      return;
+    }
+    tipEl.classList.add('show');
+    tipEl.style.top = `${r.bottom + 6}px`;
+    /* Left-align with the field, pulled in if it would leave the viewport */
+    const width = tipEl.offsetWidth;
+    const left = Math.min(r.left, window.innerWidth - width - 12);
+    tipEl.style.left = `${left}px`;
+    /* Arrow points at the field even after that nudge */
+    tipEl.style.setProperty('--tip-arrow', `${Math.max(10, r.left - left + 24)}px`);
+  }
+
+  function hideTip() {
+    tipField = null;
+    tipEl.classList.remove('show');
+    tipEl.setAttribute('aria-hidden', 'true');
+  }
+
+  /* Always leave one tooltip up: fall back to the first field still invalid */
+  function retargetTip() {
+    if (tipField && tipField.isConnected && tipField.dataset.error) return placeTip();
+    const next = rowsEl.querySelector('.pc-field.invalid');
+    if (next) showTip(next); else hideTip();
+  }
+
+  /* ── Field errors ──────────────────────────────────── */
+  function setError(field, key) {
     clearError(field);
     field.classList.add('invalid');
     field.setAttribute('aria-invalid', 'true');
-    const msg = document.createElement('span');
-    msg.className = 'pc-error';
-    msg.textContent = message;
-    field.parentElement.appendChild(msg);
+    field.dataset.error = MESSAGES[key];
   }
 
   function clearError(field) {
     field.classList.remove('invalid');
     field.removeAttribute('aria-invalid');
-    const msg = field.parentElement.querySelector('.pc-error');
-    if (msg) msg.remove();
+    delete field.dataset.error;
+    if (tipField === field) tipField = null;
   }
 
   function clearAllErrors() {
     rowsEl.querySelectorAll('.pc-field').forEach(clearError);
+    hideTip();
   }
 
   function toast(message) {
@@ -99,6 +154,7 @@
       btn.closest('.pc-tr').remove();
       syncActions();
     }
+    retargetTip();
   });
 
   /* Return in the visit-type field adds the next row, once this one has a name */
@@ -112,8 +168,9 @@
       .filter(other => other !== tr)
       .map(other => [other.querySelector('.pc-name').value.trim().toLowerCase(), true]));
     clearError(name);
-    if (!checkName(name, seen)) return;
+    if (!checkName(name, seen)) { retargetTip(); return; }
     addRow(null, tr).querySelector('.pc-name').focus();
+    retargetTip();
   });
 
   rowsEl.addEventListener('input', e => {
@@ -123,41 +180,45 @@
       field.value = field.value.replace(/\D/g, '').slice(0, 3);
     }
     /* An error clears as soon as the field is edited */
-    if (field.classList.contains('invalid')) clearError(field);
+    if (field.classList.contains('invalid')) { clearError(field); retargetTip(); }
   });
+
+  /* Hovering another invalid field hands the tooltip over to it */
+  rowsEl.addEventListener('mouseover', e => {
+    const field = e.target.closest('.pc-field.invalid');
+    if (field && field !== tipField) showTip(field);
+  });
+
+  bodyEl.addEventListener('scroll', placeTip);
+  window.addEventListener('resize', placeTip);
 
   /* Checks one row's name against the names above it. Returns true when clean. */
   function checkName(name, seen) {
     const value = name.value.trim();
     const key = value.toLowerCase();
-    if (!value) { setError(name, 'Visit type cannot be empty'); return false; }
-    if (seen.has(key)) { setError(name, 'Visit type already exists'); return false; }
+    if (!value) { setError(name, 'emptyName'); return false; }
+    if (seen.has(key)) { setError(name, 'duplicateName'); return false; }
     seen.set(key, true);
     return true;
   }
 
   function validate() {
     clearAllErrors();
-    const rows = [...rowsEl.children];
     const seen = new Map();
-    let firstBad = null;
 
-    rows.forEach(tr => {
+    [...rowsEl.children].forEach(tr => {
       const name = tr.querySelector('.pc-name');
       const duration = tr.querySelector('.pc-duration');
       checkName(name, seen);
 
-      /* Kept short so the message fits the narrow duration column on one line */
-      if (!duration.value.trim()) {
-        setError(duration, 'Cannot be empty');
-      } else if (Number(duration.value) === 0) {
-        setError(duration, 'Must be above 0');
-      }
+      if (!duration.value.trim()) setError(duration, 'emptyDuration');
+      else if (Number(duration.value) === 0) setError(duration, 'zeroDuration');
     });
 
-    firstBad = rowsEl.querySelector('.pc-field.invalid');
-    if (firstBad) { firstBad.focus(); return false; }
-    return true;
+    const firstBad = rowsEl.querySelector('.pc-field.invalid');
+    if (!firstBad) return true;
+    showTip(firstBad);
+    return false;
   }
 
   document.getElementById('pc-next').addEventListener('click', () => {

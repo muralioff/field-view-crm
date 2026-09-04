@@ -1,7 +1,10 @@
 /* ============================================================
    Planner Configuration — Visit Types step
-   Figma nodes 132:15144 (initial state) / 132:18984 (added state)
+   Figma nodes 4115:774722 (initial state) / 4115:775129 (errors)
    Sidebar lives in src/sidebar.css, top bar in src/topbar.css.
+
+   An invalid field gets a red outline only; the message lives in a
+   single tooltip that follows the pointer between invalid fields.
    ============================================================ */
 :root {
   --pc-bg:            #eef1f9;
@@ -28,6 +31,10 @@
   --pc-input-focus:   #5464f2;
   --pc-input-error:   #ff5d5a;
   --pc-placeholder:   #7c8bae;
+
+  /* Tooltip (type 2 errors) */
+  --pc-tip-border:    #c5c4d3;
+  --pc-tip-shadow:    rgba(0, 0, 0, 0.15);
 
   /* Message info */
   --pc-info-bg:       #f9faff;
@@ -257,25 +264,11 @@ body {
 
 .pc-field::placeholder { color: var(--pc-placeholder); }
 
-/* A field cell stacks its input above an inline error message */
-.pc-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  justify-content: center;
-}
-
-.pc-error {
-  font-size: 11px;
-  line-height: normal;
-  color: var(--pc-input-error);
-}
+.pc-cell { display: flex; align-items: center; }
 
 .pc-field.invalid { border-color: var(--pc-input-error); }
 .pc-field.invalid:focus { border-color: var(--pc-input-error); }
 
-/* Non-field cells stay aligned with the 34px input, not centred in a
-   row that an inline error has made taller */
 .pc-cell-center {
   height: 34px;
   display: flex;
@@ -335,6 +328,42 @@ body {
 .pc-icon-btn[hidden] { display: none; }
 .pc-icon-btn.remove { color: var(--pc-remove); }
 .pc-icon-btn.add { color: var(--pc-add); }
+
+/* ── Error tooltip (type 2) ──────────────────────── */
+.pc-tip {
+  position: fixed;
+  z-index: 40;
+  max-width: 320px;
+  padding: 8px 12px;
+  background: var(--pc-card);
+  border: 1px solid var(--pc-tip-border);
+  border-radius: 6px;
+  box-shadow: 0 3px 12px var(--pc-tip-shadow);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  color: var(--pc-input-error);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s;
+}
+
+.pc-tip.show { opacity: 1; visibility: visible; }
+
+/* Upward arrow: a square rotated so only its top-left edges show */
+.pc-tip::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: var(--tip-arrow, 30px);
+  width: 11px;
+  height: 11px;
+  background: var(--pc-card);
+  border-left: 1px solid var(--pc-tip-border);
+  border-top: 1px solid var(--pc-tip-border);
+  transform: rotate(45deg);
+}
 
 /* ── Footer action bar ───────────────────────────── */
 .pc-footer {
