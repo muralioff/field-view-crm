@@ -1,0 +1,330 @@
+/* ============================================================
+   Planner Configuration wizard — shared chrome
+   Used by planner-config.html (step 1) and visit-types.html (step 2).
+   Sidebar lives in src/sidebar.css, top bar in src/topbar.css.
+
+   Holds the tokens, page shell, stepper, form fields, the error
+   tooltip, the footer bar and the toast. Anything specific to one
+   step lives in that step's own stylesheet.
+   ============================================================ */
+:root {
+  --pc-bg:            #eef1f9;
+  --pc-card:          #ffffff;
+  --pc-heading:       #202123;
+  --pc-base:          #313949;
+  --pc-para:          #434d5e;
+  --pc-label:         #616e88;
+
+  /* Stepper */
+  --pc-step-done-bg:      #f1fff4;
+  --pc-step-done-border:  #89d69c;
+  --pc-step-done-icon:    #12aa67;
+  --pc-step-active-bg:    #fffaf2;
+  --pc-step-active-border:#f7a973;
+  --pc-step-active-icon:  #f7a973;
+  --pc-step-idle-bg:      #f2f3fa;
+  --pc-step-idle-icon:    #b6bed2;
+
+  /* Table */
+  --pc-table-border:  #d7e2ed;
+  --pc-row-border:    #edf0f4;
+  --pc-input-border:  #c0c8e2;
+  --pc-input-focus:   #5464f2;
+  --pc-input-error:   #ff5d5a;
+  --pc-placeholder:   #7c8bae;
+
+  /* Tooltip (type 2 errors) */
+  --pc-tip-border:    #c5c4d3;
+  --pc-tip-shadow:    rgba(0, 0, 0, 0.15);
+
+  /* Message info */
+  --pc-info-bg:       #f9faff;
+  --pc-info-border:   #dcdbee;
+
+  /* Actions */
+  --pc-remove:        #ff5d5a;
+  --pc-add:           #12aa67;
+
+  /* Buttons */
+  --pc-btn-border:    #d5d8e9;
+  --pc-primary-top:   #5767f6;
+  --pc-primary-bot:   #124dc3;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  font-family: 'Zoho Puvi', 'Puvi', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--pc-base);
+  background: var(--pc-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+.pc-app { display: flex; height: 100vh; overflow: hidden; }
+
+.pc-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--pc-bg);
+}
+
+/* ── Content card ─────────────────────────────────── */
+.pc-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--pc-card);
+}
+
+.pc-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* ── Multi-colour stepper ─────────────────────────── */
+.pc-stepper { display: flex; align-items: stretch; }
+
+.pc-step {
+  --arrow: 12px;
+  position: relative;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 22px;
+  font-size: 14px;
+  color: var(--pc-base);
+  white-space: nowrap;
+  /* Outer layer paints the 1px chevron outline, ::before paints the fill */
+  background: var(--pc-step-border, var(--pc-step-bg));
+  clip-path: polygon(0 0, calc(100% - var(--arrow)) 0, 100% 50%,
+                     calc(100% - var(--arrow)) 100%, 0 100%, var(--arrow) 50%);
+  margin-left: calc(var(--arrow) * -1);
+}
+
+.pc-step::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  background: var(--pc-step-bg);
+  border-radius: inherit;
+  clip-path: inherit;
+}
+
+.pc-step > * { position: relative; }
+
+.pc-step:first-child {
+  margin-left: 0;
+  padding-left: 10px;
+  border-radius: 6px 0 0 6px;
+  clip-path: polygon(0 0, calc(100% - var(--arrow)) 0, 100% 50%,
+                     calc(100% - var(--arrow)) 100%, 0 100%);
+}
+
+.pc-step:last-child {
+  border-radius: 0 6px 6px 0;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, var(--arrow) 50%);
+}
+
+/* Step markers: a ticked disc when complete, a dot otherwise.
+   Drawn in CSS because the Tabler webfont ships outline glyphs only. */
+.pc-marker {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pc-marker::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.pc-step.done {
+  --pc-step-bg: var(--pc-step-done-bg);
+  --pc-step-border: var(--pc-step-done-border);
+}
+
+.pc-step.done .pc-marker {
+  background: var(--pc-step-done-icon);
+  border-radius: 50%;
+}
+
+.pc-step.done .pc-marker::after {
+  width: 4px;
+  height: 7px;
+  margin-top: -2px;
+  border: 1.6px solid #fff;
+  border-top: none;
+  border-left: none;
+  border-radius: 0;
+  background: none;
+  transform: rotate(45deg);
+}
+
+.pc-step.active {
+  --pc-step-bg: var(--pc-step-active-bg);
+  --pc-step-border: var(--pc-step-active-border);
+  font-weight: 500;
+}
+.pc-step.active .pc-marker { color: var(--pc-step-active-icon); }
+
+.pc-step.idle {
+  --pc-step-bg: var(--pc-step-idle-bg);
+  --pc-step-border: #ffffff; /* thin white chevron separator */
+}
+.pc-step.idle .pc-marker { color: var(--pc-step-idle-icon); }
+
+/* Inputs */
+.pc-field {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  background: var(--pc-card);
+  border: 1px solid var(--pc-input-border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--pc-base);
+  outline: none;
+}
+
+.pc-field:focus { border-color: var(--pc-input-focus); }
+
+.pc-field::placeholder { color: var(--pc-placeholder); }
+
+.pc-cell { display: flex; align-items: center; }
+
+.pc-field.invalid { border-color: var(--pc-input-error); }
+.pc-field.invalid:focus { border-color: var(--pc-input-error); }
+
+/* ── Inline field error (Figma 4968:800480) ──────── */
+/* Stacks a field above its message; used in the dialogs, where there is
+   room to grow. Tables use the tooltip below instead. */
+.pc-field-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.pc-field-cell > .pc-field { width: 100%; }
+
+.pc-field-msg {
+  font-size: 11px;
+  line-height: 13px;
+  color: var(--pc-input-error);
+}
+
+/* The criteria row's widths belong to the cells now, so a message can
+   grow a cell without stretching its neighbours */
+.pc-crit-fields > .pc-field-cell.attr { width: 200px; flex-shrink: 0; }
+.pc-crit-fields > .pc-field-cell.op   { width: 150px; flex-shrink: 0; }
+.pc-crit-fields > .pc-field-cell.val  { flex: 1; min-width: 0; }
+
+/* ── Error tooltip ───────────────────────────────── */
+.pc-tip {
+  position: fixed;
+  z-index: 40;
+  max-width: 320px;
+  padding: 8px 12px;
+  background: var(--pc-card);
+  border: 1px solid var(--pc-tip-border);
+  border-radius: 6px;
+  box-shadow: 0 3px 12px var(--pc-tip-shadow);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  color: var(--pc-input-error);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s;
+}
+
+.pc-tip.show { opacity: 1; visibility: visible; }
+
+/* Upward arrow: a square rotated so only its top-left edges show */
+.pc-tip::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: var(--tip-arrow, 30px);
+  width: 11px;
+  height: 11px;
+  background: var(--pc-card);
+  border-left: 1px solid var(--pc-tip-border);
+  border-top: 1px solid var(--pc-tip-border);
+  transform: rotate(45deg);
+}
+
+/* ── Footer action bar ───────────────────────────── */
+.pc-footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 30px 11px 10px;
+  background: var(--pc-card);
+  border-top: 1px solid var(--pc-table-border);
+}
+
+.pc-footer-right { display: flex; align-items: center; gap: 12px; }
+
+.pc-btn {
+  height: 32px;
+  padding: 0 12px 0 14px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.pc-btn.default {
+  background: linear-gradient(to bottom, #fff, #f1f0f7);
+  border: 1px solid var(--pc-btn-border);
+  color: var(--pc-base);
+}
+
+.pc-btn.primary {
+  background: linear-gradient(to top, var(--pc-primary-bot), var(--pc-primary-top));
+  border: none;
+  color: #fff;
+}
+
+.pc-btn.primary:hover { filter: brightness(1.05); }
+
+/* ── Toast ───────────────────────────────────────── */
+.pc-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%) translateY(12px);
+  padding: 10px 16px;
+  background: #223458;
+  color: #fff;
+  font-size: 13px;
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s, transform 0.18s;
+}
+
+.pc-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }

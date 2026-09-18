@@ -1,0 +1,282 @@
+/* ============================================================
+   Module & Address Mapping — layout B
+   Spacing and type inherited from Figma 4979:803081
+   ("Head with Description"). Reuses the shared tokens and the
+   criteria builder's classes; everything else here is B's own.
+
+   The measurements that frame carries, for reference:
+     modal 851 wide · 30px side padding · 791px content column
+     header  25 / 30 / 20      footer  20 / 30 / 30
+     divider #dcdbee with 20 above and 20 below
+     field column starts 110px in; fields 390 wide
+     label column 94 (plain) / 54 + arrow at 90 (mapping)
+     rows 20 apart · radios 20 apart · radio to its label 8
+   ============================================================ */
+
+/* ── Shell ───────────────────────────────────────── */
+.mb-modal {
+  width: 851px;
+  max-width: calc(100vw - 40px);
+  max-height: min(900px, calc(100vh - 40px));
+  display: flex;
+  flex-direction: column;
+  background: var(--pc-card);
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+}
+
+.pc-overlay.show .mb-modal { animation: pc-modal-drop 0.24s cubic-bezier(0.2, 0.8, 0.3, 1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-overlay.show .mb-modal { animation: none; }
+}
+
+/* No rule under the header or over the footer — a shadow appears instead,
+   and only while there is content scrolled behind them. z-index keeps that
+   shadow above the body rather than under it. */
+.mb-head {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  padding: 25px 30px 20px;
+  transition: box-shadow 0.15s ease;
+}
+
+.mb-modal.scrolled .mb-head { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07); }
+
+.mb-title {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 25px;
+  color: var(--pc-heading);
+}
+
+.mb-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 30px;
+}
+
+/* The description sits in the body and scrolls with it, as in the frame */
+.mb-sub {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--pc-para);
+}
+
+.mb-form { margin-top: 30px; padding-top: 10px; }
+
+.mb-foot {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 20px 30px 30px;
+  transition: box-shadow 0.15s ease;
+}
+
+.mb-modal.more-below .mb-foot { box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.07); }
+
+@media (prefers-reduced-motion: reduce) {
+  .mb-head, .mb-foot { transition: none; }
+}
+
+/* ── Sections ────────────────────────────────────── */
+.mb-section + .mb-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--pc-divider-3);
+}
+
+/* ── Fields ──────────────────────────────────────── */
+/* Label column then control column; the control edge is the same 110px in
+   for plain and mapping rows alike */
+.mb-field {
+  display: grid;
+  grid-template-columns: 94px 1fr;
+  gap: 16px;
+  align-items: start;
+  min-width: 0;
+}
+
+.mb-label {
+  padding-top: 7px;            /* centres the label against a 34px control */
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--pc-label);
+  text-align: right;
+}
+
+.mb-control { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+.mb-field .pc-field { width: 100%; max-width: 390px; }
+
+.mb-help,
+.mb-hint {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--pc-label);
+}
+
+.mb-hint { font-style: italic; }
+
+/* ── Address part mapping ────────────────────────── */
+.mb-grid { display: flex; flex-direction: column; gap: 20px; margin-top: 20px; }
+
+.mb-map-row { display: flex; align-items: flex-start; }
+
+/* Width per address type, so a long label keeps its own line and the arrows
+   still line up down the column */
+.mb-map-row .mb-label {
+  width: var(--mb-map-label-w, 54px);
+  height: 34px;
+  flex-shrink: 0;
+  padding-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* The example lives behind this rather than under the field */
+.mb-info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  color: var(--pc-label);
+  font-size: 12px;
+  cursor: help;
+}
+
+/* Anchored to the icon's left edge rather than centred — the icon sits near
+   the dialog's left edge, so a centred tooltip would run off it */
+.mb-info-tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: -10px;
+  z-index: 5;
+  width: max-content;
+  max-width: 280px;
+  padding: 8px 12px;
+  background: var(--pc-card);
+  border: 1px solid var(--pc-tip-border);
+  border-radius: 6px;
+  box-shadow: 0 3px 12px var(--pc-tip-shadow);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  color: var(--pc-base);
+  white-space: normal;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease;
+}
+
+/* Focus opens it too, so it is not hover-only */
+.mb-info:hover .mb-info-tip,
+.mb-info:focus-visible .mb-info-tip { opacity: 1; visibility: visible; }
+
+/* Downward arrow, mirroring the error tooltip's */
+.mb-info-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 14px;
+  width: 11px;
+  height: 11px;
+  margin-top: -6px;
+  background: var(--pc-card);
+  border-right: 1px solid var(--pc-tip-border);
+  border-bottom: 1px solid var(--pc-tip-border);
+  transform: rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mb-info-tip { transition: none; }
+}
+
+.mb-map-arrow {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin: 9px 4px 0 36px;      /* 54 + 36 = 90, 16 wide, then 4 to the field */
+  /* The source icon is a back-left arrow; the design mirrors it to point
+     at the field it maps onto */
+  transform: scaleX(-1);
+}
+
+.mb-map-row .mb-control { width: 390px; }
+
+/* ── Radio groups ────────────────────────────────── */
+/* Address Type and Record Scope head their group rather than taking a
+   right-aligned label, so what follows can use the full width */
+.mb-group-head {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--pc-heading);
+}
+
+.mb-radios {
+  display: flex;
+  gap: 20px;
+  margin-top: 7px;
+  padding: 8px 0 4px;
+}
+
+.mb-radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--pc-base);
+  cursor: pointer;
+}
+
+.mb-radios + .mb-help { margin-top: 4px; }
+
+.mb-radio input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  position: relative;
+  border: 2px solid var(--pc-input-border);
+  border-radius: 50%;
+  background: var(--pc-card);
+  cursor: pointer;
+}
+
+.mb-radio input[type="radio"]:checked { border-color: var(--pc-input-focus); }
+
+.mb-radio input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: var(--pc-input-focus);
+}
+
+/* Record Scope keeps its own rhythm: 15 to the radios, 15 to the criteria */
+.mb-scope .mb-radios { margin-top: 15px; padding: 0; gap: 25px; }
+.mb-scope .mb-criteria { margin-top: 15px; }
+
+/* ── Criteria ────────────────────────────────────── */
+/* Borrows the builder from layout A; only the framing differs. Full width —
+   indenting it past the label column squeezed the value input to nothing. */
+.mb-criteria {
+  padding: 16px 20px 4px;
+  background: var(--pc-badge-bg);
+  border: 1px solid var(--pc-row-border);
+  border-radius: 8px;
+}
+
+.mb-criteria .pc-crit-pattern { padding-top: 12px; }
+.mb-criteria .pc-crit-pattern-value .pc-field { background: var(--pc-card); }

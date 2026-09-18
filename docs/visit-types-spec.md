@@ -6,8 +6,8 @@ the page (sidebar, top bar, stepper, other wizard steps) is covered here.
 
 | | |
 |---|---|
-| Working prototype | `planner-config.html` |
-| Reference code | `src/planner-config.js`, `src/style-planner-config.css` |
+| Working prototype | `visit-types.html` |
+| Reference code | `src/visit-types.js`, `src/style-visit-types.css` |
 | Figma — initial state | `4115:774722` |
 | Figma — error state | `4115:775129` |
 | Figma — error tooltip | `4145:782695` |

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planner Configuration — Visit Types</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="src/sidebar.css" />
+  <link rel="stylesheet" href="src/topbar.css" />
+  <link rel="stylesheet" href="src/style-planner-shared.css" />
+  <link rel="stylesheet" href="src/style-visit-types.css" />
+</head>
+<body>
+  <div class="pc-app">
+
+    <!-- Left navigation component -->
+    <aside id="app-sidebar" class="app-sidebar" data-active="config" data-logo="true"></aside>
+
+    <main class="pc-main">
+
+      <!-- Top Bar (shared component) -->
+      <header class="bp-topbar">
+        <h1 class="bp-topbar-title">Beat Planner</h1>
+        <div class="bp-search">
+          <i class="ti ti-search" aria-hidden="true"></i>
+          <input type="text" placeholder="Search records" />
+        </div>
+        <div class="bp-topbar-icons">
+          <button class="bp-tb-btn plus" aria-label="Add"><i class="ti ti-plus"></i></button>
+          <button class="bp-tb-btn" aria-label="Zia"><i class="ti ti-sparkles"></i></button>
+          <button class="bp-tb-btn" aria-label="Notifications"><i class="ti ti-bell"></i><span class="bp-tb-badge">5</span></button>
+          <button class="bp-tb-btn" aria-label="Calendar"><i class="ti ti-calendar"></i></button>
+          <button class="bp-tb-btn" aria-label="Help"><i class="ti ti-help-circle"></i></button>
+          <button class="bp-tb-btn" aria-label="Settings"><i class="ti ti-settings"></i></button>
+          <div class="bp-avatar-photo">M</div>
+          <button class="bp-tb-btn" aria-label="Apps"><i class="ti ti-grid-dots"></i></button>
+        </div>
+      </header>
+
+      <div class="pc-content">
+        <div class="pc-body">
+
+          <!-- Multi colour stepper -->
+          <nav class="pc-stepper" aria-label="Planner configuration steps">
+            <div class="pc-step done">
+              <span class="pc-marker" aria-hidden="true"></span>
+              <span>Planner Configuration</span>
+            </div>
+            <div class="pc-step active" aria-current="step">
+              <span class="pc-marker" aria-hidden="true"></span>
+              <span>Visit Types</span>
+            </div>
+            <div class="pc-step idle">
+              <span class="pc-marker" aria-hidden="true"></span>
+              <span>Beat Engine</span>
+            </div>
+            <div class="pc-step idle">
+              <span class="pc-marker" aria-hidden="true"></span>
+              <span>Field Rules</span>
+            </div>
+            <div class="pc-step idle">
+              <span class="pc-marker" aria-hidden="true"></span>
+              <span>Notifications</span>
+            </div>
+          </nav>
+
+          <p class="pc-desc">
+            Define the types of visits your sales reps make in the field and their maximum duration.
+          </p>
+
+          <p class="pc-info">
+            <span>
+              <b>Info:</b> All visit types support the Image Upload, File Upload, and Notes field.
+              You can select the checkboxes to make them <b>mandatory</b> for specific visit types.
+            </span>
+          </p>
+
+          <!-- Visit types table -->
+          <div class="pc-table">
+            <div class="pc-tr pc-thead">
+              <span>Visit Type Name</span>
+              <span>Duration <span class="pc-unit">(min)</span></span>
+              <span class="pc-center">Image Upload</span>
+              <span class="pc-center">File Upload</span>
+              <span class="pc-center">Notes</span>
+              <span></span>
+            </div>
+            <div id="pc-rows"></div>
+          </div>
+
+        </div>
+
+        <!-- Footer action bar -->
+        <div class="pc-footer">
+          <button class="pc-btn default" id="pc-previous">Previous</button>
+          <div class="pc-footer-right">
+            <button class="pc-btn default" id="pc-cancel">Cancel</button>
+            <button class="pc-btn default" id="pc-draft">Save as Draft</button>
+            <button class="pc-btn primary" id="pc-next">Next</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="pc-toast" id="pc-toast" role="status" aria-live="polite"></div>
+  <div class="pc-tip" id="pc-tip" role="tooltip" aria-hidden="true"></div>
+
+  <script src="src/sidebar.js"></script>
+  <script src="src/field-errors.js"></script>
+  <script src="src/visit-types.js"></script>
+</body>
+</html>

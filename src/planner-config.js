@@ -1,139 +1,89 @@
 /* ============================================================
-   Planner Configuration — Visit Types step
-   Row behaviour taken from the reference frames:
-     4115:774722 — initial state: one empty row, add (+) only,
-                   duration prefilled, nothing checked
-     4115:775129 — every row gets remove (−), the last row also gets
-                   add (+); invalid fields are outlined red
-   Return in the visit-type field adds the next row.
+   Planner Configuration — the wizard's step 1
+   Figma 75:6766 (empty) / 2022:73607 (modules added)
+          1995:72270 → 2022:73059 (Module & Address Mapping modal)
 
-   An invalid visit-type or duration field gets a red outline only, so
-   the row never grows. One tooltip carries the message: it opens on
-   the first invalid field and hands over to whichever invalid field
-   the pointer moves to, so exactly one is on screen at a time.
+   Three things get configured here:
+     1. Planner name
+     2. Operating model — Top Down or Bottom Up, single choice
+     3. Modules & address mapping — the table of mapped modules
+
+   The Add / Edit dialog lives in src/module-modal-b.js and reaches this
+   page's rows through the window.PCModules API at the foot of this file.
    ============================================================ */
 (function () {
-  /* Duration a fresh row starts with, per the reference frames */
-  const DEFAULT_DURATION = '15';
+  const MODULES = ['Contacts', 'Accounts', 'Deals', 'Leads'];
 
-  const MESSAGES = {
-    emptyName:     'Field cannot be empty.',
-    emptyDuration: 'Field cannot be empty.',
-    duplicateName: 'Visit type already exists.',
-    zeroDuration:  'Duration must be above 0.',
+  /* Single-line CRM fields, one per address part */
+  const ADDRESS_FIELDS = [
+    'Billing Street', 'Billing City', 'Billing State', 'Billing Country', 'Billing Code',
+    'Shipping Street', 'Shipping City', 'Shipping State', 'Shipping Country', 'Shipping Code',
+    'Mailing Address', 'Office Address',
+  ];
+
+  /* Multiline fields — the whole address sits in one of these and is parsed
+     downstream to plot the record, so only multiline fields can be mapped. */
+  const MULTILINE_FIELDS = [
+    'Billing Address', 'Shipping Address', 'Mailing Address', 'Other Address', 'Address Description',
+  ];
+
+  /* How the module stores its address, and what each way asks to be mapped.
+     Street, City and State are mandatory when it is spread across fields;
+     Country and Pincode are not. The single-field form maps one multiline
+     field holding the whole address. */
+  const ADDRESS_TYPE_LABEL = {
+    structured: 'Map Address Fields',
+    unstructured: 'Map Address Section',
   };
 
-  const rowsEl = document.getElementById('pc-rows');
-  const bodyEl = document.querySelector('.pc-body');
+  const ADDRESS_PARTS = {
+    structured: [
+      { key: 'street',  label: 'Street',  required: true },
+      { key: 'city',    label: 'City',    required: true },
+      { key: 'state',   label: 'State',   required: true },
+      { key: 'country', label: 'Country', required: false },
+      { key: 'pincode', label: 'Pincode', required: false },
+    ],
+    unstructured: [
+      {
+        key: 'full',
+        label: 'Full Address',
+        required: true,
+        fields: MULTILINE_FIELDS,
+        hint: 'Eg: 6800 Burleson Rd, Austin, TX 78744, United States',
+      },
+    ],
+  };
+
+  const CRITERIA_FIELDS = ['Division', 'Status', 'Contact Owner', 'Account Owner', 'Priority', 'Lead Status'];
+  const OPERATORS = ['is', 'is not', 'contains', 'starts with', 'is empty', 'is not empty'];
+
+  /* Operators that stand alone — no value to type or validate */
+  const VALUELESS = new Set(['is empty', 'is not empty']);
+
+  const MESSAGES = {
+    empty: 'Field cannot be empty.',
+  };
+
+  const modulesEl = document.getElementById('pc-modules');
+  const modRowsEl = document.getElementById('pc-mod-rows');
+  const nextBtn = document.getElementById('pc-next');
   const toastEl = document.getElementById('pc-toast');
-  const tipEl = document.getElementById('pc-tip');
 
-  let tipField = null;   // the field the tooltip currently points at
+  /* The mapped modules.
+     Each row: { module, addressType, fields{part:crmField}, scope, criteria[] } */
+  let rows = [];
+  let editingIndex = null;   // null while adding, the row index while editing
 
-  function rowHtml(row) {
-    return `
-      <span class="pc-cell">
-        <input class="pc-field pc-name" type="text" placeholder="Visit Type"
-               aria-label="Visit type name" value="${row.name}" />
-      </span>
-      <span class="pc-cell">
-        <input class="pc-field pc-duration" type="text" inputmode="numeric"
-               aria-label="Duration in minutes" value="${row.duration}" />
-      </span>
-      <span class="pc-cell-center"><input type="checkbox" aria-label="Image upload mandatory" ${row.image ? 'checked' : ''}></span>
-      <span class="pc-cell-center"><input type="checkbox" aria-label="File upload mandatory" ${row.file ? 'checked' : ''}></span>
-      <span class="pc-cell-center"><input type="checkbox" aria-label="Notes mandatory" ${row.notes ? 'checked' : ''}></span>
-      <span class="pc-actions">
-        <button class="pc-icon-btn remove" type="button" aria-label="Remove visit type">
-          <i class="ti ti-circle-minus" aria-hidden="true"></i>
-        </button>
-        <button class="pc-icon-btn add" type="button" aria-label="Add visit type">
-          <i class="ti ti-circle-plus" aria-hidden="true"></i>
-        </button>
-      </span>`;
-  }
+  /* ── Small helpers ─────────────────────────────────── */
+  const option = (value, selected) =>
+    `<option value="${value}" ${value === selected ? 'selected' : ''}>${value}</option>`;
 
-  function addRow(row, afterEl) {
-    const tr = document.createElement('div');
-    tr.className = 'pc-tr';
-    tr.innerHTML = rowHtml(Object.assign(
-      { name: '', duration: DEFAULT_DURATION, image: false, file: false, notes: false }, row
-    ));
-    if (afterEl) afterEl.insertAdjacentElement('afterend', tr);
-    else rowsEl.appendChild(tr);
-    syncActions();
-    return tr;
-  }
+  const placeholder = (label, selected) =>
+    `<option value="" ${selected ? '' : 'selected'} disabled>${label}</option>`;
 
-  /* Remove is hidden while a single row remains; add shows on the last row only */
-  function syncActions() {
-    const rows = [...rowsEl.children];
-    rows.forEach((tr, i) => {
-      tr.querySelector('.pc-icon-btn.remove').hidden = rows.length === 1;
-      tr.querySelector('.pc-icon-btn.add').hidden = i !== rows.length - 1;
-    });
-  }
-
-  /* ── The one tooltip, moved between invalid fields ─── */
-  function showTip(field) {
-    if (!field || !field.dataset.error) return hideTip();
-    tipField = field;
-    tipEl.textContent = field.dataset.error;
-    tipEl.classList.add('show');
-    tipEl.setAttribute('aria-hidden', 'false');
-    placeTip();
-  }
-
-  function placeTip() {
-    if (!tipField) return;
-    const r = tipField.getBoundingClientRect();
-    /* Hide rather than float loose when the field scrolls out of the table */
-    const body = bodyEl.getBoundingClientRect();
-    if (r.bottom < body.top || r.top > body.bottom) {
-      tipEl.classList.remove('show');
-      return;
-    }
-    tipEl.classList.add('show');
-    tipEl.style.top = `${r.bottom + 6}px`;
-    /* Left-align with the field, pulled in if it would leave the viewport */
-    const width = tipEl.offsetWidth;
-    const left = Math.min(r.left, window.innerWidth - width - 12);
-    tipEl.style.left = `${left}px`;
-    /* Arrow points at the field even after that nudge */
-    tipEl.style.setProperty('--tip-arrow', `${Math.max(10, r.left - left + 24)}px`);
-  }
-
-  function hideTip() {
-    tipField = null;
-    tipEl.classList.remove('show');
-    tipEl.setAttribute('aria-hidden', 'true');
-  }
-
-  /* Always leave one tooltip up: fall back to the first field still invalid */
-  function retargetTip() {
-    if (tipField && tipField.isConnected && tipField.dataset.error) return placeTip();
-    const next = rowsEl.querySelector('.pc-field.invalid');
-    if (next) showTip(next); else hideTip();
-  }
-
-  /* ── Field errors ──────────────────────────────────── */
-  function setError(field, key) {
-    clearError(field);
-    field.classList.add('invalid');
-    field.setAttribute('aria-invalid', 'true');
-    field.dataset.error = MESSAGES[key];
-  }
-
-  function clearError(field) {
-    field.classList.remove('invalid');
-    field.removeAttribute('aria-invalid');
-    delete field.dataset.error;
-    if (tipField === field) tipField = null;
-  }
-
-  function clearAllErrors() {
-    rowsEl.querySelectorAll('.pc-field').forEach(clearError);
-    hideTip();
+  function fillSelect(el, values, selected, label) {
+    el.innerHTML = placeholder(label, selected) + values.map(v => option(v, selected)).join('');
   }
 
   function toast(message) {
@@ -143,92 +93,109 @@
     toast._t = setTimeout(() => toastEl.classList.remove('show'), 2200);
   }
 
-  /* ── Events ────────────────────────────────────────── */
-  rowsEl.addEventListener('click', e => {
-    const btn = e.target.closest('.pc-icon-btn');
-    if (!btn) return;
-    if (btn.classList.contains('add')) {
-      const tr = addRow();
-      tr.querySelector('.pc-name').focus();
-    } else {
-      btn.closest('.pc-tr').remove();
-      syncActions();
-    }
-    retargetTip();
-  });
+  const escape = s => String(s).replace(/[&<>"]/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-  /* Return in the visit-type field adds the next row, once this one has a name */
-  rowsEl.addEventListener('keydown', e => {
-    if (e.key !== 'Enter' || !e.target.classList.contains('pc-name')) return;
-    e.preventDefault();
-    const name = e.target;
-    const tr = name.closest('.pc-tr');
-    /* Names in the other rows, so a repeat is caught before a row is added */
-    const seen = new Map([...rowsEl.children]
-      .filter(other => other !== tr)
-      .map(other => [other.querySelector('.pc-name').value.trim().toLowerCase(), true]));
-    clearError(name);
-    if (!checkName(name, seen)) { retargetTip(); return; }
-    addRow(null, tr).querySelector('.pc-name').focus();
-    retargetTip();
-  });
-
-  rowsEl.addEventListener('input', e => {
-    const field = e.target;
-    if (!field.classList.contains('pc-field')) return;
-    if (field.classList.contains('pc-duration')) {
-      field.value = field.value.replace(/\D/g, '').slice(0, 3);
-    }
-    /* An error clears as soon as the field is edited */
-    if (field.classList.contains('invalid')) { clearError(field); retargetTip(); }
-  });
-
-  /* Hovering another invalid field hands the tooltip over to it */
-  rowsEl.addEventListener('mouseover', e => {
-    const field = e.target.closest('.pc-field.invalid');
-    if (field && field !== tipField) showTip(field);
-  });
-
-  bodyEl.addEventListener('scroll', placeTip);
-  window.addEventListener('resize', placeTip);
-
-  /* Checks one row's name against the names above it. Returns true when clean. */
-  function checkName(name, seen) {
-    const value = name.value.trim();
-    const key = value.toLowerCase();
-    if (!value) { setError(name, 'emptyName'); return false; }
-    if (seen.has(key)) { setError(name, 'duplicateName'); return false; }
-    seen.set(key, true);
-    return true;
-  }
-
-  function validate() {
-    clearAllErrors();
-    const seen = new Map();
-
-    [...rowsEl.children].forEach(tr => {
-      const name = tr.querySelector('.pc-name');
-      const duration = tr.querySelector('.pc-duration');
-      checkName(name, seen);
-
-      if (!duration.value.trim()) setError(duration, 'emptyDuration');
-      else if (Number(duration.value) === 0) setError(duration, 'zeroDuration');
+  /* ── 2. Operating model ────────────────────────────── */
+  document.querySelectorAll('.pc-model').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.pc-model').forEach(other =>
+        other.setAttribute('aria-pressed', String(other === card)));
     });
+  });
 
-    const firstBad = rowsEl.querySelector('.pc-field.invalid');
-    if (!firstBad) return true;
-    showTip(firstBad);
-    return false;
+  /* ── 3. The modules table ──────────────────────────── */
+  const OPERATOR_LABEL = op => op.toUpperCase();
+
+  /* Just the fields feeding the map. Which part each one fills, and whether
+     the address is spread or combined, is settled inside the dialog. */
+  function addressHtml(row) {
+    const fields = ADDRESS_PARTS[row.addressType]
+      .filter(part => row.fields[part.key])
+      .map(part => row.fields[part.key]);
+    return `<span class="pc-addr-fields">${escape(fields.join(', '))}</span>`;
   }
 
-  document.getElementById('pc-next').addEventListener('click', () => {
-    if (validate()) toast(`${rowsEl.children.length} visit type(s) saved — next: Beat Engine.`);
+  function summaryHtml(row) {
+    if (row.scope !== 'specific' || !row.criteria.length) {
+      return '<span class="pc-mod-cell">All Records</span>';
+    }
+    const lines = row.criteria.map((c, i) => `
+      <span class="pc-summary-line">
+        <span class="pc-summary-idx">${i + 1}</span>
+        <span>${escape(c.field)}</span>
+        <span class="pc-summary-op">${escape(OPERATOR_LABEL(c.op))}</span>
+        <span>${escape(c.value)}</span>
+      </span>`).join('');
+    const pattern = row.criteria.length > 1
+      ? `<span class="pc-summary-pattern">
+           <span class="label">Criteria Pattern</span>
+           <span>${escape(row.pattern || '')}</span>
+         </span>`
+      : '';
+    return `<span class="pc-summary">${lines}${pattern}</span>`;
+  }
+
+  function renderModules() {
+    modRowsEl.innerHTML = rows.map((row, i) => `
+      <div class="pc-mod-tr pc-mod-row" data-index="${i}">
+        <span class="pc-mod-actions">
+          <button class="pc-mod-act" type="button" data-act="delete" aria-label="Delete mapping">
+            <i class="ti ti-x" aria-hidden="true"></i>
+          </button>
+          <button class="pc-mod-act" type="button" data-act="edit" aria-label="Edit mapping">
+            <i class="ti ti-pencil" aria-hidden="true"></i>
+          </button>
+        </span>
+        <span class="pc-mod-cell">${escape(row.module)}</span>
+        <span>${addressHtml(row)}</span>
+        <span>${summaryHtml(row)}</span>
+      </div>`).join('');
+
+    const any = rows.length > 0;
+    const allMapped = rows.length >= MODULES.length;
+    modulesEl.hidden = !any;
+    /* Add Module moves up beside the heading once the table is there, and
+       goes altogether once every module is spoken for */
+    document.getElementById('pc-add-module-btn').hidden = any;
+    document.getElementById('pc-add-module-link').hidden = !any || allMapped;
+    nextBtn.disabled = !any;
+  }
+
+  modRowsEl.addEventListener('click', e => {
+    const btn = e.target.closest('.pc-mod-act');
+    if (!btn) return;
+    const index = Number(btn.closest('.pc-mod-row').dataset.index);
+    if (btn.dataset.act === 'delete') { rows.splice(index, 1); renderModules(); }
+    else PCModuleModal.open(index);
+  });
+
+  /* ── Footer ────────────────────────────────────────── */
+  nextBtn.addEventListener('click', () => {
+    const name = document.getElementById('pc-planner-name');
+    if (!name.value.trim()) { name.focus(); toast('Planner name cannot be empty.'); return; }
+    window.location.href = 'visit-types.html';
   });
 
   document.getElementById('pc-draft').addEventListener('click', () => toast('Saved as draft.'));
-  document.getElementById('pc-previous').addEventListener('click', () => toast('Previous step: Planner Configuration.'));
   document.getElementById('pc-cancel').addEventListener('click', () => { window.location.href = 'index.html'; });
 
-  /* Initial state: one empty row, duration prefilled, nothing checked */
-  addRow().querySelector('.pc-name').focus();
+  renderModules();
+
+  /* Layout B drives the same table through this, so both variants stay
+     one source of truth. See src/module-modal-b.js. */
+  window.PCModules = {
+    add(row) { rows.push(row); renderModules(); },
+    update(index, row) { rows[index] = row; renderModules(); },
+    get: index => rows[index],
+    /* Modules spoken for by some other row, so the dialog can grey them out
+       rather than let one be picked and then rejected */
+    takenModules: ignoreIndex =>
+      rows.filter((_, i) => i !== ignoreIndex).map(r => r.module),
+    constants: {
+      MODULES, ADDRESS_FIELDS, ADDRESS_PARTS, CRITERIA_FIELDS,
+      OPERATORS, VALUELESS, MESSAGES, ADDRESS_TYPE_LABEL,
+    },
+    helpers: { fillSelect, escape, toast },
+  };
 })();

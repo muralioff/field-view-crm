@@ -226,7 +226,11 @@ Unassigned/unplaceable list: `{ record, meeting_type, reason_code }`.
 
 HTML/CSS/JS prototype of the **Field View** (map) side. Existing files:
 - `index.html` — landing page; navigation links to Planner Configuration, Field View, Create Beat and Bottom-Up.
-- `planner-config.html` + `src/style-planner-config.css` + `src/planner-config.js` — Planner Configuration wizard,
+- `planner-config.html` + `src/planner-config.js` — Planner Configuration wizard step 1: planner name,
+  operating model, and modules & address mapping. The modal maps a module's address parts
+  (structured: street/city/state/country/pincode; unstructured: one field) and optionally
+  filters records with a criteria builder (Figma 75:6766 / 2022:73607 / 4909:786659).
+- `visit-types.html` + `src/style-visit-types.css` + `src/visit-types.js` — the wizard's
   Visit Types step (Figma 132:15144 initial / 132:18984 added state): multi-colour stepper, visit-type table with
   add/remove rows, mandatory-field checkboxes.
   Behaviour contract for handoff: [`docs/visit-types-spec.md`](visit-types-spec.md).

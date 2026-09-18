@@ -1,0 +1,126 @@
+/* ============================================================
+   Visit Types — the wizard's step 2
+   Figma nodes 4115:774722 (initial state) / 4115:775129 (errors)
+   Shell, stepper, fields, tooltip and footer: style-planner-shared.css
+   ============================================================ */
+
+/* ── Description + info banner ────────────────────── */
+.pc-desc {
+  margin-top: 20px;
+  max-width: 727px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--pc-para);
+}
+
+.pc-info {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 950px;
+  padding: 8px 15px;
+  background: var(--pc-info-bg);
+  border: 1px solid var(--pc-info-border);
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--pc-base);
+}
+
+.pc-info b { font-weight: 600; }
+
+/* ── Visit types table ───────────────────────────── */
+.pc-table {
+  margin-top: 10px;
+  width: 812px;
+  max-width: 100%;
+  background: var(--pc-card);
+  border: 1px solid var(--pc-table-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.pc-tr {
+  display: grid;
+  grid-template-columns: 294px 94px 92px 92px 92px 42px;
+  gap: 15px;
+  align-items: start;
+  padding: 8px 16px;
+  min-height: 50px;
+  border-bottom: 1px solid var(--pc-row-border);
+}
+
+.pc-tr:last-child { border-bottom: none; }
+
+.pc-thead {
+  padding: 13px 16px;
+  min-height: 0;
+  border-bottom: 2px solid var(--pc-table-border);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pc-heading);
+}
+
+.pc-thead .pc-center { text-align: center; }
+.pc-thead .pc-unit { color: var(--pc-label); font-weight: 500; }
+
+.pc-cell-center {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pc-tr input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  border: 2px solid var(--pc-input-border);
+  border-radius: 3px;
+  background: var(--pc-card);
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.pc-tr input[type="checkbox"]:checked {
+  background: var(--pc-input-focus);
+  border-color: var(--pc-input-focus);
+}
+
+.pc-tr input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 0;
+  width: 4px;
+  height: 8px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+/* Row actions */
+.pc-actions { height: 34px; display: flex; align-items: center; gap: 10px; }
+
+.pc-icon-btn {
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pc-icon-btn[hidden] { display: none; }
+.pc-icon-btn.remove { color: var(--pc-remove); }
+.pc-icon-btn.add { color: var(--pc-add); }

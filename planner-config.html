@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Planner Configuration — Visit Types</title>
+  <title>Planner Configuration</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
   <link rel="stylesheet" href="src/sidebar.css" />
   <link rel="stylesheet" href="src/topbar.css" />
+  <link rel="stylesheet" href="src/style-planner-shared.css" />
   <link rel="stylesheet" href="src/style-planner-config.css" />
+  <link rel="stylesheet" href="src/style-module-modal-b.css" />
 </head>
 <body>
   <div class="pc-app">
@@ -39,13 +41,13 @@
       <div class="pc-content">
         <div class="pc-body">
 
-          <!-- Multi colour stepper -->
+          <!-- Multi colour stepper — step 1 is the active one here -->
           <nav class="pc-stepper" aria-label="Planner configuration steps">
-            <div class="pc-step done">
+            <div class="pc-step active" aria-current="step">
               <span class="pc-marker" aria-hidden="true"></span>
               <span>Planner Configuration</span>
             </div>
-            <div class="pc-step active" aria-current="step">
+            <div class="pc-step idle">
               <span class="pc-marker" aria-hidden="true"></span>
               <span>Visit Types</span>
             </div>
@@ -63,49 +65,98 @@
             </div>
           </nav>
 
-          <p class="pc-desc">
-            Define the types of visits your sales reps make in the field and their maximum duration.
-          </p>
-
-          <p class="pc-info">
-            <span>
-              <b>Info:</b> All visit types support the Image Upload, File Upload, and Notes field.
-              You can select the checkboxes to make them <b>mandatory</b> for specific visit types.
+          <!-- 1. Planner name -->
+          <div class="pc-row" style="margin-top:20px">
+            <label class="pc-row-label" for="pc-planner-name">Planner Name</label>
+            <span class="pc-row-control">
+              <input class="pc-field mandatory" type="text" id="pc-planner-name"
+                     placeholder="Planner Name" value="Food Export" />
             </span>
+          </div>
+
+          <!-- 2. Operating model -->
+          <div class="pc-row">
+            <span class="pc-row-label" style="padding-top:11px" id="pc-model-label">Operating Model</span>
+            <div class="pc-models" role="group" aria-labelledby="pc-model-label">
+              <button class="pc-model" type="button" data-model="top-down" aria-pressed="true">
+                <img src="src/model-topdown.svg" class="flip" alt="" aria-hidden="true" />
+                <span class="pc-model-text">
+                  <span class="pc-model-title">Top Down</span>
+                  <span class="pc-model-desc">Manager creates beats and assigns them to reps</span>
+                </span>
+                <img src="src/model-selected-check.svg" class="pc-model-check" alt="" aria-hidden="true" />
+              </button>
+              <button class="pc-model" type="button" data-model="bottom-up" aria-pressed="false">
+                <img src="src/model-bottomup.svg" alt="" aria-hidden="true" />
+                <span class="pc-model-text">
+                  <span class="pc-model-title">Bottom Up</span>
+                  <span class="pc-model-desc">Reps creates beats, with or without manager approval</span>
+                </span>
+                <img src="src/model-selected-check.svg" class="pc-model-check" alt="" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. Modules & address mapping -->
+          <div class="pc-section-head">
+            <h2 class="pc-section-title">Modules &amp; Address Mapping</h2>
+            <button class="pc-link-btn" type="button" id="pc-add-module-link" hidden>Add Module</button>
+          </div>
+          <p class="pc-section-desc">
+            Select modules and map the Address Fields for plotting the records on map. Only the
+            records with right address information will be fetched in Beat Planner.
           </p>
 
-          <!-- Visit types table -->
-          <div class="pc-table">
-            <div class="pc-tr pc-thead">
-              <span>Visit Type Name</span>
-              <span>Duration <span class="pc-unit">(min)</span></span>
-              <span class="pc-center">Image Upload</span>
-              <span class="pc-center">File Upload</span>
-              <span class="pc-center">Notes</span>
+          <button class="pc-btn outline-blue" type="button" id="pc-add-module-btn">Add Module</button>
+
+          <div class="pc-modules" id="pc-modules" hidden>
+            <div class="pc-mod-tr pc-mod-thead">
               <span></span>
+              <span>Module</span>
+              <span>Address Field</span>
+              <span>Filter by</span>
             </div>
-            <div id="pc-rows"></div>
+            <div id="pc-mod-rows"></div>
           </div>
 
         </div>
 
         <!-- Footer action bar -->
         <div class="pc-footer">
-          <button class="pc-btn default" id="pc-previous">Previous</button>
+          <span></span>
           <div class="pc-footer-right">
             <button class="pc-btn default" id="pc-cancel">Cancel</button>
             <button class="pc-btn default" id="pc-draft">Save as Draft</button>
-            <button class="pc-btn primary" id="pc-next">Next</button>
+            <button class="pc-btn primary" id="pc-next" disabled>Next</button>
           </div>
         </div>
       </div>
     </main>
   </div>
 
+  <!-- Module & Address Mapping -->
+  <div class="pc-overlay" id="mb-overlay" aria-hidden="true">
+    <div class="mb-modal" role="dialog" aria-modal="true" aria-labelledby="mb-title">
+      <header class="mb-head">
+        <h2 class="mb-title" id="mb-title">Add Module</h2>
+      </header>
+      <div class="mb-body">
+        <p class="mb-sub">Map a module's address fields so its records can be plotted on the map.</p>
+        <div class="mb-form" id="mb-body"></div>
+      </div>
+      <footer class="mb-foot">
+        <button class="pc-btn default" type="button" id="mb-cancel">Cancel</button>
+        <button class="pc-btn primary" type="button" id="mb-save">Add Module</button>
+      </footer>
+    </div>
+  </div>
+
   <div class="pc-toast" id="pc-toast" role="status" aria-live="polite"></div>
   <div class="pc-tip" id="pc-tip" role="tooltip" aria-hidden="true"></div>
 
   <script src="src/sidebar.js"></script>
+  <script src="src/field-errors.js"></script>
   <script src="src/planner-config.js"></script>
+  <script src="src/module-modal-b.js"></script>
 </body>
 </html>
