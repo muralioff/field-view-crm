@@ -360,6 +360,19 @@ body {
 }
 .bp-drive i { font-size: 15px; color: var(--muted); }
 
+.bp-visit-reason {
+  background: #f8faff;
+  border: 1px solid #edf0f4;
+  border-radius: 5px;
+  padding: 8px 11px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #434d5e;
+  line-height: 18px;
+  margin-top: 6px;
+}
+.bp-visit-reason strong { font-weight: 500; }
+
 /* ── Route map ────────────────────────────────────── */
 .bp-routemap {
   flex: 1;

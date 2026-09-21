@@ -18,9 +18,8 @@
       rest of the app uses.
    5. A fixed header and footer with only the body scrolling, so the
       buttons stay put however tall the criteria list grows.
-   6. The primary button names the outcome — "Add Module". It stays
-      enabled and reports what is missing on click, rather than going
-      dead and leaving the reason unsaid.
+   6. The primary button stays enabled and reports what is missing on
+      click, rather than going dead and leaving the reason unsaid.
 
    Labels stay right-aligned in a column, matching the rest of the app.
    Spacing and type are inherited from Figma 4979:803081.
@@ -36,7 +35,7 @@
   /* The label column is as wide as that type's longest label, so the arrows
      and fields line up down the column. "Full Address" plus its info icon
      needs more room than "Pincode". Figma 4968:800495. */
-  const MAP_LABEL_W = { structured: 54, unstructured: 98 };
+  const MAP_LABEL_W = { structured: 54, unstructured: 100 };
 
   const overlay = document.getElementById('mb-overlay');
   const modalEl = overlay.querySelector('.mb-modal');
@@ -110,16 +109,12 @@
         <div class="mb-grid" style="--mb-map-label-w:${MAP_LABEL_W[draft.addressType]}px">
           ${parts.map(part => `
             <div class="mb-map-row">
-              <span class="mb-label">
-                ${part.label}
-                ${part.hint ? `<span class="mb-info" tabindex="0" role="button"
-                      aria-label="Example: ${escape(part.hint)}"><i class="ti ti-info-circle" aria-hidden="true"></i><span
-                      class="mb-info-tip" role="tooltip">${escape(part.hint)}</span></span>` : ''}
-              </span>
+              <span class="mb-label">${part.label}</span>
               <img class="mb-map-arrow" src="src/map-arrow.svg" alt="maps to" />
               <div class="mb-control pc-field-cell">
                 ${selectHtml(`mb-map${part.required ? ' mandatory' : ''}`,
                              `data-part="${part.key}" aria-label="${part.label} field"`)}
+                ${part.hint ? `<p class="mb-hint">${escape(part.hint)}</p>` : ''}
               </div>
             </div>`).join('')}
         </div>
@@ -194,7 +189,7 @@
   function fillModuleSelect(el) {
     const taken = api.takenModules(editingIndex);
     el.innerHTML =
-      `<option value="" ${draft.module ? '' : 'selected'} disabled>Select module</option>` +
+      `<option value="" ${draft.module ? '' : 'selected'} disabled>Select Module</option>` +
       MODULES.map(m => {
         const used = taken.includes(m);
         return `<option value="${escape(m)}" ${m === draft.module ? 'selected' : ''}
@@ -213,7 +208,7 @@
       .map(([, v]) => v);
     const available = (part.fields || ADDRESS_FIELDS)
       .filter(f => !takenElsewhere.includes(f));
-    fillSelect(sel, available, draft.fields[key], 'Select field');
+    fillSelect(sel, available, draft.fields[key], 'Select Field');
   }
 
   /* Choosing one narrows what the others can offer */
@@ -239,7 +234,7 @@
 
     bodyEl.querySelectorAll('.pc-crit-row').forEach(row => {
       const c = draft.criteria[Number(row.dataset.i)];
-      fillSelect(row.querySelector('.pc-crit-attr'), CRITERIA_FIELDS, c.field, 'Select field');
+      fillSelect(row.querySelector('.pc-crit-attr'), CRITERIA_FIELDS, c.field, 'Select Field');
       fillSelect(row.querySelector('.pc-crit-op'), OPERATORS, c.op, 'is');
     });
 
@@ -321,8 +316,9 @@
         }
       : blank();
 
-    document.getElementById('mb-title').textContent = existing ? 'Edit Module' : 'Add Module';
-    saveBtn.textContent = existing ? 'Save Changes' : 'Add Module';
+    /* The title says which of the two this is; the button just confirms */
+    document.getElementById('mb-title').textContent =
+      `${existing ? 'Edit' : 'Add'} Module and Address Mapping`;
 
     errors.clearAll();
     render();

@@ -872,11 +872,11 @@ a      { color: var(--link); text-decoration: none; }
 .pick-btn.cancel:hover { background: var(--btn-default-bg-2); }
 
 .pick-btn.confirm {
-  background: var(--btn-primary);
-  border: 1px solid var(--btn-primary-2);
+  background: #EC426A;
+  border: 1px solid #EC426A;
   color: #fff;
 }
-.pick-btn.confirm:hover { background: var(--btn-primary-hover); }
+.pick-btn.confirm:hover { background: #EC426A; }
 
 /* ============================================================
    Address Modal

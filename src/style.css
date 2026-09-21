@@ -860,11 +860,11 @@ body {
 .pick-btn.cancel:hover { background: #e5e7eb; }
 
 .pick-btn.confirm {
-  background: #3b82f6;
+  background: #EC426A;
   color: #fff;
 }
 
-.pick-btn.confirm:hover { background: #2563eb; }
+.pick-btn.confirm:hover { background: #EC426A; }
 
 /* ── Address Modal ── */
 .modal-overlay {

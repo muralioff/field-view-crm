@@ -41,8 +41,8 @@
       { key: 'street',  label: 'Street',  required: true },
       { key: 'city',    label: 'City',    required: true },
       { key: 'state',   label: 'State',   required: true },
+      { key: 'pincode', label: 'Pincode', required: true },
       { key: 'country', label: 'Country', required: false },
-      { key: 'pincode', label: 'Pincode', required: false },
     ],
     unstructured: [
       {
@@ -50,7 +50,9 @@
         label: 'Full Address',
         required: true,
         fields: MULTILINE_FIELDS,
-        hint: 'Eg: 6800 Burleson Rd, Austin, TX 78744, United States',
+        /* One line under the field, instruction and example together. Kept
+           inside the ~57 characters that fit the 390px column on one line. */
+        hint: 'Whole address in one field, e.g. 6800 Burleson Rd, Austin',
       },
     ],
   };
