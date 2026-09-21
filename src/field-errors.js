@@ -35,7 +35,9 @@ window.PCErrors = (function () {
       msg.className = 'pc-field-msg';
       msg.setAttribute('role', 'alert');
       msg.textContent = message;
-      cell.appendChild(msg);
+      /* Straight under the field, above any hint the cell carries — the
+         thing to fix reads first, the guidance second */
+      field.after(msg);
     }
 
     function clearInline(field) {

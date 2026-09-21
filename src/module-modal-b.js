@@ -186,15 +186,14 @@
   /* A module mapped by another row is offered but not selectable, and says
      why — better than accepting the choice and then rejecting it. The row
      being edited keeps its own module available. */
+  /* Only the modules still going spare. A module another row already maps
+     is left out of the list rather than shown greyed — there is nothing to
+     decide about it. The row being edited keeps its own module, since
+     takenModules() skips that row. */
   function fillModuleSelect(el) {
     const taken = api.takenModules(editingIndex);
-    el.innerHTML =
-      `<option value="" ${draft.module ? '' : 'selected'} disabled>Select Module</option>` +
-      MODULES.map(m => {
-        const used = taken.includes(m);
-        return `<option value="${escape(m)}" ${m === draft.module ? 'selected' : ''}
-                        ${used ? 'disabled' : ''}>${escape(m)}${used ? ' — already mapped' : ''}</option>`;
-      }).join('');
+    const available = MODULES.filter(m => !taken.includes(m));
+    fillSelect(el, available, draft.module, 'Select Module');
   }
 
   /* A CRM field can feed only one part of the address, so whatever the other
