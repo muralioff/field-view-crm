@@ -1,0 +1,603 @@
+/* ============================================================
+   Beats list + Pending Assignments panel
+   Figma 189:14294 (band) · 194:32308 (panel) · 210:9984 (filters)
+          244:12676 (filters applied) · 210:10491 (resolved)
+
+   Tokens, shell, .pc-field and .pc-btn come from
+   style-planner-shared.css; everything below is this flow's own.
+   ============================================================ */
+:root {
+  --pa-band-bg:     #fff9c4;
+  --pa-link:        #5464f2;
+  --pa-border:      #d7e2ed;
+  --pa-note-bg:     #ffffea;
+  --pa-note-border: #e5dec5;
+  --pa-note-text:   #56564d;
+  --pa-filter-bg:   #f8faff;
+  --pa-disable-bg:  #f5f6f8;
+  --pa-disable-brd: #d2d9f1;
+  --pa-ok-bg:       #f5faf5;
+  --pa-ok-border:   #a9d3ab;
+  --pa-ok-text:     #132c14;
+}
+
+/* ── Pending-assignment band ─────────────────────── */
+.pa-band {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding: 10px 20px;
+  background: var(--pa-band-bg);
+}
+
+.pa-band[hidden] { display: none; }
+
+/* The source icon is 13.1 × 12; squaring it to 12 is sub-pixel */
+.pa-band-icon { width: 12px; height: 12px; flex-shrink: 0; }
+
+.pa-band-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  color: var(--pc-base);
+}
+
+.pa-band-link {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--pa-link);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.pa-band-close {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  color: var(--pc-label);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.pa-band-close:hover { background: rgba(0, 0, 0, 0.06); }
+
+/* ── Beats page ──────────────────────────────────── */
+.pa-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px 14px;
+  background: var(--pc-bg);
+}
+
+/* List-view tabs */
+.pa-tabs { display: flex; align-items: center; gap: 4px; padding: 8px 0; }
+
+.pa-tab {
+  height: 28px;
+  padding: 0 12px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--pc-label);
+  cursor: pointer;
+}
+
+.pa-tab.active { background: #e3e8f6; color: var(--pc-base); font-weight: 500; }
+.pa-tab.more { padding: 0 8px; font-size: 16px; }
+
+/* Toolbar */
+.pa-toolbar { display: flex; align-items: center; gap: 8px; padding-bottom: 10px; }
+
+.pa-tool {
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--pc-base);
+  cursor: pointer;
+}
+
+.pa-tool i { font-size: 16px; color: var(--pc-label); }
+.pa-tool:hover, .pa-icon-btn:hover { background: #e3e8f6; }
+
+.pa-tool-sep { width: 1px; height: 18px; background: var(--pc-btn-border); margin: 0 4px; }
+
+.pa-icon-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  color: var(--pc-label);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.pa-icon-btn.active { background: #e3e8f6; color: var(--pa-link); }
+
+.pa-toolbar-gap { flex: 1; }
+
+/* ── Beats table ─────────────────────────────────── */
+.pa-table {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--pc-card);
+  border: 1px solid var(--pa-border);
+  border-radius: 10px 10px 0 0;
+}
+
+.pa-tr {
+  display: grid;
+  grid-template-columns: 44px 90px 1fr 150px 140px 70px 90px 180px;
+  align-items: center;
+  border-bottom: 1px solid var(--pc-row-border);
+}
+
+.pa-thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 38px;
+  background: var(--pc-card);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pc-heading);
+}
+
+.pa-tr > span { padding: 0 15px; }
+
+.pa-check { display: flex; align-items: center; }
+
+.pa-created { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+.pa-beat-row { height: 44px; font-size: 14px; }
+.pa-beat-row:hover { background: #fafbff; }
+.pa-beat-row:last-child { border-bottom: none; }
+
+.pa-beat-id { color: var(--pa-link); }
+
+.pa-rep { display: flex; align-items: center; gap: 10px; min-width: 0; }
+
+.pa-avatar {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #dfe4f6;
+  font-size: 11px;
+  font-weight: 600;
+  color: #4a5878;
+}
+
+.pa-rep-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Status pills */
+.pa-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.pa-pill.upcoming  { background: #6f7ae8; }
+.pa-pill.partial   { background: #3b82c4; }
+.pa-pill.completed { background: #1f9d6a; }
+.pa-pill.progress  { background: #e08a1e; }
+
+.pa-table-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  height: 40px;
+  padding: 0 15px;
+  background: var(--pc-card);
+  border: 1px solid var(--pa-border);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  font-size: 13px;
+  color: var(--pc-label);
+}
+
+.pa-pager { display: flex; align-items: center; gap: 8px; }
+
+/* ── Panel ───────────────────────────────────────── */
+.pa-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(32, 33, 35, 0.45);
+  animation: pa-fade 0.16s ease-out;
+}
+
+.pa-scrim[hidden] { display: none; }
+
+@keyframes pa-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.pa-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 71;
+  width: 500px;
+  max-width: 100vw;
+  display: flex;
+  flex-direction: column;
+  background: var(--pc-card);
+  box-shadow: -6px 0 24px rgba(0, 0, 0, 0.18);
+  transform: translateX(100%);
+  visibility: hidden;
+  transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.3, 1), visibility 0.24s;
+}
+
+.pa-panel.show { transform: none; visibility: visible; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pa-panel { transition: none; }
+  .pa-scrim { animation: none; }
+}
+
+/* Outside the panel's left edge, over the dimmed page (Figma 434:21529) */
+.pa-panel-close {
+  position: absolute;
+  top: 16px;
+  left: -42px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--pc-card);
+  border-radius: 50%;
+  color: var(--pc-base);
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* The heading and the filter row together form the panel's top bar, so the
+   rule closing it sits under whichever of them comes last */
+.pa-panel-top {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--pa-border);
+}
+
+.pa-panel-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 18px 13px 20px;
+}
+
+/* The export is 16 × 17.19 drawn 1.19 above its box */
+.pa-panel-icon { width: 16px; height: 17.19px; flex-shrink: 0; margin-top: 15px; }
+
+.pa-panel-heading { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+
+.pa-panel-title {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 27px;
+  color: var(--pc-heading);
+}
+
+.pa-panel-sub { font-size: 14px; line-height: 20px; color: var(--pc-label); }
+
+/* Filter button — gains a clear ✕ once anything is set */
+.pa-filter-btn {
+  height: 34px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 7px;
+  padding: 0 9px;
+  background: var(--pc-card);
+  border: 1px solid var(--pc-input-border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pc-label);
+  cursor: pointer;
+}
+
+.pa-filter-btn img { width: 16px; height: 16px; }
+
+.pa-filter-btn.on { border-color: var(--pa-link); color: var(--pa-link); }
+
+.pa-filter-clear { display: none; font-size: 14px; }
+.pa-filter-btn.filtered .pa-filter-clear { display: inline; }
+
+.pa-filters {
+  display: flex;
+  gap: 10px;
+  /* Inset 10 all round, less than the cards' 20 — the frame sets the box
+     slightly wider than the content it filters */
+  margin: 10px;
+  padding: 12px;
+  background: var(--pa-filter-bg);
+  border: 1px solid var(--pa-border);
+  border-radius: 8px;
+}
+
+.pa-filters[hidden] { display: none; }
+
+.pa-filter-cell { position: relative; flex: 1; min-width: 0; display: flex; }
+
+/* Room for the clear ✕ and the caret, so a long value ellipses before it
+   reaches either — the panel is narrow and these values are not */
+.pa-filter-cell .pa-filter {
+  padding-right: 44px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A select showing its placeholder reads as placeholder text */
+.pa-filter:has(option[value=""]:checked) { color: var(--pc-placeholder); }
+
+/* Visit Date: a button standing in for a select, with the real date input
+   invisible on top of it so the browser's calendar has something to anchor
+   to. The caret keeps it looking like its two neighbours. */
+.pa-date-field {
+  display: flex;
+  align-items: center;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pa-date-field.placeholder { color: var(--pc-placeholder); }
+
+.pa-date-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.pa-date-caret {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--pc-label);
+  pointer-events: none;
+}
+
+.pa-date-native {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pa-filter-x {
+  position: absolute;
+  top: 50%;
+  right: 26px;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  color: var(--pc-label);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.pa-filter-x[hidden] { display: none; }
+.pa-filter-x:hover { background: #e3e8f6; }
+
+.pa-panel-body { flex: 1; min-height: 0; overflow-y: auto; }
+
+/* ── Assignment card ─────────────────────────────── */
+.pa-card {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 16px 20px 20px;
+}
+
+/* Hairline between cards, inset from the panel edges as in the frame */
+.pa-card + .pa-card { box-shadow: inset 0 1px 0 var(--pc-row-border); }
+
+.pa-card-head { display: flex; flex-direction: column; gap: 4px; }
+
+.pa-card-top { display: flex; align-items: center; gap: 5px; }
+
+.pa-card-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--pc-heading);
+}
+
+.pa-card-date {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  color: var(--pc-label);
+  white-space: nowrap;
+}
+
+.pa-card-sub { font-size: 13px; line-height: 18px; color: var(--pc-label); }
+
+/* Why the visit could not be assigned automatically */
+.pa-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 15px;
+  background: var(--pa-note-bg);
+  border: 1px solid var(--pa-note-border);
+  border-radius: 6px;
+}
+
+.pa-note { display: flex; align-items: center; gap: 8px; }
+
+.pa-note img { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7; }
+
+.pa-note span { font-size: 13px; line-height: 18px; color: var(--pa-note-text); }
+
+.pa-card-fields { display: flex; flex-direction: column; gap: 20px; }
+
+.pa-field-row { display: flex; align-items: center; gap: 20px; }
+
+.pa-field-row label {
+  width: 30px;
+  flex-shrink: 0;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--pc-label);
+  text-align: right;
+}
+
+.pa-field-row .pc-field { flex: 1; min-width: 0; }
+
+/* Beat only opens once a rep is picked — the beats offered are theirs */
+.pa-field-row .pc-field:disabled {
+  background: var(--pa-disable-bg);
+  border-color: var(--pa-disable-brd);
+  color: var(--pc-placeholder);
+  cursor: not-allowed;
+}
+
+.pa-card .pc-field:has(option[value=""]:checked) { color: var(--pc-placeholder); }
+
+/* Resolve — live only once both selects are answered */
+.pa-resolve {
+  align-self: flex-end;
+  height: 27px;
+  padding: 0 12px 0 14px;
+  background: #f0f1ff;
+  border: 1px solid var(--pa-link);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pa-link);
+  cursor: pointer;
+}
+
+.pa-resolve:disabled {
+  background: rgba(240, 241, 255, 0.6);
+  border-color: rgba(84, 100, 242, 0.6);
+  color: rgba(84, 100, 242, 0.6);
+  cursor: default;
+}
+
+/* ── Empty state ─────────────────────────────────── */
+/* A single muted line centred in the body, matching how the rest of the
+   product says a list has nothing in it */
+.pa-empty {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 30px;
+  font-size: 16px;
+  color: var(--pc-placeholder);
+  text-align: center;
+}
+
+/* ── Success message box (Figma 210:11060) ───────── */
+.pa-msg {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  z-index: 80;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 10px 15px;
+  background: var(--pa-ok-bg);
+  border: 1px solid var(--pa-ok-border);
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  animation: pa-msg-in 0.18s ease-out;
+}
+
+.pa-msg[hidden] { display: none; }
+
+@keyframes pa-msg-in {
+  from { opacity: 0; transform: translate(-50%, -8px); }
+  to   { opacity: 1; transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) { .pa-msg { animation: none; } }
+
+.pa-msg-icon { width: 22px; height: 22px; flex-shrink: 0; }
+
+.pa-msg-text {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pa-ok-text);
+}
+
+.pa-msg-undo {
+  margin-left: 10px;
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--pa-link);
+  cursor: pointer;
+}
+
+.pa-msg-close {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  color: var(--pc-label);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.pa-msg-close:hover { background: rgba(0, 0, 0, 0.06); }

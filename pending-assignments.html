@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beats — Pending Assignments</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="src/sidebar.css" />
+  <link rel="stylesheet" href="src/topbar.css" />
+  <link rel="stylesheet" href="src/style-planner-shared.css" />
+  <link rel="stylesheet" href="src/style-pending-assignments.css" />
+</head>
+<body>
+  <div class="pc-app">
+
+    <!-- Left navigation component -->
+    <aside id="app-sidebar" class="app-sidebar" data-active="beats" data-logo="true"></aside>
+
+    <main class="pc-main">
+
+      <!-- Top Bar (shared component) -->
+      <header class="bp-topbar">
+        <h1 class="bp-topbar-title">Beats</h1>
+        <div class="bp-search">
+          <i class="ti ti-search" aria-hidden="true"></i>
+          <input type="text" placeholder="Search records" />
+        </div>
+        <div class="bp-topbar-icons">
+          <button class="bp-tb-btn plus" aria-label="Add"><i class="ti ti-plus"></i></button>
+          <button class="bp-tb-btn" aria-label="Zia"><i class="ti ti-sparkles"></i></button>
+          <button class="bp-tb-btn" aria-label="Notifications"><i class="ti ti-bell"></i><span class="bp-tb-badge">5</span></button>
+          <button class="bp-tb-btn" aria-label="Calendar"><i class="ti ti-calendar"></i></button>
+          <button class="bp-tb-btn" aria-label="Help"><i class="ti ti-help-circle"></i></button>
+          <button class="bp-tb-btn" aria-label="Settings"><i class="ti ti-settings"></i></button>
+          <div class="bp-avatar-photo">M</div>
+          <button class="bp-tb-btn" aria-label="Apps"><i class="ti ti-grid-dots"></i></button>
+        </div>
+      </header>
+
+      <!-- Pending-assignment band (Figma 189:61492). Hidden once nothing
+           is pending, or once the rep dismisses it. -->
+      <div class="pa-band" id="pa-band">
+        <img class="pa-band-icon" src="src/pa-warn-solid.svg" alt="" aria-hidden="true" />
+        <p class="pa-band-text">
+          <span id="pa-band-count">4 visits</span> pending assignment—
+          <button class="pa-band-link" type="button" id="pa-band-link">Click to review and assign</button>
+        </p>
+        <button class="pa-band-close" type="button" id="pa-band-close" aria-label="Dismiss">
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="pa-page">
+
+        <!-- List-view tabs -->
+        <div class="pa-tabs">
+          <button class="pa-tab active" type="button">All Beats</button>
+          <button class="pa-tab" type="button">Upcoming</button>
+          <button class="pa-tab" type="button">In Progress</button>
+          <button class="pa-tab more" type="button" aria-label="More views"><i class="ti ti-dots"></i></button>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="pa-toolbar">
+          <button class="pa-tool" type="button"><i class="ti ti-filter"></i>Filter</button>
+          <button class="pa-tool" type="button"><i class="ti ti-arrows-sort"></i>Sort</button>
+          <span class="pa-tool-sep"></span>
+          <button class="pa-icon-btn active" type="button" aria-label="List view"><i class="ti ti-list"></i></button>
+          <button class="pa-icon-btn" type="button" aria-label="Calendar view"><i class="ti ti-calendar"></i></button>
+          <button class="pa-icon-btn" type="button" aria-label="Map view"><i class="ti ti-map-pin"></i></button>
+          <button class="pa-icon-btn" type="button" aria-label="More views"><i class="ti ti-chevron-down"></i></button>
+          <span class="pa-toolbar-gap"></span>
+          <button class="pc-btn primary" type="button">Create Beat Plan</button>
+          <button class="pc-btn default" type="button">Distribute Beat Plan</button>
+        </div>
+
+        <!-- Beats table -->
+        <div class="pa-table">
+          <div class="pa-tr pa-thead">
+            <span class="pa-check"><input type="checkbox" aria-label="Select all" /></span>
+            <span>Beat ID</span>
+            <span>Rep</span>
+            <span>Status</span>
+            <span>Dates</span>
+            <span>Visits</span>
+            <span>Mileage</span>
+            <span class="pa-created">Created date
+              <button class="pa-icon-btn" type="button" aria-label="Column settings"><i class="ti ti-adjustments-horizontal"></i></button>
+            </span>
+          </div>
+          <div id="pa-beat-rows"></div>
+        </div>
+
+        <div class="pa-table-foot">
+          <span>Total Records <b>8</b></span>
+          <span class="pa-pager">
+            <button class="pa-icon-btn" type="button" aria-label="Previous page"><i class="ti ti-chevron-left"></i></button>
+            1 - 8
+            <button class="pa-icon-btn" type="button" aria-label="Next page"><i class="ti ti-chevron-right"></i></button>
+          </span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ── Pending Assignments panel (Figma 195:33894) ────────────── -->
+  <div class="pa-scrim" id="pa-scrim" hidden></div>
+
+  <aside class="pa-panel" id="pa-panel" aria-labelledby="pa-panel-title" aria-hidden="true">
+    <!-- Sits outside the panel's left edge, over the dimmed page -->
+    <button class="pa-panel-close" type="button" id="pa-close" aria-label="Close pending assignments">
+      <i class="ti ti-x" aria-hidden="true"></i>
+    </button>
+
+    <!-- Header and filters are one bar: the rule belongs under the pair,
+         not between them (Figma 195:33895 + 204:12047) -->
+    <div class="pa-panel-top">
+    <header class="pa-panel-head">
+      <img class="pa-panel-icon" src="src/pa-visit.svg" alt="" aria-hidden="true" />
+      <div class="pa-panel-heading">
+        <h2 class="pa-panel-title" id="pa-panel-title">Pending Assignments</h2>
+        <p class="pa-panel-sub" id="pa-panel-sub">4 visits awaiting assignment</p>
+      </div>
+      <button class="pa-filter-btn" type="button" id="pa-filter-btn" aria-expanded="false">
+        <img src="src/pa-filter.svg" alt="" aria-hidden="true" />
+        <span>Filter</span>
+        <i class="ti ti-x pa-filter-clear" id="pa-filter-clear" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <!-- Revealed by the Filter button -->
+    <div class="pa-filters" id="pa-filters" hidden>
+      <!-- A button rather than a select: it opens the browser's date picker
+           through the transparent <input type="date"> sitting over it, which
+           is what anchors the calendar. -->
+      <span class="pa-filter-cell">
+        <button class="pc-field pa-filter pa-date-field placeholder" type="button" id="pa-f-date">
+          <span class="pa-date-text" id="pa-f-date-text">Visit Date</span>
+          <i class="ti ti-chevron-down pa-date-caret" aria-hidden="true"></i>
+        </button>
+        <input class="pa-date-native" type="date" id="pa-f-date-native"
+               aria-label="Filter by visit date" tabindex="-1" />
+        <button class="pa-filter-x" type="button" data-key="date" aria-label="Clear visit date filter" hidden>
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </span>
+      <span class="pa-filter-cell">
+        <select class="pc-field pa-filter" id="pa-f-related" data-label="Related to" aria-label="Filter by visit type"></select>
+        <button class="pa-filter-x" type="button" data-key="related" aria-label="Clear visit type filter" hidden>
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </span>
+      <span class="pa-filter-cell">
+        <select class="pc-field pa-filter" id="pa-f-reason" data-label="Reasons" aria-label="Filter by reason"></select>
+        <button class="pa-filter-x" type="button" data-key="reason" aria-label="Clear reason filter" hidden>
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </span>
+    </div>
+    </div>
+
+    <div class="pa-panel-body" id="pa-cards"></div>
+  </aside>
+
+  <!-- Success message box with Undo (Figma 210:11060) -->
+  <div class="pa-msg" id="pa-msg" role="status" aria-live="polite" hidden>
+    <img class="pa-msg-icon" src="src/pa-tick.svg" alt="" aria-hidden="true" />
+    <p class="pa-msg-text">
+      <span id="pa-msg-label">Pending assignment resolved successfully.</span>
+      <button class="pa-msg-undo" type="button" id="pa-msg-undo">Undo</button>
+    </p>
+    <button class="pa-msg-close" type="button" id="pa-msg-close" aria-label="Dismiss">
+      <i class="ti ti-x" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <script src="src/sidebar.js"></script>
+  <script src="src/pending-assignments.js"></script>
+</body>
+</html>
