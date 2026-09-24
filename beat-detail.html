@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BP-003 — Beat Detail</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="src/sidebar.css" />
+  <link rel="stylesheet" href="src/topbar.css" />
+  <link rel="stylesheet" href="src/style-bottom-up.css" />
+  <link rel="stylesheet" href="src/style-beat-detail.css" />
+</head>
+<body>
+  <div class="bp-app">
+    <aside id="app-sidebar" class="app-sidebar" data-active="beats"></aside>
+    <main class="bp-main">
+
+      <header class="bp-topbar">
+        <h1 class="bp-topbar-title">Beats</h1>
+        <div class="bp-search"><i class="ti ti-search" aria-hidden="true"></i><span>Search records</span></div>
+        <div class="bp-topbar-icons">
+          <button class="bp-tb-btn plus" aria-label="Add"><i class="ti ti-plus"></i></button>
+          <button class="bp-tb-btn" aria-label="Zia"><i class="ti ti-sparkles"></i></button>
+          <button class="bp-tb-btn" aria-label="Notifications"><i class="ti ti-bell"></i><span class="bp-tb-badge">5</span></button>
+          <button class="bp-tb-btn" aria-label="Calendar"><i class="ti ti-calendar"></i></button>
+          <button class="bp-tb-btn" aria-label="Help"><i class="ti ti-help-circle"></i></button>
+          <button class="bp-tb-btn" aria-label="Settings"><i class="ti ti-settings"></i></button>
+          <div class="bp-avatar-photo">M</div>
+          <button class="bp-tb-btn" aria-label="Apps"><i class="ti ti-grid-dots"></i></button>
+        </div>
+      </header>
+
+      <!-- Record header. Not Start / End Beat: the rep logs one day at a
+           time, so the button acts on the day that is theirs to work. -->
+      <div class="bp-subheader">
+        <div class="bp-sub-left">
+          <button class="bp-back" aria-label="Back" onclick="location.href='index.html'"><i class="ti ti-arrow-left"></i></button>
+          <div class="bp-code-avatar">B</div>
+          <div>
+            <div class="bp-sub-title-row">
+              <span class="bp-code">BP - 003</span>
+              <span class="bp-badge" id="bd-beat-status">Upcoming</span>
+            </div>
+            <a class="bp-addtags"><i class="ti ti-tag"></i>Add Tags</a>
+          </div>
+        </div>
+        <div class="bp-sub-right">
+          <button class="bp-round" aria-label="Zia"><i class="ti ti-sparkles"></i></button>
+          <!-- The rep's one job on this record, in the slot the frames gave
+               Start Beat / End Beat -->
+          <button class="bp-btn primary" type="button" id="bd-day-action" hidden></button>
+          <button class="bp-btn default">Edit</button>
+          <button class="bp-round" aria-label="More"><i class="ti ti-dots"></i></button>
+          <button class="bp-navarrow" aria-label="Previous" disabled><i class="ti ti-chevron-left"></i></button>
+          <button class="bp-navarrow" aria-label="Next"><i class="ti ti-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="bp-status-band" id="bd-band" hidden>
+        <i class="ti ti-alert-triangle" id="bd-band-icon"></i>
+        <span id="bd-band-text"></span>
+      </div>
+
+      <div class="bp-tabs">
+        <button class="bp-tab active">Overview</button>
+        <button class="bp-tab">Timeline</button>
+      </div>
+
+      <div class="bp-content">
+        <section class="bp-details card">
+          <h2>Beat Details</h2>
+          <div class="bp-detail-grid">
+            <div class="bp-detail">
+              <i class="ti ti-user-circle" style="color:#5a78ff"></i>
+              <div>
+                <div class="bp-detail-label">Beat Owner</div>
+                <div class="bp-detail-value">Cameron Williamson</div>
+              </div>
+            </div>
+            <div class="bp-detail">
+              <i class="ti ti-map-pin" style="color:#c35bf4"></i>
+              <div>
+                <div class="bp-detail-label">Beat Summary</div>
+                <div class="bp-detail-value" id="bd-summary">9 Visits · 32.6 km</div>
+              </div>
+            </div>
+            <div class="bp-detail">
+              <i class="ti ti-calendar-event" style="color:#f564bb"></i>
+              <div>
+                <div class="bp-detail-label">Beat Duration</div>
+                <div class="bp-detail-value">4 May 2026 - 6 May 2026</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bp-visits-title">Visits</div>
+          <div id="bd-days"></div>
+        </section>
+
+        <section class="bp-routemap card">
+          <div class="bp-routemap-header">
+            <h2>Route Map</h2>
+            <a href="#">View Full Map <i class="ti ti-arrow-up-right"></i></a>
+          </div>
+          <div class="map-area" id="map-area">
+            <canvas id="map-canvas" aria-label="Route map"></canvas>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Visit (Figma 4007:113738) -->
+  <div class="bd-overlay" id="bd-overlay" hidden>
+    <div class="bd-modal" role="dialog" aria-modal="true" aria-labelledby="bd-av-title">
+      <header class="bd-modal-head">
+        <h2 class="bd-modal-title" id="bd-av-title"></h2>
+      </header>
+
+      <div class="bd-modal-body">
+        <div class="bd-field">
+          <label for="av-record">Module &amp; Record</label>
+          <div class="bd-control">
+            <select class="bd-input mandatory" id="av-record">
+              <option value="" selected disabled>Select Record</option>
+              <optgroup label="Contacts">
+                <option value="Rahul Verma">Rahul Verma</option>
+                <option value="Meera Iyer">Meera Iyer</option>
+              </optgroup>
+              <optgroup label="Accounts">
+                <option value="Sunrise Traders">Sunrise Traders</option>
+                <option value="Metro Wholesale">Metro Wholesale</option>
+              </optgroup>
+              <optgroup label="Leads">
+                <option value="Karthik Rao">Karthik Rao</option>
+                <option value="Anita Desai">Anita Desai</option>
+              </optgroup>
+              <optgroup label="Deals">
+                <option value="Q2 Renewal — Apollo">Q2 Renewal — Apollo</option>
+              </optgroup>
+            </select>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+
+        <div class="bd-field">
+          <label for="av-type">Visit Type</label>
+          <div class="bd-control">
+            <select class="bd-input mandatory" id="av-type">
+              <option value="" selected disabled>Select Visit Type</option>
+              <option>Order Delivery</option>
+              <option>Gate Approval</option>
+              <option>Shop Delivery</option>
+              <option>Order Approval</option>
+              <option>Stock Check</option>
+              <option>Relationship Check-in</option>
+            </select>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+
+        <!-- Opens once a visit type is chosen: the slot depends on it -->
+        <div class="bd-field">
+          <label for="av-time">Visit Time</label>
+          <div class="bd-control">
+            <select class="bd-input" id="av-time" disabled></select>
+          </div>
+        </div>
+
+        <div class="bd-field">
+          <label for="av-desc">Description</label>
+          <div class="bd-control">
+            <textarea class="bd-input bd-textarea" id="av-desc" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="bd-field">
+          <label for="av-pic">Visit Location Pic</label>
+          <div class="bd-control">
+            <label class="bd-input bd-upload" for="av-pic">
+              <span id="av-pic-name">Upload your file</span>
+              <i class="ti ti-upload" aria-hidden="true"></i>
+            </label>
+            <input class="bd-file" type="file" id="av-pic" accept="image/*" />
+          </div>
+        </div>
+
+        <div class="bd-field">
+          <label for="av-status">Location Status</label>
+          <div class="bd-control">
+            <select class="bd-input" id="av-status">
+              <option value="" selected disabled>Select Status</option>
+              <option>Verified</option>
+              <option>Unverified</option>
+              <option>Needs Review</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <footer class="bd-modal-foot">
+        <button class="bp-btn default" type="button" id="av-cancel">Cancel</button>
+        <button class="bp-btn primary" type="button" id="av-add">Add</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- End Day confirmation: what the day came to, before it is closed -->
+  <div class="bd-overlay bd-overlay-top" id="bd-end-overlay" hidden>
+    <div class="bd-modal bd-modal-end" role="dialog" aria-modal="true" aria-labelledby="bd-end-title">
+      <header class="bd-modal-head">
+        <h2 class="bd-modal-title" id="bd-end-title"></h2>
+        <p class="bd-end-sub" id="bd-end-sub"></p>
+      </header>
+
+      <div class="bd-modal-body">
+        <dl class="bd-summary">
+          <div><dt>Visits Completed</dt><dd id="bd-sum-done"></dd></div>
+          <div><dt>Not Visited</dt><dd id="bd-sum-left"></dd></div>
+          <div><dt>Distance Covered</dt><dd id="bd-sum-km"></dd></div>
+          <div><dt>Time on the Day</dt><dd id="bd-sum-time"></dd></div>
+        </dl>
+        <div class="bd-end-note-wrap" id="bd-end-note" hidden>
+          <p class="bd-end-note"><b>Note:</b> Visits that aren&rsquo;t completed will be marked as missed</p>
+        </div>
+      </div>
+
+      <footer class="bd-modal-foot">
+        <button class="bp-btn default" type="button" id="bd-end-cancel">Cancel</button>
+        <button class="bp-btn bd-end" type="button" id="bd-end-confirm">End Day</button>
+      </footer>
+    </div>
+  </div>
+
+  <div class="bd-toast" id="bd-toast" role="status" aria-live="polite"></div>
+
+  <script src="src/data.js"></script>
+  <script src="src/map.js"></script>
+  <script src="src/sidebar.js"></script>
+  <script src="src/beat-detail.js"></script>
+</body>
+</html>

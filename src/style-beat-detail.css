@@ -1,0 +1,584 @@
+/* ============================================================
+   Beat detail — the day-by-day additions
+   Everything else (shell, day accordion, visit cards, tags) is
+   inherited from style-bottom-up.css.
+   ============================================================ */
+
+:root {
+  --bd-link:      #5464f2;   /* Primary Palette/Link */
+  --bd-link-soft: #abb3ff;   /* Icons/Secondary/Link Blue */
+  --bd-rail-idle: #c3c9d6;   /* a stop the day has not reached yet */
+}
+
+/* Both of these set a display in the shared sheet, which outranks the
+   hidden attribute on its own */
+.bp-status-band[hidden],
+.bp-btn[hidden] { display: none; }
+
+/* ── Day card (Figma 3894:98325) ─────────────────────── */
+/* The card holds no padding of its own — the header row carries it, so a
+   collapsed day is exactly the header. */
+.bd-day {
+  padding: 0;
+  border: 1px solid #dcdbee;
+  border-radius: 10px;
+}
+
+.bd-day .bp-day-header {
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 18px 12px 20px;
+}
+
+.bd-day .bp-day-body { padding: 0 20px 12px; }
+
+/* The exported filled triangle, pointing right until the day opens */
+.bd-chev {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-90deg);
+  transition: transform 0.18s ease;
+}
+
+.bd-chev img { width: 12px; height: 6px; display: block; }
+
+.bd-day.expanded .bd-chev { transform: none; }
+
+@media (prefers-reduced-motion: reduce) { .bd-chev { transition: none; } }
+
+/* Figma 3479:100760 — the day and its date are one heading in three colours:
+   the day in base text, the bullet lighter still, the date in label grey */
+.bd-day-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--base);
+}
+
+.bd-day-title .dot  { color: #9c9ca6; }
+.bd-day-title .date { color: var(--label); }
+
+/* The tally closes the title row on the right, the way the frame has it */
+.bd-day-count {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--label);
+  white-space: nowrap;
+}
+
+/* The clock takes the line below, indented past the chevron — the title row
+   is already carrying a status tag and the tally, and the details column is
+   only 390px wide */
+.bd-day-clock {
+  flex-basis: 100%;
+  margin-left: 23px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--label);
+}
+
+/* Negative Button — the gradient the design system gives a destructive
+   action, and what End Beat used in the frames */
+.bp-btn.bd-end {
+  background: linear-gradient(to bottom, #ff4657, #e23041);
+  border: none;
+  color: #fff;
+}
+
+.bp-btn.bd-end:hover { filter: brightness(1.05); }
+
+/* A day that is running is the one the rep is working in */
+.bd-day.active { border-color: var(--primary); background: #fbfcff; }
+.bd-day.done   { border-color: #d7e2ed; }
+
+/* ── Selecting and expanding ─────────────────────────── */
+/* The whole card is the hit area. The visit list inside an expanded card is
+   exempt, so reading it never folds the day away. */
+.bd-day { cursor: pointer; }
+.bd-day:hover { background: #fafbff; }
+.bd-day .bp-day-body { cursor: default; }
+
+/* Selected is the highlight and the day the map draws; expanded is whether
+   the visits show. They are separate, so a selected day can sit collapsed.
+   Declared after .active / .done so a selected day keeps the accent. The
+   second pixel is an inset shadow rather than a thicker border, so nothing
+   reflows when the selection moves. */
+.bd-day.selected {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.bd-day.expanded .bp-day-body { display: block; }
+.bd-day.expanded .bp-day-header { margin-bottom: 12px; }
+
+
+/* ── Toast ───────────────────────────────────────────── */
+.bd-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  z-index: 90;
+  transform: translateX(-50%) translateY(12px);
+  padding: 10px 16px;
+  background: #223458;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.bd-toast.show { opacity: 1; transform: translateX(-50%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .bd-toast { transition: none; }
+}
+
+/* ── Add Visit modal (Figma 4007:113738) ─────────────── */
+/* 582 wide · 30px side padding · label column 112 + 20 gap · control 390
+   · rows 20 apart · header 25/30/15 · footer 30/30/30 */
+.bd-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(32, 33, 35, 0.45);
+  animation: bd-fade 0.16s ease-out;
+}
+
+.bd-overlay[hidden] { display: none; }
+
+@keyframes bd-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.bd-modal {
+  width: 582px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  animation: bd-modal-in 0.2s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+@keyframes bd-modal-in {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bd-overlay, .bd-modal { animation: none; }
+}
+
+.bd-modal-head { flex-shrink: 0; padding: 25px 30px 15px; }
+
+.bd-modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 25px;
+  color: var(--heading);
+}
+
+/* The bullet between day and date is set smaller than the words it joins */
+.bd-modal-title .dot { font-size: 18px; font-weight: 400; }
+
+.bd-modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.bd-modal-foot {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 30px;
+}
+
+/* ── Fields ──────────────────────────────────────────── */
+.bd-field { display: flex; align-items: flex-start; gap: 20px; }
+
+/* Direct child only — the file picker inside .bd-control is a <label> too,
+   and it must not take the label column's width or alignment */
+.bd-field > label {
+  width: 112px;
+  flex-shrink: 0;
+  padding-top: 8px;
+  font-size: 14px;
+  line-height: 18px;
+  color: var(--label);
+  text-align: right;
+}
+
+.bd-control { width: 390px; display: flex; flex-direction: column; gap: 4px; }
+
+.bd-input {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  background: #fff;
+  border: 1px solid #c0c8e2;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--base);
+  outline: none;
+}
+
+.bd-input:focus { border-color: var(--primary); }
+
+/* The 3px strip a mandatory field carries inside its left edge */
+.bd-input.mandatory { box-shadow: inset 3px 0 0 #ff5d5a; }
+
+.bd-input:disabled {
+  background: #f5f6f8;
+  border-color: #d2d9f1;
+  color: #8c91ab;
+  cursor: not-allowed;
+}
+
+/* A select showing its placeholder reads as placeholder text */
+select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
+
+.bd-textarea {
+  height: 76px;
+  padding: 8px 10px;
+  resize: vertical;
+  line-height: 18px;
+}
+
+/* File picking goes through the label; the input itself never shows */
+.bd-upload {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #7c8bae;
+  cursor: pointer;
+}
+
+.bd-upload.filled { color: var(--base); }
+.bd-upload span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bd-upload i { font-size: 16px; color: var(--label); flex-shrink: 0; }
+
+.bd-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+.bd-input.invalid { border-color: #ff5d5a; }
+
+.bd-msg { font-size: 11px; line-height: 13px; color: #ff5d5a; }
+.bd-msg[hidden] { display: none; }
+
+/* ── End Day confirmation (Figma 5298:812393) ────────── */
+/* 697 wide · header 25/30/15 · body 0/30 · footer 30 · the summary in a
+   bg-3 panel with a 140px right-aligned label column */
+/* Drops in from the top edge, the way Add Module does on the planner — so
+   the top corners square off against the viewport */
+.bd-overlay-top { align-items: flex-start; }
+
+.bd-modal-end {
+  width: 697px;
+  border-radius: 0 0 15px 15px;
+  box-shadow: 0 4px 18px rgba(49, 57, 73, 0.6);
+  animation: bd-modal-drop 0.24s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+@keyframes bd-modal-drop {
+  from { opacity: 0; transform: translateY(-40px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) { .bd-modal-end { animation: none; } }
+
+.bd-modal-end .bd-modal-body { gap: 0; }
+
+.bd-end-sub {
+  margin-top: 15px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #434d5f;
+}
+
+.bd-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 16px 20px;
+  background: #f8faff;
+  border: 1px solid #dcdbee;
+  border-radius: 6px;
+}
+
+.bd-summary > div { display: flex; align-items: center; gap: 20px; }
+
+.bd-summary dt,
+.bd-summary dd { font-size: 14px; font-weight: 500; line-height: 20px; }
+
+.bd-summary dt { width: 140px; flex-shrink: 0; text-align: right; color: var(--label); }
+.bd-summary dd { color: var(--base); white-space: nowrap; }
+
+/* The note hugs its text rather than filling the row */
+.bd-end-note-wrap { display: flex; padding-top: 15px; }
+.bd-end-note-wrap[hidden] { display: none; }
+
+.bd-end-note {
+  padding: 8px 15px;
+  background: #ffffea;
+  border: 1px solid #e5dec5;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 18px;
+  color: #56564d;
+}
+
+.bd-end-note b { font-weight: 600; }
+
+/* ============================================================
+   The day's timeline
+   Figma 3479:97993 — rows sit on one continuous rail that runs from
+   Home's pin to Office's pin. Each row paints its own slice of the line
+   behind the 28px circles, so consecutive rows join seamlessly; the two
+   end rows stop theirs at the circle. Blue as far as the rep has got.
+   ============================================================ */
+.bd-timeline { position: relative; }
+
+.bd-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+/* left 13.5 puts the 1px line on the centre of the 28px circle column */
+.bd-row::before {
+  content: '';
+  position: absolute;
+  left: 13.5px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--bd-rail-idle);
+}
+
+/* The travelled run is drawn a touch heavier; left shifts by the same
+   quarter pixel so the line stays centred on the circles either way */
+.bd-row.reached::before { background: var(--bd-link); width: 1.5px; left: 13.25px; }
+.bd-row.first::before { top: 50%; }
+.bd-row.last::before  { bottom: 50%; }
+
+/* The circles sit above the line and are opaque, so it passes behind them */
+.bd-rail {
+  position: relative;
+  z-index: 1;
+  width: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bd-text { flex: 1; min-width: 0; padding: 4px 10px; }
+
+/* ── Stops ───────────────────────────────────────────── */
+/* Every stop is the same 28px white circle with the number in base text.
+   Nothing is filled in — the tag beside the visit is what says completed,
+   so the rail stays a plain timeline carrying only how far the day got. */
+.bd-day .bp-visit-num {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid var(--bd-rail-idle);
+  border-radius: 50%;
+  color: var(--base);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 17px;
+}
+
+.bd-day .bp-visit-num.done,
+.bd-day .bp-visit-num.active { border-color: var(--bd-link); }
+
+/* A stop the rep never reached keeps the grey of one not yet reached, with
+   its number greyed too — nothing happened there. The Missed tag is what
+   names it, so the rail does not shout in red. */
+.bd-day .bp-visit-num.missed { color: var(--label); }
+
+/* One ring, and it is the halo itself that travels: it starts tight against
+   the circle and expands out, fading to nothing at full size. The resting
+   3px halo below is what shows when the animation is off. */
+.bd-day .bp-visit-num.active {
+  box-shadow: 0 0 0 3px var(--bd-link-soft);
+  animation: bd-pulse 2s ease-out infinite;
+}
+
+@keyframes bd-pulse {
+  0%   { box-shadow: 0 0 0 3px  rgba(171, 179, 255, 1); }
+  55%  { box-shadow: 0 0 0 9px  rgba(171, 179, 255, 0.45); }
+  100% { box-shadow: 0 0 0 13px rgba(171, 179, 255, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bd-day .bp-visit-num.active { animation: none; }
+}
+
+/* ── Visit (Figma 3479:98015) ─────────────────────────── */
+/* No card — the stop is plain text beside the rail */
+.bd-visit .bd-text { display: flex; flex-direction: column; gap: 3px; }
+
+.bd-visit-head { display: flex; align-items: flex-start; gap: 8px; }
+
+.bd-visit-name {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--base);
+}
+
+.bd-visit-name .dot { color: #9c9ca6; font-weight: 400; }
+.bd-visit-name .mod { color: var(--label); font-weight: 400; }
+
+.bd-visit-meta {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--para);
+}
+
+.bd-visit-meta .sep { margin: 0 6px; }
+
+/* Small Tag (Figma 3479:98019) */
+.bd-day .bp-visit-tag {
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.bd-day .bp-visit-tag.approved { background: #ddf8ec; color: #009653; }
+
+/* Only the stop in hand is clickable; the rest of the list is a record */
+.bd-settleable { cursor: pointer; }
+.bd-settleable:hover .bd-text { background: #f4f6ff; border-radius: 7px; }
+
+/* ── Leg between stops (Figma 3479:98007) ─────────────── */
+/* A rule running out to the right, then the car and the estimate. The 47px
+   lines its rule up with the text column of the stops above and below. */
+.bd-leg {
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 4px 0 4px 47px;
+}
+
+.bd-leg-rule { flex: 1; min-width: 0; height: 0; border-top: 0.5px solid #d6d6e3; }
+.bd-leg-car { width: 16px; height: 16px; flex-shrink: 0; }
+
+.bd-leg-text {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--para);
+  white-space: nowrap;
+}
+
+/* ── Home / Office (Figma 3479:97996 · 3479:98092) ───── */
+/* The same 28px ring as the stops: link blue for Home, border-4 for Office */
+.bd-place-home   { padding: 4px 0; }
+.bd-place-office { padding: 4px 0 8px; }
+
+.bd-place-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid;
+  border-radius: 55px;
+}
+
+/* Home only picks up the link blue once the rep has set off — until the day
+   starts it is a stop like any other they have not reached */
+.bd-place-home   .bd-place-icon { border-color: var(--bd-rail-idle); }
+.bd-place-home.reached .bd-place-icon { border-color: var(--bd-link); }
+.bd-place-office .bd-place-icon { border-color: #edf0f4; }
+
+.bd-place-icon img { width: 16px; height: 16px; display: block; }
+
+.bd-place .bd-text { display: flex; flex-direction: column; gap: 2px; }
+.bd-place-office .bd-text { padding: 4px 11px; }
+
+.bd-place-line { display: flex; gap: 8px; font-size: 14px; line-height: 20px; }
+.bd-place-line .name { font-weight: 500; color: var(--base); }
+.bd-place-line .at   { color: var(--label); }
+.bd-place-line .time { color: var(--para); }
+
+.bd-place-addr { font-size: 14px; line-height: 20px; color: var(--label); }
+
+/* ── Add Visit (Figma 3468:78635) ─────────────────────── */
+/* 28px dashed circle · 12px plus · 16 to the label · 14/500 link blue */
+.bd-add-row { gap: 16px; padding: 8px 0; }
+
+.bd-day .bp-visit-num.bd-add-num {
+  border: 1px dashed var(--bd-link-soft);
+  box-shadow: none;
+}
+
+.bp-visit-num.bd-add-num img { width: 12px; height: 12px; display: block; }
+
+.bd-add-row .bd-text { padding: 0 0 0 10px; }
+
+.bd-add-visit {
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--bd-link);
+  cursor: pointer;
+}
+
+.bd-add-visit:hover { text-decoration: underline; }
+.bd-add-row:hover .bp-visit-num.bd-add-num { border-color: var(--bd-link); }
+
+/* ── Beat status badge ───────────────────────────────── */
+/* Figma 2383:48054 (Upcoming) · 2055:44440 (In Progress) · 2055:44842
+   (Completed). A solid pill in white text, each with a darker outline —
+   distinct from the pastel tags the days and visits carry. */
+.bp-badge.bd-upcoming,
+.bp-badge.bd-progress,
+.bp-badge.bd-done {
+  padding: 3px 10px 4px;
+  border: 1px solid;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: normal;
+  color: #fff;
+}
+
+.bp-badge.bd-upcoming { background: #6865f1; border-color: #4341cc; }
+.bp-badge.bd-progress { background: #d48714; border-color: #9b6310; }
+.bp-badge.bd-done     { background: #12aa67; border-color: #198254; }
+
+/* A leg the rep has driven reports the real figure, so it reads a shade
+   firmer than the estimate above it */
+.bd-leg-text.actual { color: var(--base); }
