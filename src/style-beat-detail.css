@@ -420,22 +420,28 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
    names it, so the rail does not shout in red. */
 .bd-day .bp-visit-num.missed { color: var(--label); }
 
-/* One ring, and it is the halo itself that travels: it starts tight against
-   the circle and expands out, fading to nothing at full size. The resting
-   3px halo below is what shows when the animation is off. */
-.bd-day .bp-visit-num.active {
-  box-shadow: 0 0 0 3px var(--bd-link-soft);
+/* One ring: a 3px halo drawn just outside the circle, which grows and fades
+   away. It is a real ring element rather than a box-shadow spread, because
+   only transform and opacity can be composited — animating the shadow's
+   spread repaints the circle every frame, which is what made it stagger. */
+.bd-day .bp-visit-num.active::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border: 3px solid var(--bd-link-soft);
+  border-radius: 50%;
   animation: bd-pulse 2s ease-out infinite;
 }
 
 @keyframes bd-pulse {
-  0%   { box-shadow: 0 0 0 3px  rgba(171, 179, 255, 1); }
-  55%  { box-shadow: 0 0 0 9px  rgba(171, 179, 255, 0.45); }
-  100% { box-shadow: 0 0 0 13px rgba(171, 179, 255, 0); }
+  0%   { transform: scale(1);    opacity: 1; }
+  55%  { transform: scale(1.35); opacity: 0.45; }
+  100% { transform: scale(1.75); opacity: 0; }
 }
 
+/* Motion off: the ring simply rests where it starts */
 @media (prefers-reduced-motion: reduce) {
-  .bd-day .bp-visit-num.active { animation: none; }
+  .bd-day .bp-visit-num.active::after { animation: none; }
 }
 
 /* ── Visit (Figma 3479:98015) ─────────────────────────── */
