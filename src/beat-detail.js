@@ -85,9 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
      Attachments shows "No Attachment". */
   const ATTACHMENTS = [];
 
-  /* The beat's name as other records show it: code | first – last day */
-  const BEAT_REF = 'BP - 003 | 4 May - 6 May';
-
   /* The business card shown on hovering a visit's name (Figma 6444:572006).
      Visits come from different modules, so each module brings the five
      fields the CRM card would show for it; `phone: true` marks a number
@@ -157,6 +154,10 @@ document.addEventListener('DOMContentLoaded', () => {
      losing the one they are on. */
   let selectedDay = 0;
   let expanded = true;
+
+  /* The visit picked on either side — its row in the list, its pin on the
+     map — so both show the same stop. { day, visit } or null. */
+  let focused = null;
 
   /* Which of the three arrangements is showing. Type 3 is Type 2 with the
      day's action moved onto the day itself, so it wears both classes — see
@@ -298,8 +299,9 @@ document.addEventListener('DOMContentLoaded', () => {
     /* A completed stop reports when it really happened, not when it was
        planned for; one never reached keeps its plan */
     const when = visit.status === 'done' && visit.actual ? visit.actual : visit.time;
+    const isFocused = focused && DAYS[focused.day] === day && focused.visit === i;
     return `
-      <div class="bd-row bd-visit ${reached ? 'reached' : ''} ${isCurrent ? 'bd-current' : ''} ${settle ? 'bd-settleable' : ''}"
+      <div class="bd-row bd-visit ${reached ? 'reached' : ''} ${isCurrent ? 'bd-current' : ''} ${settle ? 'bd-settleable' : ''} ${isFocused ? 'bd-focus' : ''}"
            data-visit="${i}" ${settle ? 'title="Mark this visit completed"' : ''}>
         <span class="bd-rail ${visit.status === 'active' ? 'bd-pulsing' : ''}"><span class="bp-visit-num ${visit.status}">${i + 1}</span></span>
         <div class="bd-text">
@@ -449,15 +451,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const link = text => `<a href="#" class="bd-rl-link">${escape(text)}</a>`;
 
   function renderRelatedLists() {
-    const visitRows = DAYS.flatMap((day, i) => day.visits.map(v => [
-      link(v.name),
-      link(BEAT_REF),
-      link(dayRef(i)),
-      link(v.name.replace(/ Visit$/, '')),
-    ]));
-    $('bd-visits-body').innerHTML = tableHtml(
-      ['Beat Visit Name', 'Beat', 'Beat Day', 'Visit For'], visitRows, 'No records found');
-
     $('bd-expenses-body').innerHTML = tableHtml(
       ['Expense Name', 'Category', 'Beat Day', 'Amount'],
       EXPENSES.map(e => [link(e.name), escape(e.category), link(dayRef(e.day)), money(e.amount)]),
@@ -468,8 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ATTACHMENTS.map(a => [link(a.file), a.size, escape(a.by), a.on]),
       'No Attachment');
 
-    $('bd-sum-visits').textContent = visitRows.length;
-    $('bd-rlist-visits').textContent = visitRows.length || '';
+    $('bd-sum-visits').textContent = DAYS.reduce((n, day) => n + day.visits.length, 0);
     const total = EXPENSES.reduce((sum, e) => sum + e.amount, 0);
     $('bd-sum-expenses').textContent = EXPENSES.length ? money(total) : '—';
   }
@@ -730,6 +722,18 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    /* A visit in the list: take the map to its pin. The visit in progress
+       still completes on its click, below — this only moves the map. */
+    const vrow = e.target.closest('.bd-visit');
+    if (vrow) {
+      const d = Number(vrow.closest('.bd-day').dataset.day);
+      const v = Number(vrow.dataset.visit);
+      focused = { day: d, visit: v };
+      daysEl.querySelectorAll('.bd-visit.bd-focus').forEach(el => el.classList.remove('bd-focus'));
+      vrow.classList.add('bd-focus');
+      panToVisit(d, v);
+    }
+
     /* Completing the stop in hand */
     const row = e.target.closest('.bd-settleable');
     if (row) {
@@ -747,7 +751,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* Clicking the day already selected folds it away and leaves it
        selected; clicking another one selects and opens it */
     if (i === selectedDay) expanded = !expanded;
-    else { selectedDay = i; expanded = true; }
+    else { selectedDay = i; expanded = true; focused = null; }
     render();
   });
 
@@ -963,6 +967,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.font = `600 ${10 / this.scale}px system-ui, sans-serif`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(vi + 1, p.x, p.y);
+        /* A ring round the stop picked in the list or on the map */
+        if (focused && focused.day === i && focused.visit === vi) {
+          ctx.beginPath(); ctx.arc(p.x, p.y, r + 5 / this.scale, 0, Math.PI * 2);
+          ctx.strokeStyle = ACTIVE; ctx.lineWidth = 2 / this.scale; ctx.stroke();
+        }
       });
       ctx.restore();
     });
@@ -1012,6 +1021,52 @@ document.addEventListener('DOMContentLoaded', () => {
     return hit;
   }
 
+  /* The stop under a point, or null — the pin test of dayAt() on its own */
+  function visitAt(map, mx, my) {
+    const [wx, wy] = map.screenToWorld(mx, my);
+    const tol = 15 / map.scale;
+    let hit = null, best = Infinity;
+    DAYS.forEach((day, d) => day.pins.forEach((p, v) => {
+      const dist = Math.hypot(p.x - wx, p.y - wy);
+      if (dist <= tol && dist < best && day.visits[v]) { best = dist; hit = { day: d, visit: v }; }
+    }));
+    return hit;
+  }
+
+  /* Glide the map onto one stop, zooming in if it is further out than
+     this. A short ease rather than a jump, so the eye follows. */
+  const FOCUS_SCALE = 1.6;
+  function panToVisit(d, v) {
+    const map = fieldMap, pin = DAYS[d].pins[v];
+    if (!pin) return;
+    const from = { s: map.scale, x: map.panX, y: map.panY };
+    const s1 = Math.max(map.scale, FOCUS_SCALE);
+    const to = { s: s1, x: map.canvas.width / 2 - pin.x * s1, y: map.canvas.height / 2 - pin.y * s1 };
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const start = performance.now(), DUR = reduce ? 0 : 350;
+    cancelAnimationFrame(panToVisit._raf);
+    const step = now => {
+      const t = DUR ? Math.min(1, (now - start) / DUR) : 1;
+      const k = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;   /* ease-in-out */
+      map.scale = from.s + (to.s - from.s) * k;
+      map.panX = from.x + (to.x - from.x) * k;
+      map.panY = from.y + (to.y - from.y) * k;
+      map.draw();
+      if (t < 1) panToVisit._raf = requestAnimationFrame(step);
+      else { map._clamp(); map.draw(); }
+    };
+    panToVisit._raf = requestAnimationFrame(step);
+  }
+
+  /* Bring the focused row into the middle of the list, if it is not in view */
+  function revealFocusedRow() {
+    const row = daysEl.querySelector('.bd-visit.bd-focus');
+    if (!row || !scroller) return;
+    const box = scroller.getBoundingClientRect(), r = row.getBoundingClientRect();
+    if (r.top >= box.top && r.bottom <= box.bottom) return;
+    scroller.scrollTop += r.top - box.top - (box.height - r.height) / 2;
+  }
+
   function bindDayPicking(map) {
     const at = e => {
       const r = map.canvas.getBoundingClientRect();
@@ -1020,10 +1075,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     map.canvas.addEventListener('click', e => {
       if (map.didDrag) return;
+      /* A stop: open its day in the list and point at its row */
+      const r = map.canvas.getBoundingClientRect();
+      const stop = visitAt(map, e.clientX - r.left, e.clientY - r.top);
+      if (stop) {
+        focused = stop;
+        selectedDay = stop.day;
+        expanded = true;
+        render();
+        revealFocusedRow();
+        return;
+      }
       const i = at(e);
       if (i === -1 || i === selectedDay) return;
       selectedDay = i;
       expanded = true;
+      focused = null;
       render();
     });
 
@@ -1154,16 +1221,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     railItems.forEach(item => item.classList.toggle('active', item === current));
   }
-
-  /* Emails: Mails / Drafts / Scheduled. The prototype has no mail, so
-     each tab shows the same empty state; only the selection moves. */
-  const mailTabs = [...document.querySelectorAll('#bd-emails .bd-rl-tab')];
-  mailTabs.forEach(tab => tab.addEventListener('click', () => {
-    mailTabs.forEach(t => {
-      t.classList.toggle('active', t === tab);
-      t.setAttribute('aria-selected', String(t === tab));
-    });
-  }));
 
   /* ── Business card on a visit's name ───────────────── */
   /* Opens after a short rest on the name, so passing the pointer over the

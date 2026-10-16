@@ -1,0 +1,39 @@
+/* ============================================================
+   Zoho Puvi — served with the project, so pages render in it on any
+   machine and when hosted, not only where the font is installed.
+
+   Version 4.5 (Fixed), Web-TT .woff2. Only the four weights the
+   stylesheets use are shipped: 400, 500, 600 and 700. Linked before
+   every other stylesheet on each page.
+   ============================================================ */
+@font-face {
+  font-family: 'Zoho Puvi';
+  src: url('fonts/zoho-puvi-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Zoho Puvi';
+  src: url('fonts/zoho-puvi-medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Zoho Puvi';
+  src: url('fonts/zoho-puvi-semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Zoho Puvi';
+  src: url('fonts/zoho-puvi-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

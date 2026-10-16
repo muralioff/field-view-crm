@@ -550,7 +550,11 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 .bd-day .bp-visit-tag.approved { background: #ddf8ec; color: #009653; }
 
 /* Only the stop in hand is clickable; the rest of the list is a record */
+.bd-visit { cursor: pointer; }
 .bd-settleable { cursor: pointer; }
+
+/* The visit picked in the list or on the map — its pin carries a ring */
+.bd-visit.bd-focus .bd-text { background: #eef0ff; border-radius: 7px; }
 .bd-settleable:hover .bd-text { background: #f4f6ff; border-radius: 7px; }
 
 /* ── Leg between stops (Figma 3479:98007) ─────────────── */
@@ -1066,19 +1070,6 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
   font-weight: 500;
 }
 
-/* A list's record count, as the CRM rail shows it; empty when none */
-.bd-rlist-count {
-  margin-left: 8px;
-  padding: 1px 7px;
-  background: #eef0f9;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--base);
-}
-
-.bd-rlist-count:empty { display: none; }
-
 /* Add Related List / Add Link — link-blue actions closing each group */
 .bd-rlist-add {
   display: block;
@@ -1207,7 +1198,7 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
 /* Summary sits under the Beat Detail View now and reads as the CRM's
    business card: five label → value pairs, no title */
 
-/* Attachments, Emails, Visits and Expenses — Type 2 only, as Notes */
+/* Attachments and Expenses — Type 2 only, as Notes */
 .type-1 .bd-rl-extra { display: none; }
 
 /* Header actions: Figma "Outline Blue Btn-Small" (6444:82553), and its
@@ -1235,22 +1226,6 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
 
 .bd-rl-btn:hover { background: #e4e7ff; }
 .bd-rl-btn:focus-visible { outline: 2px solid var(--bd-link); outline-offset: 2px; }
-
-.bd-rl-icon {
-  width: 28px;
-  height: 28px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: none;
-  border-radius: 4px;
-  font-size: 18px;
-  color: var(--base);
-  cursor: pointer;
-}
-
-.bd-rl-icon:hover { background: #f1f2f8; }
 
 /* Tables: a header row, then one row a record, ruled between */
 .bd-rl-table-wrap { overflow-x: auto; }
@@ -1284,43 +1259,12 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
 .bd-rl-link { color: var(--bd-link); text-decoration: none; }
 .bd-rl-link:hover { text-decoration: underline; }
 
-/* Emails: Mails / Drafts / Scheduled, the selected one underlined */
-.bd-rl-tabs {
-  display: flex;
-  gap: 24px;
-  padding: 0 20px;
-  border-bottom: 1px solid #d6d6e3;
-}
-
-.bd-rl-tab {
-  position: relative;
-  padding: 12px 2px;
-  border: none;
-  background: none;
-  font-family: inherit;
-  font-size: 14px;
-  color: var(--base);
-  cursor: pointer;
-}
-
-.bd-rl-tab.active::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 2px;
-  border-radius: 2px 2px 0 0;
-  background: var(--bd-link);
-}
-
 .bd-rl-empty {
   padding: 22px 20px;
   font-size: 14px;
   color: var(--label);
 }
 
-.bd-rl-empty-center { text-align: center; }
 
 /* ── Business card on a visit's name (Figma 6444:572006) ──────────── */
 .bd-visit-name .vname { cursor: default; text-underline-offset: 3px; }
