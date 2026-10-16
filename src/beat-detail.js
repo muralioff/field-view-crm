@@ -116,6 +116,21 @@ document.addEventListener('DOMContentLoaded', () => {
     'Divya Nair Visit':   { owner: 'Lucas Reed', sub: 'Plaza Pharmacy', email: 'divya.nair@plazapharmacy.com', phone: '212 555 0130', mobile: '917 555 0117', pref: 'Email' },
   };
 
+  /* The visit's ⋯ menu, by visit state (docs/beat-detail-view-spec.md §5.1).
+     A completed visit offers nothing, so it gets no ⋯ at all. */
+  const VISIT_ACTIONS = {
+    pending:   ['cancel', 'edit', 'reschedule', 'reassign', 'location'],
+    active:    ['cancel', 'edit', 'reschedule', 'reassign', 'location'],
+    missed:    ['edit', 'reschedule', 'reassign'],
+    cancelled: ['edit', 'reschedule'],
+    done:      [],
+  };
+
+  const ACTION_LABEL = {
+    cancel: 'Cancel Visit', edit: 'Edit Visit', reschedule: 'Reschedule Visit',
+    reassign: 'Reassign Visit', location: 'Adjust Location',
+  };
+
   /* Where each record in the Add Visit picker lives, so a visit added there
      shows its address like the planned ones */
   const RECORD_ADDRESS = {
@@ -298,7 +313,22 @@ document.addEventListener('DOMContentLoaded', () => {
             <p class="bd-visit-meta">${escape(when)}</p>
           </div>
         </div>
+        ${visitMenuHtml(visit)}
       </div>`;
+  }
+
+  function visitMenuHtml(visit) {
+    const actions = VISIT_ACTIONS[visit.status || 'pending'] || [];
+    if (!actions.length) return '';
+    return `
+        <div class="bd-vmenu-wrap">
+          <button class="bd-vmore" type="button" aria-haspopup="menu" aria-expanded="false"
+                  aria-label="Actions for ${escape(visit.name)}"><i class="ti ti-dots" aria-hidden="true"></i></button>
+          <div class="bd-vmenu" role="menu" hidden>
+            ${actions.map(a => `<button class="bd-vmenu-item${a === 'cancel' ? ' danger' : ''}" type="button"
+                    role="menuitem" tabindex="-1" data-action="${a}">${ACTION_LABEL[a]}</button>`).join('')}
+          </div>
+        </div>`;
   }
 
   function timelineHtml(day, index) {
@@ -620,6 +650,67 @@ document.addEventListener('DOMContentLoaded', () => {
   endOverlay.addEventListener('click', e => { if (e.target === endOverlay) closeEndDay(); });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !endOverlay.hidden) closeEndDay();
+  });
+
+  /* ── Visit ⋯ menu ───────────────────────────────────── */
+  /* Handled before anything else on the row, so opening the menu on the
+     visit in progress never also completes it (spec §5.1.3). */
+  function closeVisitMenus(except) {
+    daysEl.querySelectorAll('.bd-vmenu-wrap.open').forEach(w => {
+      if (w === except) return;
+      w.classList.remove('open');
+      w.querySelector('.bd-vmenu').hidden = true;
+      w.querySelector('.bd-vmore').setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  function toggleVisitMenu(wrap, focusFirst) {
+    const open = !wrap.classList.contains('open');
+    closeVisitMenus(wrap);
+    wrap.classList.toggle('open', open);
+    wrap.querySelector('.bd-vmenu').hidden = !open;
+    wrap.querySelector('.bd-vmore').setAttribute('aria-expanded', String(open));
+    if (open) {
+      hideCard();
+      if (focusFirst) wrap.querySelector('.bd-vmenu-item').focus();
+    }
+  }
+
+  daysEl.addEventListener('click', e => {
+    const more = e.target.closest('.bd-vmore');
+    if (more) {
+      e.stopPropagation();
+      toggleVisitMenu(more.parentElement, e.detail === 0);   /* keyboard opens onto the first item */
+      return;
+    }
+    const item = e.target.closest('.bd-vmenu-item');
+    if (item) {
+      e.stopPropagation();
+      const name = item.closest('.bd-visit').querySelector('.vname').textContent;
+      closeVisitMenus();
+      toast(`${ACTION_LABEL[item.dataset.action]} for ${name} is not part of this prototype yet.`);
+      return;
+    }
+  }, true);
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.bd-vmenu-wrap')) closeVisitMenus();
+  });
+
+  /* Escape closes and returns focus to the ⋯; arrows move through items */
+  daysEl.addEventListener('keydown', e => {
+    const wrap = e.target.closest('.bd-vmenu-wrap.open');
+    if (!wrap) return;
+    const items = [...wrap.querySelectorAll('.bd-vmenu-item')];
+    const at = items.indexOf(document.activeElement);
+    if (e.key === 'Escape') {
+      closeVisitMenus();
+      wrap.querySelector('.bd-vmore').focus();
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const step = e.key === 'ArrowDown' ? 1 : -1;
+      items[(at + step + items.length) % items.length].focus();
+    }
   });
 
   daysEl.addEventListener('click', e => {

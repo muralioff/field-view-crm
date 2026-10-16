@@ -1445,3 +1445,84 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
 }
 
 .bd-trunc-tip[hidden] { display: none; }
+
+/* ── Visit ⋯ menu ──────────────────────────────────────────────────── */
+/* The ⋯ sits at the row's right edge, shown while the row is hovered or
+   focused, and held while its menu is open */
+.bd-vmenu-wrap {
+  position: relative;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.bd-vmore {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #eef0fa;
+  border: 1px solid #dcdbee;
+  border-radius: 50%;
+  font-size: 14px;
+  color: var(--label);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.bd-visit:hover .bd-vmore,
+.bd-vmore:focus-visible,
+.bd-vmenu-wrap.open .bd-vmore { opacity: 1; }
+
+.bd-vmore:hover,
+.bd-vmenu-wrap.open .bd-vmore { background: #e4e7f7; color: var(--base); }
+
+.bd-vmore:focus-visible { outline: 2px solid var(--bd-link); outline-offset: 2px; }
+
+/* Menu: Figma 5988:145775 — 140 wide, 6 above and below the items, each
+   item 30 tall inside a 6px inset, hovered item tinted with 5px corners */
+.bd-vmenu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 4px);
+  right: 0;
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  padding: 5px 0;             /* Figma's 6 / 1 with its border drawn inside */
+  background: #fff;
+  border: 1px solid #ced0e1;
+  border-radius: 6px;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15));
+}
+
+.bd-vmenu[hidden] { display: none; }
+
+.bd-vmenu-item {
+  /* the 6px inset is margin, so the tint stops short of the menu's edges */
+  margin: 0 6px;
+  padding: 7px 10px;
+  background: none;
+  border: none;
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 16px;
+  color: var(--base);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.bd-vmenu-item:hover,
+.bd-vmenu-item:focus-visible { background: #f2f5fe; outline: none; }
+
+.bd-vmenu-item.danger { color: #ff5d5a; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bd-vmore { transition: none; }
+}
