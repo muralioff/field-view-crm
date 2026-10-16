@@ -7,6 +7,11 @@
                    add (+); invalid fields are outlined red
    Return in the visit-type field adds the next row.
 
+   Two designs share every behaviour above (Type switch in the top bar):
+     Type 1 — a checkbox per field marks it mandatory
+     Type 2 — Figma 6339:176759: a dropdown per field picks
+              Visible / Mandatory / Hide, and Notes becomes Comments
+
    Error outlines and the shared tooltip live in src/field-errors.js.
    Full behaviour contract: docs/visit-types-spec.md
    ============================================================ */
@@ -21,7 +26,27 @@
     zeroDuration:  'Duration must be above 0.',
   };
 
+  /* Type 2's choices for each field. Visible is the default: the rep sees
+     the field and may leave it empty, as an unticked Type 1 checkbox does. */
+  const VISIBILITY = [
+    ['visible',   'Visible'],
+    ['mandatory', 'Mandatory'],
+    ['hide',      'Hide'],
+  ];
+  const DEFAULT_VISIBILITY = 'visible';
+
+  /* The three per-visit fields, in column order */
+  const FIELDS = [
+    { key: 'image', label: 'Image Upload' },
+    { key: 'file',  label: 'File Upload' },
+    { key: 'notes', label: 'Notes', label2: 'Comments' },
+  ];
+
+  const LAYOUT_KEY = 'vt-layout';
+  let layout = '1';
+
   const rowsEl = document.getElementById('pc-rows');
+  const headEl = document.getElementById('pc-thead');
   const bodyEl = document.querySelector('.pc-body');
   const toastEl = document.getElementById('pc-toast');
 
@@ -30,6 +55,31 @@
     scroller: bodyEl,
     tip: document.getElementById('pc-tip'),
   });
+
+  function headHtml() {
+    const fields = FIELDS.map(f => layout === '2'
+      ? `<span>${f.label2 || f.label}</span>`
+      : `<span class="pc-center">${f.label}</span>`).join('');
+    return `
+      <span>Visit Type Name</span>
+      <span>Duration <span class="pc-unit">(min)</span></span>
+      ${fields}
+      <span></span>`;
+  }
+
+  function fieldCell(f, value) {
+    const label = f.label2 || f.label;
+    if (layout === '2') {
+      const options = VISIBILITY.map(([v, text]) =>
+        `<option value="${v}"${v === value ? ' selected' : ''}>${text}</option>`).join('');
+      return `
+      <span class="pc-cell">
+        <select class="pc-field vt-visibility" data-field="${f.key}" aria-label="${label}">${options}</select>
+      </span>`;
+    }
+    return `
+      <span class="pc-cell-center"><input type="checkbox" data-field="${f.key}" aria-label="${label} mandatory" ${value === 'mandatory' ? 'checked' : ''}></span>`;
+  }
 
   function rowHtml(row) {
     return `
@@ -41,9 +91,7 @@
         <input class="pc-field pc-duration" type="text" inputmode="numeric"
                aria-label="Duration in minutes" value="${row.duration}" />
       </span>
-      <span class="pc-cell-center"><input type="checkbox" aria-label="Image upload mandatory" ${row.image ? 'checked' : ''}></span>
-      <span class="pc-cell-center"><input type="checkbox" aria-label="File upload mandatory" ${row.file ? 'checked' : ''}></span>
-      <span class="pc-cell-center"><input type="checkbox" aria-label="Notes mandatory" ${row.notes ? 'checked' : ''}></span>
+      ${FIELDS.map(f => fieldCell(f, row[f.key])).join('')}
       <span class="pc-actions">
         <button class="pc-icon-btn remove" type="button" aria-label="Remove visit type">
           <i class="ti ti-circle-minus" aria-hidden="true"></i>
@@ -58,7 +106,8 @@
     const tr = document.createElement('div');
     tr.className = 'pc-tr';
     tr.innerHTML = rowHtml(Object.assign(
-      { name: '', duration: DEFAULT_DURATION, image: false, file: false, notes: false }, row
+      { name: '', duration: DEFAULT_DURATION,
+        image: DEFAULT_VISIBILITY, file: DEFAULT_VISIBILITY, notes: DEFAULT_VISIBILITY }, row
     ));
     if (afterEl) afterEl.insertAdjacentElement('afterend', tr);
     else rowsEl.appendChild(tr);
@@ -151,6 +200,50 @@
   document.getElementById('pc-previous').addEventListener('click', () => { window.location.href = 'planner-config.html'; });
   document.getElementById('pc-cancel').addEventListener('click', () => { window.location.href = 'index.html'; });
 
-  /* Initial state: one empty row, duration prefilled, nothing checked */
-  addRow().querySelector('.pc-name').focus();
+  /* ── Type switch ───────────────────────────────────── */
+  /* Reads the rows back so a switch keeps what was typed. A ticked box is
+     Mandatory; an unticked one is Visible, and Hide has no Type 1 form, so
+     it comes back as an unticked box. */
+  function readRows() {
+    return [...rowsEl.children].map(tr => {
+      const row = {
+        name: tr.querySelector('.pc-name').value,
+        duration: tr.querySelector('.pc-duration').value,
+      };
+      FIELDS.forEach(f => {
+        const el = tr.querySelector(`[data-field="${f.key}"]`);
+        row[f.key] = el.type === 'checkbox'
+          ? (el.checked ? 'mandatory' : DEFAULT_VISIBILITY)
+          : el.value;
+      });
+      return row;
+    });
+  }
+
+  function setLayout(type) {
+    const rows = rowsEl.children.length ? readRows() : [{}];
+    layout = type;
+    bodyEl.classList.toggle('vt-type-2', type === '2');
+    document.querySelectorAll('.vt-layout-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.layout === type));
+    try { localStorage.setItem(LAYOUT_KEY, type); } catch { /* private mode */ }
+    headEl.innerHTML = headHtml();
+    errors.clearAll();
+    rowsEl.innerHTML = '';
+    rows.forEach(row => addRow(row));
+  }
+
+  document.querySelector('.vt-layout').addEventListener('click', e => {
+    const btn = e.target.closest('.vt-layout-btn');
+    if (btn && btn.dataset.layout !== layout) setLayout(btn.dataset.layout);
+  });
+
+  let savedLayout = '1';
+  try { savedLayout = localStorage.getItem(LAYOUT_KEY) || '1'; } catch { /* private mode */ }
+  if (!['1', '2'].includes(savedLayout)) savedLayout = '1';
+
+  /* Initial state, in both types: one empty row, duration prefilled,
+     nothing checked (Type 1) or every field Visible (Type 2) */
+  setLayout(savedLayout);
+  rowsEl.querySelector('.pc-name').focus();
 })();

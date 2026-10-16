@@ -13,13 +13,17 @@
 </head>
 <body>
   <div class="bp-app">
-    <aside id="app-sidebar" class="app-sidebar" data-active="beats"></aside>
+    <!-- Planner Configuration has moved to Settings, so this page leaves it
+         out of the rail; the configuration screens still list it -->
+    <aside id="app-sidebar" class="app-sidebar" data-active="beats" data-hide="config"></aside>
     <main class="bp-main">
 
       <header class="bp-topbar">
         <h1 class="bp-topbar-title">Beats</h1>
         <!-- Two arrangements of the same detail view; behaviour is identical -->
-        <div class="bd-layout" role="group" aria-label="Detail view layout">
+        <!-- Hidden: the page is fixed on Type 3 (Type 2 with Start / End on the day row). The other layouts stay in the
+             code, so unhiding this brings the comparison back. -->
+        <div class="bd-layout" role="group" aria-label="Detail view layout" hidden>
           <button class="bd-layout-btn active" type="button" data-layout="1">Type 1</button>
           <button class="bd-layout-btn" type="button" data-layout="2">Type 2</button>
           <button class="bd-layout-btn" type="button" data-layout="3">Type 3</button>
@@ -75,10 +79,18 @@
            it reads as part of the record's chrome. -->
       <div class="bd-shell">
       <nav class="bd-rlist" id="bd-rlist" aria-label="Related list">
+        <!-- Only the lists an admin can arrange. Beat Detail View and the
+             summary are fixed parts of the record, so they are not listed. -->
         <p class="bd-rlist-title">Related List</p>
-        <button class="bd-rlist-item active" type="button" data-target="bd-card-details">Beat Details</button>
-        <button class="bd-rlist-item" type="button" data-target="bd-related">Beat Detail View</button>
         <button class="bd-rlist-item" type="button" data-target="bd-notes">Notes</button>
+        <button class="bd-rlist-item" type="button" data-target="bd-attachments">Attachments</button>
+        <button class="bd-rlist-item" type="button" data-target="bd-emails">Emails</button>
+        <button class="bd-rlist-item" type="button" data-target="bd-visits-list">Visits<span class="bd-rlist-count" id="bd-rlist-visits"></span></button>
+        <button class="bd-rlist-item" type="button" data-target="bd-expenses">Expenses</button>
+        <button class="bd-rlist-add" type="button">Add Related List</button>
+
+        <p class="bd-rlist-title bd-rlist-links">Links</p>
+        <button class="bd-rlist-add" type="button">Add Link</button>
       </nav>
 
       <div class="bd-col">
@@ -95,62 +107,13 @@
       </div>
 
       <div class="bp-content type-1" id="bd-content">
-        <section class="card bd-card-details" id="bd-card-details">
-          <h2>Beat Details</h2>
-          <!-- Type 1 keeps the original icon grid -->
-          <div class="bp-detail-grid bd-only-1">
-            <div class="bp-detail">
-              <i class="ti ti-user-circle" style="color:#5a78ff"></i>
-              <div>
-                <div class="bp-detail-label">Beat Owner</div>
-                <div class="bp-detail-value">Cameron Williamson</div>
-              </div>
-            </div>
-            <div class="bp-detail">
-              <i class="ti ti-map-pin" style="color:#c35bf4"></i>
-              <div>
-                <div class="bp-detail-label">Beat Summary</div>
-                <div class="bp-detail-value">9 Visits · 32.6 km</div>
-              </div>
-            </div>
-            <div class="bp-detail">
-              <i class="ti ti-calendar-event" style="color:#f564bb"></i>
-              <div>
-                <div class="bp-detail-label">Beat Duration</div>
-                <div class="bp-detail-value">4 May 2026 - 6 May 2026</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Type 2 uses the CRM business-card pattern: right-aligned
-               label, value beside it, no icons -->
-          <dl class="bd-fields bd-only-2">
-            <div class="bd-fields-row">
-              <dt>Beat Owner</dt>
-              <dd>Cameron Williamson</dd>
-            </div>
-            <div class="bd-fields-row">
-              <dt>Beat Summary</dt>
-              <dd>9 Visits · 32.6 km</dd>
-            </div>
-            <div class="bd-fields-row">
-              <dt>Beat Duration</dt>
-              <dd>4 May 2026 - 6 May 2026</dd>
-            </div>
-          </dl>
-        </section>
-
         <!-- In Type 2 this is the related-list card that holds the pair.
              It carries no expand/collapse — the record's related-list rail
              is what moves between the lists, so each one simply stands
              open and the column scrolls. In Type 1 it is display:contents,
              so the two cards sit in the page grid exactly as before and
              the header never shows. -->
-        <section class="bd-related bd-rl-detail" id="bd-related">
-          <header class="bd-related-head" id="bd-related-head">
-            <h2>Beat Detail View</h2>
-          </header>
-
+        <section class="bd-related bd-rl-detail" id="bd-related" aria-label="Beat Detail View">
           <div class="bd-related-body" id="bd-related-body">
             <section class="card bd-card-visits bp-details">
               <div class="bp-visits-title">Visits</div>
@@ -198,6 +161,62 @@
           </div>
         </section>
 
+        <!-- Beat summary. In Type 2 it follows the Beat Detail View; in
+             Type 1 its grid area keeps it where it always was. -->
+        <section class="card bd-card-details" id="bd-card-details">
+          <h2>Beat Details</h2>
+          <!-- Type 1 keeps the original icon grid -->
+          <div class="bp-detail-grid bd-only-1">
+            <div class="bp-detail">
+              <i class="ti ti-user-circle" style="color:#5a78ff"></i>
+              <div>
+                <div class="bp-detail-label">Beat Owner</div>
+                <div class="bp-detail-value">Cameron Williamson</div>
+              </div>
+            </div>
+            <div class="bp-detail">
+              <i class="ti ti-map-pin" style="color:#c35bf4"></i>
+              <div>
+                <div class="bp-detail-label">Beat Summary</div>
+                <div class="bp-detail-value">9 Visits · 32.6 km</div>
+              </div>
+            </div>
+            <div class="bp-detail">
+              <i class="ti ti-calendar-event" style="color:#f564bb"></i>
+              <div>
+                <div class="bp-detail-label">Beat Duration</div>
+                <div class="bp-detail-value">4 May 2026 - 6 May 2026</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Type 2 uses the CRM business-card pattern: right-aligned
+               label, value beside it, no icons. Counts and the expense
+               total are filled from the visits and expenses below. -->
+          <dl class="bd-fields bd-only-2">
+            <div class="bd-fields-row">
+              <dt>Beat Owner</dt>
+              <dd>Cameron Williamson</dd>
+            </div>
+            <div class="bd-fields-row">
+              <dt>Start Date</dt>
+              <dd>May 4, 2026</dd>
+            </div>
+            <div class="bd-fields-row">
+              <dt>End Date</dt>
+              <dd>May 6, 2026</dd>
+            </div>
+            <div class="bd-fields-row">
+              <dt>Visits Count</dt>
+              <dd id="bd-sum-visits"></dd>
+            </div>
+            <div class="bd-fields-row">
+              <dt>Total Expenses</dt>
+              <dd id="bd-sum-expenses"></dd>
+            </div>
+          </dl>
+        </section>
+
         <!-- A second related list, so the stack reads the way it will on
              the record. Placeholder only: the box takes text and nothing
              happens to it. Type 2 only. -->
@@ -210,6 +229,52 @@
             <textarea class="bd-note-box" rows="2" placeholder="Add a note"
                       aria-label="Add a note"></textarea>
           </div>
+        </section>
+
+        <!-- The record's remaining related lists, as the CRM stacks them
+             under Notes. Type 2 only; rows are drawn by beat-detail.js from
+             the beat's own visits and expenses. -->
+        <section class="bd-related bd-rl-extra" id="bd-attachments">
+          <header class="bd-related-head">
+            <h2>Attachments</h2>
+            <button class="bd-rl-btn bd-rl-btn-menu" type="button" aria-haspopup="menu">Attach<img src="src/caret-blue.svg" alt="" /></button>
+          </header>
+          <div class="bd-rl-table-wrap" id="bd-attachments-body"></div>
+        </section>
+
+        <section class="bd-related bd-rl-extra" id="bd-emails">
+          <header class="bd-related-head">
+            <h2>Emails</h2>
+            <button class="bd-rl-btn" type="button">Compose Email</button>
+          </header>
+          <div class="bd-rl-tabs" role="tablist" aria-label="Emails">
+            <button class="bd-rl-tab active" type="button" role="tab" aria-selected="true">Mails</button>
+            <button class="bd-rl-tab" type="button" role="tab" aria-selected="false">Drafts</button>
+            <button class="bd-rl-tab" type="button" role="tab" aria-selected="false">Scheduled</button>
+          </div>
+          <p class="bd-rl-empty bd-rl-empty-center">No records found</p>
+        </section>
+
+        <section class="bd-related bd-rl-extra" id="bd-visits-list">
+          <header class="bd-related-head">
+            <h2>Visits</h2>
+            <button class="bd-rl-btn" type="button">Assign</button>
+            <button class="bd-rl-btn" type="button">New</button>
+            <button class="bd-rl-btn" type="button">Edit</button>
+            <button class="bd-rl-icon" type="button" aria-label="Choose columns">
+              <i class="ti ti-table-plus" aria-hidden="true"></i>
+            </button>
+          </header>
+          <div class="bd-rl-table-wrap" id="bd-visits-body"></div>
+        </section>
+
+        <section class="bd-related bd-rl-extra" id="bd-expenses">
+          <header class="bd-related-head">
+            <h2>Expenses</h2>
+            <button class="bd-rl-btn" type="button">Assign</button>
+            <button class="bd-rl-btn" type="button">New</button>
+          </header>
+          <div class="bd-rl-table-wrap" id="bd-expenses-body"></div>
         </section>
       </div>
       </div>

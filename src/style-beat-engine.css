@@ -1,0 +1,295 @@
+/* ============================================================
+   Beat Engine — the wizard's step 3
+   Figma 5988:117145 (Flow 02 Beat Engine / Screen 1) for Beat Limits
+   and the Auto-create toggle. Company Settings follows the read-only
+   settings card used in Forecast configuration; the summary and the
+   Auto-create body follow the design sketch.
+   Shell, stepper, fields, tooltip and footer: style-planner-shared.css
+   ============================================================ */
+
+.pc-body {
+  --be-link:      #5464f2;
+  --be-link-bg:   #f0f1ff;
+  --be-card-bg:   #f9faff;
+  --be-card-line: #dcdbee;
+  --be-switch-off:#d7d9ea;
+  --be-switch-on: #12aa67;
+  --be-op:        #12aa67;
+}
+
+/* ── Section type ────────────────────────────────── */
+.be-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--pc-heading);
+}
+
+.be-desc {
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--pc-para);
+}
+
+/* ── Beat Limits ─────────────────────────────────── */
+/* One column: description, company strip, the three fields, then their
+   summary — read top to bottom. 20 below the stepper. */
+.be-limits { margin-top: 20px; }
+
+.be-fields {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 180 label column, labels right-aligned with the info icon 8 after them,
+   20 to a 200 wide field */
+.be-field {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.be-label {
+  width: 180px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--pc-label);
+  text-align: right;
+}
+
+.be-field > .pc-field { width: 200px; }
+
+/* The 3px marker a mandatory field carries inside its left edge */
+.pc-field.mandatory { box-shadow: inset 3px 0 0 var(--pc-input-error); }
+
+/* ── Info icon + tooltip ─────────────────────────── */
+/* A button, so the explanation is reachable by keyboard as well as hover */
+.be-info {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: help;
+  border-radius: 50%;
+}
+
+.be-info img { display: block; width: 12px; height: 12px; }
+
+.be-info:focus-visible { outline: 2px solid var(--be-link); outline-offset: 2px; }
+
+/* Figma tooltip 6423:1384083: white, hairline border, soft shadow, no arrow */
+.be-tip {
+  position: absolute;
+  z-index: 30;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  width: max-content;
+  max-width: 280px;
+  padding: 5px 9px;          /* Figma's 6 / 10 with its 1px border drawn inside */
+  background: #fff;
+  border: 1px solid #d2d9e0;
+  border-radius: 6px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--pc-base);
+  text-align: left;
+  white-space: normal;
+  transform: translateX(-50%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s, visibility 0.12s;
+  pointer-events: none;
+}
+
+.be-info:hover .be-tip,
+.be-info:focus-visible .be-tip { opacity: 1; visibility: visible; }
+
+/* ── Company Settings strip ──────────────────────── */
+/* A single line of read-only facts the limits are counted in. It spans
+   the field column and the summary below, so the block stays one width. */
+.be-company {
+  margin-top: 15px;
+  width: 960px;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  padding: 9px 16px;
+  background: var(--be-card-bg);
+  border: 1px solid var(--be-card-line);
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.be-company > .ti { margin-right: -16px; font-size: 16px; color: var(--pc-label); }
+
+.be-company-title { font-weight: 600; color: var(--pc-heading); }
+
+.be-facts { display: flex; flex-wrap: wrap; gap: 4px 24px; }
+.be-facts > div { display: flex; gap: 8px; }
+.be-facts dt { color: var(--pc-label); }
+.be-facts dd { color: var(--pc-base); }
+
+.be-manage {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--be-link);
+  text-decoration: none;
+}
+
+.be-manage:hover { text-decoration: underline; }
+.be-manage i { font-size: 14px; }
+
+/* ── Beat Limits Summary ─────────────────────────── */
+/* Starts at the fields' left edge (180 label column + 20), 20 below them,
+   and ends where the strip does */
+.be-summary {
+  margin: 20px 0 0 200px;
+  width: 760px;               /* right edge meets the strip's */
+  max-width: calc(100% - 200px);
+  padding: 14px 18px;
+  background: var(--be-card-bg);
+  border: 1px solid var(--be-card-line);
+  border-radius: 8px;
+}
+
+.be-summary-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--pc-heading);
+}
+
+.be-summary p {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--pc-base);
+}
+
+.be-summary b { font-weight: 600; color: var(--pc-heading); }
+
+.be-summary .be-summary-empty { color: var(--pc-label); }
+
+/* ── Auto-create Beats ───────────────────────────── */
+.be-auto { margin-top: 30px; }
+
+.be-auto-head { display: flex; align-items: center; gap: 15px; }
+
+.be-auto-desc { max-width: 900px; }
+
+/* Switch: Figma 132:17943, 30 × 18 with a 14 knob */
+.be-switch {
+  position: relative;
+  width: 30px;
+  height: 18px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 100px;
+  background: var(--be-switch-off);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.be-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 100px;
+  background: #fff;
+  transition: transform 0.15s;
+}
+
+.be-switch[aria-checked="true"] { background: var(--be-switch-on); }
+.be-switch[aria-checked="true"]::after { transform: translateX(12px); }
+.be-switch:focus-visible { outline: 2px solid var(--be-link); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .be-switch, .be-switch::after, .be-tip { transition: none; }
+}
+
+.be-auto-body[hidden] { display: none; }
+
+/* Run scheduler at: same row geometry as the limits, label in heading weight */
+.be-sched { margin-top: 20px; }
+.be-label-strong { justify-content: flex-start; font-weight: 600; color: var(--pc-heading); }
+
+.be-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 30px;
+  background: var(--pc-card) url('cb-filter/caret.svg') no-repeat right 12px center / 10px 5px;
+  cursor: pointer;
+}
+
+.be-sched .be-select { width: 200px; }
+
+/* Visit Frequency */
+.be-freq-title { margin-top: 30px; }
+
+.be-freq {
+  margin-top: 10px;
+  width: 1000px;
+  max-width: 100%;
+  border: 1px solid var(--pc-table-border);
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.be-freq-tr {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 14px 20px;
+}
+
+.be-freq-thead {
+  padding-top: 13px;
+  padding-bottom: 13px;
+  border-bottom: 2px solid var(--pc-table-border);
+  font-weight: 500;
+  color: var(--pc-heading);
+}
+
+.be-freq-module {
+  padding: 10px 20px;
+  background: var(--be-card-bg);
+  border-bottom: 1px solid var(--pc-row-border);
+  font-weight: 500;
+  color: var(--pc-label);
+}
+
+.be-crit { display: flex; flex-direction: column; gap: 8px; color: var(--pc-base); }
+.be-crit-i { display: inline-block; width: 18px; color: var(--pc-label); }
+.be-crit-pattern { margin-top: 4px; color: var(--pc-base); }
+.be-crit-pattern span { margin-right: 12px; color: var(--pc-label); }
+.be-op { color: var(--be-op); }
+.be-create { color: var(--pc-base); }
+
+.pc-btn.be-add-rule {
+  margin-top: 15px;
+  background: var(--be-link-bg);
+  border: 1px solid var(--be-link);
+  color: var(--be-link);
+}

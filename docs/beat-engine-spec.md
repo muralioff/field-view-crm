@@ -94,13 +94,13 @@ Two panes: **Available** on the left, **Selected** on the right.
 
 **Title** `Beat Caps` · **Description** `Set limits for each beat cycle.`
 
-Three numeric fields, **all mandatory** (red strip), each with an info icon carrying a tooltip.
+Two numeric fields, **both mandatory** (red strip), each with an info icon whose tooltip states
+its range: `Min value = 1 , Max value = N`.
 
 | Label | Default | Accepts | Range |
 |---|---|---|---|
 | `Max Days per beat` | `1` | Whole digits | 1–31 |
-| `Max Visits per Day` | `1` | Whole digits | 1–50 |
-| `Max upcoming Beats per Field Sales Rep` | `1` | Whole digits | 1–10 |
+| `Max Visits per Day` | `1` | Whole digits | 1–25 |
 
 | # | Case | Expected |
 |---|---|---|
@@ -109,15 +109,15 @@ Three numeric fields, **all mandatory** (red strip), each with an info icon carr
 | 3.3 | `0`, press Next | Blocked — a cap of zero means no beats can exist |
 | 3.4 | Above the range, press Next | Blocked with the limit stated in the message |
 | 3.5 | Correcting a flagged field | The error clears on edit, without pressing Next again |
-| 3.6 | Info icons | Explain what each cap governs. Reachable by keyboard, not hover-only |
-| 3.7 | Caps and Auto-beat | The generator must honour all three. Copy under the toggle says so — keep the two consistent |
+| 3.6 | Info icons | Tooltip states the range, e.g. `Min value = 1 , Max value = 25`. Reachable by keyboard, not hover-only |
+| 3.7 | Caps and Auto-beat | The generator must honour both. Copy under the toggle says so — keep the two consistent |
 
 > **Label inconsistency in the designs.** One screen labels the first field `Max beat Duration`,
 > the rest label it `Max Days per beat`. Build **`Max Days per beat`** — it names the unit, which
 > the field needs. Flag if you disagree.
 
-> Ranges are not stated in the designs. The values above are the intended behaviour — confirm
-> before building.
+> Ranges are confirmed by design: each info icon's tooltip states its field's minimum and
+> maximum, and the out-of-range message on Next uses the same maximum.
 
 ---
 
@@ -389,7 +389,6 @@ Validated on Next:
 | Rep Selection | At least one user, group or role |
 | Max Days per beat | Present, in range |
 | Max Visits per Day | Present, in range |
-| Max upcoming Beats per Field Sales Rep | Present, in range |
 | Run scheduler at | Present — *only when Auto-beat is on* |
 
 **Not** blocking: having zero Frequency Rules or zero Assignment Rules. Both are optional layers.
@@ -402,7 +401,7 @@ If zero frequency rules means no beats will ever generate, say so inline where t
 
 | # | Case | Expected |
 |---|---|---|
-| 8.1 | Leave the step and return | **Everything is retained** — rep selection, all three caps, the toggle, the scheduler time, every frequency rule and every assignment rule, including their order |
+| 8.1 | Leave the step and return | **Everything is retained** — rep selection, both caps, the toggle, the scheduler time, every frequency rule and every assignment rule, including their order |
 | 8.2 | Footer | `Previous` on the left; `Cancel`, `Save as Draft`, `Next` on the right, in that order |
 | 8.3 | Save as Draft | Saves and stays on the step |
 | 8.4 | Previous | Returns to Visit Types, retaining this step's values |

@@ -21,6 +21,11 @@
       <!-- Top Bar (shared component) -->
       <header class="bp-topbar">
         <h1 class="bp-topbar-title">Beat Planner</h1>
+        <!-- Two designs of the same step: checkboxes (1) or a visibility dropdown per field (2) -->
+        <div class="vt-layout" role="group" aria-label="Visit types design">
+          <button class="vt-layout-btn active" type="button" data-layout="1">Type 1</button>
+          <button class="vt-layout-btn" type="button" data-layout="2">Type 2</button>
+        </div>
         <div class="bp-search">
           <i class="ti ti-search" aria-hidden="true"></i>
           <input type="text" placeholder="Search records" />
@@ -64,11 +69,15 @@
             </div>
           </nav>
 
-          <p class="pc-desc">
+          <p class="pc-desc vt-only-1">
             Define the types of visits your sales reps make in the field and their maximum duration.
           </p>
+          <p class="pc-desc vt-only-2">
+            Add the Visit types your reps perform, with a maximum duration for each.
+          </p>
 
-          <p class="pc-info">
+          <!-- Type 2 drops the banner: each field's dropdown states its rule -->
+          <p class="pc-info vt-only-1">
             <span>
               <b>Info:</b> All visit types support the Image Upload, File Upload, and Notes field.
               You can select the checkboxes to make them <b>mandatory</b> for specific visit types.
@@ -77,14 +86,7 @@
 
           <!-- Visit types table -->
           <div class="pc-table">
-            <div class="pc-tr pc-thead">
-              <span>Visit Type Name</span>
-              <span>Duration <span class="pc-unit">(min)</span></span>
-              <span class="pc-center">Image Upload</span>
-              <span class="pc-center">File Upload</span>
-              <span class="pc-center">Notes</span>
-              <span></span>
-            </div>
+            <div class="pc-tr pc-thead" id="pc-thead"></div>
             <div id="pc-rows"></div>
           </div>
 

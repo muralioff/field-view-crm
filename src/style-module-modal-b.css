@@ -224,3 +224,101 @@
 
 .mb-criteria .pc-crit-pattern { padding-top: 12px; }
 .mb-criteria .pc-crit-pattern-value .pc-field { background: var(--pc-card); }
+
+/* ── Type switch (top bar) ───────────────────────── */
+/* Same pill as the Beat Detail and Visit Types toggles */
+.mb-layout {
+  display: inline-flex;
+  gap: 2px;
+  margin-left: 14px;
+  padding: 2px;
+  background: #e8ebf5;
+  border-radius: 8px;
+}
+
+.mb-layout-btn {
+  height: 26px;
+  padding: 0 12px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--pc-label);
+  cursor: pointer;
+}
+
+.mb-layout-btn:hover { color: var(--pc-base); }
+
+.mb-layout-btn.active {
+  background: #fff;
+  color: var(--pc-heading);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Type 2 — Figma 6382:180018 / 6379:178413 ───── */
+/* Description to the Module row is 20, not Type 1's 40 */
+.mb-type-2 .mb-form { margin-top: 10px; }
+
+/* Full address: plain left label, 80 wide, 20 to the field; hint 10 below */
+.mb2-full {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-top: 19px;
+}
+
+.mb2-full-label {
+  width: 80px;
+  flex-shrink: 0;
+  padding-top: 7px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--pc-label);
+  white-space: nowrap;
+}
+
+.mb2-full .mb-control { width: 390px; gap: 10px; }
+/* One line, running past the field as in the frame (545 wide) */
+.mb2-full .mb-hint { line-height: 16px; white-space: nowrap; }
+
+/* Address parts: "Map fields | CRM Fields", 495 wide, 10 below the radios */
+.mb2-table {
+  width: 495px;
+  max-width: 100%;
+  margin-top: 10px;
+  border: 1px solid var(--pc-table-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.mb2-tr {
+  display: grid;
+  grid-template-columns: 158px 300px;
+  align-items: start;
+  /* 50 tall with its 1px rule: 8 + 34 + 7 + 1 */
+  padding: 8px 22px 7px 15px;
+  border-bottom: 1px solid var(--pc-row-border);
+}
+
+.mb2-tr:last-child { border-bottom: none; padding-bottom: 8px; }
+
+.mb2-thead {
+  padding-top: 13px;
+  padding-bottom: 12px;
+  border-bottom-color: var(--pc-table-border);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  color: var(--pc-heading);
+}
+
+.mb2-thead span:first-child { padding-left: 1px; }
+
+.mb2-part {
+  padding-top: 7px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--pc-label);
+}

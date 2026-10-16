@@ -15,6 +15,11 @@ the page (sidebar, top bar, stepper, other wizard steps) is covered here.
 The prototype is plain HTML/CSS/JS and is meant as a reference, not as code to port. Rebuild
 it in your own framework; this document is the contract.
 
+The screen has **two designs**, switched with the Type 1 / Type 2 control in the top bar.
+§1–§10 describe **Type 1** (a mandatory checkbox per field). **Type 2** replaces the
+checkboxes with a visibility dropdown per field; it changes only what §11 lists, and every
+other rule (rows, Return key, validation, errors, footer) is shared.
+
 ---
 
 ## 1. Anatomy
@@ -302,3 +307,79 @@ Font: Zoho Puvi.
 - [ ] Fixing the last error hides it
 - [ ] Editing a field clears its error immediately, without waiting for Next
 - [ ] The tooltip tracks its field on scroll and resize
+
+---
+
+## 11. Type 2 — visibility dropdowns
+
+Type 2 lets the admin decide, per visit type, whether each field is shown to the rep at
+all — not only whether it is mandatory.
+
+### What changes from Type 1
+
+| | Type 1 | Type 2 |
+|---|---|---|
+| Description | Define the types of visits your sales reps make in the field and their maximum duration. | Add the Visit types your reps perform, with a maximum duration for each. |
+| Info banner | Shown | **Removed** — each dropdown states its own rule |
+| Field controls | Checkbox (mandatory or not) | Dropdown: `Visible` / `Mandatory` / `Hide` |
+| Third field's name | Notes | **Comments** |
+| Header alignment of field columns | Centred | Left, aligned with the dropdown text |
+| Table width | 812px | 956px |
+
+### Columns
+
+| # | Column | Width | Control |
+|---|---|---|---|
+| 1 | Visit Type Name | 294px | Text input |
+| 2 | Duration (min) | 94px | Numeric input |
+| 3 | Image Upload | 140px | Dropdown |
+| 4 | File Upload | 140px | Dropdown |
+| 5 | Comments | 140px | Dropdown |
+| 6 | *(actions)* | 42px | ⊖ remove / ⊕ add |
+
+Gap, row padding, header and borders are as in §1. Each dropdown is 34px tall, like the
+text inputs, with the small filled down arrow 12px from its right edge.
+
+### Options
+
+| Option | Meaning for the rep |
+|---|---|
+| **Visible** *(default)* | The field is shown; the rep may leave it empty |
+| **Mandatory** | The field is shown and must be filled before the visit can be completed |
+| **Hide** | The field is not shown for this visit type |
+
+The three dropdowns are independent; any combination is valid, including all three on
+`Hide`. Dropdowns are never validated — they always hold a value.
+
+### Row data model
+
+```js
+{
+  name:     string,
+  duration: string,
+  image:    'visible' | 'mandatory' | 'hide',
+  file:     'visible' | 'mandatory' | 'hide',
+  notes:    'visible' | 'mandatory' | 'hide',   // shown as "Comments"
+}
+```
+
+### Initial state
+
+Same as §2 — exactly one row, empty name, duration `15`, ⊕ only, name focused — with all
+three dropdowns on **Visible**. Rows added with ⊕ or Return start the same way.
+
+### Mapping between the two designs
+
+Type 1's checkbox is the same field restricted to two values: ticked = `mandatory`,
+unticked = `visible`. Type 1 has no form for `hide`. In the prototype, switching designs
+keeps the rows and converts them this way (`hide` comes back to Type 1 as unticked); this
+is a prototype convenience only — the product ships one design.
+
+### Acceptance checklist (Type 2)
+
+- [ ] No info banner; Type 2 description shown
+- [ ] Field headers read Image Upload, File Upload, Comments
+- [ ] Each dropdown offers Visible, Mandatory, Hide in that order
+- [ ] New and initial rows default every dropdown to Visible
+- [ ] Changing a dropdown never triggers or clears a validation error
+- [ ] All Type 1 row, Return-key, validation and error rules behave identically

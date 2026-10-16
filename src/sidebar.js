@@ -3,7 +3,9 @@
    Usage:
      <aside id="app-sidebar" class="app-sidebar" data-active="beats"></aside>
      <script src="src/sidebar.js"></script>
-   The data-active value matches an item `key` below.
+   The data-active value matches an item `key` below. data-hide takes a
+   space-separated list of item keys to leave out on that page, e.g.
+   data-hide="config".
    ============================================================ */
 (function () {
   const TOP_ITEMS = [
@@ -33,6 +35,8 @@
   function render(root) {
     const active = root.getAttribute('data-active') || '';
     const showLogo = root.getAttribute('data-logo') !== 'false';
+    const hidden = (root.getAttribute('data-hide') || '').split(/\s+/).filter(Boolean);
+    const shown = items => items.filter(it => !hidden.includes(it.key));
     root.classList.add('app-sidebar');
     const logoHtml = showLogo ? `
       <div class="sb-logo">
@@ -46,7 +50,7 @@
     root.innerHTML = `
       ${logoHtml}
       <ul class="sb-nav">
-        ${TOP_ITEMS.map(it => `<li>${itemHtml(it, active)}</li>`).join('')}
+        ${shown(TOP_ITEMS).map(it => `<li>${itemHtml(it, active)}</li>`).join('')}
       </ul>
 
       <div class="sb-divider"></div>
@@ -58,7 +62,7 @@
       </div>
 
       <ul class="sb-nav">
-        ${MODULE_ITEMS.map(it => `<li>${itemHtml(it, active)}</li>`).join('')}
+        ${shown(MODULE_ITEMS).map(it => `<li>${itemHtml(it, active)}</li>`).join('')}
       </ul>
     `;
   }

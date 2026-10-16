@@ -33,13 +33,17 @@ document.addEventListener('DOMContentLoaded', () => {
       label: 'Day 1', date: '4 May',
       pins: [{ x: 180, y: 350 }, { x: 220, y: 450 }, { x: 320, y: 490 }, { x: 370, y: 550 }],
       visits: [
-        { name: 'Alex Newman Visit',  module: 'Contacts', type: 'Order Delivery',  time: '10:53 AM to 11:03 AM', drive: '20 min (2.5 km)',
+        { name: 'Alex Newman Visit',  module: 'Contacts',
+          address: '533 Broadway, New York, NY 10105, USA', type: 'Order Delivery',  time: '10:53 AM to 11:03 AM', drive: '20 min (2.5 km)',
           actual: '10:55 AM to 11:06 AM', actualDrive: '22 min (2.6 km)' },
-        { name: 'Jordan Smith Visit', module: 'Contacts', type: 'Gate Approval',   time: '11:30 AM to 11:45 AM', drive: '12 min (1.2 km)',
+        { name: 'Jordan Smith Visit', module: 'Contacts',
+          address: '512 Broadway, New York, NY 10004, USA', type: 'Gate Approval',   time: '11:30 AM to 11:45 AM', drive: '12 min (1.2 km)',
           actual: '11:33 AM to 11:49 AM', actualDrive: '14 min (1.3 km)' },
-        { name: 'Taylor Smith Visit', module: 'Leads',    type: 'Shop Delivery',   time: '11:57 AM to 12:07 PM', drive: '15 min (2.5 km)',
+        { name: 'Taylor Smith Visit', module: 'Leads',
+          address: '19 Washington Square N, New York, NY 10011, USA',    type: 'Shop Delivery',   time: '11:57 AM to 12:07 PM', drive: '15 min (2.5 km)',
           actual: '12:02 PM to 12:14 PM', actualDrive: '17 min (2.6 km)' },
-        { name: 'Morgan Kite Visit',  module: 'Deals',    type: 'Order Approval',  time: '12:22 PM to 12:32 PM', drive: '20 min (3.2 km)',
+        { name: 'Morgan Kite Visit',  module: 'Deals',
+          address: '371 7th Ave, New York, NY 10001, USA',    type: 'Order Approval',  time: '12:22 PM to 12:32 PM', drive: '20 min (3.2 km)',
           actual: '12:31 PM to 12:44 PM', actualDrive: '21 min (3.3 km)' },
       ],
     },
@@ -47,11 +51,14 @@ document.addEventListener('DOMContentLoaded', () => {
       label: 'Day 2', date: '5 May',
       pins: [{ x: 370, y: 240 }, { x: 450, y: 190 }, { x: 560, y: 200 }],
       visits: [
-        { name: 'Priya Raman Visit',  module: 'Contacts', type: 'Order Delivery', time: '10:15 AM to 10:30 AM', drive: '18 min (2.2 km)',
+        { name: 'Priya Raman Visit',  module: 'Contacts',
+          address: '350 5th Ave, New York, NY 10118, USA', type: 'Order Delivery', time: '10:15 AM to 10:30 AM', drive: '18 min (2.2 km)',
           actual: '10:18 AM to 10:34 AM', actualDrive: '19 min (2.3 km)' },
-        { name: 'Vikram Shah Visit',  module: 'Accounts', type: 'Stock Check',    time: '11:00 AM to 11:20 AM', drive: '14 min (1.8 km)',
+        { name: 'Vikram Shah Visit',  module: 'Accounts',
+          address: '89 E 42nd St, New York, NY 10017, USA', type: 'Stock Check',    time: '11:00 AM to 11:20 AM', drive: '14 min (1.8 km)',
           actual: '11:04 AM to 11:26 AM', actualDrive: '15 min (1.9 km)' },
-        { name: 'Nisha Kumar Visit',  module: 'Leads',    type: 'Shop Delivery',  time: '11:50 AM to 12:05 PM', drive: '22 min (3.4 km)',
+        { name: 'Nisha Kumar Visit',  module: 'Leads',
+          address: '11 Wall St, New York, NY 10005, USA',    type: 'Shop Delivery',  time: '11:50 AM to 12:05 PM', drive: '22 min (3.4 km)',
           actual: '11:55 AM to 12:11 PM', actualDrive: '24 min (3.5 km)' },
       ],
     },
@@ -59,13 +66,68 @@ document.addEventListener('DOMContentLoaded', () => {
       label: 'Day 3', date: '6 May',
       pins: [{ x: 560, y: 380 }, { x: 640, y: 470 }],
       visits: [
-        { name: 'Arun Menon Visit',   module: 'Deals',    type: 'Order Approval', time: '10:30 AM to 10:50 AM', drive: '16 min (2.1 km)',
+        { name: 'Arun Menon Visit',   module: 'Deals',
+          address: '200 Park Ave, New York, NY 10166, USA',    type: 'Order Approval', time: '10:30 AM to 10:50 AM', drive: '16 min (2.1 km)',
           actual: '10:34 AM to 10:56 AM', actualDrive: '18 min (2.2 km)' },
-        { name: 'Divya Nair Visit',   module: 'Contacts', type: 'Gate Approval',  time: '11:25 AM to 11:40 AM', drive: '19 min (2.7 km)',
+        { name: 'Divya Nair Visit',   module: 'Contacts',
+          address: '30 Rockefeller Plaza, New York, NY 10112, USA', type: 'Gate Approval',  time: '11:25 AM to 11:40 AM', drive: '19 min (2.7 km)',
           actual: '11:29 AM to 11:46 AM', actualDrive: '20 min (2.8 km)' },
       ],
     },
   ];
+
+  /* What the rep spent on this beat, by day — { name, category, day, amount }.
+     Empty for now, so Expenses shows its empty state and the summary's
+     Total Expenses reads "—". */
+  const EXPENSES = [];
+
+  /* Files left on the beat — { file, size, by, on }. Empty for now, so
+     Attachments shows "No Attachment". */
+  const ATTACHMENTS = [];
+
+  /* The beat's name as other records show it: code | first – last day */
+  const BEAT_REF = 'BP - 003 | 4 May - 6 May';
+
+  /* The business card shown on hovering a visit's name (Figma 6444:572006).
+     Visits come from different modules, so each module brings the five
+     fields the CRM card would show for it; `phone: true` marks a number
+     that carries the call icon. The second header line is the record's
+     company or account. */
+  const CARD_FIELDS = {
+    Contacts: [['Contact Owner', 'owner'], ['Email', 'email'], ['Phone', 'phone', true],
+               ['Mobile', 'mobile', true], ['Preferred Communication', 'pref']],
+    Leads:    [['Lead Owner', 'owner'], ['Email', 'email'], ['Phone', 'phone', true],
+               ['Mobile', 'mobile', true], ['Lead Status', 'status']],
+    Accounts: [['Account Owner', 'owner'], ['Website', 'website'], ['Phone', 'phone', true],
+               ['Account Type', 'accType'], ['Industry', 'industry']],
+    Deals:    [['Deal Owner', 'owner'], ['Contact Name', 'contact'], ['Amount', 'amount'],
+               ['Stage', 'stage'], ['Closing Date', 'closing']],
+  };
+
+  const OWNER = 'Cameron Williamson';
+  const CARDS = {
+    'Alex Newman Visit':  { sub: 'Royal Inc.', email: 'alexnewman@royalinc.com', phone: '044 58163540', mobile: '981113617', pref: 'Phone' },
+    'Jordan Smith Visit': { sub: 'Hudson Retail', email: 'jordan.smith@hudsonretail.com', phone: '212 555 0147', mobile: '917 555 0182', pref: 'Email' },
+    'Taylor Smith Visit': { sub: 'Greenleaf Grocers', email: 'taylor@greenleafgrocers.com', phone: '212 555 0193', mobile: '646 555 0121', status: 'Contacted' },
+    'Morgan Kite Visit':  { sub: 'Kite Distributors', contact: 'Morgan Kite', amount: '$12,400.00', stage: 'Negotiation', closing: 'May 20, 2026' },
+    'Priya Raman Visit':  { sub: 'Empire Foods', email: 'priya.raman@empirefoods.com', phone: '212 555 0164', mobile: '917 555 0139', pref: 'Phone' },
+    'Vikram Shah Visit':  { sub: 'New York', website: 'www.shahwholesale.com', phone: '212 555 0108', accType: 'Distributor', industry: 'Wholesale' },
+    'Nisha Kumar Visit':  { sub: 'Wall St Mart', email: 'nisha@wallstmart.com', phone: '212 555 0175', mobile: '646 555 0156', status: 'Qualified' },
+    'Arun Menon Visit':   { sub: 'Park Avenue Stores', contact: 'Arun Menon', amount: '$8,750.00', stage: 'Proposal', closing: 'May 28, 2026' },
+    'Divya Nair Visit':   { sub: 'Plaza Pharmacy', email: 'divya.nair@plazapharmacy.com', phone: '212 555 0130', mobile: '917 555 0117', pref: 'Email' },
+  };
+
+  /* Where each record in the Add Visit picker lives, so a visit added there
+     shows its address like the planned ones */
+  const RECORD_ADDRESS = {
+    'Rahul Verma':         '245 Park Ave S, New York, NY 10003, USA',
+    'Meera Iyer':          '60 E 8th St, New York, NY 10003, USA',
+    'Sunrise Traders':     '120 Lafayette St, New York, NY 10013, USA',
+    'Metro Wholesale':     '401 Broadway, New York, NY 10013, USA',
+    'Karthik Rao':         '75 Spring St, New York, NY 10012, USA',
+    'Anita Desai':         '1 E 14th St, New York, NY 10003, USA',
+    'Q2 Renewal — Apollo': '100 W 33rd St, New York, NY 10001, USA',
+  };
 
   /* status: day 'pending' | 'active' | 'done' · visit 'pending' | 'done' | 'missed' */
   DAYS.forEach(day => {
@@ -228,10 +290,14 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="bd-rail ${visit.status === 'active' ? 'bd-pulsing' : ''}"><span class="bp-visit-num ${visit.status}">${i + 1}</span></span>
         <div class="bd-text">
           <p class="bd-visit-head">
-            <span class="bd-visit-name">${escape(visit.name)}<span class="dot">&nbsp;&nbsp;•&nbsp;&nbsp;</span><span class="mod">${escape(visit.module)}</span></span>
+            <span class="bd-visit-name"><span class="vname" title="${escape(visit.name)}">${escape(visit.name)}</span><span class="dot">&nbsp;&nbsp;•&nbsp;&nbsp;</span><span class="vtype" title="${escape(visit.type)}">${escape(visit.type)}</span></span>
             ${tag ? `<span class="bp-visit-tag ${tag.cls}">${tag.label}</span>` : ''}
           </p>
-          <p class="bd-visit-meta">${escape(visit.type)}<span class="sep">-</span>${escape(when)}</p>
+          <!-- Figma 6444:570277: address, then the time 6 below it -->
+          <div class="bd-visit-where">
+            ${visit.address ? `<p class="bd-visit-meta bd-visit-addr" title="${escape(visit.address)}">${escape(visit.address)}</p>` : ''}
+            <p class="bd-visit-meta">${escape(when)}</p>
+          </div>
         </div>
       </div>`;
   }
@@ -338,9 +404,51 @@ document.addEventListener('DOMContentLoaded', () => {
      jump back to the top each time a day is folded. Hold its scroll. */
   const scroller = daysEl.closest('.bp-details');
 
+  /* ── Related lists under Notes, and the summary's counts (Type 2) ── */
+  const money = n => `$${n.toFixed(2)}`;
+  const dayRef = i => `${DAYS[i].label} - ${DAYS[i].date}`;
+
+  function tableHtml(head, rows, empty) {
+    if (!rows.length) return `<p class="bd-rl-empty">${empty}</p>`;
+    return `
+      <table class="bd-rl-table">
+        <thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table>`;
+  }
+
+  const link = text => `<a href="#" class="bd-rl-link">${escape(text)}</a>`;
+
+  function renderRelatedLists() {
+    const visitRows = DAYS.flatMap((day, i) => day.visits.map(v => [
+      link(v.name),
+      link(BEAT_REF),
+      link(dayRef(i)),
+      link(v.name.replace(/ Visit$/, '')),
+    ]));
+    $('bd-visits-body').innerHTML = tableHtml(
+      ['Beat Visit Name', 'Beat', 'Beat Day', 'Visit For'], visitRows, 'No records found');
+
+    $('bd-expenses-body').innerHTML = tableHtml(
+      ['Expense Name', 'Category', 'Beat Day', 'Amount'],
+      EXPENSES.map(e => [link(e.name), escape(e.category), link(dayRef(e.day)), money(e.amount)]),
+      'No records found');
+
+    $('bd-attachments-body').innerHTML = tableHtml(
+      ['File Name', 'Size', 'Attached By', 'Date Added'],
+      ATTACHMENTS.map(a => [link(a.file), a.size, escape(a.by), a.on]),
+      'No Attachment');
+
+    $('bd-sum-visits').textContent = visitRows.length;
+    $('bd-rlist-visits').textContent = visitRows.length || '';
+    const total = EXPENSES.reduce((sum, e) => sum + e.amount, 0);
+    $('bd-sum-expenses').textContent = EXPENSES.length ? money(total) : '—';
+  }
+
   function render() {
     const scrollTop = scroller ? scroller.scrollTop : 0;
     daysEl.innerHTML = DAYS.map(dayHtml).join('');
+    renderRelatedLists();
     if (scroller) scroller.scrollTop = scrollTop;
     const s = beatStatus();
     statusEl.textContent = s.label;
@@ -660,6 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
       name: avRecord.value,
       module: avRecord.selectedOptions[0].parentElement.label || 'Contacts',
       type: avType.value,
+      address: RECORD_ADDRESS[avRecord.value] || '',
       time,
       drive: '',
       description: avDesc.value.trim(),
@@ -876,9 +985,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn) setLayout(btn.dataset.layout);
   });
 
-  let savedLayout = '1';
-  try { savedLayout = localStorage.getItem(LAYOUT_KEY) || '1'; } catch { /* private mode */ }
-  if (!['1', '2', '3'].includes(savedLayout)) savedLayout = '1';
+  /* The switch is hidden and the page is fixed on Type 3 — Type 2's
+     layout with Start / End on the day row — so a layout remembered from
+     before must not win: with no switch, it could not be undone. Unhide
+     .bd-layout to compare the types again. */
+  const FIXED_LAYOUT = '3';
+  const switchShown = !document.querySelector('.bd-layout').hidden;
+  let savedLayout = FIXED_LAYOUT;
+  if (switchShown) {
+    try { savedLayout = localStorage.getItem(LAYOUT_KEY) || FIXED_LAYOUT; } catch { /* private mode */ }
+    if (!['1', '2', '3'].includes(savedLayout)) savedLayout = FIXED_LAYOUT;
+  }
   setLayout(savedLayout);
 
 
@@ -917,17 +1034,27 @@ document.addEventListener('DOMContentLoaded', () => {
        it causes: the glide takes a moment, and the last card can only come
        part of the way up when the column runs out of travel */
     railItems.forEach(i => i.classList.toggle('active', i === item));
+    pinned = item;
   });
 
-  /* The last card whose top has passed the top of the column is the one
-     being read — except at the very bottom, where the last card may never
-     reach the top and is nonetheless what the reader is looking at. */
+  /* A clicked item stays lit through the scroll it causes, even when the
+     column bottoms out before its card reaches the top. The reader's own
+     scrolling hands the highlight back to markRail(). */
+  let pinned = null;
+  ['wheel', 'touchmove', 'keydown', 'mousedown'].forEach(type =>
+    content.addEventListener(type, () => { pinned = null; }, { passive: true }));
+
+  /* The last listed card whose top has passed the top of the column is
+     the one being read — except at the very bottom, where the last card may
+     never reach the top and is nonetheless what the reader is looking at.
+     Above Notes the reader is on the Beat Detail View or summary, which the
+     rail does not list, so nothing is marked. */
   function markRail() {
-    /* Only meaningful when there is travel to be at the end of — with
-       nothing to scroll, every card is on screen and the first one leads */
+    if (pinned) return;
+    /* Only meaningful when there is travel to be at the end of */
     const travel = content.scrollHeight - content.clientHeight;
     const atEnd = travel > 2 && content.scrollTop >= travel - 2;
-    let current = atEnd ? railItems[railItems.length - 1] : railItems[0];
+    let current = atEnd ? railItems[railItems.length - 1] : null;
     if (!atEnd) {
       const edge = content.getBoundingClientRect().top + 8;
       railItems.forEach(item => {
@@ -937,6 +1064,104 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     railItems.forEach(item => item.classList.toggle('active', item === current));
   }
+
+  /* Emails: Mails / Drafts / Scheduled. The prototype has no mail, so
+     each tab shows the same empty state; only the selection moves. */
+  const mailTabs = [...document.querySelectorAll('#bd-emails .bd-rl-tab')];
+  mailTabs.forEach(tab => tab.addEventListener('click', () => {
+    mailTabs.forEach(t => {
+      t.classList.toggle('active', t === tab);
+      t.setAttribute('aria-selected', String(t === tab));
+    });
+  }));
+
+  /* ── Business card on a visit's name ───────────────── */
+  /* Opens after a short rest on the name, so passing the pointer over the
+     timeline does not flash cards; stays while the pointer moves from the
+     name into the card, and closes shortly after it leaves both. */
+  const SHOW_DELAY = 500;
+  const HIDE_DELAY = 150;
+  const card = document.createElement('div');
+  card.className = 'bd-bcard';
+  card.setAttribute('role', 'tooltip');
+  card.hidden = true;
+  document.body.appendChild(card);
+  let showTimer = 0, hideTimer = 0, cardFor = null;
+
+  function cardHtml(visit) {
+    const info = CARDS[visit.name] || {};
+    const fields = CARD_FIELDS[visit.module] || CARD_FIELDS.Contacts;
+    const rows = fields.map(([label, key, isPhone]) => {
+      const value = key === 'owner' ? OWNER : info[key];
+      const shown = value ? escape(value) : '—';
+      return `<dt>${label}</dt><dd>${shown}${isPhone && value
+        ? '<img src="src/phone-small.svg" alt="" aria-hidden="true" />' : ''}</dd>`;
+    }).join('');
+    return `
+      <div class="bd-bcard-head">
+        <span class="bd-bcard-avatar" aria-hidden="true">${escape(visit.name.charAt(0))}</span>
+        <div class="bd-bcard-title">
+          <p class="bd-bcard-name">${escape(visit.name)}</p>
+          <p class="bd-bcard-sub">${escape(info.sub || visit.module)}</p>
+        </div>
+      </div>
+      <dl class="bd-bcard-fields">${rows}</dl>`;
+  }
+
+  /* Below the name with the arrow under its first letters; above it when
+     there is no room below, and never past the window's edges */
+  function placeCard(nameEl) {
+    const r = nameEl.getBoundingClientRect();
+    const w = card.offsetWidth, h = card.offsetHeight;
+    const below = r.bottom + 10 + h <= window.innerHeight - 8;
+    const left = Math.min(Math.max(8, r.left - 20), window.innerWidth - w - 8);
+    card.style.left = `${left}px`;
+    card.style.top = `${below ? r.bottom + 10 : r.top - 10 - h}px`;
+    card.classList.toggle('above', !below);
+    card.style.setProperty('--arrow-x', `${Math.max(12, Math.min(r.left - left + 10, w - 32))}px`);
+  }
+
+  function hideCard() {
+    clearTimeout(showTimer);
+    card.hidden = true;
+    cardFor = null;
+  }
+
+  daysEl.addEventListener('mouseover', e => {
+    const nameEl = e.target.closest('.vname');
+    if (!nameEl) return;
+    clearTimeout(hideTimer);
+    if (cardFor === nameEl) return;
+    clearTimeout(showTimer);
+    showTimer = setTimeout(() => {
+      const dayEl = nameEl.closest('.bd-day');
+      const row = nameEl.closest('.bd-visit');
+      if (!dayEl || !row) return;
+      const visit = DAYS[Number(dayEl.dataset.day)].visits[Number(row.dataset.visit)];
+      card.innerHTML = cardHtml(visit);
+      card.hidden = false;
+      placeCard(nameEl);
+      cardFor = nameEl;
+    }, SHOW_DELAY);
+  });
+
+  daysEl.addEventListener('mouseout', e => {
+    const nameEl = e.target.closest('.vname');
+    if (!nameEl || nameEl.contains(e.relatedTarget)) return;
+    clearTimeout(showTimer);
+    if (cardFor) hideTimer = setTimeout(hideCard, HIDE_DELAY);
+  });
+
+  card.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+  card.addEventListener('mouseleave', () => { hideTimer = setTimeout(hideCard, HIDE_DELAY); });
+  content.addEventListener('scroll', hideCard, { passive: true });
+  if (scroller) scroller.addEventListener('scroll', hideCard, { passive: true });
+  window.addEventListener('resize', hideCard);
+
+  /* Record links in the related lists point nowhere in the prototype */
+  content.addEventListener('click', e => {
+    if (e.target.closest('.bd-rl-link')) e.preventDefault();
+  });
 
   content.addEventListener('scroll', markRail);
   /* setLayout() is defined above this point and has to reach it */
