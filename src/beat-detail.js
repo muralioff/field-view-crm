@@ -104,17 +104,16 @@ document.addEventListener('DOMContentLoaded', () => {
                ['Stage', 'stage'], ['Closing Date', 'closing']],
   };
 
-  const OWNER = 'Cameron Williamson';
   const CARDS = {
-    'Alex Newman Visit':  { sub: 'Royal Inc.', email: 'alexnewman@royalinc.com', phone: '044 58163540', mobile: '981113617', pref: 'Phone' },
-    'Jordan Smith Visit': { sub: 'Hudson Retail', email: 'jordan.smith@hudsonretail.com', phone: '212 555 0147', mobile: '917 555 0182', pref: 'Email' },
-    'Taylor Smith Visit': { sub: 'Greenleaf Grocers', email: 'taylor@greenleafgrocers.com', phone: '212 555 0193', mobile: '646 555 0121', status: 'Contacted' },
-    'Morgan Kite Visit':  { sub: 'Kite Distributors', contact: 'Morgan Kite', amount: '$12,400.00', stage: 'Negotiation', closing: 'May 20, 2026' },
-    'Priya Raman Visit':  { sub: 'Empire Foods', email: 'priya.raman@empirefoods.com', phone: '212 555 0164', mobile: '917 555 0139', pref: 'Phone' },
-    'Vikram Shah Visit':  { sub: 'New York', website: 'www.shahwholesale.com', phone: '212 555 0108', accType: 'Distributor', industry: 'Wholesale' },
-    'Nisha Kumar Visit':  { sub: 'Wall St Mart', email: 'nisha@wallstmart.com', phone: '212 555 0175', mobile: '646 555 0156', status: 'Qualified' },
-    'Arun Menon Visit':   { sub: 'Park Avenue Stores', contact: 'Arun Menon', amount: '$8,750.00', stage: 'Proposal', closing: 'May 28, 2026' },
-    'Divya Nair Visit':   { sub: 'Plaza Pharmacy', email: 'divya.nair@plazapharmacy.com', phone: '212 555 0130', mobile: '917 555 0117', pref: 'Email' },
+    'Alex Newman Visit':  { owner: 'Cameron Williamson', sub: 'Royal Inc.', email: 'alexnewman@royalinc.com', phone: '044 58163540', mobile: '981113617', pref: 'Phone' },
+    'Jordan Smith Visit': { owner: 'Olivia Bennett', sub: 'Hudson Retail', email: 'jordan.smith@hudsonretail.com', phone: '212 555 0147', mobile: '917 555 0182', pref: 'Email' },
+    'Taylor Smith Visit': { owner: 'Ethan Brooks', sub: 'Greenleaf Grocers', email: 'taylor@greenleafgrocers.com', phone: '212 555 0193', mobile: '646 555 0121', status: 'Contacted' },
+    'Morgan Kite Visit':  { owner: 'Sophia Turner', sub: 'Kite Distributors', contact: 'Morgan Kite', amount: '$12,400.00', stage: 'Negotiation', closing: 'May 20, 2026' },
+    'Priya Raman Visit':  { owner: 'Liam Carter', sub: 'Empire Foods', email: 'priya.raman@empirefoods.com', phone: '212 555 0164', mobile: '917 555 0139', pref: 'Phone' },
+    'Vikram Shah Visit':  { owner: 'Ava Mitchell', sub: 'New York', website: 'www.shahwholesale.com', phone: '212 555 0108', accType: 'Distributor', industry: 'Wholesale' },
+    'Nisha Kumar Visit':  { owner: 'Noah Parker', sub: 'Wall St Mart', email: 'nisha@wallstmart.com', phone: '212 555 0175', mobile: '646 555 0156', status: 'Qualified' },
+    'Arun Menon Visit':   { owner: 'Emma Collins', sub: 'Park Avenue Stores', contact: 'Arun Menon', amount: '$8,750.00', stage: 'Proposal', closing: 'May 28, 2026' },
+    'Divya Nair Visit':   { owner: 'Lucas Reed', sub: 'Plaza Pharmacy', email: 'divya.nair@plazapharmacy.com', phone: '212 555 0130', mobile: '917 555 0117', pref: 'Email' },
   };
 
   /* Where each record in the Add Visit picker lives, so a visit added there
@@ -290,12 +289,12 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="bd-rail ${visit.status === 'active' ? 'bd-pulsing' : ''}"><span class="bp-visit-num ${visit.status}">${i + 1}</span></span>
         <div class="bd-text">
           <p class="bd-visit-head">
-            <span class="bd-visit-name"><span class="vname" title="${escape(visit.name)}">${escape(visit.name)}</span><span class="dot">&nbsp;&nbsp;•&nbsp;&nbsp;</span><span class="vtype" title="${escape(visit.type)}">${escape(visit.type)}</span></span>
+            <span class="bd-visit-name"><span class="vname">${escape(visit.name)}</span><span class="dot">&nbsp;&nbsp;•&nbsp;&nbsp;</span><span class="vtype" data-trunc>${escape(visit.type)}</span></span>
             ${tag ? `<span class="bp-visit-tag ${tag.cls}">${tag.label}</span>` : ''}
           </p>
           <!-- Figma 6444:570277: address, then the time 6 below it -->
           <div class="bd-visit-where">
-            ${visit.address ? `<p class="bd-visit-meta bd-visit-addr" title="${escape(visit.address)}">${escape(visit.address)}</p>` : ''}
+            ${visit.address ? `<p class="bd-visit-meta bd-visit-addr" data-trunc>${escape(visit.address)}</p>` : ''}
             <p class="bd-visit-meta">${escape(when)}</p>
           </div>
         </div>
@@ -1092,9 +1091,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const info = CARDS[visit.name] || {};
     const fields = CARD_FIELDS[visit.module] || CARD_FIELDS.Contacts;
     const rows = fields.map(([label, key, isPhone]) => {
-      const value = key === 'owner' ? OWNER : info[key];
+      const value = info[key];
       const shown = value ? escape(value) : '—';
-      return `<dt>${label}</dt><dd>${shown}${isPhone && value
+      return `<dt>${label}</dt><dd><span class="bd-bcard-val" data-trunc>${shown}</span>${isPhone && value
         ? '<img src="src/phone-small.svg" alt="" aria-hidden="true" />' : ''}</dd>`;
     }).join('');
     return `
@@ -1123,6 +1122,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function hideCard() {
     clearTimeout(showTimer);
+    hideTruncTip();   /* a value's tooltip goes with its card */
     card.hidden = true;
     cardFor = null;
   }
@@ -1157,6 +1157,47 @@ document.addEventListener('DOMContentLoaded', () => {
   content.addEventListener('scroll', hideCard, { passive: true });
   if (scroller) scroller.addEventListener('scroll', hideCard, { passive: true });
   window.addEventListener('resize', hideCard);
+
+  /* ── Tooltip for cut-off text (Figma 6444:572054) ───── */
+  /* Anything marked data-trunc that ends in an ellipsis shows its full text
+     here on hover — the address, the visit type, a business-card value.
+     Text that fits shows nothing. One tooltip serves the timeline and the
+     card, and it sits above the card. */
+  const truncTip = document.createElement('div');
+  truncTip.className = 'bd-trunc-tip';
+  truncTip.setAttribute('role', 'tooltip');
+  truncTip.hidden = true;
+  document.body.appendChild(truncTip);
+  let truncTimer = 0;
+
+  const hideTruncTip = () => { clearTimeout(truncTimer); truncTip.hidden = true; };
+
+  function onTruncOver(e) {
+    const el = e.target.closest('[data-trunc]');
+    if (!el || el.scrollWidth <= el.clientWidth) return;
+    clearTimeout(truncTimer);
+    truncTimer = setTimeout(() => {
+      truncTip.textContent = el.textContent.trim();
+      truncTip.hidden = false;
+      const r = el.getBoundingClientRect();
+      const w = truncTip.offsetWidth, h = truncTip.offsetHeight;
+      const below = r.bottom + 6 + h <= window.innerHeight - 8;
+      truncTip.style.left = `${Math.min(Math.max(8, r.left), window.innerWidth - w - 8)}px`;
+      truncTip.style.top = `${below ? r.bottom + 6 : r.top - 6 - h}px`;
+    }, 300);
+  }
+
+  function onTruncOut(e) {
+    const el = e.target.closest('[data-trunc]');
+    if (el && !el.contains(e.relatedTarget)) hideTruncTip();
+  }
+
+  [daysEl, card].forEach(root => {
+    root.addEventListener('mouseover', onTruncOver);
+    root.addEventListener('mouseout', onTruncOut);
+  });
+  content.addEventListener('scroll', hideTruncTip, { passive: true });
+  if (scroller) scroller.addEventListener('scroll', hideTruncTip, { passive: true });
 
   /* Record links in the related lists point nowhere in the prototype */
   content.addEventListener('click', e => {

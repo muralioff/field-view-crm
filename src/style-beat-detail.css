@@ -1419,8 +1419,29 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
   gap: 6px;
   min-width: 0;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
+/* The value itself truncates — an ellipsis needs a block, not the flex row */
+.bd-bcard-val { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
 .bd-bcard-fields dd img { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* ── Tooltip for cut-off text (Figma 6444:572054) ─────────────────── */
+/* White, hairline border, soft shadow; 1px off Figma's padding because its
+   border is drawn inside */
+.bd-trunc-tip {
+  position: fixed;
+  z-index: 70;
+  max-width: 420px;
+  padding: 5px 9px;
+  background: #fff;
+  border: 1px solid #d6d6e3;
+  border-radius: 6px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--base);
+  pointer-events: none;
+}
+
+.bd-trunc-tip[hidden] { display: none; }
