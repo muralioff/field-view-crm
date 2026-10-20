@@ -114,10 +114,11 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   /* The visit's ⋯ menu, by visit state (docs/beat-detail-view-spec.md §5.1).
-     A completed visit offers nothing, so it gets no ⋯ at all. */
+     The destructive Cancel Visit comes last. A completed visit offers
+     nothing, so it gets no ⋯ at all. */
   const VISIT_ACTIONS = {
-    pending:   ['cancel', 'edit', 'reschedule', 'reassign', 'location'],
-    active:    ['cancel', 'edit', 'reschedule', 'reassign', 'location'],
+    pending:   ['edit', 'reschedule', 'reassign', 'location', 'cancel'],
+    active:    ['edit', 'reschedule', 'reassign', 'location', 'cancel'],
     missed:    ['edit', 'reschedule', 'reassign'],
     cancelled: ['edit', 'reschedule'],
     done:      [],
@@ -193,9 +194,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let selectedDay = 0;
   let expanded = true;
 
-  /* The visit picked on either side — its row in the list, its pin on the
-     map — so both show the same stop. { day, visit } or null. */
+  /* The stop picked on either side — its row in the list, its pin on the
+     map — so both show the same one. { day, visit } for a visit,
+     { day, place: 'home' | 'office' } for the day's start or end, or null. */
   let focused = null;
+  const sameStop = (a, b) => Boolean(a && b) &&
+    a.day === b.day && a.visit === b.visit && a.place === b.place;
 
   /* Which of the three arrangements is showing. Type 3 is Type 2 with the
      day's action moved onto the day itself, so it wears both classes — see
@@ -321,11 +325,13 @@ document.addEventListener('DOMContentLoaded', () => {
      Home starts its slice at its circle and Office ends there. The blue runs
      as far as the rep has got, grey from there on. */
 
-  function placeHtml(place, kind, reached, edge) {
+  function placeHtml(place, kind, reached, edge, dayIndex) {
     const time = place.time
       ? `<span class="at">at</span><span class="time">${escape(place.time)}</span>` : '';
+    const isFocused = focused && focused.day === dayIndex && focused.place === kind;
     return `
-      <div class="bd-row bd-place bd-place-${kind} ${edge} ${reached ? 'reached' : ''}">
+      <div class="bd-row bd-place bd-place-${kind} ${edge} ${reached ? 'reached' : ''} ${isFocused ? 'bd-focus' : ''}"
+           data-place="${kind}">
         <span class="bd-rail">
           <span class="bd-place-icon"><img src="src/loc-${kind}.svg" alt="" aria-hidden="true" /></span>
         </span>
@@ -372,9 +378,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="bd-visit-name"><span class="vname">${escape(visit.name)}</span></span>
             ${tag ? `<span class="bp-visit-tag ${tag.cls}">${tag.label}</span>` : ''}
           </p>
-          <!-- Figma 6444:574289: type • time, then the address, 3 apart -->
+          <!-- Figma 6522:80059: time • type, then the address, 6 apart -->
           <div class="bd-visit-where">
-            <p class="bd-visit-meta bd-visit-when"><span class="vtype" data-trunc>${escape(visit.type)}</span><span class="dot">•</span><span class="vtime">${escape(when)}</span></p>
+            <p class="bd-visit-meta bd-visit-when"><span class="vtime">${escape(when)}</span><span class="dot">•</span><span class="vtype" data-trunc>${escape(visit.type)}</span></p>
             ${visit.address ? `<p class="bd-visit-addr" data-trunc>${escape(visit.address)}</p>` : ''}
           </div>
         </div>
@@ -404,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const allDone = day.visits.length > 0 && day.visits.every(v => v.status === 'done');
     const canAdd = index === selectedDay && day.status !== 'done';
 
-    const rows = [placeHtml(HOME, 'home', upto >= 0, 'first')];
+    const rows = [placeHtml(HOME, 'home', upto >= 0, 'first', index)];
     day.visits.forEach((v, i) => {
       /* the leg into this stop, then the stop itself */
       rows.push(legHtml(i === 0 ? HOME : day.visits[i - 1], upto >= i));
@@ -422,7 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>`);
     }
-    rows.push(placeHtml(OFFICE, 'office', allDone, 'last'));
+    rows.push(placeHtml(OFFICE, 'office', allDone, 'last', index));
     return `<div class="bd-timeline">${rows.join('')}</div>`;
   }
 
@@ -528,9 +534,10 @@ document.addEventListener('DOMContentLoaded', () => {
       ATTACHMENTS.map(a => [link(a.file), a.size, escape(a.by), a.on]),
       'No Attachment');
 
+    /* Beat Details: what the beat is planned to be, summed over its days */
     $('bd-sum-visits').textContent = DAYS.reduce((n, day) => n + day.visits.length, 0);
-    const total = EXPENSES.reduce((sum, e) => sum + e.amount, 0);
-    $('bd-sum-expenses').textContent = EXPENSES.length ? money(total) : '—';
+    $('bd-sum-distance').textContent =
+      `${DAYS.reduce((n, day) => n + plannedKm(day), 0).toFixed(1)} km`;
   }
 
   function render() {
@@ -546,12 +553,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.bdMap) { window.bdMap._activeBeatDay = selectedDay; window.bdMap.draw(); }
   }
 
+  /* The product's message box (Figma 5988:150020): tick, message, close.
+     Every confirmation on the page goes through it. */
   function toast(message) {
-    toastEl.textContent = message;
+    toastEl.innerHTML = `
+      <img class="bd-toast-icon" src="src/toast-tick.svg" alt="" aria-hidden="true" />
+      <span class="bd-toast-text">${escape(message)}</span>
+      <button class="bd-toast-close" type="button" aria-label="Dismiss">
+        <img src="src/toast-close.svg" alt="" aria-hidden="true" /></button>`;
     toastEl.classList.add('show');
     clearTimeout(toast._t);
-    toast._t = setTimeout(() => toastEl.classList.remove('show'), 2600);
+    toast._t = setTimeout(() => toastEl.classList.remove('show'), 3200);
   }
+
+  toastEl.addEventListener('click', e => {
+    if (!e.target.closest('.bd-toast-close')) return;
+    clearTimeout(toast._t);
+    toastEl.classList.remove('show');
+  });
 
   /* ── Actions ───────────────────────────────────────── */
   /* Completing the stop in hand hands the day on to the next one */
@@ -618,6 +637,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* Distance is read off the legs: what was actually driven where we have
      it, the estimate where we do not. Both confirmations use it. */
+  /* A day's planned route: the drive out of Home, then the drive out of each
+     stop — estimates, before anything has been driven */
+  const kmIn = text => { const m = (text || '').match(/([\d.]+)\s*km/); return m ? Number(m[1]) : 0; };
+  function plannedKm(day) {
+    return kmIn(HOME.drive) + day.visits.reduce((n, v) => n + kmIn(v.drive), 0);
+  }
+
   const kmOf = visit => {
     const m = (visit.actualDrive || visit.drive || '').match(/([\d.]+)\s*km/);
     return m ? Number(m[1]) : 0;
@@ -633,12 +659,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function openStartDay(i) {
     startingDay = i;
     const day = DAYS[i];
-    const planned = day.visits.reduce((n, v) => n + kmOf(v), 0);
+    const planned = plannedKm(day);   /* the same figure Beat Details adds up */
     const first = day.visits[0];
 
-    $('bd-start-title').textContent = `Start ${day.label} ?`;
-    $('bd-start-sub').innerHTML =
-      `${escape(day.label)} • ${escape(day.date)}&nbsp;&nbsp;${day.visits.length} visits planned`;
+    /* The day and its date ride in the title; the count is in the summary */
+    $('bd-start-title').textContent = `Start “${day.label} - ${day.date}” ?`;
+    $('bd-start-note-day').textContent = day.label;
     $('bd-start-visits').textContent = String(day.visits.length);
     $('bd-start-km').textContent = `${planned.toFixed(1)} km`;
     $('bd-start-first').textContent = first ? first.name : '—';
@@ -673,27 +699,29 @@ document.addEventListener('DOMContentLoaded', () => {
   function elapsed(day) {
     if (day.startedMin == null) return '—';
     const mins = Math.max(1, (day.endedMin ?? SIM.minutes) - day.startedMin);
-    return mins < 60 ? `${mins} min` : `${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, '0')}m`;
+    return mins < 60 ? `${mins} min`
+      : `${Math.floor(mins / 60)} hr${mins % 60 ? ` ${mins % 60} min` : ''}`;
   }
 
+  /* What the day came to if it ends now. Missed counts what is already
+     missed and whatever is still open, since ending the day closes those
+     too; cancelled and rescheduled visits are counted apart. */
   function openEndDay(i) {
     endingDay = i;
     const day = DAYS[i];
+    const count = (...states) => day.visits.filter(v => states.includes(v.status)).length;
     const done = day.visits.filter(v => v.status === 'done');
-    const left = day.visits.filter(v => v.status === 'pending' || v.status === 'active').length;
     /* Distance counts the legs actually driven — the ones out of a stop the
        rep reached */
     const km = done.reduce((n, v) => n + kmOf(v), 0);
 
-    $('bd-end-title').textContent = `End ${day.label} ?`;
-    $('bd-end-sub').innerHTML =
-      `${escape(day.label)} • ${escape(day.date)}&nbsp;&nbsp;Started ${escape(day.startedAt)}`;
+    $('bd-end-title').textContent = `End “${day.label} - ${day.date}” ?`;
     $('bd-sum-done').textContent = `${done.length} of ${day.visits.length}`;
-    $('bd-sum-left').textContent = String(left);
-    $('bd-sum-km').textContent = `${km.toFixed(1)} km`;
+    $('bd-sum-missed').textContent = String(count('missed', 'pending', 'active'));
+    $('bd-sum-canceled').textContent = String(count('cancelled'));
+    $('bd-sum-rescheduled').textContent = String(count('rescheduled'));
     $('bd-sum-time').textContent = elapsed(day);
-    /* The note's wording is fixed; it only appears when it can still apply */
-    $('bd-end-note').hidden = left === 0;
+    $('bd-sum-km').textContent = `${km.toFixed(1)} km`;
 
     endOverlay.hidden = false;
     $('bd-end-confirm').focus();
@@ -791,18 +819,20 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    /* A visit in the list: take the map to its pin. The visit in progress
-       still completes on its click, below — this only moves the map. */
-    const vrow = e.target.closest('.bd-visit');
+    /* A visit, or the day's Home or Office, in the list: take the map to its
+       pin. The visit in progress still completes on its click, below — this
+       only moves the map. */
+    const vrow = e.target.closest('.bd-visit, .bd-place');
     if (vrow) {
       const d = Number(vrow.closest('.bd-day').dataset.day);
-      const v = Number(vrow.dataset.visit);
-      focused = { day: d, visit: v };
-      daysEl.querySelectorAll('.bd-visit.bd-focus').forEach(el => el.classList.remove('bd-focus'));
+      focused = vrow.dataset.place
+        ? { day: d, place: vrow.dataset.place }
+        : { day: d, visit: Number(vrow.dataset.visit) };
+      daysEl.querySelectorAll('.bd-focus').forEach(el => el.classList.remove('bd-focus'));
       vrow.classList.add('bd-focus');
       popPinned = true;
       placeVisitPop();    /* shows at once; the glide's redraws keep it on the pin */
-      panToVisit(d, v);
+      panToStop(focused);
     }
 
     /* Completing the stop in hand */
@@ -833,9 +863,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const avType   = $('av-type');
   const avTime   = $('av-time');
   const avDesc   = $('av-desc');
-  const avStatus = $('av-status');
-  const avPic    = $('av-pic');
-  const avPicName = $('av-pic-name');
 
   /* Half-hour slots across a working day */
   const SLOTS = (() => {
@@ -865,17 +892,17 @@ document.addEventListener('DOMContentLoaded', () => {
     msg.hidden = !text;
   }
 
+  /* Fifteen minutes is what the other visits on these beats run to */
+  const VISIT_MINUTES = 15;
+
   function openAddVisit(dayIndex) {
     addingTo = dayIndex;
     const day = DAYS[dayIndex];
     avTitle.innerHTML =
-      `Add Visit for “${escape(day.label)} <span class="dot">•</span> ${escape(day.date)}”`;
+      `Add Visit to ${escape(day.label)} <span class="dot">•</span> ${escape(day.date)}`;
 
-    [avRecord, avType, avStatus].forEach(sel => { sel.value = ''; setMsg(sel, ''); });
+    [avRecord, avType].forEach(sel => { sel.value = ''; setMsg(sel, ''); });
     avDesc.value = '';
-    avPic.value = '';
-    avPicName.textContent = 'Upload your file';
-    avPicName.parentElement.classList.remove('filled');
     /* The slot list depends on the visit type, so it stays shut until one
        is picked — as the frame shows it */
     avTime.innerHTML = '<option value="" selected disabled></option>';
@@ -895,18 +922,13 @@ document.addEventListener('DOMContentLoaded', () => {
     /* Slots already spoken for on this day are not offered again */
     const taken = DAYS[addingTo].visits.map(v => v.time.split(' to ')[0]);
     const free = SLOTS.filter(t => !taken.includes(t));
-    avTime.innerHTML = '<option value="" selected disabled>Select Visit Time</option>' +
-      free.map(t => `<option>${t}</option>`).join('');
+    /* Each slot reads as the span it books, so the field says the duration */
+    avTime.innerHTML = '<option value="" selected disabled>Select Visit Duration</option>' +
+      free.map(t => `<option value="${t}">${t} to ${minutesToClock(clockToMinutes(t) + VISIT_MINUTES)}</option>`).join('');
     avTime.disabled = false;
   });
 
   avRecord.addEventListener('change', () => setMsg(avRecord, ''));
-
-  avPic.addEventListener('change', () => {
-    const file = avPic.files[0];
-    avPicName.textContent = file ? file.name : 'Upload your file';
-    avPicName.parentElement.classList.toggle('filled', Boolean(file));
-  });
 
   $('av-cancel').addEventListener('click', closeAddVisit);
 
@@ -924,9 +946,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const day = DAYS[addingTo];
     const start = avTime.value;
-    /* Fifteen minutes is what the other visits on these beats run to */
     const time = start
-      ? `${start} to ${minutesToClock(clockToMinutes(start) + 15)}`
+      ? `${start} to ${minutesToClock(clockToMinutes(start) + VISIT_MINUTES)}`
       : 'Time not set';
 
     day.visits.push({
@@ -936,8 +957,7 @@ document.addEventListener('DOMContentLoaded', () => {
       address: RECORD_ADDRESS[avRecord.value] || '',
       time,
       drive: '',
-      description: avDesc.value.trim(),
-      locationStatus: avStatus.value,
+      comments: avDesc.value.trim(),
       status: 'pending',
     });
     /* Keep the day in the order it will actually be worked */
@@ -1104,18 +1124,41 @@ document.addEventListener('DOMContentLoaded', () => {
     return hit;
   }
 
+  /* Home and Office markers stand on their point: 28 wide, about 41 tall.
+     A hit anywhere on the marker counts, for the day on the map. */
+  const MARKER_H = 41;
+  function placeAt(map, mx, my) {
+    for (const [kind, pt] of [['home', BEAT_HOME], ['office', BEAT_OFFICE]]) {
+      const [sx, sy] = map.worldToScreen(pt.x, pt.y);
+      if (Math.abs(mx - sx) <= 14 && my <= sy + 4 && my >= sy - MARKER_H) {
+        return { day: selectedDay, place: kind };
+      }
+    }
+    return null;
+  }
+
+  /* A visit's pin wins over a marker it overlaps */
+  const stopAt = (map, mx, my) => visitAt(map, mx, my) || placeAt(map, mx, my);
+
+  const stopPoint = stop => stop.place
+    ? (stop.place === 'home' ? BEAT_HOME : BEAT_OFFICE)
+    : DAYS[stop.day].pins[stop.visit];
+
+  const stopExists = stop => Boolean(stop && DAYS[stop.day] &&
+    (stop.place || DAYS[stop.day].visits[stop.visit]));
+
   /* Glide the map onto one stop, zooming in if it is further out than
      this. A short ease rather than a jump, so the eye follows. */
   const FOCUS_SCALE = 1.6;
-  function panToVisit(d, v) {
-    const map = fieldMap, pin = DAYS[d].pins[v];
+  function panToStop(stop) {
+    const map = fieldMap, pin = stopPoint(stop);
     if (!pin) return;
     const from = { s: map.scale, x: map.panX, y: map.panY };
     const s1 = Math.max(map.scale, FOCUS_SCALE);
     const to = { s: s1, x: map.canvas.width / 2 - pin.x * s1, y: map.canvas.height / 2 - pin.y * s1 };
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const start = performance.now(), DUR = reduce ? 0 : 350;
-    cancelAnimationFrame(panToVisit._raf);
+    cancelAnimationFrame(panToStop._raf);
     const step = now => {
       const t = DUR ? Math.min(1, (now - start) / DUR) : 1;
       const k = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;   /* ease-in-out */
@@ -1123,15 +1166,15 @@ document.addEventListener('DOMContentLoaded', () => {
       map.panX = from.x + (to.x - from.x) * k;
       map.panY = from.y + (to.y - from.y) * k;
       map.draw();
-      if (t < 1) panToVisit._raf = requestAnimationFrame(step);
+      if (t < 1) panToStop._raf = requestAnimationFrame(step);
       else { map._clamp(); map.draw(); }
     };
-    panToVisit._raf = requestAnimationFrame(step);
+    panToStop._raf = requestAnimationFrame(step);
   }
 
   /* Bring the focused row into the middle of the list, if it is not in view */
   function revealFocusedRow() {
-    const row = daysEl.querySelector('.bd-visit.bd-focus');
+    const row = daysEl.querySelector('.bd-focus');
     if (!row || !scroller) return;
     const box = scroller.getBoundingClientRect(), r = row.getBoundingClientRect();
     if (r.top >= box.top && r.bottom <= box.bottom) return;
@@ -1148,7 +1191,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (map.didDrag) return;
       /* A stop: open its day in the list and point at its row */
       const r = map.canvas.getBoundingClientRect();
-      const stop = visitAt(map, e.clientX - r.left, e.clientY - r.top);
+      const stop = stopAt(map, e.clientX - r.left, e.clientY - r.top);
       if (stop) {
         focused = stop;
         popPinned = true;
@@ -1200,7 +1243,7 @@ document.addEventListener('DOMContentLoaded', () => {
   visitPop.hidden = true;
   $('map-area').appendChild(visitPop);
 
-  let popHover = null;        /* { day, visit } under the pointer on the map */
+  let popHover = null;        /* the stop under the pointer on the map */
   let popPinned = false;      /* the focused visit's card stays open */
   let popShown = null, popTimer = 0, popHideTimer = 0;
 
@@ -1229,25 +1272,39 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="bd-vpop-addr">${escape(visit.address || 'No address')}</span></p>`;
   }
 
+  /* Home and Office: where the day starts or ends, and nothing more */
+  function placePopHtml(kind) {
+    const place = kind === 'home' ? HOME : OFFICE;
+    return `
+      <p class="bd-vpop-name">${escape(place.title)}</p>
+      <p class="bd-vpop-row"><i class="ti ti-map-pin" aria-hidden="true"></i>
+        <span class="bd-vpop-addr">${escape(place.addr)}</span></p>`;
+  }
+
   /* Whatever the card should show now: the hovered stop, else the pinned one */
   function placeVisitPop() {
     const want = popHover || (popPinned && focused) || null;
-    if (!want || !DAYS[want.day] || !DAYS[want.day].visits[want.visit]) {
-      visitPop.hidden = true; popShown = null; return;
+    if (!stopExists(want)) { visitPop.hidden = true; popShown = null; return; }
+    const key = `${want.day}:${want.place || want.visit}`;
+    if (popShown !== key) {
+      visitPop.innerHTML = want.place ? placePopHtml(want.place) : visitPopHtml(want.day, want.visit);
+      visitPop.classList.toggle('bd-vpop-place', Boolean(want.place));
+      popShown = key;
     }
-    const key = `${want.day}:${want.visit}`;
-    if (popShown !== key) { visitPop.innerHTML = visitPopHtml(want.day, want.visit); popShown = key; }
-    const pin = DAYS[want.day].pins[want.visit];
+    const pin = stopPoint(want);
     const [px, py] = fieldMap.worldToScreen(pin.x, pin.y);
     const W = fieldMap.canvas.width, H = fieldMap.canvas.height;
     /* A stop panned out of view takes its card with it */
     if (px < 0 || py < 0 || px > W || py > H) { visitPop.hidden = true; return; }
     visitPop.hidden = false;
     const w = visitPop.offsetWidth, h = visitPop.offsetHeight;
-    const above = py - 18 - h >= 8;
+    /* A visit pin is a circle round its point; a marker stands above it */
+    const topEdge = want.place ? py - MARKER_H - 8 : py - 18;
+    const bottomEdge = want.place ? py + 10 : py + 18;
+    const above = topEdge - h >= 8;
     const left = Math.min(Math.max(8, px - w / 2), W - w - 8);
     visitPop.style.left = `${left}px`;
-    visitPop.style.top = `${above ? py - 18 - h : py + 18}px`;
+    visitPop.style.top = `${above ? topEdge - h : bottomEdge}px`;
     visitPop.classList.toggle('below', !above);
     visitPop.style.setProperty('--arrow-x', `${Math.max(14, Math.min(px - left, w - 14))}px`);
   }
@@ -1258,8 +1315,8 @@ document.addEventListener('DOMContentLoaded', () => {
   fieldMap.canvas.addEventListener('mousemove', e => {
     if (fieldMap.isDragging) return;
     const r = fieldMap.canvas.getBoundingClientRect();
-    const stop = visitAt(fieldMap, e.clientX - r.left, e.clientY - r.top);
-    const same = stop && popHover && stop.day === popHover.day && stop.visit === popHover.visit;
+    const stop = stopAt(fieldMap, e.clientX - r.left, e.clientY - r.top);
+    const same = sameStop(stop, popHover);
     if (same) { clearTimeout(popHideTimer); return; }
     clearTimeout(popTimer);
     if (stop) {
@@ -1284,7 +1341,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* A click anywhere but the card, a stop or a visit row puts it away */
   document.addEventListener('click', e => {
     if (!popPinned) return;
-    if (e.target.closest('.bd-vpop, .bd-visit, #map-canvas')) return;
+    if (e.target.closest('.bd-vpop, .bd-visit, .bd-place, #map-canvas')) return;
     popPinned = false;
     placeVisitPop();
   });
@@ -1535,6 +1592,60 @@ document.addEventListener('DOMContentLoaded', () => {
   daysEl.addEventListener('focusout', e => { if (e.target.matches('[data-tip]')) hideTruncTip(); });
   content.addEventListener('scroll', hideTruncTip, { passive: true });
   if (scroller) scroller.addEventListener('scroll', hideTruncTip, { passive: true });
+
+  /* ── Show Address ──────────────────────────────────── */
+  /* The visits' address line can be folded away for a tighter list. On by
+     default; the choice is remembered for this viewer. Home and Office keep
+     theirs — they say where the day starts and ends. */
+  const ADDR_KEY = 'bd-show-address';
+  const addrSwitch = $('bd-addr-switch');
+  function setShowAddress(on) {
+    addrSwitch.setAttribute('aria-checked', String(on));
+    daysEl.classList.toggle('bd-hide-addr', !on);
+    try { localStorage.setItem(ADDR_KEY, on ? '1' : '0'); } catch { /* private mode */ }
+  }
+  addrSwitch.addEventListener('click', () =>
+    setShowAddress(addrSwitch.getAttribute('aria-checked') !== 'true'));
+  let addrSaved = '1';
+  try { addrSaved = localStorage.getItem(ADDR_KEY) ?? '1'; } catch { /* private mode */ }
+  setShowAddress(addrSaved !== '0');
+
+  /* ── Optimize Beat ─────────────────────────────────── */
+  /* In the product this re-orders the visits for the shortest route. With
+     no routing behind the prototype's map, it confirms and leaves the order
+     as it is. */
+  $('bd-optimize').addEventListener('click', () => toast('Route optimized for BP - 003.'));
+
+  /* ── Beat ⋯ menu ───────────────────────────────────── */
+  const beatMore = $('bd-more'), beatMenu = $('bd-beat-menu');
+  const beatItems = [...beatMenu.querySelectorAll('.bd-vmenu-item')];
+  function setBeatMenu(open, focusFirst) {
+    beatMenu.hidden = !open;
+    beatMore.setAttribute('aria-expanded', String(open));
+    if (open && focusFirst) beatItems[0].focus();
+  }
+  beatMore.addEventListener('click', e => {
+    e.stopPropagation();
+    setBeatMenu(beatMenu.hidden, e.detail === 0);
+  });
+  beatMenu.addEventListener('click', e => {
+    const item = e.target.closest('.bd-vmenu-item');
+    if (!item) return;
+    setBeatMenu(false);
+    toast(`${item.textContent} is not part of this prototype yet.`);
+  });
+  beatMenu.addEventListener('keydown', e => {
+    const at = beatItems.indexOf(document.activeElement);
+    if (e.key === 'Escape') { setBeatMenu(false); beatMore.focus(); }
+    else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const step = e.key === 'ArrowDown' ? 1 : -1;
+      beatItems[(at + step + beatItems.length) % beatItems.length].focus();
+    }
+  });
+  document.addEventListener('click', e => {
+    if (!beatMenu.hidden && !e.target.closest('.bd-beat-menu-wrap')) setBeatMenu(false);
+  });
 
   /* Record links in the related lists point nowhere in the prototype */
   content.addEventListener('click', e => {

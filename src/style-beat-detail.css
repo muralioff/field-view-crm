@@ -27,10 +27,11 @@
 .bd-day .bp-day-header {
   gap: 10px;
   flex-wrap: wrap;
-  padding: 12px 18px 12px 20px;
+  padding: 12px 12px 12px 20px;     /* Figma 6522:80031 */
 }
 
-.bd-day .bp-day-body { padding: 0 20px 12px; }
+/* Figma 6522:80038: 12 left, 20 right; the Office row's 16 closes it */
+.bd-day .bp-day-body { padding: 0 20px 0 12px; }
 
 /* The exported filled triangle, pointing right until the day opens */
 .bd-chev {
@@ -65,9 +66,10 @@
 /* The tally closes the title row on the right, the way the frame has it */
 .bd-day-count {
   margin-left: auto;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 400;
-  color: var(--label);
+  line-height: 20px;
+  color: var(--base);
   white-space: nowrap;
 }
 
@@ -100,7 +102,6 @@
 /* The whole card is the hit area. The visit list inside an expanded card is
    exempt, so reading it never folds the day away. */
 .bd-day { cursor: pointer; }
-.bd-day:hover { background: #fafbff; }
 .bd-day .bp-day-body { cursor: default; }
 
 /* Selected is the highlight and the day the map draws; expanded is whether
@@ -114,27 +115,59 @@
 }
 
 .bd-day.expanded .bp-day-body { display: block; }
-.bd-day.expanded .bp-day-header { margin-bottom: 12px; }
+.bd-day.expanded .bp-day-header { margin-bottom: 0; }
 
 
 /* ── Toast ───────────────────────────────────────────── */
+/* Message box (Figma 5988:150020): pale green, hairline border, the tick,
+   the message, and a close. Drops in at the top centre, under the topbar. */
 .bd-toast {
   position: fixed;
   left: 50%;
-  bottom: 28px;
-  z-index: 90;
-  transform: translateX(-50%) translateY(12px);
-  padding: 10px 16px;
-  background: #223458;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #fff;
+  top: 60px;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  gap: 19px;
+  max-width: calc(100vw - 40px);
+  padding: 9px 14px;          /* Figma's 10 / 15 with its 1px border drawn inside */
+  background: #f5faf5;
+  border: 1px solid #a9d3ab;
+  border-radius: 6px;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+  transform: translateX(-50%) translateY(-8px);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
-.bd-toast.show { opacity: 1; transform: translateX(-50%); }
+.bd-toast.show { opacity: 1; transform: translateX(-50%); pointer-events: auto; }
+
+.bd-toast-icon { width: 22px; height: 22px; flex-shrink: 0; margin-right: -9px; }   /* 10 to the text */
+
+.bd-toast-text {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: normal;
+  color: #132c14;
+}
+
+.bd-toast-close {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.bd-toast-close img { width: 8px; height: 8px; }
+.bd-toast-close:hover { background: rgba(19, 44, 20, 0.08); }
 
 @media (prefers-reduced-motion: reduce) {
   .bd-toast { transition: none; }
@@ -261,22 +294,6 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
   line-height: 18px;
 }
 
-/* File picking goes through the label; the input itself never shows */
-.bd-upload {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  color: #7c8bae;
-  cursor: pointer;
-}
-
-.bd-upload.filled { color: var(--base); }
-.bd-upload span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bd-upload i { font-size: 16px; color: var(--label); flex-shrink: 0; }
-
-.bd-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-
 .bd-input.invalid { border-color: #ff5d5a; }
 
 .bd-msg { font-size: 11px; line-height: 13px; color: #ff5d5a; }
@@ -302,19 +319,19 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
   to   { opacity: 1; transform: none; }
 }
 
+/* Add Visit keeps its 582 width and drops from the top the same way */
+.bd-modal-add {
+  border-radius: 0 0 15px 15px;
+  box-shadow: 0 4px 18px rgba(49, 57, 73, 0.6);
+  animation: bd-modal-drop 0.24s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .bd-modal-end, .bd-modal-start { animation: none; }
+  .bd-modal-end, .bd-modal-start, .bd-modal-add { animation: none; }
 }
 
 .bd-modal-end .bd-modal-body,
 .bd-modal-start .bd-modal-body { gap: 0; }
-
-.bd-end-sub {
-  margin-top: 15px;
-  font-size: 14px;
-  line-height: 20px;
-  color: #434d5f;
-}
 
 .bd-summary {
   display: flex;
@@ -427,7 +444,7 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
   border: 1px solid var(--bd-rail-idle);
   border-radius: 50%;
   color: var(--base);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   line-height: 17px;
 }
@@ -487,22 +504,23 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 
 /* ── Visit (Figma 3479:98015) ─────────────────────────── */
 /* No card — the stop is plain text beside the rail */
-.bd-visit .bd-text { display: flex; flex-direction: column; gap: 3px; }
+.bd-visit .bd-text { display: flex; flex-direction: column; gap: 6px; }
 
 .bd-visit-head { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
 .bd-visit-head .bp-visit-tag { flex-shrink: 0; }
 
-/* Figma 6444:574289 — three lines, 3 apart:
-     Visit name            Semibold 14/20, base
-     Visit type • time     Regular 14/20, paragraph; the dot in #8b9bb8
-     Address               Regular 13/18, label
+/* Figma 6522:80059 — three lines, 6 apart:
+     Visit name            Semibold 15/20, base
+     Time • visit type     14/20; time Medium in paragraph, type Regular in
+                           label; the dot in #8b9bb8
+     Address               Regular 14/20, label
    Each holds one line; the name, the type and the address end in an
    ellipsis when they run long. */
 .bd-visit-name {
   display: flex;
   flex: 0 1 auto;          /* hugs the name, so a status tag sits right after it */
   min-width: 0;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   line-height: 20px;
   color: var(--base);
@@ -517,18 +535,21 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
   color: var(--para);
 }
 
-.bd-visit-where { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.bd-visit-where { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 
-/* Type gives way first; the time always shows whole */
+/* Time leads and always shows whole; the type after it gives way first */
 .bd-visit-when { display: flex; gap: 6px; min-width: 0; white-space: nowrap; }
-.bd-visit-when .vtype { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.bd-visit-when .vtype { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--label); }
 .bd-visit-when .dot,
 .bd-visit-when .vtime { flex-shrink: 0; }
 .bd-visit-when .dot { color: #8b9bb8; }
+/* The time keeps the paragraph colour but at medium weight, so it reads
+   second after the name; the type beside it stays regular */
+.bd-visit-when .vtime { font-weight: 500; color: var(--para); }
 
 .bd-visit-addr {
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 14px;
+  line-height: 20px;
   color: var(--label);
   white-space: nowrap;
   overflow: hidden;
@@ -552,26 +573,42 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 .bd-settleable { cursor: pointer; }
 
 /* The visit picked in the list or on the map — its pin carries a ring —
-   and the visit in hand under the pointer. The tint runs from the text to
+   and any visit under the pointer, in a lighter tint. The day card itself
+   takes no hover colour; the visit is what is being pointed at. The tint runs from the text to
    the row's right edge, so it takes in the ⋯ as well: 37 is the 28px
    number column plus the row's 9px gap. */
 /* Text and ⋯ ride above the tint; the open menu's wrapper is lifted
    higher still, so its dropdown clears the rows below it */
 .bd-visit > .bd-text,
+.bd-place > .bd-text,
 .bd-visit > .bd-vmenu-wrap { position: relative; z-index: 1; }
 .bd-visit > .bd-vmenu-wrap.open { z-index: 50; }
 /* 10px inside the tint's right edge, matching the text's 10px inset on the left */
 .bd-visit > .bd-vmenu-wrap { margin-right: 10px; }
+/* Colours from Figma 6529:568018 ("color ref"): hover uses the list-view
+   table-hover token, selected the table-checked token */
 .bd-visit.bd-focus::after,
-.bd-settleable:hover::after {
+.bd-visit:hover::after,
+.bd-place.bd-focus::after,
+.bd-place:hover::after {
   content: '';
   position: absolute;
   z-index: 0;
   inset: 0 0 0 37px;
   border-radius: 7px;
-  background: #f4f6ff;
+  background: #f7f8fb;          /* Figma "for visit hover": table-hover */
 }
-.bd-visit.bd-focus::after { background: #eef0ff; }
+.bd-visit.bd-focus::after,
+.bd-place.bd-focus::after { background: #f5f8ff; }   /* Figma "for visit selected": table-checked */
+/* Home and Office take you to their marker too; Office's icon sits 5 from
+   its text rather than 9, so its tint starts 4 sooner (33, not 37) */
+.bd-place { cursor: pointer; }
+/* Home and Office tint their text block only, not the row's own padding —
+   Office's 16 below would otherwise run the tint into the card's border */
+.bd-place-home.bd-focus::after,
+.bd-place-home:hover::after { inset: 4px 0 4px 37px; }
+.bd-place-office.bd-focus::after,
+.bd-place-office:hover::after { inset: 10px 0 16px 33px; }
 
 /* ── Leg between stops (Figma 3479:98007) ─────────────── */
 /* A rule running out to the right, then the car and the estimate. The 47px
@@ -579,15 +616,15 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 .bd-leg {
   justify-content: flex-end;
   gap: 6px;
-  padding: 4px 0 4px 47px;
+  padding: 8px 0 8px 47px;          /* Figma 6522:80051: 33 tall */
 }
 
 .bd-leg-rule { flex: 1; min-width: 0; height: 0; border-top: 0.5px solid #d6d6e3; }
 .bd-leg-car { width: 16px; height: 16px; flex-shrink: 0; }
 
 .bd-leg-text {
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 12px;
+  line-height: 17px;
   color: var(--para);
   white-space: nowrap;
 }
@@ -595,7 +632,7 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 /* ── Home / Office (Figma 3479:97996 · 3479:98092) ───── */
 /* The same 28px ring as the stops: link blue for Home, border-4 for Office */
 .bd-place-home   { padding: 4px 0; }
-.bd-place-office { padding: 4px 0 8px; }
+.bd-place-office { padding: 10px 0 16px; }   /* Figma 6522:80113 */
 
 .bd-place-icon {
   width: 28px;
@@ -616,17 +653,19 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 
 .bd-place-icon img { width: 16px; height: 16px; display: block; }
 
-.bd-place .bd-text { display: flex; flex-direction: column; gap: 2px; }
-.bd-place-office .bd-text { padding: 4px 11px; }
+.bd-place .bd-text { display: flex; flex-direction: column; gap: 4px; }
+/* Figma 6522:80116: a 56-tall text block 11 in, 5 after the icon */
+.bd-place-office { gap: 5px; }
+.bd-place-office .bd-text { padding: 4px 11px; min-height: 56px; justify-content: center; }
 
 .bd-place-line { display: flex; gap: 8px; font-size: 14px; line-height: 20px; }
 /* Figma 6444:574274 — the title in Semibold like a visit's name, the
    address a size down, 13/18 */
-.bd-place-line .name { font-weight: 600; color: var(--base); }
+.bd-place-line .name { font-size: 15px; font-weight: 600; color: var(--base); }
 .bd-place-line .at   { color: var(--label); }
 .bd-place-line .time { color: var(--para); }
 
-.bd-place-addr { font-size: 13px; line-height: 18px; color: var(--label); }
+.bd-place-addr { font-size: 14px; line-height: 20px; color: var(--label); }
 
 /* ── Add Visit (Figma 3468:78635) ─────────────────────── */
 /* 28px dashed circle · 12px plus · 16 to the label · 14/500 link blue */
@@ -728,12 +767,6 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 
 /* Full width now, so the three fields sit in one row; the card's own
    padding closes it rather than the grid's bottom margin */
-.type-1 .bp-detail-grid {
-  grid-template-columns: repeat(3, max-content);
-  column-gap: 64px;
-  margin-bottom: 0;
-}
-
 /* ── Type 2 ──────────────────────────────────────────── */
 /* One column: the business card, then the related lists. A flex column
    rather than a grid — grid sized its rows to the container and squeezed
@@ -761,59 +794,22 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 .bd-card-details h2 { font-size: 15px; font-weight: 600; color: var(--heading); }
 
 /* ── Beat Details ────────────────────────────────────── */
-/* Two presentations of the same three fields. Type 1 keeps the original
-   icon grid; Type 2 uses the CRM business-card pattern. Only one is ever
-   in the layout — every further change to this block belongs to Type 2. */
+/* The original icon grid (commit 90efa9d) for every type: heading, then
+   owner, duration, planned visits and planned distance side by side */
+.bd-card-details .bp-detail-grid {
+  grid-template-columns: repeat(4, max-content);
+  column-gap: 64px;
+  margin-bottom: 0;
+}
+
+@media (max-width: 1080px) {
+  .bd-card-details .bp-detail-grid { grid-template-columns: 1fr 1fr; column-gap: 12px; }
+}
+
+/* Parts drawn for one type only — the map's terrain switch */
 .type-1 .bd-only-2,
 .type-2 .bd-only-1 { display: none; }
 
-/* Type 2: label right-aligned in its own column, value beside it. No
-   icons — the three labels say what they are, and colour-coded glyphs on
-   a summary this short were decoration rather than navigation. */
-.bd-fields { display: grid; gap: 16px 28px; margin-top: 16px; }
-
-/* Scoped under .bd-fields: .bd-field alone is the Add Visit modal's form
-   row, and this would otherwise redefine it */
-.bd-fields .bd-fields-row {
-  display: grid;
-  grid-template-columns: 100px minmax(0, 1fr);
-  gap: 16px;
-  align-items: baseline;
-}
-
-.bd-fields dt {
-  font-size: 14px;
-  line-height: 22px;
-  color: var(--label);
-  text-align: right;
-}
-
-.bd-fields dd {
-  font-size: 14px;
-  line-height: 22px;
-  color: var(--base);
-}
-
-/* Type 2 drops the heading — the business card carries no title in the
-   CRM, and the three labels already name themselves */
-.type-2 .bd-card-details h2 { display: none; }
-
-/* One field per row, each a horizontal label → value pair, stacked and
-   left-aligned in the band. Spread across three columns they sat far
-   apart from their own values, which is what this replaces. */
-.type-2 .bd-fields {
-  grid-template-columns: max-content;
-  gap: 22px;
-  margin-top: 0;
-}
-
-.type-2 .bd-fields .bd-fields-row { grid-template-columns: 120px max-content; gap: 24px; }
-
-.type-2 .bd-card-details { padding: 24px 18px; }
-
-@media (max-width: 1080px) {
-  .type-2 .bd-fields { grid-template-columns: minmax(0, 1fr); }
-}
 .bd-card-visits { width: auto; }
 
 /* Named areas exist on the page grid, which is their parent in Type 1
@@ -882,10 +878,24 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
   gap: 20px;
 }
 
-/* The card header already says Visits, and the Route Map header's only
-   other job was holding the link — which now rides on the map itself. */
-.type-2 .bp-visits-title,
+/* The Route Map header's only other job was holding the link — which now
+   rides on the map itself */
 .type-2 .bp-routemap-header { display: none; }
+
+/* "Visits" heads the list side only, in the Beat Details heading's type,
+   and scrolls away with the days */
+.type-2 .bp-visits-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: -10px -10px 0;
+  padding: 14px 14px 10px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--heading);
+}
 
 /* The map is the whole card now, so it rounds on all four corners */
 .type-2 .bp-routemap .map-area { border-radius: 10px; }
@@ -954,7 +964,6 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
   .type-2 .bd-card-visits { max-height: 640px; }
   .type-1 .bd-card-visits { border-radius: 10px; }
   .type-1 .bd-card-map    { border-radius: 10px; border-left: 1px solid var(--card-border); }
-  .type-1 .bp-detail-grid { grid-template-columns: 1fr 1fr; column-gap: 12px; }
 }
 
 /* ── The toggle ──────────────────────────────────────── */
@@ -1126,25 +1135,22 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
   cursor: pointer;
 }
 
-/* Outline Blue Btn-Small (Figma 3267:42020) */
-.bd-day-act-start {
-  padding: 0 15px;
-  background: #f0f1ff;
-  border: 1px solid var(--bd-link);
-  color: var(--bd-link);
-}
-
-.bd-day-act-start:hover { background: #e4e7ff; }
-
-/* Outline Negative Btn-Small (Figma 5525:83691) */
+/* Primary-Small (Figma 6522:80037): the brand gradient, white label.
+   12px each side — Figma's 12 | 10 plus the label's own 2. */
+.bd-day-act-start,
 .bd-day-act-end {
   padding: 0 12px;
-  background: #fff2f3;
-  border: 1px solid #ff4d5b;
-  color: #f63648;
+  border: none;
+  color: #fff;
 }
 
-.bd-day-act-end:hover { background: #ffe6e8; }
+.bd-day-act-start { background: linear-gradient(to top, #124dc3, #5767f6); }
+
+/* Negative-Small (Figma 6522:80161): the red gradient, white label */
+.bd-day-act-end { background: linear-gradient(to bottom, #ff4657, #e23041); }
+
+.bd-day-act-start:hover,
+.bd-day-act-end:hover { filter: brightness(0.95); }
 
 /* ── Map controls (Type 2) ───────────────────────────── */
 /* The map in the card is big enough to work in, so zoom, back-to-the-day
@@ -1289,7 +1295,9 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
 /* ── Business card on a visit's name (Figma 6444:572006) ──────────── */
 .bd-visit-name .vname { cursor: default; text-underline-offset: 3px; }
 
-/* The name alone underlines under the pointer, saying it opens the card */
+/* The name is a link to the record's card: anywhere on the visit, it takes
+   the link blue; on the name itself, the underline too */
+.bd-visit:hover .bd-visit-name .vname { color: var(--bd-link); }
 .bd-visit-name .vname:hover { text-decoration: underline; }
 
 .bd-bcard {
@@ -1600,13 +1608,13 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
 }
 
 /* ── A Start that cannot be used yet ───────────────────────────────── */
-/* Stays in its place on the row; hover or focus says why. Outline Blue
-   Btn-Small, Disable variant (Figma 6466:1388868): the same blue at 60% */
+/* Stays in its place on the row; hover or focus says why. The disabled
+   primary the planner pages already use: a flat #adb3ee, white label. */
 .bd-day-act.is-blocked,
 .bd-day-act.is-blocked:hover {
-  background: rgba(240, 241, 255, 0.6);
-  border-color: rgba(84, 100, 242, 0.6);
-  color: rgba(84, 100, 242, 0.6);
+  background: #adb3ee;
+  filter: none;
+  color: #fff;
   cursor: not-allowed;
 }
 
@@ -1707,3 +1715,81 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
 }
 
 .bd-sim-reset:hover { text-decoration: underline; }
+
+/* Home and Office: just a title and the address */
+.bd-vpop-place .bd-vpop-row { margin-top: 6px; }
+.bd-vpop-place .bd-vpop-addr { color: var(--para); }
+
+/* ── Show Address switch, beside the Visits heading ─────────────────── */
+.bd-addr-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--label);
+  cursor: pointer;
+}
+
+/* Switch: 30 × 18 with a 14 knob, grey off and green on */
+.bd-switch {
+  position: relative;
+  width: 30px;
+  height: 18px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 100px;
+  background: #d7d9ea;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.bd-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 100px;
+  background: #fff;
+  transition: transform 0.15s;
+}
+
+.bd-switch[aria-checked="true"] { background: #12aa67; }
+.bd-switch[aria-checked="true"]::after { transform: translateX(12px); }
+.bd-switch:focus-visible { outline: 2px solid var(--bd-link); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bd-switch, .bd-switch::after { transition: none; }
+}
+
+/* Off: the visits lose their address line */
+.bd-hide-addr .bd-visit-addr { display: none; }
+
+/* ── Record header: Optimize Beat and the beat ⋯ menu (Figma 5988:149480) ── */
+/* A short rule after Zia sets the record's own actions apart */
+.bd-head-divider {
+  width: 1px;
+  height: 15px;
+  margin: 0 2px;
+  background: #d5d8e9;
+}
+
+.bd-beat-menu-wrap { position: relative; }
+
+/* More Icon Btn: the default button, 44 wide */
+.bp-btn.bd-more-btn { width: 44px; padding: 0; font-size: 16px; }
+.bp-btn.bd-more-btn[aria-expanded="true"] { background: #f1f0f7; }
+
+/* Same build as the visit menu, 172 wide, opening under the button's right edge */
+.bd-vmenu.bd-beat-menu { width: 172px; z-index: 80; }
+
+/* A 12-tall gap with a #ced0e1 rule, 6 in from each side */
+.bd-menu-divider {
+  display: block;
+  height: 1px;
+  margin: 5px 6px 6px;
+  background: #ced0e1;
+}

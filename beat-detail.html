@@ -91,11 +91,29 @@
             </div>
           </div>
           <button class="bp-round" aria-label="Zia"><i class="ti ti-sparkles"></i></button>
+          <span class="bd-head-divider" aria-hidden="true"></span>
+          <!-- Figma 5988:149486. Re-plans the visit order; for now it only
+               confirms, since the prototype has no routing behind the map. -->
+          <button class="bp-btn default" type="button" id="bd-optimize">Optimize Beat</button>
           <!-- The rep's one job on this record, in the slot the frames gave
                Start Beat / End Beat -->
           <button class="bp-btn primary" type="button" id="bd-day-action" hidden></button>
           <button class="bp-btn default">Edit</button>
-          <button class="bp-round" aria-label="More"><i class="ti ti-dots"></i></button>
+          <!-- Beat actions (Figma 5988:150027) -->
+          <div class="bd-beat-menu-wrap">
+            <button class="bp-btn default bd-more-btn" type="button" id="bd-more"
+                    aria-haspopup="menu" aria-expanded="false" aria-controls="bd-beat-menu"
+                    aria-label="More actions"><i class="ti ti-dots" aria-hidden="true"></i></button>
+            <div class="bd-vmenu bd-beat-menu" id="bd-beat-menu" role="menu" hidden>
+              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1">Clone</button>
+              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1">Share</button>
+              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1">Delete</button>
+              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1">Cancel Beat</button>
+              <span class="bd-menu-divider" role="separator"></span>
+              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1">Print Preview</button>
+              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1">Export</button>
+            </div>
+          </div>
           <button class="bp-navarrow" aria-label="Previous" disabled><i class="ti ti-chevron-left"></i></button>
           <button class="bp-navarrow" aria-label="Next"><i class="ti ti-chevron-right"></i></button>
         </div>
@@ -139,60 +157,43 @@
       </div>
 
       <div class="bp-content type-1" id="bd-content">
-        <!-- Beat summary, first in the column above the Beat Detail View.
+        <!-- Beat Details, first in the column above the Beat Detail View.
              In Type 1 its grid area keeps it where it always was. -->
         <section class="card bd-card-details" id="bd-card-details">
           <h2>Beat Details</h2>
-          <!-- Type 1 keeps the original icon grid -->
-          <div class="bp-detail-grid bd-only-1">
+          <!-- The icon grid from the original detail view (commit 90efa9d),
+               one layout for every type. Visits and distance are summed
+               from the beat's days by beat-detail.js. -->
+          <div class="bp-detail-grid">
             <div class="bp-detail">
-              <i class="ti ti-user-circle" style="color:#5a78ff"></i>
+              <i class="ti ti-user-circle" style="color:#5a78ff" aria-hidden="true"></i>
               <div>
                 <div class="bp-detail-label">Beat Owner</div>
                 <div class="bp-detail-value">Cameron Williamson</div>
               </div>
             </div>
             <div class="bp-detail">
-              <i class="ti ti-map-pin" style="color:#c35bf4"></i>
-              <div>
-                <div class="bp-detail-label">Beat Summary</div>
-                <div class="bp-detail-value">9 Visits · 32.6 km</div>
-              </div>
-            </div>
-            <div class="bp-detail">
-              <i class="ti ti-calendar-event" style="color:#f564bb"></i>
+              <i class="ti ti-calendar-event" style="color:#f564bb" aria-hidden="true"></i>
               <div>
                 <div class="bp-detail-label">Beat Duration</div>
                 <div class="bp-detail-value">4 May 2026 - 6 May 2026</div>
               </div>
             </div>
+            <div class="bp-detail">
+              <i class="ti ti-map-pin" style="color:#c35bf4" aria-hidden="true"></i>
+              <div>
+                <div class="bp-detail-label">Total Planned Visits</div>
+                <div class="bp-detail-value" id="bd-sum-visits"></div>
+              </div>
+            </div>
+            <div class="bp-detail">
+              <i class="ti ti-route" style="color:#12aa67" aria-hidden="true"></i>
+              <div>
+                <div class="bp-detail-label">Total Planned Distance</div>
+                <div class="bp-detail-value" id="bd-sum-distance"></div>
+              </div>
+            </div>
           </div>
-
-          <!-- Type 2 uses the CRM business-card pattern: right-aligned
-               label, value beside it, no icons. Counts and the expense
-               total are filled from the visits and expenses below. -->
-          <dl class="bd-fields bd-only-2">
-            <div class="bd-fields-row">
-              <dt>Beat Owner</dt>
-              <dd>Cameron Williamson</dd>
-            </div>
-            <div class="bd-fields-row">
-              <dt>Start Date</dt>
-              <dd>May 4, 2026</dd>
-            </div>
-            <div class="bd-fields-row">
-              <dt>End Date</dt>
-              <dd>May 6, 2026</dd>
-            </div>
-            <div class="bd-fields-row">
-              <dt>Visits Count</dt>
-              <dd id="bd-sum-visits"></dd>
-            </div>
-            <div class="bd-fields-row">
-              <dt>Total Expenses</dt>
-              <dd id="bd-sum-expenses"></dd>
-            </div>
-          </dl>
         </section>
 
         <!-- In Type 2 this is the related-list card that holds the pair.
@@ -204,7 +205,15 @@
         <section class="bd-related bd-rl-detail" id="bd-related" aria-label="Beat Detail View">
           <div class="bd-related-body" id="bd-related-body">
             <section class="card bd-card-visits bp-details">
-              <div class="bp-visits-title">Visits</div>
+              <div class="bp-visits-title">
+                <span>Visits</span>
+                <!-- On by default; off drops the address line from every visit -->
+                <label class="bd-addr-toggle">
+                  <span>Show Address</span>
+                  <button class="bd-switch" type="button" role="switch" aria-checked="true"
+                          id="bd-addr-switch" aria-label="Show address"></button>
+                </label>
+              </div>
               <div id="bd-days"></div>
             </section>
 
@@ -287,9 +296,10 @@
     </main>
   </div>
 
-  <!-- Add Visit (Figma 4007:113738) -->
-  <div class="bd-overlay" id="bd-overlay" hidden>
-    <div class="bd-modal" role="dialog" aria-modal="true" aria-labelledby="bd-av-title">
+  <!-- Add Visit (Figma 4007:113738). Drops in from the top edge, like the
+       Start and End confirmations and the Create Beat modal. -->
+  <div class="bd-overlay bd-overlay-top" id="bd-overlay" hidden>
+    <div class="bd-modal bd-modal-add" role="dialog" aria-modal="true" aria-labelledby="bd-av-title">
       <header class="bd-modal-head">
         <h2 class="bd-modal-title" id="bd-av-title"></h2>
       </header>
@@ -338,39 +348,16 @@
 
         <!-- Opens once a visit type is chosen: the slot depends on it -->
         <div class="bd-field">
-          <label for="av-time">Visit Time</label>
+          <label for="av-time">Visit Duration</label>
           <div class="bd-control">
             <select class="bd-input" id="av-time" disabled></select>
           </div>
         </div>
 
         <div class="bd-field">
-          <label for="av-desc">Description</label>
+          <label for="av-desc">Comments</label>
           <div class="bd-control">
             <textarea class="bd-input bd-textarea" id="av-desc" rows="3"></textarea>
-          </div>
-        </div>
-
-        <div class="bd-field">
-          <label for="av-pic">Visit Location Pic</label>
-          <div class="bd-control">
-            <label class="bd-input bd-upload" for="av-pic">
-              <span id="av-pic-name">Upload your file</span>
-              <i class="ti ti-upload" aria-hidden="true"></i>
-            </label>
-            <input class="bd-file" type="file" id="av-pic" accept="image/*" />
-          </div>
-        </div>
-
-        <div class="bd-field">
-          <label for="av-status">Location Status</label>
-          <div class="bd-control">
-            <select class="bd-input" id="av-status">
-              <option value="" selected disabled>Select Status</option>
-              <option>Verified</option>
-              <option>Unverified</option>
-              <option>Needs Review</option>
-            </select>
           </div>
         </div>
       </div>
@@ -387,18 +374,19 @@
     <div class="bd-modal bd-modal-end" role="dialog" aria-modal="true" aria-labelledby="bd-end-title">
       <header class="bd-modal-head">
         <h2 class="bd-modal-title" id="bd-end-title"></h2>
-        <p class="bd-end-sub" id="bd-end-sub"></p>
       </header>
 
       <div class="bd-modal-body">
         <dl class="bd-summary">
           <div><dt>Visits Completed</dt><dd id="bd-sum-done"></dd></div>
-          <div><dt>Not Visited</dt><dd id="bd-sum-left"></dd></div>
+          <div><dt>Missed Visits</dt><dd id="bd-sum-missed"></dd></div>
+          <div><dt>Canceled Visits</dt><dd id="bd-sum-canceled"></dd></div>
+          <div><dt>Rescheduled Visits</dt><dd id="bd-sum-rescheduled"></dd></div>
+          <div><dt>Day Duration</dt><dd id="bd-sum-time"></dd></div>
           <div><dt>Distance Covered</dt><dd id="bd-sum-km"></dd></div>
-          <div><dt>Time on the Day</dt><dd id="bd-sum-time"></dd></div>
         </dl>
-        <div class="bd-end-note-wrap" id="bd-end-note" hidden>
-          <p class="bd-end-note"><b>Note:</b> Visits that aren&rsquo;t completed will be marked as missed</p>
+        <div class="bd-end-note-wrap">
+          <p class="bd-end-note"><b>Note:</b> Missed Visits include any Visits not completed before you end the day.</p>
         </div>
       </div>
 
@@ -415,18 +403,17 @@
     <div class="bd-modal bd-modal-start" role="dialog" aria-modal="true" aria-labelledby="bd-start-title">
       <header class="bd-modal-head">
         <h2 class="bd-modal-title" id="bd-start-title"></h2>
-        <p class="bd-end-sub" id="bd-start-sub"></p>
       </header>
 
       <div class="bd-modal-body">
         <dl class="bd-summary">
           <div><dt>Visits Planned</dt><dd id="bd-start-visits"></dd></div>
           <div><dt>Planned Distance</dt><dd id="bd-start-km"></dd></div>
-          <div><dt>First Stop</dt><dd id="bd-start-first"></dd></div>
+          <div><dt>First Visit</dt><dd id="bd-start-first"></dd></div>
           <div><dt>Start Time</dt><dd id="bd-start-clock"></dd></div>
         </dl>
         <div class="bd-end-note-wrap">
-          <p class="bd-end-note"><b>Note:</b> The start time is logged as now and cannot be edited afterwards</p>
+          <p class="bd-end-note"><b>Note:</b> Your device's current time is logged as the <span id="bd-start-note-day"></span> start time and can't be changed later.</p>
         </div>
       </div>
 
