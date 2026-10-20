@@ -57,6 +57,39 @@
           </div>
         </div>
         <div class="bp-sub-right">
+          <!-- Prototype only: sets the "today" the Start / End rules read.
+               Not part of the product's header. -->
+          <div class="bd-sim" id="bd-sim">
+            <button class="bd-sim-btn" type="button" id="bd-sim-btn"
+                    aria-expanded="false" aria-controls="bd-sim-panel">
+              <i class="ti ti-flask" aria-hidden="true"></i>
+              <span id="bd-sim-label"></span>
+              <i class="ti ti-chevron-down bd-sim-caret" aria-hidden="true"></i>
+            </button>
+            <div class="bd-sim-panel" id="bd-sim-panel" role="dialog" aria-label="Simulate today" hidden>
+              <p class="bd-sim-title">Simulate today <span>Prototype only</span></p>
+              <label class="bd-sim-field">Date
+                <select id="bd-sim-date"></select>
+              </label>
+              <label class="bd-sim-field">Time
+                <select id="bd-sim-time"></select>
+              </label>
+              <label class="bd-sim-field">View as
+                <select id="bd-sim-viewer">
+                  <option value="owner">Beat owner — Cameron Williamson</option>
+                  <option value="manager">Manager</option>
+                </select>
+              </label>
+              <label class="bd-sim-check">
+                <input type="checkbox" id="bd-sim-other" />
+                Rep has a day running on another beat (BP-002)
+              </label>
+              <div class="bd-sim-foot">
+                <span class="bd-sim-note">Business hours 09:00 AM – 07:00 PM</span>
+                <button class="bd-sim-reset" type="button" id="bd-sim-reset">Reset beat</button>
+              </div>
+            </div>
+          </div>
           <button class="bp-round" aria-label="Zia"><i class="ti ti-sparkles"></i></button>
           <!-- The rep's one job on this record, in the slot the frames gave
                Start Beat / End Beat -->

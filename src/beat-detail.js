@@ -140,13 +140,51 @@ document.addEventListener('DOMContentLoaded', () => {
     'Q2 Renewal — Apollo': '100 W 33rd St, New York, NY 10001, USA',
   };
 
-  /* status: day 'pending' | 'active' | 'done' · visit 'pending' | 'done' | 'missed' */
+  /* status: day 'pending' | 'active' | 'done' | 'missed' (its date passed unstarted)
+     · visit 'pending' | 'active' | 'done' | 'missed' */
   DAYS.forEach(day => {
     day.status = 'pending';
     day.startedAt = null;
     day.endedAt = null;
     day.visits.forEach(v => { v.status = 'pending'; });
   });
+
+  /* ── Simulated "today" (prototype only) ─────────────── */
+  /* The beat runs 4–6 May 2026, so the real clock cannot show the Start
+     rules. The header's Simulate picker sets the date, the time, whether
+     the rep has a day running on another beat, and who is viewing — and
+     every rule below reads the clock from here. */
+  const BUSINESS = { start: 9 * 60, end: 19 * 60 };   /* Company Settings: 09:00 AM – 07:00 PM */
+  const BEAT_YEAR = 2026, BEAT_MONTH = 'May';
+  const SIM = { day: 4, minutes: 10 * 60, otherBeat: false, viewer: 'owner' };
+
+  const dayNum = i => Number(DAYS[i].date.split(' ')[0]);
+  const dayName = n => {
+    const d = new Date(`${BEAT_MONTH} ${n}, ${BEAT_YEAR}`);
+    return `${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()]}, ${BEAT_MONTH} ${n}`;
+  };
+  const isClosed = d => d.status === 'done' || d.status === 'missed';
+
+  /* What the clock has made true since it last moved. A running day closes
+     itself at the end of business hours, or once its date is behind us —
+     whatever was not worked is marked missed. A day whose date passed
+     without being started is missed outright. */
+  function applyClock() {
+    DAYS.forEach((day, i) => {
+      const n = dayNum(i);
+      const over = n < SIM.day || (n === SIM.day && SIM.minutes >= BUSINESS.end);
+      if (day.status === 'active' && over) {
+        day.visits.forEach(v => { if (v.status === 'pending' || v.status === 'active') v.status = 'missed'; });
+        day.status = 'done';
+        day.endedAt = `${minutesToClock(BUSINESS.end)} (auto)`;
+        day.endedMin = BUSINESS.end;
+      }
+      if (day.status === 'pending' && n < SIM.day) {
+        day.visits.forEach(v => { v.status = 'missed'; });
+        day.status = 'missed';
+      }
+    });
+  }
 
   /* Two separate things: which day is selected — highlighted, and the one
      the route map draws — and whether its visits are showing. A selected day
@@ -178,8 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const escape = s => String(s).replace(/[&<>"]/g, c =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-  const clock = () => new Date().toLocaleTimeString('en-US',
-    { hour: 'numeric', minute: '2-digit' });
+  /* The time as the simulated day has it */
+  const clock = () => minutesToClock(SIM.minutes);
 
   /* ── Derived state ─────────────────────────────────── */
   const activeIndex = () => DAYS.findIndex(d => d.status === 'active');
@@ -189,7 +227,26 @@ document.addEventListener('DOMContentLoaded', () => {
   function canStart(index) {
     if (DAYS[index].status !== 'pending') return false;
     if (activeIndex() !== -1) return false;
-    return DAYS.slice(0, index).every(d => d.status === 'done');
+    return DAYS.slice(0, index).every(isClosed);
+  }
+
+  /* The day next in line: the first one not yet worked, with every day
+     before it closed one way or the other */
+  const nextIndex = () => DAYS.findIndex((d, i) =>
+    d.status === 'pending' && DAYS.slice(0, i).every(isClosed));
+
+  /* Why the next day cannot be started right now, or null when it can.
+     Checked in this order, so the reason given is the one to act on first. */
+  function startBlock(i) {
+    const day = DAYS[i], n = dayNum(i);
+    if (n > SIM.day) return `You can start this day on ${BEAT_MONTH} ${n}`;
+    const running = activeIndex();
+    if (running !== -1 && running !== i) return `End ${DAYS[running].label} before starting ${day.label}.`;
+    if (!day.visits.length) return 'Add a visit to start this day.';
+    if (SIM.minutes < BUSINESS.start) return `You can start this day from ${minutesToClock(BUSINESS.start)}.`;
+    if (SIM.minutes >= BUSINESS.end) return 'Business hours for today have ended.';
+    if (SIM.otherBeat) return 'End Day 1 of BP-002 before starting this one.';
+    return null;
   }
 
   /* What this day offers the rep, if anything — Type 3 only, where the
@@ -199,11 +256,15 @@ document.addEventListener('DOMContentLoaded', () => {
      closed. A day that is done offers nothing, and nor does one still
      waiting its turn. */
   function dayAct(i) {
+    /* Only the beat owner logs their own day; anyone else sees none */
+    if (SIM.viewer !== 'owner') return null;
     if (DAYS[i].status === 'active') {
       return { act: 'end', label: 'End', cls: 'bd-day-act-end' };
     }
-    if (canStart(i)) {
-      return { act: 'start', label: 'Start', cls: 'bd-day-act-start' };
+    /* The next day in line always shows its Start — greyed, with the
+       reason on hover, when it cannot be used yet */
+    if (i === nextIndex()) {
+      return { act: 'start', label: 'Start', cls: 'bd-day-act-start', blocked: startBlock(i) };
     }
     return null;
   }
@@ -211,7 +272,8 @@ document.addEventListener('DOMContentLoaded', () => {
   /* The record's own badge — a solid pill, not the pastel tags the days and
      visits use (Figma 2383:48054 · 2055:44440 · 2055:44842) */
   function beatStatus() {
-    if (DAYS.every(d => d.status === 'done')) return { label: 'Completed', cls: 'bd-done' };
+    if (DAYS.every(d => d.status === 'missed')) return { label: 'Missed', cls: 'bd-missed' };
+    if (DAYS.every(isClosed)) return { label: 'Completed', cls: 'bd-done' };
     if (DAYS.some(d => d.status !== 'pending')) return { label: 'In Progress', cls: 'bd-progress' };
     return { label: 'Upcoming', cls: 'bd-upcoming' };
   }
@@ -222,7 +284,8 @@ document.addEventListener('DOMContentLoaded', () => {
      banner at the top of the record, marked by its border and dated by the
      "Started …" clock in its own header. */
   const DAY_TAG = {
-    done: { label: 'Completed', cls: 'approved' },
+    done:   { label: 'Completed', cls: 'approved' },
+    missed: { label: 'Missed',    cls: 'rejected' },
   };
 
   /* A visit the rep has not reached yet carries no tag — the tags arrive one
@@ -238,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
      size the way the frame does — "3 visits". The fraction only appears
      once there is progress to report. */
   function dayTally(day) {
-    if (day.status === 'pending') return `${day.visits.length} visits`;
+    if (day.status === 'pending' || day.status === 'missed') return `${day.visits.length} visits`;
     const settled = day.visits.filter(v => v.status === 'done' || v.status === 'missed').length;
     return `${settled} / ${day.visits.length} visits`;
   }
@@ -306,13 +369,13 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="bd-rail ${visit.status === 'active' ? 'bd-pulsing' : ''}"><span class="bp-visit-num ${visit.status}">${i + 1}</span></span>
         <div class="bd-text">
           <p class="bd-visit-head">
-            <span class="bd-visit-name"><span class="vname">${escape(visit.name)}</span><span class="dot">&nbsp;&nbsp;•&nbsp;&nbsp;</span><span class="vtype" data-trunc>${escape(visit.type)}</span></span>
+            <span class="bd-visit-name"><span class="vname">${escape(visit.name)}</span></span>
             ${tag ? `<span class="bp-visit-tag ${tag.cls}">${tag.label}</span>` : ''}
           </p>
-          <!-- Figma 6444:570277: address, then the time 6 below it -->
+          <!-- Figma 6444:574289: type • time, then the address, 3 apart -->
           <div class="bd-visit-where">
-            ${visit.address ? `<p class="bd-visit-meta bd-visit-addr" data-trunc>${escape(visit.address)}</p>` : ''}
-            <p class="bd-visit-meta">${escape(when)}</p>
+            <p class="bd-visit-meta bd-visit-when"><span class="vtype" data-trunc>${escape(visit.type)}</span><span class="dot">•</span><span class="vtime">${escape(when)}</span></p>
+            ${visit.address ? `<p class="bd-visit-addr" data-trunc>${escape(visit.address)}</p>` : ''}
           </div>
         </div>
         ${visitMenuHtml(visit)}
@@ -373,9 +436,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="bd-day-title">${day.label}<span class="dot">&nbsp;&nbsp;•&nbsp;&nbsp;</span><span class="date">${escape(day.date)}</span></span>
           ${tag ? `<span class="bp-visit-tag ${tag.cls}">${tag.label}</span>` : ''}
           <span class="bd-day-count">${dayTally(day)}</span>
-          ${act ? `<button class="bd-day-act ${act.cls}" type="button"
+          ${act ? `<button class="bd-day-act ${act.cls}${act.blocked ? ' is-blocked' : ''}" type="button"
                     data-act="${act.act}" data-day="${index}"
-                    aria-label="${act.label} ${day.label}">${act.label}</button>` : ''}
+                    ${act.blocked ? `aria-disabled="true" data-tip="${escape(act.blocked)}"` : ''}
+                    aria-label="${act.label} ${day.label}${act.blocked ? ` — ${escape(act.blocked)}` : ''}">${act.label}</button>` : ''}
           ${dayClockHtml(day)}
         </div>
         <div class="bp-day-body">${timelineHtml(day, index)}</div>
@@ -392,13 +456,16 @@ document.addEventListener('DOMContentLoaded', () => {
         `${DAYS[running].label} is running — started at ${DAYS[running].startedAt}.`;
       return;
     }
-    if (DAYS.every(d => d.status === 'done')) {
+    if (DAYS.every(isClosed)) {
       band.hidden = false;
       band.className = 'bp-status-band bp-band-approved';
       bandIcon.className = 'ti ti-circle-check';
       const total = DAYS.reduce((n, d) => n + d.visits.length, 0);
       const done = DAYS.reduce((n, d) => n + d.visits.filter(v => v.status === 'done').length, 0);
-      bandText.textContent = `Beat completed — ${DAYS.length} days logged, ${done} of ${total} visits done.`;
+      const worked = DAYS.filter(d => d.status === 'done').length;
+      bandText.textContent = worked === DAYS.length
+        ? `Beat completed — ${DAYS.length} days logged, ${done} of ${total} visits done.`
+        : `Beat closed — ${worked} of ${DAYS.length} days worked, ${done} of ${total} visits done.`;
       return;
     }
     band.hidden = true;
@@ -498,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function startDay(i) {
     DAYS[i].status = 'active';
     DAYS[i].startedAt = clock();
-    DAYS[i].startedTs = Date.now();
+    DAYS[i].startedMin = SIM.minutes;
     /* The first stop is the one the rep is on */
     if (DAYS[i].visits[0]) DAYS[i].visits[0].status = 'active';
     selectedDay = i;
@@ -516,6 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
     left.forEach(v => { v.status = 'missed'; });
     day.status = 'done';
     day.endedAt = clock();
+    day.endedMin = SIM.minutes;
     /* Move the rep on to the next day they have to work */
     const next = DAYS.findIndex(d => d.status === 'pending');
     if (next !== -1) { selectedDay = next; expanded = true; }
@@ -603,8 +671,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let endingDay = null;
 
   function elapsed(day) {
-    if (!day.startedTs) return '—';
-    const mins = Math.max(1, Math.round((Date.now() - day.startedTs) / 60000));
+    if (day.startedMin == null) return '—';
+    const mins = Math.max(1, (day.endedMin ?? SIM.minutes) - day.startedMin);
     return mins < 60 ? `${mins} min` : `${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, '0')}m`;
   }
 
@@ -716,6 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* Starting or ending the day from its own row. Returning here keeps the
        click off the card, which would otherwise fold the day away. */
     if (btn && (btn.dataset.act === 'start' || btn.dataset.act === 'end')) {
+      if (btn.getAttribute('aria-disabled') === 'true') return;   /* the tooltip says why */
       const i = Number(btn.dataset.day);
       if (btn.dataset.act === 'start') openStartDay(i);
       else openEndDay(i);
@@ -731,6 +800,8 @@ document.addEventListener('DOMContentLoaded', () => {
       focused = { day: d, visit: v };
       daysEl.querySelectorAll('.bd-visit.bd-focus').forEach(el => el.classList.remove('bd-focus'));
       vrow.classList.add('bd-focus');
+      popPinned = true;
+      placeVisitPop();    /* shows at once; the glide's redraws keep it on the pin */
       panToVisit(d, v);
     }
 
@@ -1080,12 +1151,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const stop = visitAt(map, e.clientX - r.left, e.clientY - r.top);
       if (stop) {
         focused = stop;
+        popPinned = true;
         selectedDay = stop.day;
         expanded = true;
         render();
         revealFocusedRow();
+        placeVisitPop();
         return;
       }
+      /* Anywhere else on the map puts a pinned card away */
+      if (popPinned) { popPinned = false; placeVisitPop(); }
       const i = at(e);
       if (i === -1 || i === selectedDay) return;
       selectedDay = i;
@@ -1107,6 +1182,113 @@ document.addEventListener('DOMContentLoaded', () => {
   const fieldMap = configureBeatMap(new FieldMap('map-canvas', 'map-area'));
   window.bdMap = fieldMap;
   bindDayPicking(fieldMap);
+
+  /* ── Visit card on the map ─────────────────────────── */
+  /* Hovering a stop on the map shows its card; clicking a stop — on the
+     map or in the list — pins the card there until a click lands outside
+     it. The list itself never opens a card on hover. The card sits above
+     its pin and follows it through every pan and zoom, because each
+     redraw of the map places it again. */
+  const VISIT_POP_DELAY = 250;
+  const VISIT_POP_HIDE  = 150;
+  const CRM_TAB = { Contacts: 'Contacts', Leads: 'Leads', Accounts: 'Accounts', Deals: 'Potentials' };
+
+  const visitPop = document.createElement('div');
+  visitPop.className = 'bd-vpop';
+  visitPop.setAttribute('role', 'dialog');
+  visitPop.setAttribute('aria-label', 'Visit details');
+  visitPop.hidden = true;
+  $('map-area').appendChild(visitPop);
+
+  let popHover = null;        /* { day, visit } under the pointer on the map */
+  let popPinned = false;      /* the focused visit's card stays open */
+  let popShown = null, popTimer = 0, popHideTimer = 0;
+
+  /* One compact block, in the order a manager scans it: which stop and
+     what for, then when, then where. The way into the record rides on
+     the name's line, so the card needs no footer. */
+  const WEEKDAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  function visitPopHtml(d, v) {
+    const day = DAYS[d], visit = day.visits[v];
+    const when = visit.status === 'done' && visit.actual ? visit.actual : visit.time;
+    const [dd, mon] = day.date.split(' ');
+    const weekday = WEEKDAY[new Date(`${mon} ${dd}, 2026`).getDay()];
+    const tag = day.status === 'pending' ? null : VISIT_TAG[visit.status];
+    const tab = CRM_TAB[visit.module] || 'Contacts';
+    return `
+      <div class="bd-vpop-head">
+        <p class="bd-vpop-name">${escape(visit.name)}</p>
+        <a class="bd-vpop-open" href="https://crm.zoho.com/crm/tab/${tab}" target="_blank" rel="noopener"
+           aria-label="Open ${escape(visit.name)} in CRM">Open <i class="ti ti-external-link" aria-hidden="true"></i></a>
+      </div>
+      <p class="bd-vpop-sub">${escape(visit.type)}<span class="dot">•</span>${escape(visit.module)}${tag
+        ? `<span class="dot">•</span><span class="bd-vpop-state ${tag.cls}">${tag.label}</span>` : ''}</p>
+      <p class="bd-vpop-row"><i class="ti ti-clock" aria-hidden="true"></i>
+        <span>${weekday}, ${mon} ${dd} · ${escape(when).replace(' to ', ' – ')}</span></p>
+      <p class="bd-vpop-row bd-vpop-addr-row"><i class="ti ti-map-pin" aria-hidden="true"></i>
+        <span class="bd-vpop-addr">${escape(visit.address || 'No address')}</span></p>`;
+  }
+
+  /* Whatever the card should show now: the hovered stop, else the pinned one */
+  function placeVisitPop() {
+    const want = popHover || (popPinned && focused) || null;
+    if (!want || !DAYS[want.day] || !DAYS[want.day].visits[want.visit]) {
+      visitPop.hidden = true; popShown = null; return;
+    }
+    const key = `${want.day}:${want.visit}`;
+    if (popShown !== key) { visitPop.innerHTML = visitPopHtml(want.day, want.visit); popShown = key; }
+    const pin = DAYS[want.day].pins[want.visit];
+    const [px, py] = fieldMap.worldToScreen(pin.x, pin.y);
+    const W = fieldMap.canvas.width, H = fieldMap.canvas.height;
+    /* A stop panned out of view takes its card with it */
+    if (px < 0 || py < 0 || px > W || py > H) { visitPop.hidden = true; return; }
+    visitPop.hidden = false;
+    const w = visitPop.offsetWidth, h = visitPop.offsetHeight;
+    const above = py - 18 - h >= 8;
+    const left = Math.min(Math.max(8, px - w / 2), W - w - 8);
+    visitPop.style.left = `${left}px`;
+    visitPop.style.top = `${above ? py - 18 - h : py + 18}px`;
+    visitPop.classList.toggle('below', !above);
+    visitPop.style.setProperty('--arrow-x', `${Math.max(14, Math.min(px - left, w - 14))}px`);
+  }
+
+  const baseDraw = fieldMap.draw;
+  fieldMap.draw = function () { baseDraw.call(this); placeVisitPop(); };
+
+  fieldMap.canvas.addEventListener('mousemove', e => {
+    if (fieldMap.isDragging) return;
+    const r = fieldMap.canvas.getBoundingClientRect();
+    const stop = visitAt(fieldMap, e.clientX - r.left, e.clientY - r.top);
+    const same = stop && popHover && stop.day === popHover.day && stop.visit === popHover.visit;
+    if (same) { clearTimeout(popHideTimer); return; }
+    clearTimeout(popTimer);
+    if (stop) {
+      clearTimeout(popHideTimer);
+      popTimer = setTimeout(() => { popHover = stop; placeVisitPop(); }, VISIT_POP_DELAY);
+    } else if (popHover) {
+      popHideTimer = setTimeout(() => { popHover = null; placeVisitPop(); }, VISIT_POP_HIDE);
+    }
+  });
+
+  fieldMap.canvas.addEventListener('mouseleave', () => {
+    clearTimeout(popTimer);
+    popHideTimer = setTimeout(() => { popHover = null; placeVisitPop(); }, VISIT_POP_HIDE);
+  });
+
+  /* The pointer may cross into the card, to reach Open in CRM */
+  visitPop.addEventListener('mouseenter', () => clearTimeout(popHideTimer));
+  visitPop.addEventListener('mouseleave', () => {
+    popHideTimer = setTimeout(() => { popHover = null; placeVisitPop(); }, VISIT_POP_HIDE);
+  });
+
+  /* A click anywhere but the card, a stop or a visit row puts it away */
+  document.addEventListener('click', e => {
+    if (!popPinned) return;
+    if (e.target.closest('.bd-vpop, .bd-visit, #map-canvas')) return;
+    popPinned = false;
+    placeVisitPop();
+  });
+
   fieldMap.resize();
 
   /* A resized window changes the map's box too */
@@ -1320,12 +1502,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const hideTruncTip = () => { clearTimeout(truncTimer); truncTip.hidden = true; };
 
+  /* Also carries a fixed message for anything marked data-tip — the reason
+     a greyed-out Start cannot be used — which shows whether or not the
+     text is cut off */
   function onTruncOver(e) {
-    const el = e.target.closest('[data-trunc]');
-    if (!el || el.scrollWidth <= el.clientWidth) return;
+    const el = e.target.closest('[data-trunc], [data-tip]');
+    if (!el) return;
+    if (!el.dataset.tip && el.scrollWidth <= el.clientWidth) return;
     clearTimeout(truncTimer);
     truncTimer = setTimeout(() => {
-      truncTip.textContent = el.textContent.trim();
+      truncTip.textContent = el.dataset.tip || el.textContent.trim();
       truncTip.hidden = false;
       const r = el.getBoundingClientRect();
       const w = truncTip.offsetWidth, h = truncTip.offsetHeight;
@@ -1336,7 +1522,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function onTruncOut(e) {
-    const el = e.target.closest('[data-trunc]');
+    const el = e.target.closest('[data-trunc], [data-tip]');
     if (el && !el.contains(e.relatedTarget)) hideTruncTip();
   }
 
@@ -1344,6 +1530,9 @@ document.addEventListener('DOMContentLoaded', () => {
     root.addEventListener('mouseover', onTruncOver);
     root.addEventListener('mouseout', onTruncOut);
   });
+  /* A blocked Start explains itself to the keyboard too */
+  daysEl.addEventListener('focusin', e => { if (e.target.matches('[data-tip]')) onTruncOver(e); });
+  daysEl.addEventListener('focusout', e => { if (e.target.matches('[data-tip]')) hideTruncTip(); });
   content.addEventListener('scroll', hideTruncTip, { passive: true });
   if (scroller) scroller.addEventListener('scroll', hideTruncTip, { passive: true });
 
@@ -1424,5 +1613,75 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  /* ── Simulate today (prototype only) ───────────────── */
+  const simBtn = $('bd-sim-btn'), simPanel = $('bd-sim-panel');
+  const simDate = $('bd-sim-date'), simTime = $('bd-sim-time');
+  const simViewer = $('bd-sim-viewer'), simOther = $('bd-sim-other');
+
+  /* The day before the beat, its three days, and the day after */
+  for (let n = 3; n <= 7; n++) {
+    const i = DAYS.findIndex((d, k) => dayNum(k) === n);
+    simDate.add(new Option(`${dayName(n)}${i !== -1 ? ` — ${DAYS[i].label}` : n < 4 ? ' — before the beat' : ' — after the beat'}`, n));
+  }
+  for (let m = 7 * 60; m <= 22 * 60; m += 30) simTime.add(new Option(minutesToClock(m), m));
+
+  function syncSim() {
+    simDate.value = SIM.day;
+    simTime.value = SIM.minutes;
+    simViewer.value = SIM.viewer;
+    simOther.checked = SIM.otherBeat;
+    $('bd-sim-label').textContent = `Today: ${dayName(SIM.day)} · ${clock()}`;
+  }
+
+  /* Time only moves forward on a beat: stepping the clock back would
+     un-happen what already closed, so going back asks for a reset */
+  function setSim(patch) {
+    const before = SIM.day * 1440 + SIM.minutes;
+    /* A new date opens at the start of business hours */
+    if (patch.day !== undefined && patch.day !== SIM.day) patch.minutes = BUSINESS.start;
+    Object.assign(SIM, patch);
+    const wentBack = SIM.day * 1440 + SIM.minutes < before;
+    if (wentBack) resetBeat(false);
+    applyClock();
+    syncSim();
+    hideTruncTip();
+    render();
+    if (wentBack) toast('Clock moved back — the beat was reset to not started.');
+  }
+
+  function resetBeat(announce = true) {
+    DAYS.forEach(day => {
+      day.status = 'pending';
+      day.startedAt = day.endedAt = null;
+      day.startedMin = day.endedMin = null;
+      day.visits.forEach(v => { v.status = 'pending'; });
+    });
+    selectedDay = 0; expanded = true; focused = null;
+    if (announce) { applyClock(); render(); toast('Beat reset — every day is back to not started.'); }
+  }
+
+  simDate.addEventListener('change', () => setSim({ day: Number(simDate.value) }));
+  simTime.addEventListener('change', () => setSim({ minutes: Number(simTime.value) }));
+  simViewer.addEventListener('change', () => setSim({ viewer: simViewer.value }));
+  simOther.addEventListener('change', () => setSim({ otherBeat: simOther.checked }));
+  $('bd-sim-reset').addEventListener('click', () => resetBeat());
+
+  simBtn.addEventListener('click', () => {
+    const open = simPanel.hidden;
+    simPanel.hidden = !open;
+    simBtn.setAttribute('aria-expanded', String(open));
+  });
+  document.addEventListener('click', e => {
+    if (!simPanel.hidden && !e.target.closest('#bd-sim')) {
+      simPanel.hidden = true;
+      simBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !simPanel.hidden) { simPanel.hidden = true; simBtn.focus(); }
+  });
+
+  applyClock();
+  syncSim();
   render();
 });
