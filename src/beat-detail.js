@@ -1594,18 +1594,20 @@ document.addEventListener('DOMContentLoaded', () => {
   if (scroller) scroller.addEventListener('scroll', hideTruncTip, { passive: true });
 
   /* ── Show Address ──────────────────────────────────── */
-  /* The visits' address line can be folded away for a tighter list. On by
-     default; the choice is remembered for this viewer. Home and Office keep
-     theirs — they say where the day starts and ends. */
+  /* The visits' address line can be folded away for a tighter list with the
+     link beside the heading. Shown by default; the choice is remembered for
+     this viewer. Home and Office keep theirs — they say where the day starts
+     and ends. */
   const ADDR_KEY = 'bd-show-address';
-  const addrSwitch = $('bd-addr-switch');
+  const addrLink = $('bd-addr-link');
   function setShowAddress(on) {
-    addrSwitch.setAttribute('aria-checked', String(on));
+    addrLink.textContent = on ? 'Hide Address' : 'Show Address';
+    addrLink.setAttribute('aria-pressed', String(!on));   /* pressed = hidden */
     daysEl.classList.toggle('bd-hide-addr', !on);
     try { localStorage.setItem(ADDR_KEY, on ? '1' : '0'); } catch { /* private mode */ }
   }
-  addrSwitch.addEventListener('click', () =>
-    setShowAddress(addrSwitch.getAttribute('aria-checked') !== 'true'));
+  addrLink.addEventListener('click', () =>
+    setShowAddress(daysEl.classList.contains('bd-hide-addr')));
   let addrSaved = '1';
   try { addrSaved = localStorage.getItem(ADDR_KEY) ?? '1'; } catch { /* private mode */ }
   setShowAddress(addrSaved !== '0');

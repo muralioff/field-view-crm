@@ -207,12 +207,10 @@
             <section class="card bd-card-visits bp-details">
               <div class="bp-visits-title">
                 <span>Visits</span>
-                <!-- On by default; off drops the address line from every visit -->
-                <label class="bd-addr-toggle">
-                  <span>Show Address</span>
-                  <button class="bd-switch" type="button" role="switch" aria-checked="true"
-                          id="bd-addr-switch" aria-label="Show address"></button>
-                </label>
+                <!-- Secondary Link (Figma 6529:568635). Addresses show by default,
+                     so it offers to hide them; once hidden it offers them back. -->
+                <button class="bd-addr-link" type="button" id="bd-addr-link"
+                        aria-pressed="false">Hide Address</button>
               </div>
               <div id="bd-days"></div>
             </section>
