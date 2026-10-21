@@ -2019,3 +2019,22 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
 @media (max-width: 760px) {
   .bd-info-row dt { width: 140px; }
 }
+
+/* ── Review watermark (Figma 6575:665625) ─────────────── */
+/* Medium 24, black at 40%, floating at the window's bottom right — over
+   the map, beside its controls — and staying put as the page scrolls.
+   Purely a marker: no clicks, no selection. */
+.bd-watermark {
+  position: fixed;
+  right: 72px;
+  bottom: 22px;
+  z-index: 50;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: normal;
+  color: rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
