@@ -1709,8 +1709,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function setShowAddress(on) {
     addrLink.setAttribute('aria-pressed', String(on));    /* pressed = shown */
     addrLink.dataset.tip = on ? 'Hide address' : 'Show address';
-    /* The icon shows what a click does: a struck pin hides, a plain pin shows */
-    addrLink.querySelector('i').className = `ti ${on ? 'ti-map-pin-off' : 'ti-map-pin'}`;
+    /* The icon shows the current state — a plain pin while addresses show, a
+       struck-out pin once hidden; the tooltip names what a click will do */
+    addrLink.querySelector('i').className = `ti ${on ? 'ti-map-pin' : 'ti-map-pin-off'}`;
     if (!truncTip.hidden) truncTip.textContent = addrLink.dataset.tip;
     daysEl.classList.toggle('bd-hide-addr', !on);
     try { localStorage.setItem(ADDR_KEY, on ? '1' : '0'); } catch { /* private mode */ }

@@ -1796,9 +1796,9 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
 /* ── Hide / Show Address, beside the Visits heading ─────────────────── */
 /* Secondary Link (Figma 6529:568635): 14 Medium base text over a #c5c4d3
    rule 3 below it, 19 tall in all */
-/* Quiet icon toggle: no fill, border or colour. The icon is the action —
-   a struck-out pin hides the addresses, a plain pin brings them back. Only
-   a soft grey wash on hover shows it is a button. */
+/* Quiet icon toggle: no fill, border or colour. The icon is the state —
+   a plain pin while addresses show, a struck-out pin once hidden. Only a
+   soft grey wash on hover shows it is a button. */
 .bd-addr-toggle {
   flex-shrink: 0;
   width: 28px;
