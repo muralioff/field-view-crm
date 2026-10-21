@@ -367,6 +367,229 @@
     </div>
   </div>
 
+  <!-- Visit actions from the ⋯ menu: Reschedule, Reassign, Cancel
+       (Figma 5988:147820 · 5988:146364 / 146878 · 5988:147400). They drop
+       from the top like Add Visit and share its fields. -->
+  <div class="bd-overlay bd-overlay-top" id="va-resched-overlay" hidden>
+    <div class="bd-modal bd-modal-add bd-va-resched" role="dialog" aria-modal="true" aria-labelledby="va-resched-title">
+      <header class="bd-modal-head">
+        <h2 class="bd-modal-title" id="va-resched-title"></h2>
+        <p class="bd-modal-sub">Select an active Beat for this Visit, then set a new date and time.</p>
+      </header>
+      <div class="bd-modal-body">
+        <div class="bd-field">
+          <label for="va-resched-beat">Beat</label>
+          <div class="bd-control">
+            <select class="bd-input mandatory" id="va-resched-beat"></select>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-resched-date">Date</label>
+          <div class="bd-control">
+            <select class="bd-input mandatory" id="va-resched-date" disabled></select>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-resched-time">Time</label>
+          <div class="bd-control">
+            <select class="bd-input mandatory" id="va-resched-time" disabled></select>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-resched-reason">Reschedule Reason</label>
+          <div class="bd-control">
+            <textarea class="bd-input bd-textarea mandatory" id="va-resched-reason" rows="3"></textarea>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+      </div>
+      <footer class="bd-modal-foot">
+        <button class="bp-btn default" type="button" data-va-close>Cancel</button>
+        <button class="bp-btn primary bd-btn-primary" type="button" id="va-resched-go">Reschedule Visit</button>
+      </footer>
+    </div>
+  </div>
+
+  <div class="bd-overlay bd-overlay-top" id="va-reassign-overlay" hidden>
+    <div class="bd-modal bd-modal-add bd-va-reassign" role="dialog" aria-modal="true" aria-labelledby="va-reassign-title">
+      <header class="bd-modal-head">
+        <h2 class="bd-modal-title" id="va-reassign-title"></h2>
+        <p class="bd-modal-sub">Choose a rep with an active beat, then set the new date and time</p>
+      </header>
+      <div class="bd-modal-body">
+        <div class="bd-field">
+          <label for="va-reassign-rep">Sales Rep</label>
+          <div class="bd-control">
+            <select class="bd-input mandatory" id="va-reassign-rep"></select>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-reassign-beat">Active Beat</label>
+          <div class="bd-control">
+            <select class="bd-input" id="va-reassign-beat" disabled></select>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-reassign-date">Date</label>
+          <div class="bd-control">
+            <select class="bd-input" id="va-reassign-date" disabled></select>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-reassign-type">Visit Type</label>
+          <div class="bd-control">
+            <select class="bd-input" id="va-reassign-type" disabled></select>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-reassign-time">Visit Duration</label>
+          <div class="bd-control">
+            <select class="bd-input" id="va-reassign-time" disabled></select>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-reassign-reason">Reassign Reason</label>
+          <div class="bd-control">
+            <textarea class="bd-input bd-textarea" id="va-reassign-reason" rows="3"></textarea>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+      </div>
+      <footer class="bd-modal-foot">
+        <button class="bp-btn default" type="button" data-va-close>Cancel</button>
+        <button class="bp-btn primary bd-btn-primary" type="button" id="va-reassign-go">Reassign</button>
+      </footer>
+    </div>
+  </div>
+
+  <div class="bd-overlay bd-overlay-top" id="va-cancel-overlay" hidden>
+    <div class="bd-modal bd-modal-add bd-va-cancel" role="dialog" aria-modal="true" aria-labelledby="va-cancel-title">
+      <header class="bd-modal-head">
+        <h2 class="bd-modal-title" id="va-cancel-title"></h2>
+        <p class="bd-modal-sub">This Visit will be marked as canceled</p>
+      </header>
+      <div class="bd-modal-body">
+        <div class="bd-field">
+          <label for="va-cancel-reason">Cancellation Reason</label>
+          <div class="bd-control">
+            <textarea class="bd-input bd-textarea mandatory" id="va-cancel-reason" rows="3"></textarea>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+      </div>
+      <footer class="bd-modal-foot">
+        <button class="bp-btn bd-btn-keep" type="button" data-va-close>Keep Visit</button>
+        <button class="bp-btn bd-btn-negative" type="button" id="va-cancel-go">Cancel Visit</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Revise Visit (Figma 6559:569542): a missed visit that did happen,
+       logged after the fact with its check-in and check-out times -->
+  <div class="bd-overlay bd-overlay-top" id="va-revise-overlay" hidden>
+    <div class="bd-modal bd-modal-add bd-va-revise" role="dialog" aria-modal="true" aria-labelledby="va-revise-title">
+      <header class="bd-modal-head">
+        <h2 class="bd-modal-title" id="va-revise-title">Revise Visit</h2>
+      </header>
+      <div class="bd-modal-body">
+        <div class="bd-field">
+          <label for="va-revise-record">Module &amp; Record</label>
+          <div class="bd-control">
+            <select class="bd-input mandatory" id="va-revise-record" disabled></select>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-revise-type">Visit Type</label>
+          <div class="bd-control">
+            <select class="bd-input mandatory" id="va-revise-type" disabled></select>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-revise-in">Check-in time</label>
+          <div class="bd-control">
+            <select class="bd-input" id="va-revise-in"></select>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-revise-out">Check-out time</label>
+          <div class="bd-control">
+            <select class="bd-input" id="va-revise-out"></select>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-revise-comments">Comments</label>
+          <div class="bd-control">
+            <textarea class="bd-input bd-textarea" id="va-revise-comments" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+      <footer class="bd-modal-foot">
+        <button class="bp-btn default" type="button" data-va-close>Cancel</button>
+        <button class="bp-btn primary bd-btn-primary" type="button" id="va-revise-go">Add</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Edit Visit (Figma 6562:568993). A visit not yet started can change its
+       type and its slot; once it has run, only the comments stay open. -->
+  <div class="bd-overlay bd-overlay-top" id="va-edit-overlay" hidden>
+    <div class="bd-modal bd-modal-add bd-va-edit" role="dialog" aria-modal="true" aria-labelledby="va-edit-title">
+      <header class="bd-modal-head">
+        <h2 class="bd-modal-title" id="va-edit-title"></h2>
+      </header>
+      <div class="bd-modal-body">
+        <div class="bd-field">
+          <label for="va-edit-type">Visit Type</label>
+          <div class="bd-control">
+            <select class="bd-input" id="va-edit-type"></select>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-edit-time">Visit Duration</label>
+          <div class="bd-control">
+            <select class="bd-input" id="va-edit-time"></select>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-edit-comments">Comments</label>
+          <div class="bd-control">
+            <textarea class="bd-input bd-textarea" id="va-edit-comments" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+      <footer class="bd-modal-foot">
+        <button class="bp-btn default" type="button" data-va-close>Cancel</button>
+        <button class="bp-btn primary bd-btn-primary" type="button" id="va-edit-go">Save</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Cancel Beat (Figma 6562:569474): the beat's ⋯ → Cancel Beat -->
+  <div class="bd-overlay bd-overlay-top" id="bd-cancel-beat-overlay" hidden>
+    <div class="bd-modal bd-modal-add bd-modal-alert" role="alertdialog" aria-modal="true"
+         aria-labelledby="bd-cancel-beat-title" aria-describedby="bd-cancel-beat-text">
+      <div class="bd-alert-head">
+        <img class="bd-alert-icon" src="src/alert-warn.svg" alt="" width="25" height="25" />
+        <h2 class="bd-modal-title" id="bd-cancel-beat-title">Cancel Beat “BP-003”</h2>
+      </div>
+      <p class="bd-alert-text" id="bd-cancel-beat-text">All remaining Visits and days in BP-003 will be marked as canceled.<br />Completed Visits stay as they are.</p>
+      <footer class="bd-alert-foot">
+        <button class="bp-btn default" type="button" id="bd-cancel-beat-keep">Keep Beat</button>
+        <button class="bp-btn bd-btn-negative" type="button" id="bd-cancel-beat-go">Cancel Beat</button>
+      </footer>
+    </div>
+  </div>
+
   <!-- End Day confirmation: what the day came to, before it is closed -->
   <div class="bd-overlay bd-overlay-top" id="bd-end-overlay" hidden>
     <div class="bd-modal bd-modal-end" role="dialog" aria-modal="true" aria-labelledby="bd-end-title">

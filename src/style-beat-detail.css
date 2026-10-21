@@ -1770,3 +1770,86 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
   margin: 5px 6px 6px;
   background: #ced0e1;
 }
+
+/* ── Reschedule · Reassign · Cancel (Figma 5988:147820 · 146364 · 147400) ── */
+/* Add Visit's frame and fields. One label column per dialog, sized to its
+   longest label, so every field — the reason box included — starts on the
+   same line; the dialog is that column + 20 + 390 + 30 a side. */
+.bd-va-resched  { width: 601px; }
+.bd-va-reassign { width: 613px; }
+.bd-va-cancel   { width: 601px; }
+
+.bd-va-resched  .bd-field > label { width: 131px; }   /* "Reschedule Reason" */
+.bd-va-reassign .bd-field > label { width: 143px; }   /* fits "Reassign Reason" with room */
+.bd-va-cancel   .bd-field > label { width: 131px; }
+
+/* Revise Visit (Figma 6559:569542) and Edit Visit (6562:568993) share a
+   112 label column: 30 + 112 + 20 + 390 + 30. Revise's locked fields still
+   read in the base colour — they name the visit rather than sit unavailable. */
+.bd-va-revise, .bd-va-edit { width: 582px; }
+.bd-va-revise .bd-field > label,
+.bd-va-edit .bd-field > label { width: 112px; white-space: nowrap; }
+.bd-va-revise .bd-input:disabled { color: var(--base); cursor: default; }
+
+/* The subtitle under the title, 15 below it */
+.bd-modal-sub {
+  margin-top: 15px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--para);
+}
+
+/* Cancel Visit (Figma 6559:569444) sets its subtitle 10 below the title */
+.bd-va-cancel .bd-modal-sub { margin-top: 10px; }
+
+/* Primary (Figma): the brand gradient */
+.bp-btn.bd-btn-primary {
+  padding: 0 14px;
+  background: linear-gradient(to top, #124dc3, #5767f6);
+  border: none;
+  color: #fff;
+}
+
+.bp-btn.bd-btn-primary:hover { filter: brightness(0.95); }
+
+/* Keep Visit: a plain outlined button */
+.bp-btn.bd-btn-keep {
+  padding: 0 20px;
+  background: #fff;
+  border: 1px solid #d0d4df;
+  color: var(--base);
+}
+
+.bp-btn.bd-btn-keep:hover { background: #f7f8fb; }
+
+/* Cancel Visit: the negative gradient */
+.bp-btn.bd-btn-negative {
+  padding: 0 20px;
+  background: linear-gradient(to bottom, #ff4657, #e23041);
+  border: none;
+  color: #fff;
+}
+
+.bp-btn.bd-btn-negative:hover { filter: brightness(0.95); }
+
+/* ── Cancel Beat alert (Figma 6562:569474) ───────────── */
+/* Hugs its message: 25 above, 30 a side and below, 15 from the title to
+   the text and 30 on to the buttons */
+.bd-modal-alert {
+  width: auto;
+  padding: 25px 30px 30px;
+  gap: 0;
+}
+
+.bd-alert-head { display: flex; align-items: flex-start; gap: 10px; }
+.bd-alert-icon { flex-shrink: 0; display: block; width: 25px; height: 25px; }
+
+.bd-alert-text {
+  margin-top: 15px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--para);
+  white-space: nowrap;
+}
+
+.bd-alert-foot { display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px; }

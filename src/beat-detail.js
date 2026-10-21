@@ -114,19 +114,21 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   /* The visit's ⋯ menu, by visit state (docs/beat-detail-view-spec.md §5.1).
-     The destructive Cancel Visit comes last. A completed visit offers
-     nothing, so it gets no ⋯ at all. */
+     The destructive Cancel Visit comes last. A missed visit leads with
+     Revise, for one that did happen but was never checked in. Edit opens
+     on every visit; how much it lets change depends on the visit. */
   const VISIT_ACTIONS = {
     pending:   ['edit', 'reschedule', 'reassign', 'location', 'cancel'],
     active:    ['edit', 'reschedule', 'reassign', 'location', 'cancel'],
-    missed:    ['edit', 'reschedule', 'reassign'],
+    missed:    ['revise', 'edit', 'reschedule', 'reassign'],
     cancelled: ['edit', 'reschedule'],
-    done:      [],
+    done:      ['edit'],
   };
 
   const ACTION_LABEL = {
     cancel: 'Cancel Visit', edit: 'Edit Visit', reschedule: 'Reschedule Visit',
     reassign: 'Reassign Visit', location: 'Adjust Location',
+    revise: 'Revise Visit',
   };
 
   /* Where each record in the Add Visit picker lives, so a visit added there
@@ -164,7 +166,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const d = new Date(`${BEAT_MONTH} ${n}, ${BEAT_YEAR}`);
     return `${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()]}, ${BEAT_MONTH} ${n}`;
   };
-  const isClosed = d => d.status === 'done' || d.status === 'missed';
+  const isClosed = d => d.status === 'done' || d.status === 'missed' || d.status === 'cancelled';
+
+  /* Set by Cancel Beat; the simulator's reset clears it */
+  let beatCancelled = false;
 
   /* What the clock has made true since it last moved. A running day closes
      itself at the end of business hours, or once its date is behind us —
@@ -276,6 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* The record's own badge — a solid pill, not the pastel tags the days and
      visits use (Figma 2383:48054 · 2055:44440 · 2055:44842) */
   function beatStatus() {
+    if (beatCancelled) return { label: 'Cancelled', cls: 'bd-missed' };
     if (DAYS.every(d => d.status === 'missed')) return { label: 'Missed', cls: 'bd-missed' };
     if (DAYS.every(isClosed)) return { label: 'Completed', cls: 'bd-done' };
     if (DAYS.some(d => d.status !== 'pending')) return { label: 'In Progress', cls: 'bd-progress' };
@@ -290,24 +296,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const DAY_TAG = {
     done:   { label: 'Completed', cls: 'approved' },
     missed: { label: 'Missed',    cls: 'rejected' },
+    cancelled: { label: 'Cancelled', cls: 'rejected' },
   };
 
   /* A visit the rep has not reached yet carries no tag — the tags arrive one
      at a time as the day moves through the stops. `pending` is deliberately
      absent from this map. */
   const VISIT_TAG = {
-    active: { label: 'In Progress', cls: 'pending' },
-    done:   { label: 'Completed',   cls: 'approved' },
-    missed: { label: 'Missed',      cls: 'rejected' },
+    active:    { label: 'In Progress', cls: 'pending' },
+    done:      { label: 'Completed',   cls: 'approved' },
+    missed:    { label: 'Missed',      cls: 'rejected' },
+    cancelled: { label: 'Cancelled',   cls: 'rejected' },
   };
+
+  /* A cancelled visit says so even on a day not yet started */
+  const tagFor = (day, visit) => (visit.status === 'cancelled' || day.status !== 'pending')
+    ? VISIT_TAG[visit.status] || null : null;
 
   /* A day still ahead has nothing to be part-way through, so it states its
      size the way the frame does — "3 visits". The fraction only appears
      once there is progress to report. */
   function dayTally(day) {
-    if (day.status === 'pending' || day.status === 'missed') return `${day.visits.length} visits`;
-    const settled = day.visits.filter(v => v.status === 'done' || v.status === 'missed').length;
-    return `${settled} / ${day.visits.length} visits`;
+    if (day.status === 'pending' || day.status === 'missed' || day.status === 'cancelled') return `${day.visits.length} visits`;
+    /* Only visits actually completed count — a missed one is not progress */
+    const completed = day.visits.filter(v => v.status === 'done').length;
+    return `${completed} / ${day.visits.length} visits`;
   }
 
   /* Only a day that has been worked has a clock to show */
@@ -362,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
      and cross belong to the bottom-up screen, where a manager approves.
      No card either — the stop is plain text beside the rail. */
   function visitHtml(visit, i, day, reached, isCurrent) {
-    const tag = day.status === 'pending' ? null : VISIT_TAG[visit.status];
+    const tag = tagFor(day, visit);
     /* Only the stop in hand answers to a click, and only while its day runs */
     const settle = day.status === 'active' && visit.status === 'active';
     /* A completed stop reports when it really happened, not when it was
@@ -462,6 +475,8 @@ document.addEventListener('DOMContentLoaded', () => {
         `${DAYS[running].label} is running — started at ${DAYS[running].startedAt}.`;
       return;
     }
+    /* A cancelled beat says so in its badge; it needs no banner as well */
+    if (beatCancelled) { band.hidden = true; return; }
     if (DAYS.every(isClosed)) {
       band.hidden = false;
       band.className = 'bp-status-band bp-band-approved';
@@ -774,9 +789,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const item = e.target.closest('.bd-vmenu-item');
     if (item) {
       e.stopPropagation();
-      const name = item.closest('.bd-visit').querySelector('.vname').textContent;
+      const row = item.closest('.bd-visit');
+      const name = row.querySelector('.vname').textContent;
       closeVisitMenus();
-      toast(`${ACTION_LABEL[item.dataset.action]} for ${name} is not part of this prototype yet.`);
+      const d = Number(row.closest('.bd-day').dataset.day), v = Number(row.dataset.visit);
+      const open = VISIT_ACTION_OPEN[item.dataset.action];
+      if (open) open(d, v);
+      else toast(`${ACTION_LABEL[item.dataset.action]} for ${name} is not part of this prototype yet.`);
       return;
     }
   }, true);
@@ -1049,8 +1068,10 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.globalAlpha = active ? 1 : 0.5;
       day.visits.forEach((p, vi) => {
         const state = DAYS[i].visits[vi] ? DAYS[i].visits[vi].status : 'pending';
-        const col = state === 'done' ? DONE : state === 'missed' ? MISSED : active ? ACTIVE : GREY;
-        const filled = active || (state !== 'pending' && state !== 'active');
+        const col = state === 'done' ? DONE : state === 'missed' ? MISSED
+          : state === 'cancelled' ? GREY : active ? ACTIVE : GREY;
+        const filled = state === 'cancelled' ? false
+          : active || (state !== 'pending' && state !== 'active');
         ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.fillStyle = filled ? col : '#ffffff'; ctx.fill();
         ctx.strokeStyle = col; ctx.lineWidth = 1.5 / this.scale; ctx.stroke();
@@ -1256,7 +1277,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const when = visit.status === 'done' && visit.actual ? visit.actual : visit.time;
     const [dd, mon] = day.date.split(' ');
     const weekday = WEEKDAY[new Date(`${mon} ${dd}, 2026`).getDay()];
-    const tag = day.status === 'pending' ? null : VISIT_TAG[visit.status];
+    const tag = tagFor(day, visit);
     const tab = CRM_TAB[visit.module] || 'Contacts';
     return `
       <div class="bd-vpop-head">
@@ -1612,6 +1633,320 @@ document.addEventListener('DOMContentLoaded', () => {
   try { addrSaved = localStorage.getItem(ADDR_KEY) ?? '1'; } catch { /* private mode */ }
   setShowAddress(addrSaved !== '0');
 
+  /* ── Reschedule · Reassign · Cancel (from the visit's ⋯ menu) ──── */
+  /* Each dialog opens its fields in order — a field waits, greyed, until the
+     one above it is answered — and confirms by changing the beat itself:
+     a visit rescheduled within this beat moves day and time, one sent to
+     another beat or rep leaves this one, and a cancelled one stays in its
+     day marked Cancelled. Beats and reps are sample data. */
+  const THIS_REP = 'Cameron Williamson';
+  const MONTH_DAYS = { May: 31, Jun: 30 };
+  const beat = (id, month, start, days) => ({ id, month, start, days });
+  const beatLabel = b => `${b.id} • ${b.start} ${b.month} - ${dayOfBeat(b, b.days - 1).date}`;
+  function dayOfBeat(b, i) {
+    let day = b.start + i, month = b.month;
+    if (day > MONTH_DAYS[month]) { day -= MONTH_DAYS[month]; month = 'Jun'; }
+    return { label: `Day ${i + 1}`, date: `${day} ${month}` };
+  }
+
+  /* This rep's active beats — BP-003 is the one on screen */
+  const OWN_BEATS = [beat('BP-003', 'May', 4, 3), beat('BP-005', 'May', 28, 4), beat('BP-008', 'Jun', 8, 3)];
+  const REP_BEATS = {
+    'Cody Fisher':    [beat('BP-005', 'May', 28, 4), beat('BP-011', 'Jun', 2, 3)],
+    'Olivia Bennett': [beat('BP-006', 'May', 12, 5)],
+    'Ethan Brooks':   [beat('BP-009', 'May', 19, 3), beat('BP-012', 'Jun', 9, 2)],
+  };
+  const VISIT_TYPES = ['Order Delivery', 'Gate Approval', 'Shop Delivery', 'Order Approval',
+                       'Stock Check', 'Relationship Check-in'];
+
+  const fill = (sel, options, placeholder, value = '') => {
+    sel.innerHTML = `<option value="" ${value ? '' : 'selected'} disabled>${placeholder}</option>` +
+      options.map(([val, text]) => `<option value="${escape(val)}"${String(val) === String(value) ? ' selected' : ''}>${escape(text)}</option>`).join('');
+  };
+  const lock = sel => { sel.innerHTML = '<option value="" selected disabled></option>'; sel.disabled = true; setMsg(sel, ''); };
+  const unlock = sel => { sel.disabled = false; };
+
+  let vaTarget = null;   /* { d, v } the dialog acts on */
+  const vaVisit = () => DAYS[vaTarget.d].visits[vaTarget.v];
+
+  const VA_OVERLAYS = ['va-resched-overlay', 'va-reassign-overlay', 'va-cancel-overlay',
+                       'va-revise-overlay', 'va-edit-overlay'];
+  function openOverlay(id) { $(id).hidden = false; }
+  function closeOverlays() {
+    VA_OVERLAYS.forEach(id => { $(id).hidden = true; });
+    vaTarget = null;
+  }
+  document.querySelectorAll('[data-va-close]').forEach(b => b.addEventListener('click', closeOverlays));
+  VA_OVERLAYS.forEach(id =>
+    $(id).addEventListener('click', e => { if (e.target.id === id) closeOverlays(); }));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && vaTarget) closeOverlays();
+  });
+
+  /* Beat → its days; day → a start time, and the visit type (kept from the
+     visit) where the dialog asks for one. Reschedule does not — the visit
+     keeps its type. */
+  /* `asSpan` lists each slot as the span it books ("9:00 AM to 9:15 AM"),
+     for a field that asks for the visit's duration */
+  function wireChain(beatSel, dateSel, typeSel, timeSel, beatsFor, asSpan = false) {
+    beatSel.addEventListener('change', () => {
+      setMsg(beatSel, '');
+      const b = beatsFor().find(x => x.id === beatSel.value);
+      fill(dateSel, Array.from({ length: b.days }, (_, i) => {
+        const day = dayOfBeat(b, i);
+        return [i, `${day.label}  •  ${day.date}`];
+      }), 'Select Date');
+      /* On this beat, a day already closed cannot take a visit */
+      if (b.id === 'BP-003') {
+        [...dateSel.options].slice(1).forEach((o, i) => { o.disabled = isClosed(DAYS[i]); });
+      }
+      unlock(dateSel);
+      if (typeSel) lock(typeSel);
+      lock(timeSel);
+    });
+    dateSel.addEventListener('change', () => {
+      setMsg(dateSel, '');
+      if (typeSel) fill(typeSel, VISIT_TYPES.map(t => [t, t]), 'Select Visit Type', vaVisit().type);
+      fill(timeSel, SLOTS.map(t => [t, asSpan ? timeRange(t) : t]),
+           asSpan ? 'Select Visit Duration' : 'Select Visit Time');
+      if (typeSel) unlock(typeSel);
+      unlock(timeSel);
+    });
+    if (typeSel) typeSel.addEventListener('change', () => setMsg(typeSel, ''));
+    timeSel.addEventListener('change', () => setMsg(timeSel, ''));
+  }
+
+  const need = (el, text) => { if (el.value.trim()) return true; setMsg(el, text); return false; };
+  const timeRange = start => `${start} to ${minutesToClock(clockToMinutes(start) + VISIT_MINUTES)}`;
+
+  /* Take a visit, and its pin, out of its day */
+  function liftVisit(d, v) {
+    const day = DAYS[d];
+    const [visit] = day.visits.splice(v, 1);
+    const [pin] = v < day.pins.length ? day.pins.splice(v, 1) : [];
+    return { visit, pin };
+  }
+
+  /* Put a visit into a day in time order. Every visit keeps a pin of its
+     own, so the map's numbers stay in step with the list. */
+  function placeVisit(dayIndex, visit, pin) {
+    const day = DAYS[dayIndex];
+    const last = day.pins[day.pins.length - 1] || BEAT_HOME;
+    const pairs = day.visits.map((vv, i) => ({ v: vv, p: day.pins[i] || { x: last.x + 30, y: last.y + 20 } }));
+    pairs.push({ v: visit, p: pin || { x: last.x + 40, y: last.y + 30 } });
+    const at = x => (/^\d/.test(x.v.time) ? clockToMinutes(x.v.time) : Infinity);
+    pairs.sort((a, b) => at(a) - at(b));
+    day.visits.splice(0, day.visits.length, ...pairs.map(x => x.v));
+    day.pins.splice(0, day.pins.length, ...pairs.map(x => x.p));
+  }
+
+  /* The visit in hand handing the day on, when it is the one taken away */
+  function handOn(d, wasActive) {
+    if (!wasActive) return;
+    const next = DAYS[d].visits.find(x => x.status === 'pending');
+    if (next) next.status = 'active';
+  }
+
+  function afterChange() {
+    focused = null;
+    popPinned = false;
+    render();
+  }
+
+  /* Reschedule — one of this rep's beats, a day and a time */
+  const rs = { beat: $('va-resched-beat'), date: $('va-resched-date'),
+               time: $('va-resched-time'), reason: $('va-resched-reason') };
+  wireChain(rs.beat, rs.date, null, rs.time, () => OWN_BEATS);
+  rs.reason.addEventListener('input', () => setMsg(rs.reason, ''));
+
+  function openReschedule(d, v) {
+    vaTarget = { d, v };
+    $('va-resched-title').textContent = 'Reschedule Visit';
+    fill(rs.beat, OWN_BEATS.map(b => [b.id, beatLabel(b)]), 'Select Beat');
+    setMsg(rs.beat, '');
+    [rs.date, rs.time].forEach(lock);
+    rs.reason.value = ''; setMsg(rs.reason, '');
+    openOverlay('va-resched-overlay');
+    rs.beat.focus();
+  }
+
+  $('va-resched-go').addEventListener('click', () => {
+    const ok = [need(rs.beat, 'Select a beat.'), need(rs.date, 'Select a date.'),
+                need(rs.time, 'Select a time.'), need(rs.reason, 'Enter a reason.')].every(Boolean);
+    if (!ok) return;
+    const { d, v } = vaTarget;
+    const b = OWN_BEATS.find(x => x.id === rs.beat.value);
+    const dayIdx = Number(rs.date.value), target = dayOfBeat(b, dayIdx);
+    const wasActive = vaVisit().status === 'active';
+    const { visit, pin } = liftVisit(d, v);
+    Object.assign(visit, { time: timeRange(rs.time.value), status: 'pending',
+                           rescheduleReason: rs.reason.value.trim() });
+    delete visit.actual;
+    handOn(d, wasActive);
+    if (b.id === 'BP-003') {
+      placeVisit(dayIdx, visit, pin);
+      toast(`Visit rescheduled to ${target.label} • ${target.date}.`);
+    } else {
+      toast(`${visit.name} rescheduled to ${b.id} • ${target.label} • ${target.date}.`);
+    }
+    closeOverlays();
+    afterChange();
+  });
+
+  /* Reassign — another rep, one of their beats, a day, a type and a time */
+  const ra = { rep: $('va-reassign-rep'), beat: $('va-reassign-beat'), date: $('va-reassign-date'),
+               type: $('va-reassign-type'), time: $('va-reassign-time'), reason: $('va-reassign-reason') };
+  wireChain(ra.beat, ra.date, ra.type, ra.time, () => REP_BEATS[ra.rep.value] || [], true);
+  ra.rep.addEventListener('change', () => {
+    setMsg(ra.rep, '');
+    fill(ra.beat, REP_BEATS[ra.rep.value].map(b => [b.id, beatLabel(b)]), 'Select Beat');
+    unlock(ra.beat);
+    [ra.date, ra.type, ra.time].forEach(lock);
+  });
+
+  function openReassign(d, v) {
+    vaTarget = { d, v };
+    $('va-reassign-title').textContent = 'Reassign Visit';
+    fill(ra.rep, Object.keys(REP_BEATS).filter(r => r !== THIS_REP).map(r => [r, r]), 'Select Rep');
+    setMsg(ra.rep, '');
+    [ra.beat, ra.date, ra.type, ra.time].forEach(lock);
+    ra.beat.innerHTML = '<option value="" selected disabled>Select Beat</option>';
+    ra.reason.value = '';
+    openOverlay('va-reassign-overlay');
+    ra.rep.focus();
+  }
+
+  $('va-reassign-go').addEventListener('click', () => {
+    const ok = [need(ra.rep, 'Select a rep.'), need(ra.beat, 'Select a beat.'), need(ra.date, 'Select a date.'),
+                need(ra.time, 'Select a duration.')].every(Boolean);
+    if (!ok) return;
+    const { d, v } = vaTarget;
+    const b = REP_BEATS[ra.rep.value].find(x => x.id === ra.beat.value);
+    const target = dayOfBeat(b, Number(ra.date.value));
+    const wasActive = vaVisit().status === 'active';
+    const { visit } = liftVisit(d, v);
+    handOn(d, wasActive);
+    toast(`${visit.name} reassigned to ${ra.rep.value} — ${b.id} • ${target.label} • ${target.date}.`);
+    closeOverlays();
+    afterChange();
+  });
+
+  /* Cancel — a reason, then the visit stays in its day marked Cancelled */
+  const cancelReason = $('va-cancel-reason');
+  cancelReason.addEventListener('input', () => setMsg(cancelReason, ''));
+
+  function openCancel(d, v) {
+    vaTarget = { d, v };
+    $('va-cancel-title').textContent = `Cancel “${vaVisit().name}”?`;
+    cancelReason.value = ''; setMsg(cancelReason, '');
+    openOverlay('va-cancel-overlay');
+    cancelReason.focus();
+  }
+
+  $('va-cancel-go').addEventListener('click', () => {
+    if (!need(cancelReason, 'Enter a reason.')) return;
+    const { d } = vaTarget;
+    const visit = vaVisit();
+    const wasActive = visit.status === 'active';
+    visit.status = 'cancelled';
+    visit.cancelReason = cancelReason.value.trim();
+    handOn(d, wasActive);
+    toast(`${visit.name} cancelled.`);
+    closeOverlays();
+    afterChange();
+  });
+
+  /* Revise — a missed visit that did happen, logged with when it really
+     ran. It then counts as completed, at those times. */
+  const rv = { record: $('va-revise-record'), type: $('va-revise-type'),
+               in: $('va-revise-in'), out: $('va-revise-out'), comments: $('va-revise-comments') };
+  /* Five-minute steps across the working day */
+  const CHECK_TIMES = (() => {
+    const out = [];
+    for (let m = 8 * 60; m <= 20 * 60; m += 5) out.push(minutesToClock(m));
+    return out;
+  })();
+  [rv.in, rv.out].forEach(sel => sel.addEventListener('change', () => { setMsg(rv.in, ''); setMsg(rv.out, ''); }));
+
+  function openRevise(d, v) {
+    vaTarget = { d, v };
+    const visit = vaVisit();
+    const record = `${visit.name} • ${visit.module || 'Contacts'}`;
+    fill(rv.record, [[record, record]], '', record);
+    fill(rv.type, [[visit.type, visit.type]], '', visit.type);
+    [rv.in, rv.out].forEach(sel => { fill(sel, CHECK_TIMES.map(t => [t, t]), 'Select Time'); setMsg(sel, ''); });
+    rv.comments.value = visit.comments || '';
+    openOverlay('va-revise-overlay');
+    rv.in.focus();
+  }
+
+  $('va-revise-go').addEventListener('click', () => {
+    const okIn = need(rv.in, 'Select the check-in time.');
+    const okOut = need(rv.out, 'Select the check-out time.');
+    if (!okIn || !okOut) return;
+    if (clockToMinutes(rv.out.value) <= clockToMinutes(rv.in.value)) {
+      setMsg(rv.out, 'Check-out must be after check-in.');
+      return;
+    }
+    const visit = vaVisit();
+    Object.assign(visit, { status: 'done', actual: `${rv.in.value} to ${rv.out.value}`,
+                           comments: rv.comments.value.trim(), revised: true });
+    toast(`${visit.name} revised as completed.`);
+    closeOverlays();
+    afterChange();
+  });
+
+  /* Edit — a visit not yet started can change its type and its slot; once
+     it has run (or its chance has passed), only the comments stay open */
+  const ed = { type: $('va-edit-type'), time: $('va-edit-time'), comments: $('va-edit-comments') };
+
+  function openEdit(d, v) {
+    vaTarget = { d, v };
+    const visit = vaVisit();
+    const open = visit.status === 'pending';
+    $('va-edit-title').textContent = `Edit “${visit.name}”`;
+    fill(ed.type, VISIT_TYPES.map(t => [t, t]), 'Select Visit Type', visit.type);
+    if (open) {
+      /* Slots the day's other visits hold are not offered; its own is */
+      const start = visit.time.split(' to ')[0];
+      const taken = DAYS[d].visits.filter(x => x !== visit).map(x => x.time.split(' to ')[0]);
+      const free = SLOTS.filter(t => !taken.includes(t));
+      if (/^\d/.test(start) && !free.includes(start)) free.push(start);
+      free.sort((a, b) => clockToMinutes(a) - clockToMinutes(b));
+      fill(ed.time, free.map(t => [t, t === start ? visit.time : timeRange(t)]), 'Select Visit Duration', start);
+    } else {
+      /* What it ran to, where it ran */
+      const when = visit.status === 'done' && visit.actual ? visit.actual : visit.time;
+      fill(ed.time, [[when, when]], '', when);
+    }
+    ed.type.disabled = ed.time.disabled = !open;
+    ed.comments.value = visit.comments || '';
+    openOverlay('va-edit-overlay');
+    (open ? ed.type : ed.comments).focus();
+  }
+
+  $('va-edit-go').addEventListener('click', () => {
+    const { d, v } = vaTarget;
+    const visit = vaVisit();
+    visit.comments = ed.comments.value.trim();
+    if (visit.status === 'pending') {
+      visit.type = ed.type.value;
+      const start = visit.time.split(' to ')[0];
+      if (ed.time.value !== start) {
+        /* A new slot can move it in the day's order */
+        visit.time = timeRange(ed.time.value);
+        const { pin } = liftVisit(d, v);
+        placeVisit(d, visit, pin);
+      }
+    }
+    toast(`${visit.name} updated.`);
+    closeOverlays();
+    afterChange();
+  });
+
+  const VISIT_ACTION_OPEN = { reschedule: openReschedule, reassign: openReassign, cancel: openCancel,
+                              revise: openRevise, edit: openEdit };
+
   /* ── Optimize Beat ─────────────────────────────────── */
   /* In the product this re-orders the visits for the shortest route. With
      no routing behind the prototype's map, it confirms and leaves the order
@@ -1634,6 +1969,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const item = e.target.closest('.bd-vmenu-item');
     if (!item) return;
     setBeatMenu(false);
+    if (item.textContent === 'Cancel Beat') { openCancelBeat(); return; }
     toast(`${item.textContent} is not part of this prototype yet.`);
   });
   beatMenu.addEventListener('keydown', e => {
@@ -1647,6 +1983,43 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.addEventListener('click', e => {
     if (!beatMenu.hidden && !e.target.closest('.bd-beat-menu-wrap')) setBeatMenu(false);
+  });
+
+  /* ── Cancel Beat ───────────────────────────────────── */
+  /* Everything not yet done is called off: open visits are cancelled, a
+     running day closes where it stands, and days still ahead are cancelled
+     whole. Completed visits, and days already closed, stay as they are. */
+  const cancelBeatOverlay = $('bd-cancel-beat-overlay');
+  const closeCancelBeat = () => { cancelBeatOverlay.hidden = true; };
+
+  function openCancelBeat() {
+    if (beatCancelled) { toast('BP-003 is already cancelled.'); return; }
+    cancelBeatOverlay.hidden = false;
+    $('bd-cancel-beat-keep').focus();
+  }
+
+  $('bd-cancel-beat-keep').addEventListener('click', closeCancelBeat);
+  cancelBeatOverlay.addEventListener('click', e => { if (e.target === cancelBeatOverlay) closeCancelBeat(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !cancelBeatOverlay.hidden) closeCancelBeat();
+  });
+
+  $('bd-cancel-beat-go').addEventListener('click', () => {
+    DAYS.forEach(day => {
+      if (day.status === 'done' || day.status === 'missed') return;
+      day.visits.forEach(v => { if (v.status === 'pending' || v.status === 'active') v.status = 'cancelled'; });
+      if (day.status === 'active') {
+        day.status = 'done';
+        day.endedAt = clock();
+        day.endedMin = SIM.minutes;
+      } else {
+        day.status = 'cancelled';
+      }
+    });
+    beatCancelled = true;
+    closeCancelBeat();
+    afterChange();
+    toast('BP-003 cancelled.');
   });
 
   /* Record links in the related lists point nowhere in the prototype */
@@ -1770,6 +2143,7 @@ document.addEventListener('DOMContentLoaded', () => {
       day.visits.forEach(v => { v.status = 'pending'; });
     });
     selectedDay = 0; expanded = true; focused = null;
+    beatCancelled = false;
     if (announce) { applyClock(); render(); toast('Beat reset — every day is back to not started.'); }
   }
 
