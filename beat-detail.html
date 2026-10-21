@@ -198,10 +198,13 @@
             <section class="card bd-card-visits bp-details">
               <div class="bp-visits-title">
                 <span>Visits</span>
-                <!-- Secondary Link (Figma 6529:568635). Addresses show by default,
-                     so it offers to hide them; once hidden it offers them back. -->
-                <button class="bd-addr-link" type="button" id="bd-addr-link"
-                        aria-pressed="false">Hide Address</button>
+                <!-- Icon toggle for the visits' address line: pressed (blue pin)
+                     while addresses show, a struck-out pin once hidden. The
+                     tooltip names what a click will do. -->
+                <button class="bd-addr-toggle" type="button" id="bd-addr-link"
+                        aria-pressed="true" aria-label="Show addresses" data-tip="Hide address">
+                  <i class="ti ti-map-pin" aria-hidden="true"></i>
+                </button>
               </div>
               <div id="bd-days"></div>
             </section>
@@ -370,7 +373,7 @@
     </div>
   </div>
 
-  <!-- Visit actions from the ⋯ menu: Reschedule, Reassign, Cancel
+  <!-- Visit actions from the ⋯ menu: Reschedule, Transfer, Cancel
        (Figma 5988:147820 · 5988:146364 / 146878 · 5988:147400). They drop
        from the top like Add Visit and share its fields. -->
   <div class="bd-overlay bd-overlay-top" id="va-resched-overlay" hidden>
@@ -459,7 +462,7 @@
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-reassign-reason">Reassign Reason</label>
+          <label for="va-reassign-reason">Transfer Reason</label>
           <div class="bd-control">
             <textarea class="bd-input bd-textarea" id="va-reassign-reason" rows="3"></textarea>
             <span class="bd-msg" hidden></span>
@@ -468,7 +471,7 @@
       </div>
       <footer class="bd-modal-foot">
         <button class="bp-btn default" type="button" data-va-close>Cancel</button>
-        <button class="bp-btn primary bd-btn-primary" type="button" id="va-reassign-go">Reassign</button>
+        <button class="bp-btn primary bd-btn-primary" type="button" id="va-reassign-go">Transfer Visit</button>
       </footer>
     </div>
   </div>

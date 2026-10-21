@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const ACTION_LABEL = {
     cancel: 'Cancel Visit', edit: 'Edit Visit', reschedule: 'Reschedule Visit',
-    reassign: 'Reassign Visit', location: 'Adjust Location',
+    reassign: 'Transfer Visit', location: 'Adjust Location',
     revise: 'Revise Visit',
   };
 
@@ -1701,24 +1701,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ── Show Address ──────────────────────────────────── */
   /* The visits' address line can be folded away for a tighter list with the
-     link beside the heading. Shown by default; the choice is remembered for
+     icon toggle beside the heading. Shown by default; the choice is remembered for
      this viewer. Home and Office keep theirs — they say where the day starts
      and ends. */
   const ADDR_KEY = 'bd-show-address';
   const addrLink = $('bd-addr-link');
   function setShowAddress(on) {
-    addrLink.textContent = on ? 'Hide Address' : 'Show Address';
-    addrLink.setAttribute('aria-pressed', String(!on));   /* pressed = hidden */
+    addrLink.setAttribute('aria-pressed', String(on));    /* pressed = shown */
+    addrLink.dataset.tip = on ? 'Hide address' : 'Show address';
+    addrLink.querySelector('i').className = `ti ${on ? 'ti-map-pin' : 'ti-map-pin-off'}`;
+    if (!truncTip.hidden) truncTip.textContent = addrLink.dataset.tip;
     daysEl.classList.toggle('bd-hide-addr', !on);
     try { localStorage.setItem(ADDR_KEY, on ? '1' : '0'); } catch { /* private mode */ }
   }
   addrLink.addEventListener('click', () =>
     setShowAddress(daysEl.classList.contains('bd-hide-addr')));
+  /* Icon only, so it names itself in the shared tooltip */
+  addrLink.addEventListener('mouseover', onTruncOver);
+  addrLink.addEventListener('mouseout', onTruncOut);
+  addrLink.addEventListener('focus', onTruncOver);
+  addrLink.addEventListener('blur', hideTruncTip);
   let addrSaved = '1';
   try { addrSaved = localStorage.getItem(ADDR_KEY) ?? '1'; } catch { /* private mode */ }
   setShowAddress(addrSaved !== '0');
 
-  /* ── Reschedule · Reassign · Cancel (from the visit's ⋯ menu) ──── */
+  /* ── Reschedule · Transfer · Cancel (from the visit's ⋯ menu) ──── */
   /* Each dialog opens its fields in order — a field waits, greyed, until the
      one above it is answered — and confirms by changing the beat itself:
      a visit rescheduled within this beat moves day and time, one sent to
@@ -1878,7 +1885,7 @@ document.addEventListener('DOMContentLoaded', () => {
     afterChange();
   });
 
-  /* Reassign — another rep, one of their beats, a day, a type and a time */
+  /* Transfer — another rep, one of their beats, a day, a type and a time */
   const ra = { rep: $('va-reassign-rep'), beat: $('va-reassign-beat'), date: $('va-reassign-date'),
                type: $('va-reassign-type'), time: $('va-reassign-time'), reason: $('va-reassign-reason') };
   wireChain(ra.beat, ra.date, ra.type, ra.time, () => REP_BEATS[ra.rep.value] || [], true);
@@ -1891,7 +1898,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function openReassign(d, v) {
     vaTarget = { d, v };
-    $('va-reassign-title').textContent = 'Reassign Visit';
+    $('va-reassign-title').textContent = 'Transfer Visit';
     fill(ra.rep, Object.keys(REP_BEATS).filter(r => r !== THIS_REP).map(r => [r, r]), 'Select Rep');
     setMsg(ra.rep, '');
     [ra.beat, ra.date, ra.type, ra.time].forEach(lock);
@@ -1911,7 +1918,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const wasActive = vaVisit().status === 'active';
     const { visit } = liftVisit(d, v);
     handOn(d, wasActive);
-    toast(`${visit.name} reassigned to ${ra.rep.value} — ${b.id} • ${target.label} • ${target.date}.`);
+    toast(`${visit.name} transferred to ${ra.rep.value} — ${b.id} • ${target.label} • ${target.date}.`);
     closeOverlays();
     afterChange();
   });

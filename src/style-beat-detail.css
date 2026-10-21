@@ -1796,22 +1796,28 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
 /* ── Hide / Show Address, beside the Visits heading ─────────────────── */
 /* Secondary Link (Figma 6529:568635): 14 Medium base text over a #c5c4d3
    rule 3 below it, 19 tall in all */
-.bd-addr-link {
+/* Quiet icon toggle: no fill, border or colour. The pin alone says
+   addresses are showing; the struck-out pin says they are hidden. Only a
+   soft grey wash on hover shows it is a button. */
+.bd-addr-toggle {
   flex-shrink: 0;
-  padding: 0 0 2px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   background: none;
   border: none;
-  border-bottom: 1px solid #c5c4d3;
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 16px;
-  color: var(--base);
+  border-radius: 6px;
+  color: var(--label);
   cursor: pointer;
+  transition: background 0.12s, color 0.12s;
 }
 
-.bd-addr-link:hover { color: var(--bd-link); border-bottom-color: currentColor; }
-.bd-addr-link:focus-visible { outline: 2px solid var(--bd-link); outline-offset: 2px; border-radius: 2px; }
+.bd-addr-toggle i { font-size: 18px; }
+.bd-addr-toggle:hover { background: #f0f2f7; color: var(--base); }
+.bd-addr-toggle:focus-visible { outline: 2px solid var(--bd-link); outline-offset: 2px; }
 
 /* Hidden: the visits lose their address line */
 .bd-hide-addr .bd-visit-addr { display: none; }
@@ -1842,7 +1848,7 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
   background: #ced0e1;
 }
 
-/* ── Reschedule · Reassign · Cancel (Figma 5988:147820 · 146364 · 147400) ── */
+/* ── Reschedule · Transfer · Cancel (Figma 5988:147820 · 146364 · 147400) ── */
 /* Add Visit's frame and fields. One label column per dialog, sized to its
    longest label, so every field — the reason box included — starts on the
    same line; the dialog is that column + 20 + 390 + 30 a side. */
@@ -1851,7 +1857,7 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
 .bd-va-cancel   { width: 601px; }
 
 .bd-va-resched  .bd-field > label { width: 131px; }   /* "Reschedule Reason" */
-.bd-va-reassign .bd-field > label { width: 143px; }   /* fits "Reassign Reason" with room */
+.bd-va-reassign .bd-field > label { width: 143px; }   /* fits "Transfer Reason" with room */
 .bd-va-cancel   .bd-field > label { width: 131px; }
 
 /* Revise Visit (Figma 6559:569542) and Edit Visit (6562:568993) share a
