@@ -71,6 +71,11 @@
   line-height: 20px;
   color: var(--base);
   white-space: nowrap;
+  /* Holds the row at the Start / End button's height, so a day with the
+     button and one without are the same height */
+  min-height: 27px;
+  display: inline-flex;
+  align-items: center;
 }
 
 /* The clock takes the line below, indented past the chevron — the title row
@@ -82,6 +87,44 @@
   font-size: 12px;
   font-weight: 400;
   color: var(--label);
+}
+
+/* A finished day's summary, at the top of its opened body (Figma
+   6562:569815): two 150px columns spread apart on a pale panel, a 41px
+   hairline between them. Labels and the km in Medium 13 label grey,
+   values in Semibold 14 base. */
+.bd-day-sum {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 2px 0 14px 8px;
+  padding: 10.75px 15px 11px;
+  background: #f8faff;
+  border: 1px solid #dcdbee;
+  border-radius: 8px;
+}
+
+.bd-sum-col { width: 150px; display: flex; flex-direction: column; gap: 2px; }
+.bd-sum-divider { width: 1px; height: 41px; flex-shrink: 0; background: #dcdbee; }
+
+.bd-sum-label,
+.bd-sum-km {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  color: var(--label);
+  font-feature-settings: "calt" 0;
+}
+
+.bd-sum-row { display: flex; align-items: center; gap: 3px; height: 23px; }
+
+.bd-sum-value {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--base);
+  white-space: nowrap;
+  font-feature-settings: "calt" 0;
 }
 
 /* Negative Button — the gradient the design system gives a destructive
@@ -798,14 +841,42 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 /* ── Beat Details ────────────────────────────────────── */
 /* The original icon grid (commit 90efa9d) for every type: heading, then
    owner, duration, planned visits and planned distance side by side */
+/* Flexible: each field takes its own width, as many share a line as fit
+   with at least 28 between them, and the line's spare width is shared
+   out among them. Fields wrap rather than clip. */
 .bd-card-details .bp-detail-grid {
-  grid-template-columns: repeat(4, max-content);
-  column-gap: 64px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 28px;
   margin-bottom: 0;
 }
 
-@media (max-width: 1080px) {
-  .bd-card-details .bp-detail-grid { grid-template-columns: 1fr 1fr; column-gap: 12px; }
+.bd-card-details .bp-detail-grid > .bp-detail { flex: 1 0 auto; }
+
+
+/* No icon beside the fields: label stacked over value. Type and spacing
+   from the Revenue Schedules field pair (Figma 6570:570805): label Medium
+   13/18 label grey, value Medium 14/20 base, 4 between, 28 between
+   fields. */
+.bd-card-details .bp-detail { flex-direction: column; gap: 4px; }
+
+.bd-card-details .bp-detail .bp-detail-label {
+  margin-bottom: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  color: #616e88;
+  white-space: nowrap;
+  font-feature-settings: "calt" 0;
+}
+
+.bd-card-details .bp-detail .bp-detail-value {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #313949;
+  white-space: nowrap;
+  font-feature-settings: "calt" 0;
 }
 
 /* Parts drawn for one type only — the map's terrain switch */
@@ -1853,3 +1924,92 @@ body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
 }
 
 .bd-alert-foot { display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px; }
+
+/* ── Show / Hide Details ─────────────────────────────── */
+/* The record's information below the detail view. Closed it is a single
+   bar; open, the bar reads "Hide Details" over a rule and a two-column
+   list — labels right-aligned in a fixed column, values beside them. */
+.type-1 .bd-rl-info { display: none; }
+
+.bd-info-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 54px;
+  padding: 0 20px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--heading);
+  text-align: left;
+  cursor: pointer;
+}
+
+.bd-info-toggle[aria-expanded="true"] { border-bottom: 1px solid #d6d6e3; }
+
+/* The day rows' filled triangle: right while closed, down while open.
+   It only appears on hover or keyboard focus; the space stays, so the
+   label never shifts. */
+.bd-info-chev {
+  width: 12px;
+  height: 6px;
+  flex-shrink: 0;
+  transform: rotate(-90deg);
+  opacity: 0;
+  transition: opacity 0.12s, transform 0.15s;
+}
+
+.bd-info-toggle[aria-expanded="true"] .bd-info-chev { transform: none; }
+.bd-info-toggle:hover .bd-info-chev,
+.bd-info-toggle:focus-visible .bd-info-chev { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) { .bd-info-chev { transition: none; } }
+.bd-info-toggle:focus-visible { outline: 2px solid var(--bd-link); outline-offset: -2px; }
+
+.bd-info-body { padding: 24px 20px 28px; }
+.bd-info-body[hidden] { display: none; }
+
+.bd-info-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--heading);
+}
+
+.bd-info-grid {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 0 40px;
+}
+
+.bd-info-col { display: flex; flex-direction: column; gap: 22px; }
+
+.bd-info-row { display: flex; align-items: flex-start; gap: 24px; }
+
+.bd-info-row dt {
+  width: 180px;
+  flex-shrink: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--label);
+  text-align: right;
+}
+
+.bd-info-row dd {
+  min-width: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--base);
+}
+
+.bd-info-row dd small { display: block; font-size: 13px; line-height: 18px; color: var(--base); }
+.bd-info-row .bd-info-empty { color: var(--label); }
+
+@media (max-width: 760px) {
+  .bd-info-row dt { width: 140px; }
+}

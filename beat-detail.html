@@ -161,37 +161,28 @@
              In Type 1 its grid area keeps it where it always was. -->
         <section class="card bd-card-details" id="bd-card-details">
           <h2>Beat Details</h2>
-          <!-- The icon grid from the original detail view (commit 90efa9d),
-               one layout for every type. Visits and distance are summed
+          <!-- Label over value, no icons. Visits and distance are summed
                from the beat's days by beat-detail.js. -->
           <div class="bp-detail-grid">
             <div class="bp-detail">
-              <i class="ti ti-user-circle" style="color:#5a78ff" aria-hidden="true"></i>
-              <div>
-                <div class="bp-detail-label">Beat Owner</div>
-                <div class="bp-detail-value">Cameron Williamson</div>
-              </div>
+              <div class="bp-detail-label">Beat Owner</div>
+              <div class="bp-detail-value">Cameron Williamson</div>
             </div>
             <div class="bp-detail">
-              <i class="ti ti-calendar-event" style="color:#f564bb" aria-hidden="true"></i>
-              <div>
-                <div class="bp-detail-label">Beat Duration</div>
-                <div class="bp-detail-value">4 May 2026 - 6 May 2026</div>
-              </div>
+              <div class="bp-detail-label">Created By</div>
+              <div class="bp-detail-value">Jenny Wilson</div>
             </div>
             <div class="bp-detail">
-              <i class="ti ti-map-pin" style="color:#c35bf4" aria-hidden="true"></i>
-              <div>
-                <div class="bp-detail-label">Total Planned Visits</div>
-                <div class="bp-detail-value" id="bd-sum-visits"></div>
-              </div>
+              <div class="bp-detail-label">Beat Duration</div>
+              <div class="bp-detail-value">4 May 2026 - 6 May 2026</div>
             </div>
             <div class="bp-detail">
-              <i class="ti ti-route" style="color:#12aa67" aria-hidden="true"></i>
-              <div>
-                <div class="bp-detail-label">Total Planned Distance</div>
-                <div class="bp-detail-value" id="bd-sum-distance"></div>
-              </div>
+              <div class="bp-detail-label">Total Planned Visits</div>
+              <div class="bp-detail-value" id="bd-sum-visits"></div>
+            </div>
+            <div class="bp-detail">
+              <div class="bp-detail-label">Total Planned Distance</div>
+              <div class="bp-detail-value" id="bd-sum-distance"></div>
             </div>
           </div>
         </section>
@@ -253,6 +244,18 @@
                 </div>
               </div>
             </section>
+          </div>
+        </section>
+
+        <!-- The record's full information, as the CRM shows it under the
+             detail view: closed to a "Show Details" bar, open to a two-column
+             label / value list. Filled by beat-detail.js. -->
+        <section class="bd-related bd-rl-info" id="bd-info">
+          <button class="bd-info-toggle" type="button" id="bd-info-toggle"
+                  aria-expanded="false" aria-controls="bd-info-body"><img class="bd-info-chev" src="src/day-chevron.svg" alt="" aria-hidden="true" /><span>Show Details</span></button>
+          <div class="bd-info-body" id="bd-info-body" hidden>
+            <h3 class="bd-info-title">Beat Information</h3>
+            <div class="bd-info-grid" id="bd-info-grid"></div>
           </div>
         </section>
 

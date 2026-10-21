@@ -326,10 +326,60 @@ document.addEventListener('DOMContentLoaded', () => {
   /* Only a day that has been worked has a clock to show */
   function dayClockHtml(day) {
     if (day.status === 'active') return `<span class="bd-day-clock">Started ${escape(day.startedAt)}</span>`;
-    if (day.status === 'done') {
-      return `<span class="bd-day-clock">${escape(day.startedAt)} – ${escape(day.endedAt)}</span>`;
-    }
     return '';
+  }
+
+  /* What a finished day came to, at the top of its opened body (Type A,
+     neutral): the travel actually driven and the time spent at the stops. The visit count is already the tally
+     on the title row, so it is not repeated here. */
+  function daySumHtml(day) {
+    if (day.status !== 'done') return '';
+    const { travelMin, travelKm, visitMin } = daySummary(day);
+    return `
+      <div class="bd-day-sum">
+        <div class="bd-sum-col">
+          <span class="bd-sum-label">Total Travel</span>
+          <span class="bd-sum-row"><span class="bd-sum-value">${span(travelMin)}</span><span class="bd-sum-km">· ${travelKm.toFixed(1)} km</span></span>
+        </div>
+        <span class="bd-sum-divider" aria-hidden="true"></span>
+        <div class="bd-sum-col">
+          <span class="bd-sum-label">Total Visit Time</span>
+          <span class="bd-sum-value">${span(visitMin)}</span>
+        </div>
+      </div>`;
+  }
+
+  /* "4 hrs 25 mins", "12 hrs", "39 mins" */
+  function span(mins) {
+    const h = Math.floor(mins / 60), m = mins % 60;
+    const hrs = h ? `${h} ${h === 1 ? 'hr' : 'hrs'}` : '';
+    const min = m || !h ? `${m} ${m === 1 ? 'min' : 'mins'}` : '';
+    return [hrs, min].filter(Boolean).join(' ');
+  }
+
+  /* What a finished day came to. Travel counts the legs actually driven —
+     the same ones the rail draws blue: each leg into a stop the rep
+     reached, and the last one into Office when every stop was done. Visit
+     time adds up how long each completed stop really ran. */
+  function daySummary(day) {
+    const lastDone = day.visits.reduce((n, v, i) => (v.status === 'done' ? i : n), -1);
+    const allDone = day.visits.length > 0 && day.visits.every(v => v.status === 'done');
+    const legs = [];
+    for (let i = 0; i <= lastDone; i++) legs.push(i === 0 ? HOME : day.visits[i - 1]);
+    if (allDone) legs.push(day.visits[day.visits.length - 1]);
+    let travelMin = 0, travelKm = 0;
+    legs.forEach(from => {
+      const text = from.actualDrive || from.drive || '';
+      const m = text.match(/(\d+)\s*min/);
+      travelMin += m ? Number(m[1]) : 0;
+      const km = text.match(/([\d.]+)\s*km/);
+      travelKm += km ? Number(km[1]) : 0;
+    });
+    const visitMin = day.visits.filter(v => v.status === 'done').reduce((n, v) => {
+      const [from, to] = (v.actual || v.time).split(' to ');
+      return n + (to ? Math.max(0, clockToMinutes(to) - clockToMinutes(from)) : 0);
+    }, 0);
+    return { travelMin, travelKm, visitMin };
   }
 
   /* ── The day's timeline ────────────────────────────── */
@@ -461,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     aria-label="${act.label} ${day.label}${act.blocked ? ` — ${escape(act.blocked)}` : ''}">${act.label}</button>` : ''}
           ${dayClockHtml(day)}
         </div>
-        <div class="bp-day-body">${timelineHtml(day, index)}</div>
+        <div class="bp-day-body">${daySumHtml(day)}${timelineHtml(day, index)}</div>
       </div>`;
   }
 
@@ -475,20 +525,8 @@ document.addEventListener('DOMContentLoaded', () => {
         `${DAYS[running].label} is running — started at ${DAYS[running].startedAt}.`;
       return;
     }
-    /* A cancelled beat says so in its badge; it needs no banner as well */
-    if (beatCancelled) { band.hidden = true; return; }
-    if (DAYS.every(isClosed)) {
-      band.hidden = false;
-      band.className = 'bp-status-band bp-band-approved';
-      bandIcon.className = 'ti ti-circle-check';
-      const total = DAYS.reduce((n, d) => n + d.visits.length, 0);
-      const done = DAYS.reduce((n, d) => n + d.visits.filter(v => v.status === 'done').length, 0);
-      const worked = DAYS.filter(d => d.status === 'done').length;
-      bandText.textContent = worked === DAYS.length
-        ? `Beat completed — ${DAYS.length} days logged, ${done} of ${total} visits done.`
-        : `Beat closed — ${worked} of ${DAYS.length} days worked, ${done} of ${total} visits done.`;
-      return;
-    }
+    /* A completed or cancelled beat says so in its badge; it needs no
+       banner as well */
     band.hidden = true;
   }
 
@@ -549,10 +587,57 @@ document.addEventListener('DOMContentLoaded', () => {
       ATTACHMENTS.map(a => [link(a.file), a.size, escape(a.by), a.on]),
       'No Attachment');
 
+    renderInfo();
+
     /* Beat Details: what the beat is planned to be, summed over its days */
     $('bd-sum-visits').textContent = DAYS.reduce((n, day) => n + day.visits.length, 0);
     $('bd-sum-distance').textContent =
       `${DAYS.reduce((n, day) => n + plannedKm(day), 0).toFixed(1)} km`;
+  }
+
+  /* ── Show / Hide Details ─────────────────────────────── */
+  /* The record's information as the CRM lists it: the beat's own facts —
+     planned, then what actually happened — and the record's housekeeping.
+     Actuals are read off the days, so they move as the beat is worked. */
+  const infoToggle = $('bd-info-toggle'), infoBody = $('bd-info-body');
+  infoToggle.addEventListener('click', () => {
+    const open = infoBody.hidden;
+    infoBody.hidden = !open;
+    infoToggle.setAttribute('aria-expanded', String(open));
+    infoToggle.querySelector('span').textContent = open ? 'Hide Details' : 'Show Details';
+  });
+
+  function renderInfo() {
+    const visits = DAYS.reduce((n, d) => n + d.visits.length, 0);
+    const doneVisits = DAYS.reduce((n, d) => n + d.visits.filter(v => v.status === 'done').length, 0);
+    const doneDays = DAYS.filter(d => d.status === 'done').length;
+    const travelled = DAYS.filter(d => d.status === 'done')
+      .reduce((n, d) => n + daySummary(d).travelKm, 0);
+    const spent = EXPENSES.reduce((n, e) => n + e.amount, 0);
+    const none = '<span class="bd-info-empty">—</span>';
+    const left = [
+      ['Beat Name', 'BP - 003'],
+      ['Beat Owner', 'Cameron Williamson'],
+      ['Beat Duration', '4 May 2026 - 6 May 2026'],
+      ['Total Planned Visits', String(visits)],
+      ['Total Planned Distance', `${DAYS.reduce((n, d) => n + plannedKm(d), 0).toFixed(1)} km`],
+      ['Completed Beat Days', `${doneDays} / ${DAYS.length}`],
+      ['Actual Completed Visits', `${doneVisits} / ${visits}`],
+      ['Actual Travelled Distance', doneDays ? `${travelled.toFixed(1)} km` : null],
+      ['Total Expenses', EXPENSES.length ? money(spent) : null],
+    ];
+    const right = [
+      ['Beat Status', beatStatus().label],
+      ['Created By', 'Jenny Wilson<small>Mon, 27 Apr 2026 10:12 AM</small>', true],
+      ['Modified By', 'Cameron Williamson<small>Mon, 4 May 2026 09:40 AM</small>', true],
+      ['Layout', 'Standard'],
+      ['Tag', null],
+      ['Description', null],
+    ];
+    const col = rows => `<dl class="bd-info-col">${rows.map(([k, v, html]) => `
+        <div class="bd-info-row"><dt>${k}</dt><dd>${v == null ? none : html ? v : escape(v)}</dd></div>`).join('')}
+      </dl>`;
+    $('bd-info-grid').innerHTML = col(left) + col(right);
   }
 
   function render() {
