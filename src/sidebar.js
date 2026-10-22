@@ -19,11 +19,18 @@
     { key: 'field-view',  label: 'Field View',    icon: 'ti-map',            href: 'non-map.html' },
     { key: 'visits',      label: 'Visits',        icon: 'ti-briefcase',      href: '#' },
     { key: 'expenses',    label: 'Expenses',      icon: 'ti-receipt',        href: '#' },
+  ];
+
+  /* The CRM's own modules, grouped in a folder the way the CRM sidebar
+     groups them: open by default, the choice remembered per viewer */
+  const CRM_FOLDER = { key: 'crm-modules', label: 'CRM Modules' };
+  const CRM_ITEMS = [
     { key: 'contacts',    label: 'Contacts',      icon: 'ti-users',          href: '#' },
     { key: 'deals',       label: 'Deals',         icon: 'ti-topology-star',  href: '#' },
     { key: 'accounts',    label: 'Accounts',      icon: 'ti-building',       href: '#' },
-    { key: 'orders',      label: 'Orders',        icon: 'ti-shopping-cart',  href: '#' },
+    { key: 'orders',      label: 'Sales Orders',  icon: 'ti-shopping-cart',  href: '#' },
   ];
+  const FOLDER_KEY = 'sb-folder-crm-modules';
 
   function itemHtml(it, active) {
     const cls = 'sb-item' + (it.key === active ? ' active' : '');
@@ -63,8 +70,45 @@
 
       <ul class="sb-nav">
         ${shown(MODULE_ITEMS).map(it => `<li>${itemHtml(it, active)}</li>`).join('')}
+        ${folderHtml(shown(CRM_ITEMS), active)}
       </ul>
     `;
+
+    const folder = root.querySelector('.sb-folder');
+    if (folder) {
+      folder.addEventListener('click', () => {
+        const open = folder.getAttribute('aria-expanded') !== 'true';
+        setFolder(root, open);
+        try { localStorage.setItem(FOLDER_KEY, open ? '1' : '0'); } catch { /* private mode */ }
+      });
+    }
+  }
+
+  function folderOpen(items, active) {
+    /* The page being shown is never hidden inside a closed folder */
+    if (items.some(it => it.key === active)) return true;
+    try { return localStorage.getItem(FOLDER_KEY) !== '0'; } catch { return true; }
+  }
+
+  function folderHtml(items, active) {
+    if (!items.length) return '';
+    const open = folderOpen(items, active);
+    const id = `sb-${CRM_FOLDER.key}`;
+    return `<li class="sb-folder-wrap">
+      <button class="sb-item sb-folder" type="button" aria-expanded="${open}" aria-controls="${id}">
+        <svg class="sb-folder-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 5.5A2.5 2.5 0 0 1 4.5 3h3.4c.6 0 1.2.24 1.65.66L10.9 5H15.5A2.5 2.5 0 0 1 18 7.5v7a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 2 14.5v-9Z"/></svg><span>${CRM_FOLDER.label}</span>
+        <i class="ti ti-chevron-down sb-folder-caret" aria-hidden="true"></i>
+      </button>
+      <ul class="sb-sub" id="${id}"${open ? '' : ' hidden'}>
+        ${items.map(it => `<li>${itemHtml(it, active)}</li>`).join('')}
+      </ul>
+    </li>`;
+  }
+
+  function setFolder(root, open) {
+    const folder = root.querySelector('.sb-folder');
+    folder.setAttribute('aria-expanded', String(open));
+    root.querySelector('.sb-sub').hidden = !open;
   }
 
   function init() {

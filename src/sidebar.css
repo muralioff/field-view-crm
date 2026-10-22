@@ -151,3 +151,39 @@
   font-size: 18px;
   cursor: pointer;
 }
+
+/* ── Folder (CRM Modules) ─────────────────────────────── */
+/* A folder row like the CRM sidebar's: a filled folder icon, the name in
+   the section weight, a chevron at the right that points up while open.
+   Its modules sit indented so their icons line up under the folder's
+   name. */
+:root { --sb-folder-icon: #6c6cf5; }
+
+.sb-folder {
+  width: 100%;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-weight: 500;
+  color: #e6ebf5;
+  text-align: left;
+}
+
+.sb-folder-icon { width: 20px; height: 20px; flex-shrink: 0; fill: var(--sb-folder-icon); }
+
+.sb-item i.sb-folder-caret {
+  margin-left: auto;
+  font-size: 16px;
+  transition: transform 0.15s;
+}
+
+.sb-folder[aria-expanded="true"] .sb-folder-caret { transform: rotate(180deg); }
+.sb-folder:focus-visible { outline: 2px solid #8f9bff; outline-offset: -2px; }
+
+.sb-sub { list-style: none; margin: 0; padding: 0; }
+.sb-sub[hidden] { display: none; }
+.sb-sub .sb-item { padding-left: 44px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sb-item i.sb-folder-caret { transition: none; }
+}

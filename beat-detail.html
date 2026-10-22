@@ -81,6 +81,14 @@
                   <option value="manager">Manager</option>
                 </select>
               </label>
+              <!-- Which Figma icon set the Show / Hide Address toggle uses -->
+              <label class="bd-sim-field">Address icon
+                <select id="bd-sim-addr-icon">
+                  <option value="1">Set 1 — Building</option>
+                  <option value="2">Set 2 — Building with pin</option>
+                  <option value="3">Set 3 — Lines</option>
+                </select>
+              </label>
               <label class="bd-sim-check">
                 <input type="checkbox" id="bd-sim-other" />
                 Rep has a day running on another beat (BP-002)
@@ -204,7 +212,6 @@
                      the tooltip names what a click will do. -->
                 <button class="bd-addr-toggle" type="button" id="bd-addr-link"
                         aria-pressed="true" aria-label="Show addresses" data-tip="Hide address">
-                  <i class="ti ti-map-pin" aria-hidden="true"></i>
                 </button>
               </div>
               <div id="bd-days"></div>
@@ -695,6 +702,7 @@
   <script src="src/map.js"></script>
   <script src="src/sidebar.js"></script>
   <script src="src/time-picker.js"></script>
+  <script src="src/address-icons.js"></script>
   <script src="src/beat-detail.js"></script>
 </body>
 </html>

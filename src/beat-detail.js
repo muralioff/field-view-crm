@@ -1746,14 +1746,33 @@ document.addEventListener('DOMContentLoaded', () => {
      and ends. */
   const ADDR_KEY = 'bd-show-address';
   const addrLink = $('bd-addr-link');
+
+  /* Which of the three Figma icon sets the toggle draws (src/address-icons.js),
+     picked in the simulator and remembered for this viewer */
+  const ICON_SET_KEY = 'bd-addr-icon-set';
+  let addrIconSet = '1';
+  try { addrIconSet = localStorage.getItem(ICON_SET_KEY) || '1'; } catch { /* private mode */ }
+  if (!ADDRESS_ICONS[addrIconSet]) addrIconSet = '1';
+  function drawAddrIcon() {
+    const shown = !daysEl.classList.contains('bd-hide-addr');
+    addrLink.innerHTML = ADDRESS_ICONS[addrIconSet][shown ? 'shown' : 'hidden'];
+  }
+  const simAddrIcon = $('bd-sim-addr-icon');
+  simAddrIcon.value = addrIconSet;
+  simAddrIcon.addEventListener('change', () => {
+    addrIconSet = simAddrIcon.value;
+    try { localStorage.setItem(ICON_SET_KEY, addrIconSet); } catch { /* private mode */ }
+    drawAddrIcon();
+  });
   function setShowAddress(on) {
     addrLink.setAttribute('aria-pressed', String(on));    /* pressed = shown */
     addrLink.dataset.tip = on ? 'Hide address' : 'Show address';
-    /* The icon shows the current state — a plain pin while addresses show, a
-       struck-out pin once hidden; the tooltip names what a click will do */
-    addrLink.querySelector('i').className = `ti ${on ? 'ti-map-pin' : 'ti-map-pin-off'}`;
+    /* The icon shows the current state — the set's plain icon while
+       addresses show, its struck-out pair once hidden; the tooltip names
+       what a click will do */
     if (!truncTip.hidden) truncTip.textContent = addrLink.dataset.tip;
     daysEl.classList.toggle('bd-hide-addr', !on);
+    drawAddrIcon();
     try { localStorage.setItem(ADDR_KEY, on ? '1' : '0'); } catch { /* private mode */ }
   }
   addrLink.addEventListener('click', () =>

@@ -1818,7 +1818,7 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
   transition: background 0.12s, color 0.12s;
 }
 
-.bd-addr-toggle i { font-size: 18px; }
+.bd-addr-toggle svg { display: block; height: 16px; width: auto; }
 .bd-addr-toggle:hover { background: #f0f2f7; color: var(--base); }
 .bd-addr-toggle:focus-visible { outline: 2px solid var(--bd-link); outline-offset: 2px; }
 
