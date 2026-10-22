@@ -1104,8 +1104,11 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 .bd-rlist-toggle,
 .bd-rlist { display: none; }
 
-body.bd-in-list .bd-rlist-toggle { display: flex; }
-body.bd-in-list.bd-rlist-open .bd-rlist { display: block; }
+/* The related-list toggle (and its rail) is switched off for now, so the
+   Overview / Timeline tabs start on the cards' left edge. Restore these two
+   rules to bring it back. */
+/* body.bd-in-list .bd-rlist-toggle { display: flex; } */
+/* body.bd-in-list.bd-rlist-open .bd-rlist { display: block; } */
 
 .bd-rlist-toggle {
   width: 32px;

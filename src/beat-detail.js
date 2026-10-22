@@ -763,7 +763,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const first = day.visits[0];
 
     /* The day and its date ride in the title; the count is in the summary */
-    $('bd-start-title').textContent = `Start “${day.label} - ${day.date}” ?`;
+    $('bd-start-title').textContent = `Start “${day.label} - ${day.date}”`;
     $('bd-start-note-day').textContent = day.label;
     $('bd-start-visits').textContent = String(day.visits.length);
     $('bd-start-km').textContent = `${planned.toFixed(1)} km`;
@@ -815,7 +815,7 @@ document.addEventListener('DOMContentLoaded', () => {
        rep reached */
     const km = done.reduce((n, v) => n + kmOf(v), 0);
 
-    $('bd-end-title').textContent = `End “${day.label} - ${day.date}” ?`;
+    $('bd-end-title').textContent = `End “${day.label} - ${day.date}”`;
     $('bd-sum-done').textContent = `${done.length} of ${day.visits.length}`;
     $('bd-sum-missed').textContent = String(count('missed', 'pending', 'active'));
     $('bd-sum-canceled').textContent = String(count('cancelled'));
