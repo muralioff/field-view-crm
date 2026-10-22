@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="src/topbar.css" />
   <link rel="stylesheet" href="src/style-planner-shared.css" />
   <link rel="stylesheet" href="src/style-beat-engine.css" />
+  <link rel="stylesheet" href="src/time-picker.css" />
 </head>
 <body>
   <div class="pc-app">
@@ -143,7 +144,8 @@
                     <span class="be-tip" role="tooltip" id="be-tip-time">Beats are created from records available at this time. Runs on business days only.</span>
                   </button>
                 </span>
-                <select class="pc-field be-select" id="be-time"></select>
+                <!-- Time picker (Figma 5988:122077); behaviour in docs/crux-time-component-behaviour.md -->
+                <div class="be-time" id="be-time-host"></div>
               </div>
 
               <h2 class="be-title be-freq-title">Visit Frequency</h2>
@@ -189,6 +191,7 @@
 
   <script src="src/sidebar.js"></script>
   <script src="src/field-errors.js"></script>
+  <script src="src/time-picker.js"></script>
   <script src="src/beat-engine.js"></script>
 </body>
 </html>

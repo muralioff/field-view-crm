@@ -98,13 +98,12 @@
   }
 
   /* ── Auto-create Beats ─────────────────────────────── */
-  /* Fixed 30-minute steps across the day, 9:00 AM preselected */
-  const timeSel = $('be-time');
-  for (let m = 0; m < 24 * 60; m += 30) {
-    const h = Math.floor(m / 60), min = m % 60;
-    const label = `${(h % 12) || 12}:${String(min).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`;
-    timeSel.add(new Option(label, label, false, label === '9:00 AM'));
-  }
+  /* Run scheduler at: the shared time picker, 9:00 AM to start. The
+     wire value (24-hour HH:mm) is what the planner saves. */
+  const schedulerTime = TimePicker.create($('be-time-host'), {
+    value: '9:00 AM',
+    inputId: 'be-time',
+  });
 
   autoBtn.addEventListener('click', () => {
     const on = autoBtn.getAttribute('aria-checked') !== 'true';

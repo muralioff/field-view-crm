@@ -1,0 +1,112 @@
+/* ============================================================
+   Time picker — look from Figma 5988:122077, states from
+   docs/crux-time-component-behaviour.md §4 and §11.
+   A 34px box: the 3px marker slot, the time in Regular 14 base colour
+   10 after it, and the small filled caret (10×5, 60%) 10 in from the
+   right. Width comes from the host.
+   ============================================================ */
+.tp {
+  position: relative;
+  display: block;
+  width: 120px;
+}
+
+.tp-box {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 1px 1px 1px 0;
+  background: #fff;
+  border: 1px solid #c0c8e2;
+  border-radius: 6px;
+  cursor: text;
+  transition: border-color 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+.tp-marker { width: 3px; height: 32px; flex-shrink: 0; }
+
+.tp-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 10px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #313949;
+  caret-color: transparent;     /* the segment highlight is the cursor */
+}
+
+.tp-input::selection { background: #cfd6ff; color: #313949; }
+
+.tp-caret {
+  width: 10px;
+  height: 5px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M8.79289 0H1.20711C0.761654 0 0.53857 0.53857 0.853553 0.853553L4.64645 4.64645C4.84171 4.84171 5.15829 4.84171 5.35355 4.64645L9.14645 0.853553C9.46143 0.538571 9.23835 0 8.79289 0Z' fill='%23313949'/%3E%3C/svg%3E") no-repeat center / 10px 5px;
+  opacity: 0.6;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.tp.open .tp-caret { transform: rotate(180deg); }
+
+/* Hover and focus: a firmer border and a soft glow */
+.tp:not(.disabled) .tp-box:hover { border-color: #a6b0d6; box-shadow: 0 0 6px rgba(84, 100, 242, 0.12); }
+.tp.focus .tp-box,
+.tp.focus .tp-box:hover { border-color: #5464f2; box-shadow: 0 0 6px rgba(84, 100, 242, 0.25); }
+
+.tp.disabled .tp-box { background: #f5f6f8; border-color: #d2d9f1; cursor: not-allowed; }
+.tp.disabled .tp-input { color: #8c91ab; cursor: not-allowed; }
+.tp.disabled .tp-caret { cursor: not-allowed; opacity: 0.35; }
+
+/* The list: below the field, 5px top and bottom, up to 210px then scrolls */
+/* Fixed to the window (placed by time-picker.js) so a scrolling dialog
+   body cannot clip it */
+.tp-list {
+  position: fixed;
+  z-index: 200;
+  top: 0;
+  left: 0;
+  max-height: 210px;
+  margin: 0;
+  padding: 5px 0;
+  overflow-y: auto;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #dcdbee;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(49, 57, 73, 0.16);
+}
+
+.tp-list[hidden] { display: none; }
+
+.tp-opt {
+  padding: 7px 14px;
+  font-size: 14px;
+  line-height: 18px;
+  color: #313949;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tp-opt:hover { background: #f5f6fb; }
+.tp-opt.active { background: #f0f1ff; }
+.tp-opt.selected { color: #5464f2; font-weight: 500; }
+
+/* A slot already taken: shown, greyed, not pickable */
+.tp-opt.off { color: #b4bacb; cursor: not-allowed; }
+.tp-opt.off:hover { background: none; }
+
+/* Mandatory: the red strip in the 3px marker slot */
+.tp.mandatory .tp-marker { background: #ff5d5a; border-radius: 50px 0 0 50px; }
+
+/* In a form row with an error message */
+.tp:has(.tp-input.invalid) .tp-box { border-color: #ff5d5a; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-box, .tp-caret { transition: none; }
+}

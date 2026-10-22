@@ -233,15 +233,8 @@
 .be-sched { margin-top: 20px; }
 .be-label-strong { justify-content: flex-start; font-weight: 600; color: var(--pc-heading); }
 
-.be-select {
-  appearance: none;
-  -webkit-appearance: none;
-  padding-right: 30px;
-  background: var(--pc-card) url('cb-filter/caret.svg') no-repeat right 12px center / 10px 5px;
-  cursor: pointer;
-}
-
-.be-sched .be-select { width: 200px; }
+/* Run scheduler at: the shared time picker (src/time-picker.css), 120 wide */
+.be-sched .tp { width: 120px; }
 
 /* Visit Frequency */
 .be-freq-title { margin-top: 30px; }

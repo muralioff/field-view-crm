@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="src/style-bottom-up.css" />
   <link rel="stylesheet" href="src/map-controls.css" />
   <link rel="stylesheet" href="src/style-beat-detail.css" />
+  <link rel="stylesheet" href="src/time-picker.css" />
 </head>
 <body>
   <div class="bp-app">
@@ -356,9 +357,21 @@
 
         <!-- Opens once a visit type is chosen: the slot depends on it -->
         <div class="bd-field">
-          <label for="av-time">Visit Duration</label>
+          <label for="av-time">Visit Time</label>
           <div class="bd-control">
-            <select class="bd-input" id="av-time" disabled></select>
+            <div class="bd-tp" id="av-time-host"></div>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+        <!-- How long the visit runs, typed in minutes -->
+        <div class="bd-field">
+          <label for="av-dur">Visit Duration</label>
+          <div class="bd-control">
+            <div class="bd-input-unit">
+              <input class="bd-unit-input" type="text" id="av-dur" inputmode="numeric" maxlength="3" autocomplete="off" />
+              <span class="bd-unit" aria-hidden="true">min</span>
+            </div>
+            <span class="bd-msg" hidden></span>
           </div>
         </div>
 
@@ -404,7 +417,7 @@
         <div class="bd-field">
           <label for="va-resched-time">Time</label>
           <div class="bd-control">
-            <select class="bd-input mandatory" id="va-resched-time" disabled></select>
+            <div class="bd-tp" id="va-resched-time-host"></div>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
@@ -459,9 +472,19 @@
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-reassign-time">Visit Duration</label>
+          <label for="va-reassign-time">Visit Time</label>
           <div class="bd-control">
-            <select class="bd-input" id="va-reassign-time" disabled></select>
+            <div class="bd-tp" id="va-reassign-time-host"></div>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-reassign-dur">Visit Duration</label>
+          <div class="bd-control">
+            <div class="bd-input-unit">
+              <input class="bd-unit-input" type="text" id="va-reassign-dur" inputmode="numeric" maxlength="3" autocomplete="off" />
+              <span class="bd-unit" aria-hidden="true">min</span>
+            </div>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
@@ -565,9 +588,20 @@
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-edit-time">Visit Duration</label>
+          <label for="va-edit-time">Visit Time</label>
           <div class="bd-control">
-            <select class="bd-input" id="va-edit-time"></select>
+            <div class="bd-tp" id="va-edit-time-host"></div>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-edit-dur">Visit Duration</label>
+          <div class="bd-control">
+            <div class="bd-input-unit">
+              <input class="bd-unit-input" type="text" id="va-edit-dur" inputmode="numeric" maxlength="3" autocomplete="off" />
+              <span class="bd-unit" aria-hidden="true">min</span>
+            </div>
+            <span class="bd-msg" hidden></span>
           </div>
         </div>
         <div class="bd-field">
@@ -617,7 +651,7 @@
           <div><dt>Distance Covered</dt><dd id="bd-sum-km"></dd></div>
         </dl>
         <div class="bd-end-note-wrap">
-          <p class="bd-end-note"><b>Note:</b> Missed Visits include any Visits not completed before you end the day.</p>
+          <p class="bd-end-note"><b>Note:</b> Visits you haven't checked in to will be marked as missed when you end the day.</p>
         </div>
       </div>
 
@@ -660,6 +694,7 @@
   <script src="src/data.js"></script>
   <script src="src/map.js"></script>
   <script src="src/sidebar.js"></script>
+  <script src="src/time-picker.js"></script>
   <script src="src/beat-detail.js"></script>
 </body>
 </html>

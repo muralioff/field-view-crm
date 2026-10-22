@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="bd-day-sum">
         <div class="bd-sum-col">
           <span class="bd-sum-label">Total Travel</span>
-          <span class="bd-sum-row"><span class="bd-sum-value">${span(travelMin)}</span><span class="bd-sum-km">· ${travelKm.toFixed(1)} km</span></span>
+          <span class="bd-sum-row"><span class="bd-sum-value">${span(travelMin)}</span><span class="bd-sum-km">(${travelKm.toFixed(1)} km)</span></span>
         </div>
         <span class="bd-sum-divider" aria-hidden="true"></span>
         <div class="bd-sum-col">
@@ -965,7 +965,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const avTitle = $('bd-av-title');
   const avRecord = $('av-record');
   const avType   = $('av-type');
-  const avTime   = $('av-time');
+  /* Visit Time: the shared time picker (src/time-picker.js). Blank and
+     locked until a visit type is chosen, as the frame shows it. */
+  const avTime   = TimePicker.create($('av-time-host'), {
+    inputId: 'av-time', value: '', disabled: true,
+    onChange: () => setMsg(avTime.input, ''),
+  });
+  const avDur    = $('av-dur');
   const avDesc   = $('av-desc');
 
   /* Half-hour slots across a working day */
@@ -989,7 +995,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let addingTo = null;   // the day index the modal is filling
 
   function setMsg(field, text) {
-    const msg = field.parentElement.querySelector('.bd-msg');
+    /* The message sits in the field's control, beside any unit wrapper */
+    const msg = (field.closest('.bd-control') || field.parentElement).querySelector('.bd-msg');
     field.classList.toggle('invalid', Boolean(text));
     if (!msg) return;
     msg.textContent = text || '';
@@ -999,6 +1006,33 @@ document.addEventListener('DOMContentLoaded', () => {
   /* Fifteen minutes is what the other visits on these beats run to */
   const VISIT_MINUTES = 15;
 
+  /* Start times the day's visits already hold (other than `except`) */
+  const takenStarts = (dayIndex, except) => DAYS[dayIndex].visits
+    .filter(v => v !== except).map(v => v.time.split(' to ')[0]).filter(t => /^\d/.test(t));
+
+  /* Visit Duration is typed in minutes: whole numbers only, 1 to 480 */
+  const MAX_VISIT_MINUTES = 480;
+  function durationProblem(input) {
+    const raw = input.value.trim();
+    if (!raw) return 'Enter the duration in minutes.';
+    const n = Number(raw);
+    if (n < 1) return 'Must be at least 1 minute.';
+    if (n > MAX_VISIT_MINUTES) return `Must be ${MAX_VISIT_MINUTES} minutes or less.`;
+    return '';
+  }
+  /* Digits only, as they are typed or pasted */
+  function wireDuration(input) {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/\D/g, '').slice(0, 3);
+      setMsg(input, '');
+    });
+  }
+  /* How long a "9:00 AM to 9:15 AM" span runs, in minutes */
+  const spanMinutes = span => {
+    const [from, to] = (span || '').split(' to ');
+    return to && /^\d/.test(from) ? Math.max(1, clockToMinutes(to) - clockToMinutes(from)) : VISIT_MINUTES;
+  };
+
   function openAddVisit(dayIndex) {
     addingTo = dayIndex;
     const day = DAYS[dayIndex];
@@ -1007,10 +1041,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     [avRecord, avType].forEach(sel => { sel.value = ''; setMsg(sel, ''); });
     avDesc.value = '';
+    avDur.value = String(VISIT_MINUTES); setMsg(avDur, '');
     /* The slot list depends on the visit type, so it stays shut until one
        is picked — as the frame shows it */
-    avTime.innerHTML = '<option value="" selected disabled></option>';
-    avTime.disabled = true;
+    avTime.setDisabled(true);
+    avTime.clear();
+    setMsg(avTime.input, '');
 
     overlay.hidden = false;
     avRecord.focus();
@@ -1023,16 +1059,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   avType.addEventListener('change', () => {
     setMsg(avType, '');
-    /* Slots already spoken for on this day are not offered again */
-    const taken = DAYS[addingTo].visits.map(v => v.time.split(' to ')[0]);
-    const free = SLOTS.filter(t => !taken.includes(t));
-    /* Each slot reads as the span it books, so the field says the duration */
-    avTime.innerHTML = '<option value="" selected disabled>Select Visit Duration</option>' +
-      free.map(t => `<option value="${t}">${t} to ${minutesToClock(clockToMinutes(t) + VISIT_MINUTES)}</option>`).join('');
-    avTime.disabled = false;
+    /* Start times only; how long it runs is the Visit Duration field.
+       Slots already spoken for on this day are greyed out in the list, and
+       the field opens on the first free one. */
+    const taken = takenStarts(addingTo);
+    avTime.setDisabledTimes(taken);
+    if (avTime.isEmpty) avTime.setValue(SLOTS.find(t => !taken.includes(t)) || '9:00 AM');
+    avTime.setDisabled(false);
   });
 
   avRecord.addEventListener('change', () => setMsg(avRecord, ''));
+  wireDuration(avDur);
 
   $('av-cancel').addEventListener('click', closeAddVisit);
 
@@ -1046,13 +1083,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let ok = true;
     if (!avRecord.value) { setMsg(avRecord, 'Select a record.'); ok = false; }
     if (!avType.value)   { setMsg(avType, 'Select a visit type.'); ok = false; }
+    const durMsg = durationProblem(avDur);
+    if (durMsg) { setMsg(avDur, durMsg); ok = false; }
+    if (avTime.value && takenStarts(addingTo).includes(avTime.value)) {
+      setMsg(avTime.input, 'Another visit starts at this time.'); ok = false;
+    }
     if (!ok) return;
 
     const day = DAYS[addingTo];
     const start = avTime.value;
-    const time = start
-      ? `${start} to ${minutesToClock(clockToMinutes(start) + VISIT_MINUTES)}`
-      : 'Time not set';
+    const time = start ? timeRange(start, Number(avDur.value)) : 'Time not set';
 
     day.visits.push({
       name: avRecord.value,
@@ -1757,8 +1797,12 @@ document.addEventListener('DOMContentLoaded', () => {
     sel.innerHTML = `<option value="" ${value ? '' : 'selected'} disabled>${placeholder}</option>` +
       options.map(([val, text]) => `<option value="${escape(val)}"${String(val) === String(value) ? ' selected' : ''}>${escape(text)}</option>`).join('');
   };
-  const lock = sel => { sel.innerHTML = '<option value="" selected disabled></option>'; sel.disabled = true; setMsg(sel, ''); };
-  const unlock = sel => { sel.disabled = false; };
+  /* Selects and time pickers both: a picker locks blank and opens filled */
+  const lock = sel => {
+    if (sel.setDisabled) { sel.setDisabled(true); sel.clear(); setMsg(sel.input, ''); return; }
+    sel.innerHTML = '<option value="" selected disabled></option>'; sel.disabled = true; setMsg(sel, '');
+  };
+  const unlock = sel => { if (sel.setDisabled) sel.setDisabled(false); else sel.disabled = false; };
 
   let vaTarget = null;   /* { d, v } the dialog acts on */
   const vaVisit = () => DAYS[vaTarget.d].visits[vaTarget.v];
@@ -1780,9 +1824,9 @@ document.addEventListener('DOMContentLoaded', () => {
   /* Beat → its days; day → a start time, and the visit type (kept from the
      visit) where the dialog asks for one. Reschedule does not — the visit
      keeps its type. */
-  /* `asSpan` lists each slot as the span it books ("9:00 AM to 9:15 AM"),
-     for a field that asks for the visit's duration */
-  function wireChain(beatSel, dateSel, typeSel, timeSel, beatsFor, asSpan = false) {
+  /* `timeSel` is a time picker: locked blank until a day is chosen, then
+     it opens on the visit's own start time */
+  function wireChain(beatSel, dateSel, typeSel, timeSel, beatsFor) {
     beatSel.addEventListener('change', () => {
       setMsg(beatSel, '');
       const b = beatsFor().find(x => x.id === beatSel.value);
@@ -1801,17 +1845,21 @@ document.addEventListener('DOMContentLoaded', () => {
     dateSel.addEventListener('change', () => {
       setMsg(dateSel, '');
       if (typeSel) fill(typeSel, VISIT_TYPES.map(t => [t, t]), 'Select Visit Type', vaVisit().type);
-      fill(timeSel, SLOTS.map(t => [t, asSpan ? timeRange(t) : t]),
-           asSpan ? 'Select Visit Duration' : 'Select Visit Time');
+      /* The time picker opens on the visit's own start time, or 9:00 AM */
+      const own = vaVisit().time.split(' to ')[0];
+      timeSel.setValue(/^\d/.test(own) ? own : '9:00 AM');
+      /* On this beat, the day's other visits keep their start times */
+      timeSel.setDisabledTimes(beatSel.value === 'BP-003'
+        ? takenStarts(Number(dateSel.value), vaVisit()) : []);
+      setMsg(timeSel.input, '');
       if (typeSel) unlock(typeSel);
       unlock(timeSel);
     });
     if (typeSel) typeSel.addEventListener('change', () => setMsg(typeSel, ''));
-    timeSel.addEventListener('change', () => setMsg(timeSel, ''));
   }
 
-  const need = (el, text) => { if (el.value.trim()) return true; setMsg(el, text); return false; };
-  const timeRange = start => `${start} to ${minutesToClock(clockToMinutes(start) + VISIT_MINUTES)}`;
+  const need = (el, text) => { if (el.value.trim()) return true; setMsg(el.input || el, text); return false; };
+  const timeRange = (start, mins = VISIT_MINUTES) => `${start} to ${minutesToClock(clockToMinutes(start) + mins)}`;
 
   /* Take a visit, and its pin, out of its day */
   function liftVisit(d, v) {
@@ -1849,7 +1897,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* Reschedule — one of this rep's beats, a day and a time */
   const rs = { beat: $('va-resched-beat'), date: $('va-resched-date'),
-               time: $('va-resched-time'), reason: $('va-resched-reason') };
+               time: TimePicker.create($('va-resched-time-host'), {
+                 inputId: 'va-resched-time', value: '', disabled: true, mandatory: true,
+                 onChange: () => setMsg(rs.time.input, ''),
+               }),
+               reason: $('va-resched-reason') };
   wireChain(rs.beat, rs.date, null, rs.time, () => OWN_BEATS);
   rs.reason.addEventListener('input', () => setMsg(rs.reason, ''));
 
@@ -1868,12 +1920,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const ok = [need(rs.beat, 'Select a beat.'), need(rs.date, 'Select a date.'),
                 need(rs.time, 'Select a time.'), need(rs.reason, 'Enter a reason.')].every(Boolean);
     if (!ok) return;
+    if (rs.beat.value === 'BP-003' &&
+        takenStarts(Number(rs.date.value), vaVisit()).includes(rs.time.value)) {
+      setMsg(rs.time.input, 'Another visit starts at this time.');
+      return;
+    }
     const { d, v } = vaTarget;
     const b = OWN_BEATS.find(x => x.id === rs.beat.value);
     const dayIdx = Number(rs.date.value), target = dayOfBeat(b, dayIdx);
     const wasActive = vaVisit().status === 'active';
     const { visit, pin } = liftVisit(d, v);
-    Object.assign(visit, { time: timeRange(rs.time.value), status: 'pending',
+    Object.assign(visit, { time: timeRange(rs.time.value, spanMinutes(visit.time)), status: 'pending',
                            rescheduleReason: rs.reason.value.trim() });
     delete visit.actual;
     handOn(d, wasActive);
@@ -1889,8 +1946,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* Transfer — another rep, one of their beats, a day, a type and a time */
   const ra = { rep: $('va-reassign-rep'), beat: $('va-reassign-beat'), date: $('va-reassign-date'),
-               type: $('va-reassign-type'), time: $('va-reassign-time'), reason: $('va-reassign-reason') };
-  wireChain(ra.beat, ra.date, ra.type, ra.time, () => REP_BEATS[ra.rep.value] || [], true);
+               type: $('va-reassign-type'),
+               time: TimePicker.create($('va-reassign-time-host'), {
+                 inputId: 'va-reassign-time', value: '', disabled: true,
+                 onChange: () => setMsg(ra.time.input, ''),
+               }),
+               reason: $('va-reassign-reason') };
+  wireChain(ra.beat, ra.date, ra.type, ra.time, () => REP_BEATS[ra.rep.value] || []);
+  const raDur = $('va-reassign-dur');
+  wireDuration(raDur);
   ra.rep.addEventListener('change', () => {
     setMsg(ra.rep, '');
     fill(ra.beat, REP_BEATS[ra.rep.value].map(b => [b.id, beatLabel(b)]), 'Select Beat');
@@ -1906,14 +1970,17 @@ document.addEventListener('DOMContentLoaded', () => {
     [ra.beat, ra.date, ra.type, ra.time].forEach(lock);
     ra.beat.innerHTML = '<option value="" selected disabled>Select Beat</option>';
     ra.reason.value = '';
+    raDur.value = String(spanMinutes(vaVisit().time)); setMsg(raDur, '');
     openOverlay('va-reassign-overlay');
     ra.rep.focus();
   }
 
   $('va-reassign-go').addEventListener('click', () => {
     const ok = [need(ra.rep, 'Select a rep.'), need(ra.beat, 'Select a beat.'), need(ra.date, 'Select a date.'),
-                need(ra.time, 'Select a duration.')].every(Boolean);
-    if (!ok) return;
+                need(ra.time, 'Select a time.')].every(Boolean);
+    const durMsg = durationProblem(raDur);
+    if (durMsg) setMsg(raDur, durMsg);
+    if (!ok || durMsg) return;
     const { d, v } = vaTarget;
     const b = REP_BEATS[ra.rep.value].find(x => x.id === ra.beat.value);
     const target = dayOfBeat(b, Number(ra.date.value));
@@ -1992,7 +2059,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* Edit — a visit not yet started can change its type and its slot; once
      it has run (or its chance has passed), only the comments stay open */
-  const ed = { type: $('va-edit-type'), time: $('va-edit-time'), comments: $('va-edit-comments') };
+  const ed = { type: $('va-edit-type'),
+               time: TimePicker.create($('va-edit-time-host'), {
+                 inputId: 'va-edit-time', onChange: () => setMsg(ed.time.input, ''),
+               }),
+               dur: $('va-edit-dur'), comments: $('va-edit-comments') };
+  wireDuration(ed.dur);
 
   function openEdit(d, v) {
     vaTarget = { d, v };
@@ -2001,19 +2073,23 @@ document.addEventListener('DOMContentLoaded', () => {
     $('va-edit-title').textContent = `Edit “${visit.name}”`;
     fill(ed.type, VISIT_TYPES.map(t => [t, t]), 'Select Visit Type', visit.type);
     if (open) {
-      /* Slots the day's other visits hold are not offered; its own is */
+      /* Slots the day's other visits hold are greyed out; its own is not */
       const start = visit.time.split(' to ')[0];
-      const taken = DAYS[d].visits.filter(x => x !== visit).map(x => x.time.split(' to ')[0]);
-      const free = SLOTS.filter(t => !taken.includes(t));
-      if (/^\d/.test(start) && !free.includes(start)) free.push(start);
-      free.sort((a, b) => clockToMinutes(a) - clockToMinutes(b));
-      fill(ed.time, free.map(t => [t, t === start ? visit.time : timeRange(t)]), 'Select Visit Duration', start);
+      ed.time.setDisabledTimes(takenStarts(d, visit));
+      if (/^\d/.test(start)) ed.time.setValue(start); else ed.time.clear();
+      ed.dur.value = String(spanMinutes(visit.time));
     } else {
-      /* What it ran to, where it ran */
+      /* When it really started and how long it ran, where it ran */
       const when = visit.status === 'done' && visit.actual ? visit.actual : visit.time;
-      fill(ed.time, [[when, when]], '', when);
+      const from = when.split(' to ')[0];
+      ed.time.setDisabledTimes([]);
+      if (/^\d/.test(from)) ed.time.setValue(from); else ed.time.clear();
+      ed.dur.value = String(spanMinutes(when));
     }
-    ed.type.disabled = ed.time.disabled = !open;
+    setMsg(ed.dur, '');
+    setMsg(ed.time.input, '');
+    ed.type.disabled = ed.dur.disabled = !open;
+    ed.time.setDisabled(!open);
     ed.comments.value = visit.comments || '';
     openOverlay('va-edit-overlay');
     (open ? ed.type : ed.comments).focus();
@@ -2022,13 +2098,21 @@ document.addEventListener('DOMContentLoaded', () => {
   $('va-edit-go').addEventListener('click', () => {
     const { d, v } = vaTarget;
     const visit = vaVisit();
+    if (visit.status === 'pending') {
+      const durMsg = durationProblem(ed.dur);
+      if (durMsg) setMsg(ed.dur, durMsg);
+      const clash = ed.time.value && takenStarts(d, visit).includes(ed.time.value);
+      if (clash) setMsg(ed.time.input, 'Another visit starts at this time.');
+      if (durMsg || clash) return;
+    }
     visit.comments = ed.comments.value.trim();
     if (visit.status === 'pending') {
       visit.type = ed.type.value;
       const start = visit.time.split(' to ')[0];
-      if (ed.time.value !== start) {
-        /* A new slot can move it in the day's order */
-        visit.time = timeRange(ed.time.value);
+      const moved = ed.time.value && ed.time.value !== start;
+      visit.time = timeRange(ed.time.value || start, Number(ed.dur.value));
+      /* A new start time can move it in the day's order */
+      if (moved) {
         const { pin } = liftVisit(d, v);
         placeVisit(d, visit, pin);
       }
