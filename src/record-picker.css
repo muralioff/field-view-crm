@@ -1,0 +1,189 @@
+/* ============================================================
+   Record picker — Module & Record lookup (Figma 6678:569481)
+   ============================================================ */
+.rp { position: relative; display: block; width: 100%; }
+
+/* ── The field ────────────────────────────────────────── */
+/* 34 high: the 3px marker slot, the value 10 after it, the 10×5 caret
+   (60%) 10 in from the right. Open: blue outline and a soft glow. */
+.rp-field {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 34px;
+  padding: 1px 1px 1px 0;
+  background: #fff;
+  border: 1px solid #c0c8e2;
+  border-radius: 6px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.rp-field:focus-visible,
+.rp.open .rp-field { border-color: #5464f2; box-shadow: 0 0 6px rgba(76, 94, 253, 0.5); outline: none; }
+
+.rp-marker { width: 3px; height: 32px; flex-shrink: 0; }
+.rp.mandatory .rp-marker { background: #ff5d5a; border-radius: 50px 0 0 50px; }
+
+.rp-value {
+  flex: 1;
+  min-width: 0;
+  padding: 0 10px;
+  font-size: 14px;
+  color: #313949;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rp-value.placeholder { color: #8c91ab; }
+
+.rp-caret,
+.rp-module-caret {
+  flex-shrink: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M8.79289 0H1.20711C0.761654 0 0.53857 0.53857 0.853553 0.853553L4.64645 4.64645C4.84171 4.84171 5.15829 4.84171 5.35355 4.64645L9.14645 0.853553C9.46143 0.538571 9.23835 0 8.79289 0Z' fill='%23313949'/%3E%3C/svg%3E") no-repeat center / 10px 5px;
+  opacity: 0.6;
+  transition: transform 0.15s;
+}
+
+.rp-caret { width: 10px; height: 5px; margin-right: 10px; }
+.rp.open .rp-caret { transform: rotate(180deg); }
+
+/* Error from the dialog's check */
+.rp-field.invalid { border-color: #ff5d5a; }
+
+/* ── The panel ────────────────────────────────────────── */
+/* Same width as the field and right under it; placed against the window
+   by record-picker.js. Outline #CED0E1, shadow 0 2 8 at 15%. */
+.rp-panel {
+  position: fixed;
+  z-index: 200;
+  padding: 6px 0;
+  background: #fff;
+  border: 1px solid #ced0e1;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.rp-panel[hidden] { display: none; }
+
+/* Module switcher + search: one bordered box, 4 above and 5 below */
+.rp-bar { padding: 4px 10px 5px; }
+
+.rp-combo {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  padding-right: 10px;
+  background: #fff;
+  border: 1px solid #c0c8e2;
+  border-radius: 6px;
+}
+
+.rp-combo:focus-within { border-color: #5464f2; }
+
+.rp-module {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+  padding: 0 0 0 12px;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #313949;
+  cursor: pointer;
+  border-radius: 6px 0 0 6px;
+}
+
+.rp-module:focus-visible { outline: 2px solid #5464f2; outline-offset: -2px; }
+
+/* The 16px arrow slot holding the 12×6 filled arrow, 60% */
+.rp-module-caret { width: 16px; height: 16px; background-size: 12px 6px; }
+.rp.mods-open .rp-module-caret { transform: rotate(180deg); }
+
+.rp-divider { width: 1px; height: 30px; margin-left: 10px; flex-shrink: 0; background: #c0c8e2; }
+
+.rp-search {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 12px;
+  cursor: text;
+}
+
+.rp-search-icon { flex-shrink: 0; }
+
+.rp-search-input {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #313949;
+}
+
+.rp-search-input::placeholder { color: #8c91ab; }
+
+/* ── Options (records and modules) ────────────────────── */
+/* 6 in from the panel edge; the text 25 in, 8 above and below. The
+   picked one shows the tick (9×6, 6 before the text) in Semibold. */
+.rp-list,
+.rp-mods {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rp-list { max-height: 192px; overflow-y: auto; }
+
+.rp-opt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 6px;
+  padding: 8px 10px 8px 25px;
+  border-radius: 5px;
+  font-size: 14px;
+  line-height: 16px;
+  color: #313949;
+  cursor: pointer;
+}
+
+.rp-opt span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rp-opt.active,
+.rp-opt:hover { background: #f2f5fe; }
+
+.rp-opt.selected { padding-left: 10px; font-weight: 600; }
+.rp-tick { flex-shrink: 0; width: 9px; height: 7px; color: #313949; }
+
+.rp-empty { padding: 8px 10px 8px 31px; font-size: 14px; line-height: 16px; color: #8c91ab; }
+
+/* The module menu: 159 wide, below the switcher, over the record list */
+.rp-mods {
+  position: absolute;
+  z-index: 1;
+  top: 40px;                  /* 41 / 10 from the panel's outer edge, */
+  left: 9px;                  /* inside its 1px border */
+  width: 159px;
+  padding: 6px 0;
+  background: #fff;
+  border: 1px solid #ced0e1;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.rp-mods[hidden] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rp-field, .rp-caret, .rp-module-caret { transition: none; }
+}

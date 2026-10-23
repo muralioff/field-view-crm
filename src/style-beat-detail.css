@@ -1369,7 +1369,7 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 
 
 /* ── Business card on a visit's name (Figma 6444:572006) ──────────── */
-.bd-visit-name .vname { cursor: default; text-underline-offset: 3px; }
+.bd-visit-name .vname { cursor: pointer; text-underline-offset: 3px; }
 
 /* The name is a link to the record's card: anywhere on the visit, it takes
    the link blue; on the name itself, the underline too */
@@ -2091,3 +2091,93 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 /* Visit Time in the visit dialogs: the shared time picker
    (src/time-picker.css), 200 wide to match Visit Duration under it */
 .bd-tp.tp { width: 200px; max-width: 100%; }
+
+/* ── Beat cancelled: note on the tab row (Figma 6679:571392) ── */
+/* "Beat Cancelled:" Medium 13 label grey, 10 to the "View Reason" link
+   (Medium 14, #5464F2); 16 either side of an 18.5px #C5C4D3 rule; the
+   clock 6 before "Last Updated: …" in Medium 13 label grey. Right-aligned
+   with the cards below. */
+.bd-cancel-note {
+  position: relative;
+  margin: 0 20px 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.bd-cancel-note[hidden] { display: none; }
+
+.bd-cancel-label,
+.bd-cancel-updated {
+  font-size: 13px;
+  font-weight: 500;
+  color: #616e88;
+  white-space: nowrap;
+  font-feature-settings: "calt" 0;
+}
+
+.bd-cancel-link {
+  margin-left: 10px;
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16px;
+  color: #5464f2;
+  cursor: pointer;
+}
+
+.bd-cancel-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.bd-cancel-link:focus-visible { outline: 2px solid #5464f2; outline-offset: 2px; border-radius: 2px; }
+
+.bd-cancel-rule { width: 1px; height: 18.5px; margin: 0 16px; flex-shrink: 0; background: #c5c4d3; }
+
+.bd-cancel-updated { display: inline-flex; align-items: center; gap: 6px; }
+.bd-cancel-updated svg { flex-shrink: 0; }
+
+/* The reason, in the page's white popover under the note */
+.bd-cancel-pop {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 8px);
+  right: 0;                    /* lines up with the cards' right edge */
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid #ced0e1;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.bd-cancel-pop[hidden] { display: none; }
+
+.bd-cancel-pop-title { font-size: 13px; font-weight: 500; line-height: 18px; color: #616e88; }
+
+.bd-cancel-pop-text {
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #313949;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.bd-cancel-pop-meta { margin-top: 8px; font-size: 12px; line-height: 16px; color: #8c91ab; }
+
+/* Edit Visit: the re-plan info under Visit Duration, in the Message Info
+   style (Recurring Revenue Figma 3684:18794): a pale #F9FAFF box with a
+   #DCDBEE hairline, 6px corners, 8 / 15 padding, Regular 13/18 base text */
+.bd-edit-note {
+  margin-top: 8px;
+  padding: 8px 15px;
+  background: #f9faff;
+  border: 1px solid #dcdbee;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
+  color: #313949;
+}
+.bd-edit-note[hidden] { display: none; }

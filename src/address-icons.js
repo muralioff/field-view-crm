@@ -2,7 +2,7 @@
    Show / Hide Address icons — three sets from Figma (6617:568840 …
    6617:568942). Each set has the icon shown while addresses are showing
    and its struck-out pair once they are hidden. Fills use currentColor,
-   so the icons take the toggle's grey.
+   so the icons take the toggle's grey. Set 2 is the default.
 
    Figma's names for set 3 run the other way ("add on 3" is the struck
    one); these are keyed by what the drawing shows.

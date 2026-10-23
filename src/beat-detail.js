@@ -133,6 +133,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* Where each record in the Add Visit picker lives, so a visit added there
      shows its address like the planned ones */
+  /* The records the Add Visit lookup offers, by module, in the order the
+     module menu lists them (Figma 6678:569481) */
+  const RECORDS = {
+    Leads:    ['Karthik Rao', 'Anita Desai', 'Rohan Mehta', 'Sara Thomas', 'Vivek Nair', 'Lena Park'],
+    Contacts: ['Rahul Verma', 'Meera Iyer', 'Daniel Brooks', 'Priya Shah'],
+    Deals:    ['Q2 Renewal — Apollo', 'Fleet Upgrade — Northwind', 'Annual Contract — Zenith'],
+    Accounts: ['Sunrise Traders', 'Metro Wholesale', 'Harbor Foods', 'Crescent Retail'],
+  };
+
   const RECORD_ADDRESS = {
     'Rahul Verma':         '245 Park Ave S, New York, NY 10003, USA',
     'Meera Iyer':          '60 E 8th St, New York, NY 10003, USA',
@@ -170,6 +179,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* Set by Cancel Beat; the simulator's reset clears it */
   let beatCancelled = false;
+  let beatCancelReason = '';
+  let beatCancelledAt = '';
 
   /* What the clock has made true since it last moved. A running day closes
      itself at the end of business hours, or once its date is behind us —
@@ -522,7 +533,7 @@ document.addEventListener('DOMContentLoaded', () => {
       band.className = 'bp-status-band bp-band-waiting';
       bandIcon.className = 'ti ti-clock-play';
       bandText.textContent =
-        `${DAYS[running].label} is running — started at ${DAYS[running].startedAt}.`;
+        `${DAYS[running].label} in progress — started at ${DAYS[running].startedAt}.`;
       return;
     }
     /* A completed or cancelled beat says so in its badge; it needs no
@@ -640,8 +651,30 @@ document.addEventListener('DOMContentLoaded', () => {
     $('bd-info-grid').innerHTML = col(left) + col(right);
   }
 
+  /* ── Cancelled: the note on the tab row and its reason popover ── */
+  const cancelNote = $('bd-cancel-note'), cancelLink = $('bd-cancel-link'), cancelPop = $('bd-cancel-pop');
+  function renderCancelNote() {
+    cancelNote.hidden = !beatCancelled;
+    if (!beatCancelled) { setCancelPop(false); return; }
+    $('bd-cancel-updated').textContent = `Last Updated: ${beatCancelledAt}`;
+    $('bd-cancel-pop-text').textContent = beatCancelReason;
+    $('bd-cancel-pop-meta').textContent = `Cancelled by Cameron Williamson · ${beatCancelledAt}`;
+  }
+  function setCancelPop(open) {
+    cancelPop.hidden = !open;
+    cancelLink.setAttribute('aria-expanded', String(open));
+  }
+  cancelLink.addEventListener('click', e => { e.stopPropagation(); setCancelPop(cancelPop.hidden); });
+  document.addEventListener('click', e => {
+    if (!cancelPop.hidden && !cancelPop.contains(e.target)) setCancelPop(false);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !cancelPop.hidden) { setCancelPop(false); cancelLink.focus(); }
+  });
+
   function render() {
     const scrollTop = scroller ? scroller.scrollTop : 0;
+    renderCancelNote();
     daysEl.innerHTML = DAYS.map(dayHtml).join('');
     renderRelatedLists();
     if (scroller) scroller.scrollTop = scrollTop;
@@ -963,14 +996,12 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ── Add Visit modal (Figma 4007:113738) ───────────── */
   const overlay = $('bd-overlay');
   const avTitle = $('bd-av-title');
-  const avRecord = $('av-record');
-  const avType   = $('av-type');
-  /* Visit Time: the shared time picker (src/time-picker.js). Blank and
-     locked until a visit type is chosen, as the frame shows it. */
-  const avTime   = TimePicker.create($('av-time-host'), {
-    inputId: 'av-time', value: '', disabled: true,
-    onChange: () => setMsg(avTime.input, ''),
+  /* Module & Record: the lookup in src/record-picker.js */
+  const avRecord = RecordPicker.create($('av-record-host'), {
+    modules: RECORDS, placeholder: 'Select Record', mandatory: true, fieldId: 'av-record',
+    onChange: () => setMsg(avRecord.field, ''),
   });
+  const avType   = $('av-type');
   const avDur    = $('av-dur');
   const avDesc   = $('av-desc');
 
@@ -1006,6 +1037,15 @@ document.addEventListener('DOMContentLoaded', () => {
   /* Fifteen minutes is what the other visits on these beats run to */
   const VISIT_MINUTES = 15;
 
+  /* Where a visit added without a time begins: TRAVEL_MINUTES after the
+     latest end among the day's timed visits, or 9:00 AM on an empty day */
+  const TRAVEL_MINUTES = 15;
+  function nextFreeStart(day) {
+    const ends = day.visits.map(v => v.time.split(' to ')[1]).filter(t => t && /^\d/.test(t))
+      .map(clockToMinutes);
+    return ends.length ? minutesToClock(Math.max(...ends) + TRAVEL_MINUTES) : '9:00 AM';
+  }
+
   /* Start times the day's visits already hold (other than `except`) */
   const takenStarts = (dayIndex, except) => DAYS[dayIndex].visits
     .filter(v => v !== except).map(v => v.time.split(' to ')[0]).filter(t => /^\d/.test(t));
@@ -1039,17 +1079,13 @@ document.addEventListener('DOMContentLoaded', () => {
     avTitle.innerHTML =
       `Add Visit to ${escape(day.label)} <span class="dot">•</span> ${escape(day.date)}`;
 
-    [avRecord, avType].forEach(sel => { sel.value = ''; setMsg(sel, ''); });
+    avRecord.clear(); setMsg(avRecord.field, '');
+    avType.value = ''; setMsg(avType, '');
     avDesc.value = '';
     avDur.value = String(VISIT_MINUTES); setMsg(avDur, '');
-    /* The slot list depends on the visit type, so it stays shut until one
-       is picked — as the frame shows it */
-    avTime.setDisabled(true);
-    avTime.clear();
-    setMsg(avTime.input, '');
 
     overlay.hidden = false;
-    avRecord.focus();
+    avRecord.field.focus();
   }
 
   function closeAddVisit() {
@@ -1057,18 +1093,8 @@ document.addEventListener('DOMContentLoaded', () => {
     addingTo = null;
   }
 
-  avType.addEventListener('change', () => {
-    setMsg(avType, '');
-    /* Start times only; how long it runs is the Visit Duration field.
-       Slots already spoken for on this day are greyed out in the list, and
-       the field opens on the first free one. */
-    const taken = takenStarts(addingTo);
-    avTime.setDisabledTimes(taken);
-    if (avTime.isEmpty) avTime.setValue(SLOTS.find(t => !taken.includes(t)) || '9:00 AM');
-    avTime.setDisabled(false);
-  });
+  avType.addEventListener('change', () => setMsg(avType, ''));
 
-  avRecord.addEventListener('change', () => setMsg(avRecord, ''));
   wireDuration(avDur);
 
   $('av-cancel').addEventListener('click', closeAddVisit);
@@ -1081,22 +1107,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $('av-add').addEventListener('click', () => {
     let ok = true;
-    if (!avRecord.value) { setMsg(avRecord, 'Select a record.'); ok = false; }
+    if (!avRecord.value) { setMsg(avRecord.field, 'Select a record.'); ok = false; }
     if (!avType.value)   { setMsg(avType, 'Select a visit type.'); ok = false; }
     const durMsg = durationProblem(avDur);
     if (durMsg) { setMsg(avDur, durMsg); ok = false; }
-    if (avTime.value && takenStarts(addingTo).includes(avTime.value)) {
-      setMsg(avTime.input, 'Another visit starts at this time.'); ok = false;
-    }
     if (!ok) return;
 
+    /* No time is asked for: the visit joins the end of the day, starting
+       a travel allowance after the last visit ends (or when the day's
+       first visit would, on an empty day) */
     const day = DAYS[addingTo];
-    const start = avTime.value;
-    const time = start ? timeRange(start, Number(avDur.value)) : 'Time not set';
+    const time = timeRange(nextFreeStart(day), Number(avDur.value));
 
     day.visits.push({
       name: avRecord.value,
-      module: avRecord.selectedOptions[0].parentElement.label || 'Contacts',
+      module: avRecord.module || 'Contacts',
       type: avType.value,
       address: RECORD_ADDRESS[avRecord.value] || '',
       time,
@@ -1660,30 +1685,17 @@ document.addEventListener('DOMContentLoaded', () => {
     cardFor = null;
   }
 
-  daysEl.addEventListener('mouseover', e => {
+  /* The visit's name is a link to its record, opened in a new tab: hover
+     shows only the link colour and underline (the business card is off),
+     and a click confirms with a toast. Capture phase, so the click does
+     not also select the visit on the map. */
+  daysEl.addEventListener('click', e => {
     const nameEl = e.target.closest('.vname');
     if (!nameEl) return;
-    clearTimeout(hideTimer);
-    if (cardFor === nameEl) return;
-    clearTimeout(showTimer);
-    showTimer = setTimeout(() => {
-      const dayEl = nameEl.closest('.bd-day');
-      const row = nameEl.closest('.bd-visit');
-      if (!dayEl || !row) return;
-      const visit = DAYS[Number(dayEl.dataset.day)].visits[Number(row.dataset.visit)];
-      card.innerHTML = cardHtml(visit);
-      card.hidden = false;
-      placeCard(nameEl);
-      cardFor = nameEl;
-    }, SHOW_DELAY);
-  });
-
-  daysEl.addEventListener('mouseout', e => {
-    const nameEl = e.target.closest('.vname');
-    if (!nameEl || nameEl.contains(e.relatedTarget)) return;
-    clearTimeout(showTimer);
-    if (cardFor) hideTimer = setTimeout(hideCard, HIDE_DELAY);
-  });
+    e.preventDefault();
+    e.stopPropagation();
+    toast(`${nameEl.textContent} opened in a new tab.`);
+  }, true);
 
   card.addEventListener('mouseenter', () => clearTimeout(hideTimer));
   card.addEventListener('mouseleave', () => { hideTimer = setTimeout(hideCard, HIDE_DELAY); });
@@ -1750,9 +1762,10 @@ document.addEventListener('DOMContentLoaded', () => {
   /* Which of the three Figma icon sets the toggle draws (src/address-icons.js),
      picked in the simulator and remembered for this viewer */
   const ICON_SET_KEY = 'bd-addr-icon-set';
-  let addrIconSet = '1';
-  try { addrIconSet = localStorage.getItem(ICON_SET_KEY) || '1'; } catch { /* private mode */ }
-  if (!ADDRESS_ICONS[addrIconSet]) addrIconSet = '1';
+  /* Set 2 (building with pin) unless the simulator picked another */
+  let addrIconSet = '2';
+  try { addrIconSet = localStorage.getItem(ICON_SET_KEY) || '2'; } catch { /* private mode */ }
+  if (!ADDRESS_ICONS[addrIconSet]) addrIconSet = '2';
   function drawAddrIcon() {
     const shown = !daysEl.classList.contains('bd-hide-addr');
     addrLink.innerHTML = ADDRESS_ICONS[addrIconSet][shown ? 'shown' : 'hidden'];
@@ -1914,42 +1927,69 @@ document.addEventListener('DOMContentLoaded', () => {
     render();
   }
 
-  /* Reschedule — one of this rep's beats, a day and a time */
-  const rs = { beat: $('va-resched-beat'), date: $('va-resched-date'),
-               time: TimePicker.create($('va-resched-time-host'), {
-                 inputId: 'va-resched-time', value: '', disabled: true, mandatory: true,
-                 onChange: () => setMsg(rs.time.input, ''),
+  /* Reschedule — one of this rep's beats, a day, then the visit's type and
+     how long it runs. No time: the visit keeps its start time. The day it
+     is on now cannot be picked again; it shows greyed out and says why. */
+  const rs = { beat: $('va-resched-beat'),
+               date: SelectMenu.create($('va-resched-date-host'), {
+                 placeholder: 'Select Date', mandatory: true, fieldId: 'va-resched-date',
+                 onChange: () => setMsg(rs.date.field, ''),
                }),
+               type: $('va-resched-type'), dur: $('va-resched-dur'),
                reason: $('va-resched-reason') };
-  wireChain(rs.beat, rs.date, null, rs.time, () => OWN_BEATS);
+  const SAME_DAY_TIP = 'Same day can not be chosen for rescheduling.';
+  rs.beat.addEventListener('change', () => {
+    setMsg(rs.beat, '');
+    const b = OWN_BEATS.find(x => x.id === rs.beat.value);
+    rs.date.setOptions(Array.from({ length: b.days }, (_, i) => {
+      const day = dayOfBeat(b, i);
+      const here = b.id === 'BP-003';
+      const same = here && i === vaTarget.d;
+      const closed = here && !same && isClosed(DAYS[i]);
+      return { value: i, label: `${day.label}  •  ${day.date}`, disabled: same || closed,
+               tip: same ? SAME_DAY_TIP : closed ? 'This day is already closed.' : '' };
+    }));
+    rs.date.setDisabled(false);
+    setMsg(rs.date.field, '');
+  });
+  rs.type.addEventListener('change', () => setMsg(rs.type, ''));
+  wireDuration(rs.dur);
   rs.reason.addEventListener('input', () => setMsg(rs.reason, ''));
 
   function openReschedule(d, v) {
     vaTarget = { d, v };
+    const visit = vaVisit();
     $('va-resched-title').textContent = 'Reschedule Visit';
     fill(rs.beat, OWN_BEATS.map(b => [b.id, beatLabel(b)]), 'Select Beat');
     setMsg(rs.beat, '');
-    [rs.date, rs.time].forEach(lock);
+    rs.date.setOptions([]);
+    rs.date.setDisabled(true);
+    setMsg(rs.date.field, '');
+    /* Type and length start as the visit has them */
+    fill(rs.type, VISIT_TYPES.map(t => [t, t]), 'Select Visit Type', visit.type);
+    setMsg(rs.type, '');
+    rs.dur.value = String(spanMinutes(visit.time)); setMsg(rs.dur, '');
     rs.reason.value = ''; setMsg(rs.reason, '');
     openOverlay('va-resched-overlay');
     rs.beat.focus();
   }
 
   $('va-resched-go').addEventListener('click', () => {
-    const ok = [need(rs.beat, 'Select a beat.'), need(rs.date, 'Select a date.'),
-                need(rs.time, 'Select a time.'), need(rs.reason, 'Enter a reason.')].every(Boolean);
-    if (!ok) return;
-    if (rs.beat.value === 'BP-003' &&
-        takenStarts(Number(rs.date.value), vaVisit()).includes(rs.time.value)) {
-      setMsg(rs.time.input, 'Another visit starts at this time.');
-      return;
-    }
+    const ok = [need(rs.beat, 'Select a beat.'),
+                need({ value: rs.date.value, input: rs.date.field }, 'Select a date.'),
+                need(rs.type, 'Select a visit type.'), need(rs.reason, 'Enter a reason.')].every(Boolean);
+    const durMsg = durationProblem(rs.dur);
+    if (durMsg) setMsg(rs.dur, durMsg);
+    if (!ok || durMsg) return;
     const { d, v } = vaTarget;
     const b = OWN_BEATS.find(x => x.id === rs.beat.value);
     const dayIdx = Number(rs.date.value), target = dayOfBeat(b, dayIdx);
     const wasActive = vaVisit().status === 'active';
     const { visit, pin } = liftVisit(d, v);
-    Object.assign(visit, { time: timeRange(rs.time.value, spanMinutes(visit.time)), status: 'pending',
+    /* Same start time; the new type and length */
+    const start = visit.time.split(' to ')[0];
+    Object.assign(visit, { time: /^\d/.test(start) ? timeRange(start, Number(rs.dur.value)) : visit.time,
+                           type: rs.type.value, status: 'pending',
                            rescheduleReason: rs.reason.value.trim() });
     delete visit.actual;
     handOn(d, wasActive);
@@ -2017,7 +2057,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function openCancel(d, v) {
     vaTarget = { d, v };
-    $('va-cancel-title').textContent = `Cancel “${vaVisit().name}”?`;
+    $('va-cancel-title').textContent = `Cancel “${vaVisit().name}”`;
     cancelReason.value = ''; setMsg(cancelReason, '');
     openOverlay('va-cancel-overlay');
     cancelReason.focus();
@@ -2076,14 +2116,23 @@ document.addEventListener('DOMContentLoaded', () => {
     afterChange();
   });
 
-  /* Edit — a visit not yet started can change its type and its slot; once
-     it has run (or its chance has passed), only the comments stay open */
-  const ed = { type: $('va-edit-type'),
-               time: TimePicker.create($('va-edit-time-host'), {
-                 inputId: 'va-edit-time', onChange: () => setMsg(ed.time.input, ''),
-               }),
-               dur: $('va-edit-dur'), comments: $('va-edit-comments') };
+  /* Edit — a visit not yet started can change its type and how long it
+     runs; once it has run (or its chance has passed), only the comments
+     stay open. No time: changing the duration re-plans the rest of the
+     day around it, and the dialog says so before it is saved. */
+  const ed = { type: $('va-edit-type'), dur: $('va-edit-dur'),
+               comments: $('va-edit-comments'), note: $('va-edit-note') };
+  let edMinutes = 0;   // the visit's length when the dialog opened
   wireDuration(ed.dur);
+  ed.dur.addEventListener('input', () => {
+    /* Emptied counts as changed, so the info stays; the error waits for
+       Save */
+    const empty = ed.dur.value === '';
+    const changed = !ed.dur.disabled && (empty || Number(ed.dur.value) !== edMinutes);
+    const day = DAYS[vaTarget.d];
+    ed.note.textContent = `Beat plan for the day ${day.label} - ${day.date} will be reoptimized based on updated duration.`;
+    ed.note.hidden = !changed;
+  });
 
   function openEdit(d, v) {
     vaTarget = { d, v };
@@ -2091,52 +2140,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const open = visit.status === 'pending';
     $('va-edit-title').textContent = `Edit “${visit.name}”`;
     fill(ed.type, VISIT_TYPES.map(t => [t, t]), 'Select Visit Type', visit.type);
-    if (open) {
-      /* Slots the day's other visits hold are greyed out; its own is not */
-      const start = visit.time.split(' to ')[0];
-      ed.time.setDisabledTimes(takenStarts(d, visit));
-      if (/^\d/.test(start)) ed.time.setValue(start); else ed.time.clear();
-      ed.dur.value = String(spanMinutes(visit.time));
-    } else {
-      /* When it really started and how long it ran, where it ran */
-      const when = visit.status === 'done' && visit.actual ? visit.actual : visit.time;
-      const from = when.split(' to ')[0];
-      ed.time.setDisabledTimes([]);
-      if (/^\d/.test(from)) ed.time.setValue(from); else ed.time.clear();
-      ed.dur.value = String(spanMinutes(when));
-    }
+    /* Its planned length, or how long it really ran once done */
+    const when = visit.status === 'done' && visit.actual ? visit.actual : visit.time;
+    edMinutes = spanMinutes(open ? visit.time : when);
+    ed.dur.value = String(edMinutes);
     setMsg(ed.dur, '');
-    setMsg(ed.time.input, '');
+    ed.note.hidden = true;
     ed.type.disabled = ed.dur.disabled = !open;
-    ed.time.setDisabled(!open);
     ed.comments.value = visit.comments || '';
     openOverlay('va-edit-overlay');
     (open ? ed.type : ed.comments).focus();
   }
 
+  /* Re-plan a day after one visit's length changes: the visits still to
+     come after it move by the difference, keeping their own lengths, so
+     nothing overlaps and no gap opens up */
+  function reoptimizeDay(d, visit, delta) {
+    if (!delta) return;
+    const day = DAYS[d];
+    const from = day.visits.indexOf(visit);
+    day.visits.slice(from + 1).forEach(x => {
+      const [a, b] = x.time.split(' to ');
+      if (x.status !== 'pending' || !b || !/^\d/.test(a)) return;
+      x.time = timeRange(minutesToClock(clockToMinutes(a) + delta), spanMinutes(x.time));
+    });
+  }
+
   $('va-edit-go').addEventListener('click', () => {
-    const { d, v } = vaTarget;
+    const { d } = vaTarget;
     const visit = vaVisit();
     if (visit.status === 'pending') {
       const durMsg = durationProblem(ed.dur);
-      if (durMsg) setMsg(ed.dur, durMsg);
-      const clash = ed.time.value && takenStarts(d, visit).includes(ed.time.value);
-      if (clash) setMsg(ed.time.input, 'Another visit starts at this time.');
-      if (durMsg || clash) return;
+      if (durMsg) { setMsg(ed.dur, durMsg); return; }
     }
     visit.comments = ed.comments.value.trim();
+    let replanned = false;
     if (visit.status === 'pending') {
       visit.type = ed.type.value;
+      const mins = Number(ed.dur.value);
       const start = visit.time.split(' to ')[0];
-      const moved = ed.time.value && ed.time.value !== start;
-      visit.time = timeRange(ed.time.value || start, Number(ed.dur.value));
-      /* A new start time can move it in the day's order */
-      if (moved) {
-        const { pin } = liftVisit(d, v);
-        placeVisit(d, visit, pin);
+      if (mins !== edMinutes && /^\d/.test(start)) {
+        visit.time = timeRange(start, mins);
+        reoptimizeDay(d, visit, mins - edMinutes);
+        replanned = true;
       }
     }
-    toast(`${visit.name} updated.`);
+    const day = DAYS[d];
+    toast(replanned ? `${visit.name} updated. ${day.label} - ${day.date} re-planned.` : `${visit.name} updated.`);
     closeOverlays();
     afterChange();
   });
@@ -2189,10 +2239,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const cancelBeatOverlay = $('bd-cancel-beat-overlay');
   const closeCancelBeat = () => { cancelBeatOverlay.hidden = true; };
 
+  const cancelBeatReason = $('bd-cancel-beat-reason');
+  cancelBeatReason.addEventListener('input', () => setMsg(cancelBeatReason, ''));
+
   function openCancelBeat() {
     if (beatCancelled) { toast('BP-003 is already cancelled.'); return; }
+    cancelBeatReason.value = ''; setMsg(cancelBeatReason, '');
     cancelBeatOverlay.hidden = false;
-    $('bd-cancel-beat-keep').focus();
+    cancelBeatReason.focus();
   }
 
   $('bd-cancel-beat-keep').addEventListener('click', closeCancelBeat);
@@ -2202,6 +2256,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   $('bd-cancel-beat-go').addEventListener('click', () => {
+    if (!cancelBeatReason.value.trim()) { setMsg(cancelBeatReason, 'Enter a reason.'); return; }
+    beatCancelReason = cancelBeatReason.value.trim();
     DAYS.forEach(day => {
       if (day.status === 'done' || day.status === 'missed') return;
       day.visits.forEach(v => { if (v.status === 'pending' || v.status === 'active') v.status = 'cancelled'; });
@@ -2214,6 +2270,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     beatCancelled = true;
+    beatCancelledAt = clock();
     closeCancelBeat();
     afterChange();
     toast('BP-003 cancelled.');

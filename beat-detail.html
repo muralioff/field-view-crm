@@ -12,6 +12,8 @@
   <link rel="stylesheet" href="src/map-controls.css" />
   <link rel="stylesheet" href="src/style-beat-detail.css" />
   <link rel="stylesheet" href="src/time-picker.css" />
+  <link rel="stylesheet" href="src/record-picker.css" />
+  <link rel="stylesheet" href="src/select-menu.css" />
 </head>
 <body>
   <div class="bp-app">
@@ -48,7 +50,7 @@
       <div class="bp-subheader">
         <div class="bp-sub-left">
           <button class="bp-back" aria-label="Back" onclick="location.href='index.html'"><i class="ti ti-arrow-left"></i></button>
-          <div class="bp-code-avatar">B</div>
+          <!-- No record image on this record -->
           <div>
             <div class="bp-sub-title-row">
               <span class="bp-code">BP - 003</span>
@@ -85,7 +87,7 @@
               <label class="bd-sim-field">Address icon
                 <select id="bd-sim-addr-icon">
                   <option value="1">Set 1 — Building</option>
-                  <option value="2">Set 2 — Building with pin</option>
+                  <option value="2" selected>Set 2 — Building with pin</option>
                   <option value="3">Set 3 — Lines</option>
                 </select>
               </label>
@@ -162,6 +164,23 @@
         <div class="bp-tabs">
           <button class="bp-tab active">Overview</button>
           <button class="bp-tab">Timeline</button>
+        </div>
+        <!-- Once the beat is cancelled (Figma 6679:571392): its reason on
+             a link, and when the record last changed -->
+        <div class="bd-cancel-note" id="bd-cancel-note" hidden>
+          <span class="bd-cancel-label">Beat Cancelled:</span>
+          <button class="bd-cancel-link" type="button" id="bd-cancel-link"
+                  aria-haspopup="dialog" aria-expanded="false" aria-controls="bd-cancel-pop">View Reason</button>
+          <span class="bd-cancel-rule" aria-hidden="true"></span>
+          <span class="bd-cancel-updated">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.25" stroke="#616E88" stroke-width="1.5"/><path d="M6.99988 8.99997H10.9999C11.2999 8.99997 11.4999 8.79997 11.4999 8.49997C11.4999 8.19997 11.2999 7.99997 10.9999 7.99997H7.99988V4.99997C7.99988 4.69997 7.79988 4.49997 7.49988 4.49997C7.19988 4.49997 6.99988 4.69997 6.99988 4.99997V8.99997Z" fill="#616E88"/></svg>
+            <span id="bd-cancel-updated">Last Updated: —</span>
+          </span>
+          <div class="bd-cancel-pop" id="bd-cancel-pop" role="dialog" aria-label="Cancellation reason" hidden>
+            <p class="bd-cancel-pop-title">Cancellation Reason</p>
+            <p class="bd-cancel-pop-text" id="bd-cancel-pop-text"></p>
+            <p class="bd-cancel-pop-meta" id="bd-cancel-pop-meta"></p>
+          </div>
         </div>
       </div>
 
@@ -324,24 +343,9 @@
         <div class="bd-field">
           <label for="av-record">Module &amp; Record</label>
           <div class="bd-control">
-            <select class="bd-input mandatory" id="av-record">
-              <option value="" selected disabled>Select Record</option>
-              <optgroup label="Contacts">
-                <option value="Rahul Verma">Rahul Verma</option>
-                <option value="Meera Iyer">Meera Iyer</option>
-              </optgroup>
-              <optgroup label="Accounts">
-                <option value="Sunrise Traders">Sunrise Traders</option>
-                <option value="Metro Wholesale">Metro Wholesale</option>
-              </optgroup>
-              <optgroup label="Leads">
-                <option value="Karthik Rao">Karthik Rao</option>
-                <option value="Anita Desai">Anita Desai</option>
-              </optgroup>
-              <optgroup label="Deals">
-                <option value="Q2 Renewal — Apollo">Q2 Renewal — Apollo</option>
-              </optgroup>
-            </select>
+            <!-- Module & Record lookup (Figma 6678:569481): pick a module,
+                 search, then a record by name -->
+            <div class="bd-rp" id="av-record-host"></div>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
@@ -362,14 +366,6 @@
           </div>
         </div>
 
-        <!-- Opens once a visit type is chosen: the slot depends on it -->
-        <div class="bd-field">
-          <label for="av-time">Visit Time</label>
-          <div class="bd-control">
-            <div class="bd-tp" id="av-time-host"></div>
-            <span class="bd-msg" hidden></span>
-          </div>
-        </div>
         <!-- How long the visit runs, typed in minutes -->
         <div class="bd-field">
           <label for="av-dur">Visit Duration</label>
@@ -404,7 +400,7 @@
     <div class="bd-modal bd-modal-add bd-va-resched" role="dialog" aria-modal="true" aria-labelledby="va-resched-title">
       <header class="bd-modal-head">
         <h2 class="bd-modal-title" id="va-resched-title"></h2>
-        <p class="bd-modal-sub">Select an active Beat for this Visit, then set a new date and time.</p>
+        <p class="bd-modal-sub">Select an active Beat for this Visit, then set a new date.</p>
       </header>
       <div class="bd-modal-body">
         <div class="bd-field">
@@ -417,14 +413,25 @@
         <div class="bd-field">
           <label for="va-resched-date">Date</label>
           <div class="bd-control">
-            <select class="bd-input mandatory" id="va-resched-date" disabled></select>
+            <!-- A drawn dropdown: the visit's own day is greyed out and says why -->
+            <div class="bd-sm" id="va-resched-date-host"></div>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-resched-time">Time</label>
+          <label for="va-resched-type">Visit Type</label>
           <div class="bd-control">
-            <div class="bd-tp" id="va-resched-time-host"></div>
+            <select class="bd-input mandatory" id="va-resched-type"></select>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+        <div class="bd-field">
+          <label for="va-resched-dur">Visit Duration</label>
+          <div class="bd-control">
+            <div class="bd-input-unit">
+              <input class="bd-unit-input" type="text" id="va-resched-dur" inputmode="numeric" maxlength="3" autocomplete="off" />
+              <span class="bd-unit" aria-hidden="true">min</span>
+            </div>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
@@ -595,13 +602,6 @@
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-edit-time">Visit Time</label>
-          <div class="bd-control">
-            <div class="bd-tp" id="va-edit-time-host"></div>
-            <span class="bd-msg" hidden></span>
-          </div>
-        </div>
-        <div class="bd-field">
           <label for="va-edit-dur">Visit Duration</label>
           <div class="bd-control">
             <div class="bd-input-unit">
@@ -609,6 +609,8 @@
               <span class="bd-unit" aria-hidden="true">min</span>
             </div>
             <span class="bd-msg" hidden></span>
+            <!-- Shown once the duration differs from the visit's own -->
+            <p class="bd-edit-note" id="va-edit-note" hidden></p>
           </div>
         </div>
         <div class="bd-field">
@@ -625,20 +627,27 @@
     </div>
   </div>
 
-  <!-- Cancel Beat (Figma 6562:569474): the beat's ⋯ → Cancel Beat -->
+  <!-- Cancel Beat: the beat's ⋯ → Cancel Beat. Built like Cancel Visit. -->
   <div class="bd-overlay bd-overlay-top" id="bd-cancel-beat-overlay" hidden>
-    <div class="bd-modal bd-modal-add bd-modal-alert" role="alertdialog" aria-modal="true"
-         aria-labelledby="bd-cancel-beat-title" aria-describedby="bd-cancel-beat-text">
-      <div class="bd-alert-head">
-        <img class="bd-alert-icon" src="src/alert-warn.svg" alt="" width="25" height="25" />
-        <h2 class="bd-modal-title" id="bd-cancel-beat-title">Cancel Beat “BP-003”</h2>
+    <!-- Same layout and wording as Cancel Visit: title, one line, a reason -->
+    <div class="bd-modal bd-modal-add bd-va-cancel" role="dialog" aria-modal="true" aria-labelledby="bd-cancel-beat-title">
+      <header class="bd-modal-head">
+        <h2 class="bd-modal-title" id="bd-cancel-beat-title">Cancel Beat</h2>
+        <p class="bd-modal-sub">All remaining Visits and days in <span class="bd-beat-name">BP-003</span> will be marked as canceled. Completed Visits stay as they are.</p>
+      </header>
+      <div class="bd-modal-body">
+        <div class="bd-field">
+          <label for="bd-cancel-beat-reason">Cancellation Reason</label>
+          <div class="bd-control">
+            <textarea class="bd-input bd-textarea mandatory" id="bd-cancel-beat-reason" rows="3"></textarea>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
       </div>
-      <p class="bd-alert-text" id="bd-cancel-beat-text">All remaining Visits and days in BP-003 will be marked as canceled.<br />Completed Visits stay as they are.</p>
-      <footer class="bd-alert-foot">
-        <button class="bp-btn default" type="button" id="bd-cancel-beat-keep">Keep Beat</button>
+      <footer class="bd-modal-foot">
+        <button class="bp-btn bd-btn-keep" type="button" id="bd-cancel-beat-keep">Keep Beat</button>
         <button class="bp-btn bd-btn-negative" type="button" id="bd-cancel-beat-go">Cancel Beat</button>
       </footer>
-    </div>
   </div>
 
   <!-- End Day confirmation: what the day came to, before it is closed -->
@@ -702,6 +711,8 @@
   <script src="src/map.js"></script>
   <script src="src/sidebar.js"></script>
   <script src="src/time-picker.js"></script>
+  <script src="src/record-picker.js"></script>
+  <script src="src/select-menu.js"></script>
   <script src="src/address-icons.js"></script>
   <script src="src/beat-detail.js"></script>
 </body>

@@ -1,0 +1,118 @@
+/* ============================================================
+   Select menu — same field and list look as the record picker
+   (Figma 6678:569481); greyed options explain themselves in a tooltip.
+   ============================================================ */
+.sm { position: relative; display: block; width: 100%; }
+
+.sm-field {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 34px;
+  padding: 1px 1px 1px 0;
+  background: #fff;
+  border: 1px solid #c0c8e2;
+  border-radius: 6px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.sm-field:focus-visible,
+.sm.open .sm-field { border-color: #5464f2; box-shadow: 0 0 6px rgba(76, 94, 253, 0.5); outline: none; }
+.sm-field.invalid { border-color: #ff5d5a; }
+
+.sm-marker { width: 3px; height: 32px; flex-shrink: 0; }
+.sm.mandatory .sm-marker { background: #ff5d5a; border-radius: 50px 0 0 50px; }
+
+.sm-value {
+  flex: 1;
+  min-width: 0;
+  padding: 0 10px;
+  font-size: 14px;
+  color: #313949;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sm-value.placeholder { color: #8c91ab; }
+
+.sm-caret {
+  width: 10px;
+  height: 5px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M8.79289 0H1.20711C0.761654 0 0.53857 0.53857 0.853553 0.853553L4.64645 4.64645C4.84171 4.84171 5.15829 4.84171 5.35355 4.64645L9.14645 0.853553C9.46143 0.538571 9.23835 0 8.79289 0Z' fill='%23313949'/%3E%3C/svg%3E") no-repeat center / 10px 5px;
+  opacity: 0.6;
+  transition: transform 0.15s;
+}
+
+.sm.open .sm-caret { transform: rotate(180deg); }
+
+/* Locked until the field above it is answered */
+.sm.disabled .sm-field { background: #f5f6f8; border-color: #d2d9f1; cursor: not-allowed; }
+.sm.disabled .sm-value { color: #8c91ab; }
+
+/* The list: right under the field, placed against the window */
+.sm-list {
+  position: fixed;
+  z-index: 200;
+  max-height: 210px;
+  margin: 0;
+  padding: 6px 0;
+  overflow-y: auto;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #ced0e1;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.sm-list[hidden] { display: none; }
+
+.sm-opt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 6px;
+  padding: 8px 10px 8px 25px;
+  border-radius: 5px;
+  font-size: 14px;
+  line-height: 16px;
+  color: #313949;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sm-opt span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.sm-opt.active { background: #f2f5fe; }
+.sm-opt.selected { padding-left: 10px; font-weight: 600; }
+.sm-tick { flex-shrink: 0; width: 9px; height: 7px; }
+
+/* Not available: greyed, says why on hover */
+.sm-opt.off { color: #b4bacb; cursor: not-allowed; }
+.sm-opt.off.active { background: #f7f8fb; }
+
+/* The page's white tooltip, lifted above dialogs */
+.sm-tip {
+  position: fixed;
+  z-index: 300;
+  max-width: 320px;
+  padding: 5px 9px;
+  background: #fff;
+  border: 1px solid #d6d6e3;
+  border-radius: 6px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  font-size: 13px;
+  line-height: 18px;
+  color: #313949;
+  pointer-events: none;
+}
+
+.sm-tip[hidden] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sm-field, .sm-caret { transition: none; }
+}
