@@ -292,7 +292,13 @@ document.addEventListener('DOMContentLoaded', () => {
   /* The record's own badge — a solid pill, not the pastel tags the days and
      visits use (Figma 2383:48054 · 2055:44440 · 2055:44842) */
   function beatStatus() {
-    if (beatCancelled) return { label: 'Cancelled', cls: 'bd-missed' };
+    /* Cancelled after some of it was worked: what was done stands, so the
+       beat reads Partially Completed (green), not Cancelled */
+    if (beatCancelled) {
+      return DAYS.some(d => d.status === 'done')
+        ? { label: 'Partially Completed', cls: 'bd-done' }
+        : { label: 'Cancelled', cls: 'bd-missed' };
+    }
     if (DAYS.every(d => d.status === 'missed')) return { label: 'Missed', cls: 'bd-missed' };
     if (DAYS.every(isClosed)) return { label: 'Completed', cls: 'bd-done' };
     if (DAYS.some(d => d.status !== 'pending')) return { label: 'In Progress', cls: 'bd-progress' };

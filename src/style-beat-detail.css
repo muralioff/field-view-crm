@@ -755,6 +755,7 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
   font-weight: 500;
   line-height: normal;
   color: #fff;
+  white-space: nowrap;          /* "Partially Completed" stays on one line */
 }
 
 .bp-badge.bd-upcoming { background: #6865f1; border-color: #4341cc; }
@@ -2181,3 +2182,6 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
   color: #313949;
 }
 .bd-edit-note[hidden] { display: none; }
+
+/* The record title and its badge never break across lines */
+.bp-sub-title-row .bp-code { white-space: nowrap; }
