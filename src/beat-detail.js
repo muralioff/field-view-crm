@@ -2200,11 +2200,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const VISIT_ACTION_OPEN = { reschedule: openReschedule, reassign: openReassign, cancel: openCancel,
                               revise: openRevise, edit: openEdit };
 
-  /* ── Optimize Beat ─────────────────────────────────── */
+  /* ── Optimize Route ────────────────────────────────── */
   /* In the product this re-orders the visits for the shortest route. With
      no routing behind the prototype's map, it confirms and leaves the order
      as it is. */
-  $('bd-optimize').addEventListener('click', () => toast('Route optimized for BP - 003.'));
+  /* It acts on one day: the one running, else the one selected */
+  $('bd-optimize').addEventListener('click', () => {
+    const running = activeIndex();
+    const day = DAYS[running !== -1 ? running : selectedDay];
+    toast(`Route optimized for ${day.label} - ${day.date}.`);
+  });
 
   /* ── Beat ⋯ menu ───────────────────────────────────── */
   const beatMore = $('bd-more'), beatMenu = $('bd-beat-menu');
