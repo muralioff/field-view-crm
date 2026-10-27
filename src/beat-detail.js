@@ -16,16 +16,20 @@
 
    The layout, the day accordion and the visit cards come from
    style-bottom-up.css; only the day-flow pieces are new.
+
+   Every string the page shows is a content key (src/strings.js,
+   content/strings.json), read through t(). Nothing renders until the
+   strings are in.
    ============================================================ */
-document.addEventListener('DOMContentLoaded', () => {
+Strings.ready.then(() => {
 
   /* ── Data ──────────────────────────────────────────── */
   /* `drive` is the planned leg out of a stop; `actualDrive` is what it really
      took, and replaces the estimate once the rep has driven it. */
-  const HOME   = { title: 'Home', time: '10:45 AM',
+  const HOME   = { title: t('beatDetail.timeline.home'), time: '10:45 AM',
                    drive: '8 min (1.5 km)', actualDrive: '9 min (1.6 km)',
                    addr: '721 Broadway, New York, NY 10003, USA' };
-  const OFFICE = { title: 'Office', addr: '33 3rd Ave, New York, NY 10003, US' };
+  const OFFICE = { title: t('beatDetail.timeline.office'), addr: '33 3rd Ave, New York, NY 10003, US' };
 
   /* `pins` are the day's stops on the route map */
   const DAYS = [
@@ -91,14 +95,14 @@ document.addEventListener('DOMContentLoaded', () => {
      that carries the call icon. The second header line is the record's
      company or account. */
   const CARD_FIELDS = {
-    Contacts: [['Contact Owner', 'owner'], ['Email', 'email'], ['Phone', 'phone', true],
-               ['Mobile', 'mobile', true], ['Preferred Communication', 'pref']],
-    Leads:    [['Lead Owner', 'owner'], ['Email', 'email'], ['Phone', 'phone', true],
-               ['Mobile', 'mobile', true], ['Lead Status', 'status']],
-    Accounts: [['Account Owner', 'owner'], ['Website', 'website'], ['Phone', 'phone', true],
-               ['Account Type', 'accType'], ['Industry', 'industry']],
-    Deals:    [['Deal Owner', 'owner'], ['Contact Name', 'contact'], ['Amount', 'amount'],
-               ['Stage', 'stage'], ['Closing Date', 'closing']],
+    Contacts: [['contactOwner', 'owner'], ['email', 'email'], ['phone', 'phone', true],
+               ['mobile', 'mobile', true], ['preferredCommunication', 'pref']],
+    Leads:    [['leadOwner', 'owner'], ['email', 'email'], ['phone', 'phone', true],
+               ['mobile', 'mobile', true], ['leadStatus', 'status']],
+    Accounts: [['accountOwner', 'owner'], ['website', 'website'], ['phone', 'phone', true],
+               ['accountType', 'accType'], ['industry', 'industry']],
+    Deals:    [['dealOwner', 'owner'], ['contactName', 'contact'], ['amount', 'amount'],
+               ['stage', 'stage'], ['closingDate', 'closing']],
   };
 
   const CARDS = {
@@ -125,11 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
     done:      ['edit'],
   };
 
-  const ACTION_LABEL = {
-    cancel: 'Cancel Visit', edit: 'Edit Visit', reschedule: 'Reschedule Visit',
-    reassign: 'Transfer Visit', location: 'Adjust Location',
-    revise: 'Revise Visit',
-  };
+  const actionLabel = action => t(`beatDetail.visit.action.${action}`);
 
   /* Where each record in the Add Visit picker lives, so a visit added there
      shows its address like the planned ones */
@@ -154,7 +154,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* status: day 'pending' | 'active' | 'done' | 'missed' (its date passed unstarted)
      · visit 'pending' | 'active' | 'done' | 'missed' */
-  DAYS.forEach(day => {
+  DAYS.forEach((day, i) => {
+    day.label = t('beatDetail.day.label', { n: i + 1 });
     day.status = 'pending';
     day.startedAt = null;
     day.endedAt = null;
@@ -168,7 +169,43 @@ document.addEventListener('DOMContentLoaded', () => {
      every rule below reads the clock from here. */
   const BUSINESS = { start: 9 * 60, end: 19 * 60 };   /* Company Settings: 09:00 AM – 07:00 PM */
   const BEAT_YEAR = 2026, BEAT_MONTH = 'May';
-  const SIM = { day: 4, minutes: 10 * 60, otherBeat: false, viewer: 'owner' };
+  const SIM = { day: 4, minutes: 10 * 60, viewer: 'owner' };
+
+  /* ── Operating model (prototype switch in the top bar) ── */
+  /* Top-down: the manager's plan, worked by the rep. Bottom-up: the rep's
+     plan, which the manager approves before it can be worked. Remembered
+     for this viewer. */
+  const MODEL_KEY = 'bd-model';
+  let model = 'top';
+  try { model = localStorage.getItem(MODEL_KEY) === 'bottom' ? 'bottom' : 'top'; } catch { /* private mode */ }
+  const isBU = () => model === 'bottom';
+  /* Bottom-up opens on the manager, the one with something to do first */
+  if (model === 'bottom') SIM.viewer = 'manager';
+  const isManager = () => SIM.viewer === 'manager';
+  const MANAGER = 'Jenny Wilson';
+  const REP = 'Cameron Williamson';   /* the beat's owner, who submitted it */
+  /* Who the simulator is viewing as — whose bell, whose banner */
+  const role = () => (isManager() ? 'manager' : 'rep');
+  /* The waiting status's icons (Figma 3080:166192); here because the first
+     render can run before the approval section below */
+  const CLOCK_ICON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.25" stroke="#616E88" stroke-width="1.5"/><path d="M6.99988 8.99997H10.9999C11.2999 8.99997 11.4999 8.79997 11.4999 8.49997C11.4999 8.19997 11.2999 7.99997 10.9999 7.99997H7.99988V4.99997C7.99988 4.69997 7.79988 4.49997 7.49988 4.49997C7.19988 4.49997 6.99988 4.69997 6.99988 4.99997V8.99997Z" fill="#616E88"/></svg>';
+  const APPROVAL_ICON = '<svg width="16" height="16" viewBox="0 0 16.0565 16" fill="none" aria-hidden="true"><path d="M10 12.8761L11.7688 14.7523L15.3065 11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#616E88"/><path d="M7.28571 12H2.47466C1.76783 12 1.2841 11.2867 1.54563 10.63L1.89195 9.76043C2.04345 9.38004 2.41153 9.13043 2.82098 9.13043H3.57143C4.676 9.13043 5.57143 8.235 5.57143 7.13043V4.82609L5.07503 3.99515C4.65196 3.28698 4.42857 2.47746 4.42857 1.65254C4.42857 1.29215 4.72072 1 5.08111 1H9.49032C9.8507 1 10.1429 1.29215 10.1429 1.65254C10.1429 2.47746 9.91947 3.28698 9.4964 3.99515L9 4.82609V7.13043C9 8.235 9.89543 9.13043 11 9.13043H11.8611C12.2131 9.13043 12.5391 9.31544 12.7196 9.61758L13 10.087" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#616E88"/><path d="M2 15H8" stroke-width="1.5" stroke-linecap="round" stroke="#616E88"/></svg>';
+
+  const MAX_VISITS_PER_DAY = 6;     /* Beat Engine · Max Visits per day */
+
+  /* Bottom-up approval. phase: pending (submitted, waiting) → approving
+     (the manager reviewing) → approved, or rejected outright. During a
+     review each visit carries its decision in visit.approval; completing
+     it turns rejected ones into status 'rejected'. A visit the rep
+     resubmits, or adds while the beat runs, waits as status 'awaiting'. */
+  const SUBMITTED_AT = '7:00 AM';
+  const BU = { phase: 'pending', rejectReason: '', rejectedAt: '', approvedAt: '', notes: [], updatedAt: SUBMITTED_AT };
+
+  /* Off the route: rejected, or waiting on the manager. Such visits stay
+     listed but leave the map, the counts and the distance. A rejection
+     made during a review takes effect when the approval is completed. */
+  const offRoute = v => v.status === 'rejected' || v.status === 'awaiting';
+  const onRoute = day => day.visits.filter(v => !offRoute(v));
 
   const dayNum = i => Number(DAYS[i].date.split(' ')[0]);
   const dayName = n => {
@@ -193,11 +230,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (day.status === 'active' && over) {
         day.visits.forEach(v => { if (v.status === 'pending' || v.status === 'active') v.status = 'missed'; });
         day.status = 'done';
-        day.endedAt = `${minutesToClock(BUSINESS.end)} (auto)`;
+        day.endedAt = t('beatDetail.day.endedAuto', { time: minutesToClock(BUSINESS.end) });
         day.endedMin = BUSINESS.end;
       }
       if (day.status === 'pending' && n < SIM.day) {
-        day.visits.forEach(v => { v.status = 'missed'; });
+        day.visits.forEach(v => { if (v.status === 'pending' || v.status === 'active') v.status = 'missed'; });
         day.status = 'missed';
       }
     });
@@ -259,13 +296,14 @@ document.addEventListener('DOMContentLoaded', () => {
      Checked in this order, so the reason given is the one to act on first. */
   function startBlock(i) {
     const day = DAYS[i], n = dayNum(i);
-    if (n > SIM.day) return `You can start this day on ${BEAT_MONTH} ${n}`;
+    if (n > SIM.day) return t('beatDetail.day.startBlock.notYet', { date: `${BEAT_MONTH} ${n}` });
     const running = activeIndex();
-    if (running !== -1 && running !== i) return `End ${DAYS[running].label} before starting ${day.label}.`;
-    if (!day.visits.length) return 'Add a visit to start this day.';
-    if (SIM.minutes < BUSINESS.start) return `You can start this day from ${minutesToClock(BUSINESS.start)}.`;
-    if (SIM.minutes >= BUSINESS.end) return 'Business hours for today have ended.';
-    if (SIM.otherBeat) return 'End Day 1 of BP-002 before starting this one.';
+    if (running !== -1 && running !== i) {
+      return t('beatDetail.day.startBlock.otherDayRunning', { running: DAYS[running].label, day: day.label });
+    }
+    if (!day.visits.length) return t('beatDetail.day.startBlock.noVisits');
+    if (SIM.minutes < BUSINESS.start) return t('beatDetail.day.startBlock.beforeHours', { time: minutesToClock(BUSINESS.start) });
+    if (SIM.minutes >= BUSINESS.end) return t('beatDetail.day.startBlock.afterHours');
     return null;
   }
 
@@ -278,13 +316,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function dayAct(i) {
     /* Only the beat owner logs their own day; anyone else sees none */
     if (SIM.viewer !== 'owner') return null;
+    /* Bottom-up: a beat is worked only once it is approved */
+    if (isBU() && BU.phase !== 'approved') return null;
     if (DAYS[i].status === 'active') {
-      return { act: 'end', label: 'End', cls: 'bd-day-act-end' };
+      return { act: 'end', label: t('beatDetail.day.action.end'), cls: 'bd-day-act-end' };
     }
     /* The next day in line always shows its Start — greyed, with the
        reason on hover, when it cannot be used yet */
     if (i === nextIndex()) {
-      return { act: 'start', label: 'Start', cls: 'bd-day-act-start', blocked: startBlock(i) };
+      return { act: 'start', label: t('beatDetail.day.action.start'), cls: 'bd-day-act-start', blocked: startBlock(i) };
     }
     return null;
   }
@@ -296,13 +336,17 @@ document.addEventListener('DOMContentLoaded', () => {
        beat reads Partially Completed (green), not Cancelled */
     if (beatCancelled) {
       return DAYS.some(d => d.status === 'done')
-        ? { label: 'Partially Completed', cls: 'bd-done' }
-        : { label: 'Cancelled', cls: 'bd-missed' };
+        ? { label: t('beatDetail.status.partiallyCompleted'), cls: 'bd-done' }
+        : { label: t('beatDetail.status.cancelled'), cls: 'bd-missed' };
     }
-    if (DAYS.every(d => d.status === 'missed')) return { label: 'Missed', cls: 'bd-missed' };
-    if (DAYS.every(isClosed)) return { label: 'Completed', cls: 'bd-done' };
-    if (DAYS.some(d => d.status !== 'pending')) return { label: 'In Progress', cls: 'bd-progress' };
-    return { label: 'Upcoming', cls: 'bd-upcoming' };
+    if (isBU()) {
+      if (BU.phase === 'rejected') return { label: t('bottomUp.status.rejected'), cls: 'bd-missed' };
+      if (BU.phase !== 'approved') return { label: t('bottomUp.status.pendingApproval'), cls: 'bd-progress' };
+    }
+    if (DAYS.every(d => d.status === 'missed')) return { label: t('beatDetail.status.missed'), cls: 'bd-missed' };
+    if (DAYS.every(isClosed)) return { label: t('beatDetail.status.completed'), cls: 'bd-done' };
+    if (DAYS.some(d => d.status !== 'pending')) return { label: t('beatDetail.status.inProgress'), cls: 'bd-progress' };
+    return { label: t('beatDetail.status.upcoming'), cls: 'bd-upcoming' };
   }
 
   /* ── Rendering ─────────────────────────────────────── */
@@ -311,38 +355,47 @@ document.addEventListener('DOMContentLoaded', () => {
      banner at the top of the record, marked by its border and dated by the
      "Started …" clock in its own header. */
   const DAY_TAG = {
-    done:   { label: 'Completed', cls: 'approved' },
-    missed: { label: 'Missed',    cls: 'rejected' },
-    cancelled: { label: 'Cancelled', cls: 'rejected' },
+    done:   { label: t('beatDetail.day.tag.completed'), cls: 'approved' },
+    missed: { label: t('beatDetail.day.tag.missed'),    cls: 'rejected' },
+    cancelled: { label: t('beatDetail.day.tag.cancelled'), cls: 'rejected' },
   };
 
   /* A visit the rep has not reached yet carries no tag — the tags arrive one
      at a time as the day moves through the stops. `pending` is deliberately
      absent from this map. */
   const VISIT_TAG = {
-    active:    { label: 'In Progress', cls: 'pending' },
-    done:      { label: 'Completed',   cls: 'approved' },
-    missed:    { label: 'Missed',      cls: 'rejected' },
-    cancelled: { label: 'Cancelled',   cls: 'rejected' },
+    active:    { label: t('beatDetail.visit.tag.inProgress'), cls: 'pending' },
+    done:      { label: t('beatDetail.visit.tag.completed'),  cls: 'approved' },
+    missed:    { label: t('beatDetail.visit.tag.missed'),     cls: 'rejected' },
+    cancelled: { label: t('beatDetail.visit.tag.cancelled'),  cls: 'rejected' },
+    rejected:  { label: t('bottomUp.tag.rejected'),           cls: 'rejected bu-tag-rejected' },
+    awaiting:  { label: t('bottomUp.tag.awaiting'),           cls: 'pending' },
   };
 
   /* A cancelled visit says so even on a day not yet started */
-  const tagFor = (day, visit) => (visit.status === 'cancelled' || day.status !== 'pending')
-    ? VISIT_TAG[visit.status] || null : null;
+  /* Bottom-up adds two that show at once: Rejected (no tag for approved),
+     and Pending Approval on a visit waiting for the manager */
+  const tagFor = (day, visit) => {
+    if (visit.status === 'rejected' || (isBU() && visit.approval === 'rejected')) return VISIT_TAG.rejected;
+    if (visit.status === 'awaiting') return VISIT_TAG.awaiting;
+    return (visit.status === 'cancelled' || day.status !== 'pending') ? VISIT_TAG[visit.status] || null : null;
+  };
 
   /* A day still ahead has nothing to be part-way through, so it states its
      size the way the frame does — "3 visits". The fraction only appears
      once there is progress to report. */
   function dayTally(day) {
-    if (day.status === 'pending' || day.status === 'missed' || day.status === 'cancelled') return `${day.visits.length} visits`;
+    if (day.status === 'pending' || day.status === 'missed' || day.status === 'cancelled') {
+      return t('beatDetail.day.tally.planned', { count: onRoute(day).length });
+    }
     /* Only visits actually completed count — a missed one is not progress */
     const completed = day.visits.filter(v => v.status === 'done').length;
-    return `${completed} / ${day.visits.length} visits`;
+    return t('beatDetail.day.tally.progress', { done: completed, total: onRoute(day).length });
   }
 
   /* Only a day that has been worked has a clock to show */
   function dayClockHtml(day) {
-    if (day.status === 'active') return `<span class="bd-day-clock">Started ${escape(day.startedAt)}</span>`;
+    if (day.status === 'active') return `<span class="bd-day-clock">${escape(t('beatDetail.day.startedAt', { time: day.startedAt }))}</span>`;
     return '';
   }
 
@@ -355,13 +408,13 @@ document.addEventListener('DOMContentLoaded', () => {
     return `
       <div class="bd-day-sum">
         <div class="bd-sum-col">
-          <span class="bd-sum-label">Total Travel</span>
-          <span class="bd-sum-row"><span class="bd-sum-value">${span(travelMin)}</span><span class="bd-sum-km">(${travelKm.toFixed(1)} km)</span></span>
+          <span class="bd-sum-label">${escape(t('beatDetail.day.summary.travel'))}</span>
+          <span class="bd-sum-row"><span class="bd-sum-value">${escape(span(travelMin))}</span><span class="bd-sum-km">${escape(t('beatDetail.day.summary.km', { km: travelKm.toFixed(1) }))}</span></span>
         </div>
         <span class="bd-sum-divider" aria-hidden="true"></span>
         <div class="bd-sum-col">
-          <span class="bd-sum-label">Total Visit Time</span>
-          <span class="bd-sum-value">${span(visitMin)}</span>
+          <span class="bd-sum-label">${escape(t('beatDetail.day.summary.visitTime'))}</span>
+          <span class="bd-sum-value">${escape(span(visitMin))}</span>
         </div>
       </div>`;
   }
@@ -369,8 +422,8 @@ document.addEventListener('DOMContentLoaded', () => {
   /* "4 hrs 25 mins", "12 hrs", "39 mins" */
   function span(mins) {
     const h = Math.floor(mins / 60), m = mins % 60;
-    const hrs = h ? `${h} ${h === 1 ? 'hr' : 'hrs'}` : '';
-    const min = m || !h ? `${m} ${m === 1 ? 'min' : 'mins'}` : '';
+    const hrs = h ? t(h === 1 ? 'common.duration.hour' : 'common.duration.hours', { n: h }) : '';
+    const min = m || !h ? t(m === 1 ? 'common.duration.minute' : 'common.duration.minutes', { n: m }) : '';
     return [hrs, min].filter(Boolean).join(' ');
   }
 
@@ -380,10 +433,11 @@ document.addEventListener('DOMContentLoaded', () => {
      time adds up how long each completed stop really ran. */
   function daySummary(day) {
     const lastDone = day.visits.reduce((n, v, i) => (v.status === 'done' ? i : n), -1);
-    const allDone = day.visits.length > 0 && day.visits.every(v => v.status === 'done');
+    const route = onRoute(day);
+    const allDone = route.length > 0 && route.every(v => v.status === 'done');
     const legs = [];
     for (let i = 0; i <= lastDone; i++) legs.push(i === 0 ? HOME : day.visits[i - 1]);
-    if (allDone) legs.push(day.visits[day.visits.length - 1]);
+    if (allDone) legs.push(route[route.length - 1]);
     let travelMin = 0, travelKm = 0;
     legs.forEach(from => {
       const text = from.actualDrive || from.drive || '';
@@ -407,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function placeHtml(place, kind, reached, edge, dayIndex) {
     const time = place.time
-      ? `<span class="at">at</span><span class="time">${escape(place.time)}</span>` : '';
+      ? `<span class="at">${escape(t('beatDetail.timeline.at'))}</span><span class="time">${escape(place.time)}</span>` : '';
     const isFocused = focused && focused.day === dayIndex && focused.place === kind;
     return `
       <div class="bd-row bd-place bd-place-${kind} ${edge} ${reached ? 'reached' : ''} ${isFocused ? 'bd-focus' : ''}"
@@ -416,7 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="bd-place-icon"><img src="src/loc-${kind}.svg" alt="" aria-hidden="true" /></span>
         </span>
         <div class="bd-text">
-          <p class="bd-place-line"><span class="name">${place.title}</span>${time}</p>
+          <p class="bd-place-line"><span class="name">${escape(place.title)}</span>${time}</p>
           <p class="bd-place-addr">${place.addr}</p>
         </div>
       </div>`;
@@ -433,7 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="bd-row bd-leg ${travelled ? 'reached' : ''}">
         <span class="bd-leg-rule"></span>
         <img class="bd-leg-car" src="src/car.svg" alt="" aria-hidden="true" />
-        <span class="bd-leg-text ${done ? 'actual' : ''}">${done ? escape(from.actualDrive) : '~ ' + escape(from.drive)}</span>
+        <span class="bd-leg-text ${done ? 'actual' : ''}">${escape(done ? from.actualDrive : t('beatDetail.timeline.legEstimate', { drive: from.drive }))}</span>
       </div>`;
   }
 
@@ -441,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
      page reports what happened rather than offering to change it. The tick
      and cross belong to the bottom-up screen, where a manager approves.
      No card either — the stop is plain text beside the rail. */
-  function visitHtml(visit, i, day, reached, isCurrent) {
+  function visitHtml(visit, i, day, reached, isCurrent, no) {
     const tag = tagFor(day, visit);
     /* Only the stop in hand answers to a click, and only while its day runs */
     const settle = day.status === 'active' && visit.status === 'active';
@@ -451,33 +505,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const isFocused = focused && DAYS[focused.day] === day && focused.visit === i;
     return `
       <div class="bd-row bd-visit ${reached ? 'reached' : ''} ${isCurrent ? 'bd-current' : ''} ${settle ? 'bd-settleable' : ''} ${isFocused ? 'bd-focus' : ''}"
-           data-visit="${i}" ${settle ? 'title="Mark this visit completed"' : ''}>
-        <span class="bd-rail ${visit.status === 'active' ? 'bd-pulsing' : ''}"><span class="bp-visit-num ${visit.status}">${i + 1}</span></span>
+           data-visit="${i}" ${settle ? `title="${escape(t('beatDetail.visit.completeHint'))}"` : ''}>
+        <span class="bd-rail ${visit.status === 'active' ? 'bd-pulsing' : ''}"><span class="bp-visit-num ${visit.status}${no ? '' : ' bu-off'}">${no || '–'}</span></span>
         <div class="bd-text">
           <p class="bd-visit-head">
             <span class="bd-visit-name"><span class="vname">${escape(visit.name)}</span></span>
-            ${tag ? `<span class="bp-visit-tag ${tag.cls}">${tag.label}</span>` : ''}
+            ${tag ? `<span class="bp-visit-tag ${tag.cls}">${escape(tag.label)}</span>` : ''}
           </p>
           <!-- Figma 6522:80059: time • type, then the address, 6 apart -->
           <div class="bd-visit-where">
             <p class="bd-visit-meta bd-visit-when"><span class="vtime">${escape(when)}</span><span class="dot">•</span><span class="vtype" data-trunc>${escape(visit.type)}</span></p>
             ${visit.address ? `<p class="bd-visit-addr" data-trunc>${escape(visit.address)}</p>` : ''}
+            ${reasonLineHtml(visit)}
           </div>
         </div>
+        ${approvalIconsHtml(visit)}
         ${visitMenuHtml(visit)}
       </div>`;
   }
 
   function visitMenuHtml(visit) {
-    const actions = VISIT_ACTIONS[visit.status || 'pending'] || [];
+    const actions = visitActions(visit);
     if (!actions.length) return '';
     return `
         <div class="bd-vmenu-wrap">
           <button class="bd-vmore" type="button" aria-haspopup="menu" aria-expanded="false"
-                  aria-label="Actions for ${escape(visit.name)}"><i class="ti ti-dots" aria-hidden="true"></i></button>
+                  aria-label="${escape(t('beatDetail.visit.menu.ariaLabel', { name: visit.name }))}"><i class="ti ti-dots" aria-hidden="true"></i></button>
           <div class="bd-vmenu" role="menu" hidden>
-            ${actions.map(a => `<button class="bd-vmenu-item${a === 'cancel' ? ' danger' : ''}" type="button"
-                    role="menuitem" tabindex="-1" data-action="${a}">${ACTION_LABEL[a]}</button>`).join('')}
+            ${actions.map(a => `<button class="bd-vmenu-item${a === 'cancel' || a === 'reject' || a === 'remove' ? ' danger' : ''}" type="button"
+                    role="menuitem" tabindex="-1" data-action="${a}">${escape(actionLabel(a))}</button>`).join('')}
           </div>
         </div>`;
   }
@@ -487,16 +543,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const current = day.visits.findIndex(v => v.status === 'active');
     const lastDone = day.visits.reduce((n, v, i) => (v.status === 'done' ? i : n), -1);
     const upto = current !== -1 ? current : lastDone;
-    const allDone = day.visits.length > 0 && day.visits.every(v => v.status === 'done');
-    const canAdd = index === selectedDay && day.status !== 'done';
+    const route = onRoute(day);
+    const allDone = route.length > 0 && route.every(v => v.status === 'done');
+    const canAdd = index === selectedDay && day.status !== 'done' && canAddVisit();
 
     const rows = [placeHtml(HOME, 'home', upto >= 0, 'first', index)];
+    /* Numbered along the route; a visit off it (rejected, or waiting on
+       the manager) stays in the list with no leg and no number */
+    let prev = HOME, no = 0;
     day.visits.forEach((v, i) => {
+      if (offRoute(v)) { rows.push(visitHtml(v, i, day, false, false, 0)); return; }
       /* the leg into this stop, then the stop itself */
-      rows.push(legHtml(i === 0 ? HOME : day.visits[i - 1], upto >= i));
-      rows.push(visitHtml(v, i, day, upto >= i, i === upto && !allDone));
+      rows.push(legHtml(prev, upto >= i));
+      rows.push(visitHtml(v, i, day, upto >= i, i === upto && !allDone, ++no));
+      prev = v;
     });
-    rows.push(legHtml(day.visits[day.visits.length - 1], allDone));
+    rows.push(legHtml(prev === HOME ? null : prev, allDone));
     if (canAdd) {
       rows.push(`
         <div class="bd-row bd-add-row">
@@ -504,7 +566,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="bp-visit-num bd-add-num"><img src="src/add-visit.svg" alt="" aria-hidden="true" /></span>
           </span>
           <div class="bd-text">
-            <button class="bd-add-visit" type="button" data-act="add">Add Visit</button>
+            <button class="bd-add-visit" type="button" data-act="add">${escape(t('beatDetail.timeline.addVisit'))}</button>
           </div>
         </div>`);
     }
@@ -519,13 +581,15 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="bp-day bd-day ${index === selectedDay ? 'selected' : ''} ${index === selectedDay && expanded ? 'expanded' : ''} ${day.status}" data-day="${index}">
         <div class="bp-day-header" aria-expanded="${index === selectedDay && expanded}">
           <span class="bd-chev"><img src="src/day-chevron.svg" alt="" aria-hidden="true" /></span>
-          <span class="bd-day-title">${day.label}<span class="dot">&nbsp;&nbsp;•&nbsp;&nbsp;</span><span class="date">${escape(day.date)}</span></span>
-          ${tag ? `<span class="bp-visit-tag ${tag.cls}">${tag.label}</span>` : ''}
-          <span class="bd-day-count">${dayTally(day)}</span>
+          <span class="bd-day-title">${escape(day.label)}<span class="dot">&nbsp;&nbsp;•&nbsp;&nbsp;</span><span class="date">${escape(day.date)}</span></span>
+          ${tag ? `<span class="bp-visit-tag ${tag.cls}">${escape(tag.label)}</span>` : ''}
+          <span class="bd-day-count">${escape(dayTally(day))}</span>
           ${act ? `<button class="bd-day-act ${act.cls}${act.blocked ? ' is-blocked' : ''}" type="button"
                     data-act="${act.act}" data-day="${index}"
                     ${act.blocked ? `aria-disabled="true" data-tip="${escape(act.blocked)}"` : ''}
-                    aria-label="${act.label} ${day.label}${act.blocked ? ` — ${escape(act.blocked)}` : ''}">${act.label}</button>` : ''}
+                    aria-label="${escape(act.blocked
+                      ? t('beatDetail.day.action.blockedAriaLabel', { action: act.label, day: day.label, reason: act.blocked })
+                      : t('beatDetail.day.action.ariaLabel', { action: act.label, day: day.label }))}">${escape(act.label)}</button>` : ''}
           ${dayClockHtml(day)}
         </div>
         <div class="bp-day-body">${daySumHtml(day)}${timelineHtml(day, index)}</div>
@@ -533,13 +597,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderBand() {
+    /* Bottom-up before approval has no banner: the tab row says who the
+       beat is waiting on */
+    if (isBU() && (BU.phase === 'pending' || BU.phase === 'approving')) { band.hidden = true; return; }
     const running = activeIndex();
     if (running !== -1) {
       band.hidden = false;
       band.className = 'bp-status-band bp-band-waiting';
       bandIcon.className = 'ti ti-clock-play';
-      bandText.textContent =
-        `${DAYS[running].label} in progress — started at ${DAYS[running].startedAt}.`;
+      bandText.textContent = t('beatDetail.band.dayInProgress',
+        { day: DAYS[running].label, time: DAYS[running].startedAt });
       return;
     }
     /* A completed or cancelled beat says so in its badge; it needs no
@@ -560,7 +627,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (running !== -1) {
       dayAction.hidden = false;
       dayAction.className = 'bp-btn bd-end';
-      dayAction.textContent = `End ${DAYS[running].label}`;
+      dayAction.textContent = t('beatDetail.header.endDay.label', { day: DAYS[running].label });
       dayAction.dataset.act = 'end';
       dayAction.dataset.day = running;
       return;
@@ -569,7 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (next === -1) { dayAction.hidden = true; return; }
     dayAction.hidden = false;
     dayAction.className = 'bp-btn primary';
-    dayAction.textContent = `Start ${DAYS[next].label}`;
+    dayAction.textContent = t('beatDetail.header.startDay.label', { day: DAYS[next].label });
     dayAction.dataset.act = 'start';
     dayAction.dataset.day = next;
   }
@@ -580,13 +647,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ── Related lists under Notes, and the summary's counts (Type 2) ── */
   const money = n => `$${n.toFixed(2)}`;
-  const dayRef = i => `${DAYS[i].label} - ${DAYS[i].date}`;
+  const dayRef = i => t('common.dayRef', { day: DAYS[i].label, date: DAYS[i].date });
+  const km = n => t('common.distance.km', { km: n.toFixed(1) });
 
   function tableHtml(head, rows, empty) {
-    if (!rows.length) return `<p class="bd-rl-empty">${empty}</p>`;
+    if (!rows.length) return `<p class="bd-rl-empty">${escape(empty)}</p>`;
     return `
       <table class="bd-rl-table">
-        <thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        <thead><tr>${head.map(h => `<th>${escape(h)}</th>`).join('')}</tr></thead>
         <tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
       </table>`;
   }
@@ -595,21 +663,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderRelatedLists() {
     $('bd-expenses-body').innerHTML = tableHtml(
-      ['Expense Name', 'Category', 'Beat Day', 'Amount'],
+      ['name', 'category', 'day', 'amount'].map(c => t(`beatDetail.expenses.col.${c}`)),
       EXPENSES.map(e => [link(e.name), escape(e.category), link(dayRef(e.day)), money(e.amount)]),
-      'No records found');
+      t('beatDetail.expenses.empty'));
 
     $('bd-attachments-body').innerHTML = tableHtml(
-      ['File Name', 'Size', 'Attached By', 'Date Added'],
+      ['file', 'size', 'by', 'date'].map(c => t(`beatDetail.attachments.col.${c}`)),
       ATTACHMENTS.map(a => [link(a.file), a.size, escape(a.by), a.on]),
-      'No Attachment');
+      t('beatDetail.attachments.empty'));
 
     renderInfo();
 
     /* Beat Details: what the beat is planned to be, summed over its days */
-    $('bd-sum-visits').textContent = DAYS.reduce((n, day) => n + day.visits.length, 0);
-    $('bd-sum-distance').textContent =
-      `${DAYS.reduce((n, day) => n + plannedKm(day), 0).toFixed(1)} km`;
+    $('bd-sum-visits').textContent = DAYS.reduce((n, day) => n + onRoute(day).length, 0);
+    $('bd-sum-distance').textContent = km(DAYS.reduce((n, day) => n + plannedKm(day), 0));
   }
 
   /* ── Show / Hide Details ─────────────────────────────── */
@@ -621,38 +688,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const open = infoBody.hidden;
     infoBody.hidden = !open;
     infoToggle.setAttribute('aria-expanded', String(open));
-    infoToggle.querySelector('span').textContent = open ? 'Hide Details' : 'Show Details';
+    infoToggle.querySelector('span').textContent = t(open ? 'beatDetail.info.hide' : 'beatDetail.info.show');
   });
 
   function renderInfo() {
-    const visits = DAYS.reduce((n, d) => n + d.visits.length, 0);
+    const visits = DAYS.reduce((n, d) => n + onRoute(d).length, 0);
     const doneVisits = DAYS.reduce((n, d) => n + d.visits.filter(v => v.status === 'done').length, 0);
     const doneDays = DAYS.filter(d => d.status === 'done').length;
     const travelled = DAYS.filter(d => d.status === 'done')
       .reduce((n, d) => n + daySummary(d).travelKm, 0);
     const spent = EXPENSES.reduce((n, e) => n + e.amount, 0);
-    const none = '<span class="bd-info-empty">—</span>';
+    const none = `<span class="bd-info-empty">${escape(t('common.empty'))}</span>`;
+    const fraction = (done, total) => t('common.fraction', { done, total });
+    /* Labels are content keys under beatDetail.info */
     const left = [
-      ['Beat Name', 'BP - 003'],
-      ['Beat Owner', 'Cameron Williamson'],
-      ['Beat Duration', '4 May 2026 - 6 May 2026'],
-      ['Total Planned Visits', String(visits)],
-      ['Total Planned Distance', `${DAYS.reduce((n, d) => n + plannedKm(d), 0).toFixed(1)} km`],
-      ['Completed Beat Days', `${doneDays} / ${DAYS.length}`],
-      ['Actual Completed Visits', `${doneVisits} / ${visits}`],
-      ['Actual Travelled Distance', doneDays ? `${travelled.toFixed(1)} km` : null],
-      ['Total Expenses', EXPENSES.length ? money(spent) : null],
+      ['beatName', 'BP - 003'],
+      ['beatOwner', 'Cameron Williamson'],
+      ['beatDuration', '4 May 2026 - 6 May 2026'],
+      ['plannedVisits', String(visits)],
+      ['plannedDistance', km(DAYS.reduce((n, d) => n + plannedKm(d), 0))],
+      ['completedDays', fraction(doneDays, DAYS.length)],
+      ['completedVisits', fraction(doneVisits, visits)],
+      ['travelled', doneDays ? km(travelled) : null],
+      ['expenses', EXPENSES.length ? money(spent) : null],
     ];
     const right = [
-      ['Beat Status', beatStatus().label],
-      ['Created By', 'Jenny Wilson<small>Mon, 27 Apr 2026 10:12 AM</small>', true],
-      ['Modified By', 'Cameron Williamson<small>Mon, 4 May 2026 09:40 AM</small>', true],
-      ['Layout', 'Standard'],
-      ['Tag', null],
-      ['Description', null],
+      ['status', beatStatus().label],
+      ['createdBy', 'Jenny Wilson<small>Mon, 27 Apr 2026 10:12 AM</small>', true],
+      ['modifiedBy', 'Cameron Williamson<small>Mon, 4 May 2026 09:40 AM</small>', true],
+      ...(isBU() && BU.approvedAt
+        ? [['approvedBy', `${escape(MANAGER)}<small>${escape(BU.approvedAt)}</small>`, true]] : []),
+      ['layout', 'Standard'],
+      ['tag', null],
+      ['description', null],
     ];
     const col = rows => `<dl class="bd-info-col">${rows.map(([k, v, html]) => `
-        <div class="bd-info-row"><dt>${k}</dt><dd>${v == null ? none : html ? v : escape(v)}</dd></div>`).join('')}
+        <div class="bd-info-row"><dt>${escape(t(`beatDetail.info.${k}`))}</dt><dd>${v == null ? none : html ? v : escape(v)}</dd></div>`).join('')}
       </dl>`;
     $('bd-info-grid').innerHTML = col(left) + col(right);
   }
@@ -660,11 +731,24 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ── Cancelled: the note on the tab row and its reason popover ── */
   const cancelNote = $('bd-cancel-note'), cancelLink = $('bd-cancel-link'), cancelPop = $('bd-cancel-pop');
   function renderCancelNote() {
+    /* Bottom-up: a rejected beat states its reason in the same place */
+    if (isBU() && BU.phase === 'rejected' && !beatCancelled) {
+      cancelNote.hidden = false;
+      cancelNote.querySelector('.bd-cancel-label').textContent = t('bottomUp.rejectNote.label');
+      cancelPop.querySelector('.bd-cancel-pop-title').textContent = t('bottomUp.rejectNote.pop.title');
+      $('bd-cancel-updated').textContent = t('beatDetail.cancelNote.lastUpdated', { time: BU.rejectedAt });
+      $('bd-cancel-pop-text').textContent = BU.rejectReason;
+      $('bd-cancel-pop-meta').textContent = t('bottomUp.rejectNote.pop.meta', { name: MANAGER, time: BU.rejectedAt });
+      return;
+    }
+    cancelNote.querySelector('.bd-cancel-label').textContent = t('beatDetail.cancelNote.label');
+    cancelPop.querySelector('.bd-cancel-pop-title').textContent = t('beatDetail.cancelNote.pop.title');
     cancelNote.hidden = !beatCancelled;
     if (!beatCancelled) { setCancelPop(false); return; }
-    $('bd-cancel-updated').textContent = `Last Updated: ${beatCancelledAt}`;
+    $('bd-cancel-updated').textContent = t('beatDetail.cancelNote.lastUpdated', { time: beatCancelledAt });
     $('bd-cancel-pop-text').textContent = beatCancelReason;
-    $('bd-cancel-pop-meta').textContent = `Cancelled by Cameron Williamson · ${beatCancelledAt}`;
+    $('bd-cancel-pop-meta').textContent =
+      t('beatDetail.cancelNote.pop.meta', { name: 'Cameron Williamson', time: beatCancelledAt });
   }
   function setCancelPop(open) {
     cancelPop.hidden = !open;
@@ -689,6 +773,7 @@ document.addEventListener('DOMContentLoaded', () => {
     statusEl.className = `bp-badge ${s.cls}`;
     renderDayAction();
     renderBand();
+    renderApproval();
     if (window.bdMap) { window.bdMap._activeBeatDay = selectedDay; window.bdMap.draw(); }
   }
 
@@ -698,7 +783,7 @@ document.addEventListener('DOMContentLoaded', () => {
     toastEl.innerHTML = `
       <img class="bd-toast-icon" src="src/toast-tick.svg" alt="" aria-hidden="true" />
       <span class="bd-toast-text">${escape(message)}</span>
-      <button class="bd-toast-close" type="button" aria-label="Dismiss">
+      <button class="bd-toast-close" type="button" aria-label="${escape(t('beatDetail.toast.dismiss.ariaLabel'))}">
         <img src="src/toast-close.svg" alt="" aria-hidden="true" /></button>`;
     toastEl.classList.add('show');
     clearTimeout(toast._t);
@@ -725,12 +810,13 @@ document.addEventListener('DOMContentLoaded', () => {
     DAYS[i].startedAt = clock();
     DAYS[i].startedMin = SIM.minutes;
     /* The first stop is the one the rep is on */
-    if (DAYS[i].visits[0]) DAYS[i].visits[0].status = 'active';
+    const first = DAYS[i].visits.find(v => v.status === 'pending');
+    if (first) first.status = 'active';
     selectedDay = i;
     expanded = true;
     render();
     revealDay(i);
-    toast(`${DAYS[i].label} started at ${DAYS[i].startedAt}.`);
+    toast(t('beatDetail.toast.dayStarted', { day: DAYS[i].label, time: DAYS[i].startedAt }));
   }
 
   function endDay(i) {
@@ -747,8 +833,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (next !== -1) { selectedDay = next; expanded = true; }
     render();
     toast(left.length
-      ? `${day.label} ended — ${left.length} visit${left.length === 1 ? '' : 's'} marked missed.`
-      : `${day.label} ended at ${day.endedAt}.`);
+      ? t(left.length === 1 ? 'beatDetail.toast.dayEndedMissed.one' : 'beatDetail.toast.dayEndedMissed.other',
+          { day: day.label, count: left.length })
+      : t('beatDetail.toast.dayEnded', { day: day.label, time: day.endedAt }));
   }
 
   /* Acting from the toolbar means the day the rep just opened may be far
@@ -780,7 +867,7 @@ document.addEventListener('DOMContentLoaded', () => {
      stop — estimates, before anything has been driven */
   const kmIn = text => { const m = (text || '').match(/([\d.]+)\s*km/); return m ? Number(m[1]) : 0; };
   function plannedKm(day) {
-    return kmIn(HOME.drive) + day.visits.reduce((n, v) => n + kmIn(v.drive), 0);
+    return kmIn(HOME.drive) + onRoute(day).reduce((n, v) => n + kmIn(v.drive), 0);
   }
 
   const kmOf = visit => {
@@ -802,11 +889,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const first = day.visits[0];
 
     /* The day and its date ride in the title; the count is in the summary */
-    $('bd-start-title').textContent = `Start “${day.label} - ${day.date}”`;
-    $('bd-start-note-day').textContent = day.label;
-    $('bd-start-visits').textContent = String(day.visits.length);
-    $('bd-start-km').textContent = `${planned.toFixed(1)} km`;
-    $('bd-start-first').textContent = first ? first.name : '—';
+    $('bd-start-title').textContent = t('startDay.title', { day: day.label, date: day.date });
+    $('bd-start-note').textContent = t('startDay.note.text', { day: day.label });
+    $('bd-start-visits').textContent = String(onRoute(day).length);
+    $('bd-start-km').textContent = km(planned);
+    $('bd-start-first').textContent = first ? first.name : t('common.empty');
     $('bd-start-clock').textContent = clock();
 
     startOverlay.hidden = false;
@@ -836,10 +923,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let endingDay = null;
 
   function elapsed(day) {
-    if (day.startedMin == null) return '—';
+    if (day.startedMin == null) return t('common.empty');
     const mins = Math.max(1, (day.endedMin ?? SIM.minutes) - day.startedMin);
-    return mins < 60 ? `${mins} min`
-      : `${Math.floor(mins / 60)} hr${mins % 60 ? ` ${mins % 60} min` : ''}`;
+    const h = Math.floor(mins / 60), m = mins % 60;
+    if (mins < 60) return t('common.elapsed.minutes', { m: mins });
+    return m ? t('common.elapsed.hoursMinutes', { h, m }) : t('common.elapsed.hours', { h });
   }
 
   /* What the day came to if it ends now. Missed counts what is already
@@ -852,15 +940,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const done = day.visits.filter(v => v.status === 'done');
     /* Distance counts the legs actually driven — the ones out of a stop the
        rep reached */
-    const km = done.reduce((n, v) => n + kmOf(v), 0);
+    const driven = done.reduce((n, v) => n + kmOf(v), 0);
 
-    $('bd-end-title').textContent = `End “${day.label} - ${day.date}”`;
-    $('bd-sum-done').textContent = `${done.length} of ${day.visits.length}`;
+    $('bd-end-title').textContent = t('endDay.title', { day: day.label, date: day.date });
+    $('bd-sum-done').textContent = t('endDay.summary.doneValue', { done: done.length, total: onRoute(day).length });
     $('bd-sum-missed').textContent = String(count('missed', 'pending', 'active'));
     $('bd-sum-canceled').textContent = String(count('cancelled'));
     $('bd-sum-rescheduled').textContent = String(count('rescheduled'));
     $('bd-sum-time').textContent = elapsed(day);
-    $('bd-sum-km').textContent = `${km.toFixed(1)} km`;
+    $('bd-sum-km').textContent = km(driven);
 
     endOverlay.hidden = false;
     $('bd-end-confirm').focus();
@@ -919,7 +1007,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const d = Number(row.closest('.bd-day').dataset.day), v = Number(row.dataset.visit);
       const open = VISIT_ACTION_OPEN[item.dataset.action];
       if (open) open(d, v);
-      else toast(`${ACTION_LABEL[item.dataset.action]} for ${name} is not part of this prototype yet.`);
+      else toast(t('beatDetail.toast.visitActionNotInPrototype', { action: actionLabel(item.dataset.action), name }));
       return;
     }
   }, true);
@@ -1004,7 +1092,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const avTitle = $('bd-av-title');
   /* Module & Record: the lookup in src/record-picker.js */
   const avRecord = RecordPicker.create($('av-record-host'), {
-    modules: RECORDS, placeholder: 'Select Record', mandatory: true, fieldId: 'av-record',
+    modules: RECORDS, placeholder: t('visitForm.placeholder.selectRecord'), mandatory: true, fieldId: 'av-record',
     onChange: () => setMsg(avRecord.field, ''),
   });
   const avType   = $('av-type');
@@ -1060,10 +1148,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const MAX_VISIT_MINUTES = 480;
   function durationProblem(input) {
     const raw = input.value.trim();
-    if (!raw) return 'Enter the duration in minutes.';
+    if (!raw) return t('visitForm.error.durationEmpty');
     const n = Number(raw);
-    if (n < 1) return 'Must be at least 1 minute.';
-    if (n > MAX_VISIT_MINUTES) return `Must be ${MAX_VISIT_MINUTES} minutes or less.`;
+    if (n < 1) return t('visitForm.error.durationMin');
+    if (n > MAX_VISIT_MINUTES) return t('visitForm.error.durationMax', { max: MAX_VISIT_MINUTES });
     return '';
   }
   /* Digits only, as they are typed or pasted */
@@ -1082,8 +1170,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function openAddVisit(dayIndex) {
     addingTo = dayIndex;
     const day = DAYS[dayIndex];
-    avTitle.innerHTML =
-      `Add Visit to ${escape(day.label)} <span class="dot">•</span> ${escape(day.date)}`;
+    /* The title's • is drawn as the dialog's styled dot */
+    avTitle.innerHTML = escape(t('addVisit.title', { day: day.label, date: day.date }))
+      .replace('•', '<span class="dot">•</span>');
 
     avRecord.clear(); setMsg(avRecord.field, '');
     avType.value = ''; setMsg(avType, '');
@@ -1113,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $('av-add').addEventListener('click', () => {
     let ok = true;
-    if (!avRecord.value) { setMsg(avRecord.field, 'Select a record.'); ok = false; }
-    if (!avType.value)   { setMsg(avType, 'Select a visit type.'); ok = false; }
+    if (!avRecord.value) { setMsg(avRecord.field, t('visitForm.error.selectRecord')); ok = false; }
+    if (!avType.value)   { setMsg(avType, t('visitForm.error.selectType')); ok = false; }
     const durMsg = durationProblem(avDur);
     if (durMsg) { setMsg(avDur, durMsg); ok = false; }
     if (!ok) return;
@@ -1124,7 +1213,15 @@ document.addEventListener('DOMContentLoaded', () => {
        first visit would, on an empty day) */
     const day = DAYS[addingTo];
     const time = timeRange(nextFreeStart(day), Number(avDur.value));
+    const issues = isBU()
+      ? limitIssues(day, { addVisits: 1, newEnd: clockToMinutes(time.split(' to ')[1]) }) : [];
+    confirmLimits(issues, () => addVisitNow(day, time));
+  });
 
+  function addVisitNow(day, time) {
+    /* Bottom-up: the manager's additions are approved as they are made;
+       one the rep adds while the beat runs waits for the manager */
+    const awaiting = isBU() && !isManager() && BU.phase === 'approved';
     day.visits.push({
       name: avRecord.value,
       module: avRecord.module || 'Contacts',
@@ -1133,19 +1230,23 @@ document.addEventListener('DOMContentLoaded', () => {
       time,
       drive: '',
       comments: avDesc.value.trim(),
-      status: 'pending',
+      status: awaiting ? 'awaiting' : 'pending',
+      ...(isBU() && isManager() ? { approval: 'approved', addedByManager: true } : {}),
+      ...(awaiting ? { approval: 'pending' } : {}),
     });
-    /* Keep the day in the order it will actually be worked */
-    day.visits.sort((a, b) => {
-      const at = a.time.match(/^\d/) ? clockToMinutes(a.time) : Infinity;
-      const bt = b.time.match(/^\d/) ? clockToMinutes(b.time) : Infinity;
-      return at - bt;
-    });
+    /* Every visit keeps a pin, so the map's numbers stay in step */
+    const last = day.pins[day.pins.length - 1] || BEAT_HOME;
+    day.pins.push({ x: last.x + 40, y: last.y + 30 });
+    /* It starts after the day's last visit ends, so it is already the
+       last in order; a re-sort here would leave the pins out of step */
 
+    if (awaiting) notify('manager', t('bottomUp.note.repAdded', { rep: THIS_REP, name: avRecord.value }));
     closeAddVisit();
     render();
-    toast(`${avRecord.value} added to ${day.label}.`);
-  });
+    toast(awaiting
+      ? t('bottomUp.toast.addedForApproval', { name: avRecord.value, manager: MANAGER })
+      : t('beatDetail.toast.visitAdded', { name: avRecord.value, day: day.label }));
+  }
 
   /* ── Route map ─────────────────────────────────────── */
   const BEAT_HOME   = { x: 250, y: 590 };
@@ -1197,7 +1298,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const { ctx } = this;
     this._beatDays.forEach((day, i) => {
       const active = i === this._activeBeatDay;
-      const pts = [this._beatHome, ...day.visits, this._beatOffice];
+      const pts = [this._beatHome, ...day.visits.filter((p, vi) => !offRoute(DAYS[i].visits[vi] || {})), this._beatOffice];
       ctx.save();
       ctx.strokeStyle = active ? '#6c63ff' : '#c0c7d4';
       ctx.lineWidth   = (active ? 2.5 : 1.5) / this.scale;
@@ -1222,7 +1323,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const active = i === this._activeBeatDay;
       ctx.save();
       ctx.globalAlpha = active ? 1 : 0.5;
+      let no = 0;
       day.visits.forEach((p, vi) => {
+        if (offRoute(DAYS[i].visits[vi] || {})) return;
+        no += 1;
         const state = DAYS[i].visits[vi] ? DAYS[i].visits[vi].status : 'pending';
         const col = state === 'done' ? DONE : state === 'missed' ? MISSED
           : state === 'cancelled' ? GREY : active ? ACTIVE : GREY;
@@ -1234,7 +1338,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillStyle = filled ? '#ffffff' : col;
         ctx.font = `600 ${10 / this.scale}px system-ui, sans-serif`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(vi + 1, p.x, p.y);
+        ctx.fillText(no, p.x, p.y);
         /* A ring round the stop picked in the list or on the map */
         if (focused && focused.day === i && focused.visit === vi) {
           ctx.beginPath(); ctx.arc(p.x, p.y, r + 5 / this.scale, 0, Math.PI * 2);
@@ -1416,7 +1520,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const visitPop = document.createElement('div');
   visitPop.className = 'bd-vpop';
   visitPop.setAttribute('role', 'dialog');
-  visitPop.setAttribute('aria-label', 'Visit details');
+  visitPop.setAttribute('aria-label', t('visitCard.ariaLabel'));
   visitPop.hidden = true;
   $('map-area').appendChild(visitPop);
 
@@ -1439,14 +1543,14 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="bd-vpop-head">
         <p class="bd-vpop-name">${escape(visit.name)}</p>
         <a class="bd-vpop-open" href="https://crm.zoho.com/crm/tab/${tab}" target="_blank" rel="noopener"
-           aria-label="Open ${escape(visit.name)} in CRM">Open <i class="ti ti-external-link" aria-hidden="true"></i></a>
+           aria-label="${escape(t('visitCard.open.ariaLabel', { name: visit.name }))}">${escape(t('visitCard.open'))} <i class="ti ti-external-link" aria-hidden="true"></i></a>
       </div>
       <p class="bd-vpop-sub">${escape(visit.type)}<span class="dot">•</span>${escape(visit.module)}${tag
-        ? `<span class="dot">•</span><span class="bd-vpop-state ${tag.cls}">${tag.label}</span>` : ''}</p>
+        ? `<span class="dot">•</span><span class="bd-vpop-state ${tag.cls}">${escape(tag.label)}</span>` : ''}</p>
       <p class="bd-vpop-row"><i class="ti ti-clock" aria-hidden="true"></i>
         <span>${weekday}, ${mon} ${dd} · ${escape(when).replace(' to ', ' – ')}</span></p>
       <p class="bd-vpop-row bd-vpop-addr-row"><i class="ti ti-map-pin" aria-hidden="true"></i>
-        <span class="bd-vpop-addr">${escape(visit.address || 'No address')}</span></p>`;
+        <span class="bd-vpop-addr">${escape(visit.address || t('visitCard.noAddress'))}</span></p>`;
   }
 
   /* Home and Office: where the day starts or ends, and nothing more */
@@ -1585,7 +1689,7 @@ document.addEventListener('DOMContentLoaded', () => {
   railToggle.addEventListener('click', () => {
     const open = document.body.classList.toggle('bd-rlist-open');
     railToggle.setAttribute('aria-expanded', String(open));
-    railToggle.setAttribute('aria-label', `${open ? 'Hide' : 'Show'} related list`);
+    railToggle.setAttribute('aria-label', t(open ? 'beatDetail.relatedRail.toggle.hide' : 'beatDetail.relatedRail.toggle.show'));
     /* The column just changed width, and the map canvas with it. Reading a
        layout property flushes the new width, so the canvas can be fitted
        here and now rather than from a frame that may never be scheduled. */
@@ -1656,8 +1760,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const fields = CARD_FIELDS[visit.module] || CARD_FIELDS.Contacts;
     const rows = fields.map(([label, key, isPhone]) => {
       const value = info[key];
-      const shown = value ? escape(value) : '—';
-      return `<dt>${label}</dt><dd><span class="bd-bcard-val" data-trunc>${shown}</span>${isPhone && value
+      const shown = escape(value || t('common.empty'));
+      return `<dt>${escape(t(`bizCard.field.${label}`))}</dt><dd><span class="bd-bcard-val" data-trunc>${shown}</span>${isPhone && value
         ? '<img src="src/phone-small.svg" alt="" aria-hidden="true" />' : ''}</dd>`;
     }).join('');
     return `
@@ -1700,7 +1804,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!nameEl) return;
     e.preventDefault();
     e.stopPropagation();
-    toast(`${nameEl.textContent} opened in a new tab.`);
+    toast(t('beatDetail.toast.recordOpened', { name: nameEl.textContent }));
   }, true);
 
   card.addEventListener('mouseenter', () => clearTimeout(hideTimer));
@@ -1723,22 +1827,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const hideTruncTip = () => { clearTimeout(truncTimer); truncTip.hidden = true; };
 
+  /* Below the element, or above it when there is no room */
+  function placeTruncTip(el) {
+    truncTip.hidden = false;
+    const r = el.getBoundingClientRect();
+    const w = truncTip.offsetWidth, h = truncTip.offsetHeight;
+    const below = r.bottom + 6 + h <= window.innerHeight - 8;
+    truncTip.style.left = `${Math.min(Math.max(8, r.left), window.innerWidth - w - 8)}px`;
+    truncTip.style.top = `${below ? r.bottom + 6 : r.top - 6 - h}px`;
+  }
+
+  /* Set by the simulator's Show content keys; while on, the tooltip names
+     keys instead */
+  let showKeys = false;
+
   /* Also carries a fixed message for anything marked data-tip — the reason
      a greyed-out Start cannot be used — which shows whether or not the
      text is cut off */
   function onTruncOver(e) {
+    if (showKeys) return;
     const el = e.target.closest('[data-trunc], [data-tip]');
     if (!el) return;
     if (!el.dataset.tip && el.scrollWidth <= el.clientWidth) return;
     clearTimeout(truncTimer);
     truncTimer = setTimeout(() => {
       truncTip.textContent = el.dataset.tip || el.textContent.trim();
-      truncTip.hidden = false;
-      const r = el.getBoundingClientRect();
-      const w = truncTip.offsetWidth, h = truncTip.offsetHeight;
-      const below = r.bottom + 6 + h <= window.innerHeight - 8;
-      truncTip.style.left = `${Math.min(Math.max(8, r.left), window.innerWidth - w - 8)}px`;
-      truncTip.style.top = `${below ? r.bottom + 6 : r.top - 6 - h}px`;
+      placeTruncTip(el);
     }, 300);
   }
 
@@ -1785,11 +1899,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   function setShowAddress(on) {
     addrLink.setAttribute('aria-pressed', String(on));    /* pressed = shown */
-    addrLink.dataset.tip = on ? 'Hide address' : 'Show address';
+    addrLink.dataset.tip = t(on ? 'beatDetail.visits.addressToggle.hideTip' : 'beatDetail.visits.addressToggle.showTip');
     /* The icon shows the current state — the set's plain icon while
        addresses show, its struck-out pair once hidden; the tooltip names
        what a click will do */
-    if (!truncTip.hidden) truncTip.textContent = addrLink.dataset.tip;
+    if (!truncTip.hidden && !showKeys) truncTip.textContent = addrLink.dataset.tip;
     daysEl.classList.toggle('bd-hide-addr', !on);
     drawAddrIcon();
     try { localStorage.setItem(ADDR_KEY, on ? '1' : '0'); } catch { /* private mode */ }
@@ -1814,11 +1928,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const THIS_REP = 'Cameron Williamson';
   const MONTH_DAYS = { May: 31, Jun: 30 };
   const beat = (id, month, start, days) => ({ id, month, start, days });
-  const beatLabel = b => `${b.id} • ${b.start} ${b.month} - ${dayOfBeat(b, b.days - 1).date}`;
+  const beatLabel = b => t('visitForm.option.beat',
+    { beat: b.id, start: `${b.start} ${b.month}`, end: dayOfBeat(b, b.days - 1).date });
+  const dayOption = day => t('visitForm.option.day', { day: day.label, date: day.date });
   function dayOfBeat(b, i) {
     let day = b.start + i, month = b.month;
     if (day > MONTH_DAYS[month]) { day -= MONTH_DAYS[month]; month = 'Jun'; }
-    return { label: `Day ${i + 1}`, date: `${day} ${month}` };
+    return { label: t('beatDetail.day.label', { n: i + 1 }), date: `${day} ${month}` };
   }
 
   /* This rep's active beats — BP-003 is the one on screen */
@@ -1832,7 +1948,7 @@ document.addEventListener('DOMContentLoaded', () => {
                        'Stock Check', 'Relationship Check-in'];
 
   const fill = (sel, options, placeholder, value = '') => {
-    sel.innerHTML = `<option value="" ${value ? '' : 'selected'} disabled>${placeholder}</option>` +
+    sel.innerHTML = `<option value="" ${value ? '' : 'selected'} disabled>${escape(placeholder)}</option>` +
       options.map(([val, text]) => `<option value="${escape(val)}"${String(val) === String(value) ? ' selected' : ''}>${escape(text)}</option>`).join('');
   };
   /* Selects and time pickers both: a picker locks blank and opens filled */
@@ -1845,7 +1961,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let vaTarget = null;   /* { d, v } the dialog acts on */
   const vaVisit = () => DAYS[vaTarget.d].visits[vaTarget.v];
 
-  const VA_OVERLAYS = ['va-resched-overlay', 'va-reassign-overlay', 'va-cancel-overlay',
+  const VA_OVERLAYS = ['bu-reason-overlay', 'bu-complete-overlay', 'bu-limit-overlay', 'bu-discard-overlay',
+                       'va-resched-overlay', 'va-reassign-overlay', 'va-cancel-overlay',
                        'va-revise-overlay', 'va-edit-overlay'];
   function openOverlay(id) { $(id).hidden = false; }
   function closeOverlays() {
@@ -1870,8 +1987,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const b = beatsFor().find(x => x.id === beatSel.value);
       fill(dateSel, Array.from({ length: b.days }, (_, i) => {
         const day = dayOfBeat(b, i);
-        return [i, `${day.label}  •  ${day.date}`];
-      }), 'Select Date');
+        return [i, dayOption(day)];
+      }), t('visitForm.placeholder.selectDate'));
       /* On this beat, a day already closed cannot take a visit */
       if (b.id === 'BP-003') {
         [...dateSel.options].slice(1).forEach((o, i) => { o.disabled = isClosed(DAYS[i]); });
@@ -1882,7 +1999,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     dateSel.addEventListener('change', () => {
       setMsg(dateSel, '');
-      if (typeSel) fill(typeSel, VISIT_TYPES.map(t => [t, t]), 'Select Visit Type', vaVisit().type);
+      if (typeSel) fill(typeSel, VISIT_TYPES.map(v => [v, v]), t('visitForm.placeholder.selectVisitType'), vaVisit().type);
       /* The time picker opens on the visit's own start time, or 9:00 AM */
       const own = vaVisit().time.split(' to ')[0];
       timeSel.setValue(/^\d/.test(own) ? own : '9:00 AM');
@@ -1938,12 +2055,12 @@ document.addEventListener('DOMContentLoaded', () => {
      is on now cannot be picked again; it shows greyed out and says why. */
   const rs = { beat: $('va-resched-beat'),
                date: SelectMenu.create($('va-resched-date-host'), {
-                 placeholder: 'Select Date', mandatory: true, fieldId: 'va-resched-date',
+                 placeholder: t('visitForm.placeholder.selectDate'), mandatory: true, fieldId: 'va-resched-date',
                  onChange: () => setMsg(rs.date.field, ''),
                }),
                type: $('va-resched-type'), dur: $('va-resched-dur'),
                reason: $('va-resched-reason') };
-  const SAME_DAY_TIP = 'Same day can not be chosen for rescheduling.';
+  const SAME_DAY_TIP = t('rescheduleVisit.sameDayTip');
   rs.beat.addEventListener('change', () => {
     setMsg(rs.beat, '');
     const b = OWN_BEATS.find(x => x.id === rs.beat.value);
@@ -1952,8 +2069,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const here = b.id === 'BP-003';
       const same = here && i === vaTarget.d;
       const closed = here && !same && isClosed(DAYS[i]);
-      return { value: i, label: `${day.label}  •  ${day.date}`, disabled: same || closed,
-               tip: same ? SAME_DAY_TIP : closed ? 'This day is already closed.' : '' };
+      return { value: i, label: dayOption(day), disabled: same || closed,
+               tip: same ? SAME_DAY_TIP : closed ? t('rescheduleVisit.closedDayTip') : '' };
     }));
     rs.date.setDisabled(false);
     setMsg(rs.date.field, '');
@@ -1965,14 +2082,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function openReschedule(d, v) {
     vaTarget = { d, v };
     const visit = vaVisit();
-    $('va-resched-title').textContent = 'Reschedule Visit';
-    fill(rs.beat, OWN_BEATS.map(b => [b.id, beatLabel(b)]), 'Select Beat');
+    $('va-resched-title').textContent = t('rescheduleVisit.title');
+    fill(rs.beat, OWN_BEATS.map(b => [b.id, beatLabel(b)]), t('visitForm.placeholder.selectBeat'));
     setMsg(rs.beat, '');
     rs.date.setOptions([]);
     rs.date.setDisabled(true);
     setMsg(rs.date.field, '');
     /* Type and length start as the visit has them */
-    fill(rs.type, VISIT_TYPES.map(t => [t, t]), 'Select Visit Type', visit.type);
+    fill(rs.type, VISIT_TYPES.map(v => [v, v]), t('visitForm.placeholder.selectVisitType'), visit.type);
     setMsg(rs.type, '');
     rs.dur.value = String(spanMinutes(visit.time)); setMsg(rs.dur, '');
     rs.reason.value = ''; setMsg(rs.reason, '');
@@ -1981,9 +2098,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   $('va-resched-go').addEventListener('click', () => {
-    const ok = [need(rs.beat, 'Select a beat.'),
-                need({ value: rs.date.value, input: rs.date.field }, 'Select a date.'),
-                need(rs.type, 'Select a visit type.'), need(rs.reason, 'Enter a reason.')].every(Boolean);
+    const ok = [need(rs.beat, t('visitForm.error.selectBeat')),
+                need({ value: rs.date.value, input: rs.date.field }, t('visitForm.error.selectDate')),
+                need(rs.type, t('visitForm.error.selectType')), need(rs.reason, t('visitForm.error.enterReason'))].every(Boolean);
     const durMsg = durationProblem(rs.dur);
     if (durMsg) setMsg(rs.dur, durMsg);
     if (!ok || durMsg) return;
@@ -2001,9 +2118,10 @@ document.addEventListener('DOMContentLoaded', () => {
     handOn(d, wasActive);
     if (b.id === 'BP-003') {
       placeVisit(dayIdx, visit, pin);
-      toast(`Visit rescheduled to ${target.label} • ${target.date}.`);
+      toast(t('beatDetail.toast.visitRescheduled', { day: target.label, date: target.date }));
     } else {
-      toast(`${visit.name} rescheduled to ${b.id} • ${target.label} • ${target.date}.`);
+      toast(t('beatDetail.toast.visitRescheduledOtherBeat',
+        { name: visit.name, beat: b.id, day: target.label, date: target.date }));
     }
     closeOverlays();
     afterChange();
@@ -2022,18 +2140,18 @@ document.addEventListener('DOMContentLoaded', () => {
   wireDuration(raDur);
   ra.rep.addEventListener('change', () => {
     setMsg(ra.rep, '');
-    fill(ra.beat, REP_BEATS[ra.rep.value].map(b => [b.id, beatLabel(b)]), 'Select Beat');
+    fill(ra.beat, REP_BEATS[ra.rep.value].map(b => [b.id, beatLabel(b)]), t('visitForm.placeholder.selectBeat'));
     unlock(ra.beat);
     [ra.date, ra.type, ra.time].forEach(lock);
   });
 
   function openReassign(d, v) {
     vaTarget = { d, v };
-    $('va-reassign-title').textContent = 'Transfer Visit';
-    fill(ra.rep, Object.keys(REP_BEATS).filter(r => r !== THIS_REP).map(r => [r, r]), 'Select Rep');
+    $('va-reassign-title').textContent = t('transferVisit.title');
+    fill(ra.rep, Object.keys(REP_BEATS).filter(r => r !== THIS_REP).map(r => [r, r]), t('visitForm.placeholder.selectRep'));
     setMsg(ra.rep, '');
     [ra.beat, ra.date, ra.type, ra.time].forEach(lock);
-    ra.beat.innerHTML = '<option value="" selected disabled>Select Beat</option>';
+    ra.beat.innerHTML = `<option value="" selected disabled>${escape(t('visitForm.placeholder.selectBeat'))}</option>`;
     ra.reason.value = '';
     raDur.value = String(spanMinutes(vaVisit().time)); setMsg(raDur, '');
     openOverlay('va-reassign-overlay');
@@ -2041,8 +2159,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   $('va-reassign-go').addEventListener('click', () => {
-    const ok = [need(ra.rep, 'Select a rep.'), need(ra.beat, 'Select a beat.'), need(ra.date, 'Select a date.'),
-                need(ra.time, 'Select a time.')].every(Boolean);
+    const ok = [need(ra.rep, t('visitForm.error.selectRep')), need(ra.beat, t('visitForm.error.selectBeat')),
+                need(ra.date, t('visitForm.error.selectDate')), need(ra.time, t('visitForm.error.selectTime'))].every(Boolean);
     const durMsg = durationProblem(raDur);
     if (durMsg) setMsg(raDur, durMsg);
     if (!ok || durMsg) return;
@@ -2052,7 +2170,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const wasActive = vaVisit().status === 'active';
     const { visit } = liftVisit(d, v);
     handOn(d, wasActive);
-    toast(`${visit.name} transferred to ${ra.rep.value} — ${b.id} • ${target.label} • ${target.date}.`);
+    toast(t('beatDetail.toast.visitTransferred',
+      { name: visit.name, rep: ra.rep.value, beat: b.id, day: target.label, date: target.date }));
     closeOverlays();
     afterChange();
   });
@@ -2063,21 +2182,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function openCancel(d, v) {
     vaTarget = { d, v };
-    $('va-cancel-title').textContent = `Cancel “${vaVisit().name}”`;
+    $('va-cancel-title').textContent = t('cancelVisit.title', { name: vaVisit().name });
     cancelReason.value = ''; setMsg(cancelReason, '');
     openOverlay('va-cancel-overlay');
     cancelReason.focus();
   }
 
   $('va-cancel-go').addEventListener('click', () => {
-    if (!need(cancelReason, 'Enter a reason.')) return;
+    if (!need(cancelReason, t('visitForm.error.enterReason'))) return;
     const { d } = vaTarget;
     const visit = vaVisit();
     const wasActive = visit.status === 'active';
     visit.status = 'cancelled';
     visit.cancelReason = cancelReason.value.trim();
     handOn(d, wasActive);
-    toast(`${visit.name} cancelled.`);
+    toast(t('beatDetail.toast.visitCancelled', { name: visit.name }));
     closeOverlays();
     afterChange();
   });
@@ -2097,27 +2216,27 @@ document.addEventListener('DOMContentLoaded', () => {
   function openRevise(d, v) {
     vaTarget = { d, v };
     const visit = vaVisit();
-    const record = `${visit.name} • ${visit.module || 'Contacts'}`;
+    const record = t('visitForm.option.record', { name: visit.name, module: visit.module || 'Contacts' });
     fill(rv.record, [[record, record]], '', record);
     fill(rv.type, [[visit.type, visit.type]], '', visit.type);
-    [rv.in, rv.out].forEach(sel => { fill(sel, CHECK_TIMES.map(t => [t, t]), 'Select Time'); setMsg(sel, ''); });
+    [rv.in, rv.out].forEach(sel => { fill(sel, CHECK_TIMES.map(c => [c, c]), t('visitForm.placeholder.selectTime')); setMsg(sel, ''); });
     rv.comments.value = visit.comments || '';
     openOverlay('va-revise-overlay');
     rv.in.focus();
   }
 
   $('va-revise-go').addEventListener('click', () => {
-    const okIn = need(rv.in, 'Select the check-in time.');
-    const okOut = need(rv.out, 'Select the check-out time.');
+    const okIn = need(rv.in, t('reviseVisit.error.checkInMissing'));
+    const okOut = need(rv.out, t('reviseVisit.error.checkOutMissing'));
     if (!okIn || !okOut) return;
     if (clockToMinutes(rv.out.value) <= clockToMinutes(rv.in.value)) {
-      setMsg(rv.out, 'Check-out must be after check-in.');
+      setMsg(rv.out, t('reviseVisit.error.checkOutOrder'));
       return;
     }
     const visit = vaVisit();
     Object.assign(visit, { status: 'done', actual: `${rv.in.value} to ${rv.out.value}`,
                            comments: rv.comments.value.trim(), revised: true });
-    toast(`${visit.name} revised as completed.`);
+    toast(t('beatDetail.toast.visitRevised', { name: visit.name }));
     closeOverlays();
     afterChange();
   });
@@ -2129,6 +2248,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const ed = { type: $('va-edit-type'), dur: $('va-edit-dur'),
                comments: $('va-edit-comments'), note: $('va-edit-note') };
   let edMinutes = 0;   // the visit's length when the dialog opened
+  let edOpen = false;  // whether type and duration can change
   wireDuration(ed.dur);
   ed.dur.addEventListener('input', () => {
     /* Emptied counts as changed, so the info stays; the error waits for
@@ -2136,19 +2256,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const empty = ed.dur.value === '';
     const changed = !ed.dur.disabled && (empty || Number(ed.dur.value) !== edMinutes);
     const day = DAYS[vaTarget.d];
-    ed.note.textContent = `Beat plan for the day ${day.label} - ${day.date} will be reoptimized based on updated duration.`;
+    ed.note.textContent = t('editVisit.duration.replanInfo', { day: day.label, date: day.date });
     ed.note.hidden = !changed;
   });
 
-  function openEdit(d, v) {
+  /* `mode` 'resubmit': the rep reworking a visit the manager rejected —
+     the same fields, and Save sends it back for approval */
+  let edMode = 'edit';
+  function openEdit(d, v, mode = 'edit') {
     vaTarget = { d, v };
+    edMode = mode;
     const visit = vaVisit();
-    const open = visit.status === 'pending';
-    $('va-edit-title').textContent = `Edit “${visit.name}”`;
-    fill(ed.type, VISIT_TYPES.map(t => [t, t]), 'Select Visit Type', visit.type);
+    const open = visit.status === 'pending' || mode === 'resubmit';
+    $('va-edit-title').textContent = mode === 'resubmit'
+      ? t('bottomUp.resubmit.title', { name: visit.name })
+      : t('editVisit.title', { name: visit.name });
+    $('va-edit-go').textContent = mode === 'resubmit' ? t('bottomUp.resubmit.confirm') : t('editVisit.submit');
+    fill(ed.type, VISIT_TYPES.map(v => [v, v]), t('visitForm.placeholder.selectVisitType'), visit.type);
     /* Its planned length, or how long it really ran once done */
     const when = visit.status === 'done' && visit.actual ? visit.actual : visit.time;
     edMinutes = spanMinutes(open ? visit.time : when);
+    edOpen = open;
     ed.dur.value = String(edMinutes);
     setMsg(ed.dur, '');
     ed.note.hidden = true;
@@ -2175,30 +2303,489 @@ document.addEventListener('DOMContentLoaded', () => {
   $('va-edit-go').addEventListener('click', () => {
     const { d } = vaTarget;
     const visit = vaVisit();
-    if (visit.status === 'pending') {
+    if (edOpen) {
       const durMsg = durationProblem(ed.dur);
       if (durMsg) { setMsg(ed.dur, durMsg); return; }
     }
+    const mins = Number(ed.dur.value);
+    /* Bottom-up: a change that runs the day past its limits still saves,
+       once the user agrees */
+    const issues = isBU() && edOpen && visit.status !== 'rejected'
+      ? limitIssues(DAYS[d], { endShift: mins - edMinutes }) : [];
+    confirmLimits(issues, () => saveEdit(d, visit, mins));
+  });
+
+  function saveEdit(d, visit, mins) {
     visit.comments = ed.comments.value.trim();
     let replanned = false;
-    if (visit.status === 'pending') {
+    if (edOpen) {
       visit.type = ed.type.value;
-      const mins = Number(ed.dur.value);
       const start = visit.time.split(' to ')[0];
       if (mins !== edMinutes && /^\d/.test(start)) {
         visit.time = timeRange(start, mins);
-        reoptimizeDay(d, visit, mins - edMinutes);
-        replanned = true;
+        if (visit.status === 'pending') { reoptimizeDay(d, visit, mins - edMinutes); replanned = true; }
       }
     }
     const day = DAYS[d];
-    toast(replanned ? `${visit.name} updated. ${day.label} - ${day.date} re-planned.` : `${visit.name} updated.`);
+    if (edMode === 'resubmit') {
+      /* Back to the manager; the beat itself stays as it is */
+      visit.status = 'awaiting';
+      visit.approval = 'pending';
+      delete visit.rejectReason;
+      notify('manager', t('bottomUp.note.resubmitted', { rep: THIS_REP, name: visit.name }));
+      toast(t('bottomUp.toast.resubmitted', { name: visit.name, manager: MANAGER }));
+    } else if (isBU() && isManager()) {
+      /* The manager's edit leaves the visit undecided and tells the rep */
+      if (BU.phase === 'approving') delete visit.approval;
+      notify('rep', t('bottomUp.note.edited', { manager: MANAGER, name: visit.name }));
+      toast(t('bottomUp.toast.editedNotified', { name: visit.name, rep: THIS_REP }));
+    } else {
+      toast(replanned
+        ? t('beatDetail.toast.visitUpdatedReplanned', { name: visit.name, day: day.label, date: day.date })
+        : t('beatDetail.toast.visitUpdated', { name: visit.name }));
+    }
     closeOverlays();
+    afterChange();
+  }
+
+  /* ── Bottom-up approval ─────────────────────────────── */
+  /* The rep submits the beat (Create Beat page); it opens here as Pending
+     Approval. The manager starts a review, approves or rejects each visit
+     (reversible until done) or rejects the whole beat, then completes it:
+     visits not reviewed are approved or rejected together, rejected ones
+     leave the route, and the route is re-optimized. The rep then works the
+     beat as in top-down. A rejected visit offers the rep one thing — Edit
+     and Resubmit — and waits for the manager again without the beat going
+     back to Pending Approval. */
+
+  /* The ⋯ menu, by phase and role. After approval the manager can only
+     Transfer; everything else is the rep's. */
+  function visitActions(visit) {
+    if (!isBU()) return VISIT_ACTIONS[visit.status || 'pending'] || [];
+    const mgr = isManager();
+    if (BU.phase === 'rejected') return [];
+    if (BU.phase === 'pending') return mgr ? [] : ['edit', 'remove'];
+    /* During the review only the decision itself: a decided visit swaps
+       its tick and cross for a ⋯ that holds the opposite choice */
+    if (BU.phase === 'approving') {
+      if (!mgr || visit.status !== 'pending') return [];
+      return visit.approval === 'approved' ? ['reject'] : visit.approval === 'rejected' ? ['approve'] : [];
+    }
+    if (visit.status === 'rejected') return mgr ? [] : ['resubmit'];
+    if (visit.status === 'awaiting') return mgr ? ['approve', 'reject'] : [];
+    if (mgr) return visit.status === 'pending' || visit.status === 'active' ? ['reassign'] : [];
+    return (VISIT_ACTIONS[visit.status] || []).filter(a => a !== 'reassign');
+  }
+
+  /* Who can add visits when: the rep before submitting it for review, the
+     manager while reviewing and before the beat starts, then the rep again
+     once it runs — those wait for the manager */
+  function canAddVisit() {
+    if (!isBU()) return true;
+    const mgr = isManager();
+    if (BU.phase === 'pending') return !mgr;
+    if (BU.phase === 'approving') return mgr;
+    if (BU.phase === 'rejected') return false;
+    return DAYS.some(d => d.status !== 'pending') ? !mgr : mgr;
+  }
+
+  /* Tick and cross (Figma 2936:106658), on a visit not yet decided. Once
+     decided they go and the ⋯ takes their place (approved shows nothing
+     more, rejected its tag and reason). After approval, on a visit
+     waiting for the manager. */
+  const TICK_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 9L5 12L13 4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#12AA67"/></svg>';
+  const CROSS_SVG = '<svg width="8" height="8" viewBox="-0.75 -0.75 9.5 9.5" fill="none" aria-hidden="true"><path d="M8 0L0 8M0 0L8 8" stroke-width="1.5" stroke-linecap="round" stroke="#FF5D5A"/></svg>';
+  function approvalIconsHtml(visit) {
+    if (!isBU() || !isManager()) return '';
+    const reviewing = BU.phase === 'approving' && visit.status === 'pending';
+    const waiting = BU.phase === 'approved' && visit.status === 'awaiting';
+    if (!reviewing && !waiting) return '';
+    if (reviewing && visit.approval) return '';
+    const btn = (kind, icon) => `
+          <button class="bu-icon bu-${kind}" type="button" data-bu="${kind}"
+                  data-tip="${escape(t(`bottomUp.visit.${kind}.tip`))}"
+                  aria-label="${escape(t(`bottomUp.visit.${kind}.ariaLabel`, { name: visit.name }))}">${icon}</button>`;
+    return `<div class="bu-decide">${btn('approve', TICK_SVG)}${btn('reject', CROSS_SVG)}</div>`;
+  }
+
+  /* The reason follows the address, and stays when addresses are hidden */
+  function reasonLineHtml(visit) {
+    const rejected = visit.status === 'rejected' || (isBU() && visit.approval === 'rejected');
+    if (!rejected || !visit.rejectReason) return '';
+    return `<p class="bd-visit-reason"><b>${escape(t('bottomUp.visit.reasonLabel'))}</b> ${escape(visit.rejectReason)}</p>`;
+  }
+
+  /* Reviewed so far: decided visits out of all still on the beat */
+  function reviewCounts() {
+    const all = DAYS.flatMap(d => d.visits).filter(v => v.status === 'pending');
+    const approved = all.filter(v => v.approval === 'approved').length;
+    const rejected = all.filter(v => v.approval === 'rejected').length;
+    return { all, total: all.length, approved, rejected, unreviewed: all.length - approved - rejected };
+  }
+
+  /* The model switch; the manager's approval button in the record header
+     (Start Approval with Reject Beat on its arrow, then Complete Approval);
+     who the beat is waiting on, right of the tabs; Optimize Route; the bell */
+
+  function renderApproval() {
+    document.querySelectorAll('.bd-model-btn').forEach(b => {
+      const on = b.dataset.model === model;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-pressed', String(on));
+    });
+
+    /* Header */
+    const head = $('bu-head');
+    let headHtml = '';
+    if (isBU() && isManager() && BU.phase === 'pending') {
+      headHtml = `
+        <div class="bu-split">
+          <button class="bu-split-main" type="button" data-bu-act="start">${escape(t('bottomUp.action.startApproval'))}</button>
+          <button class="bu-split-more" type="button" id="bu-split-more" aria-haspopup="menu" aria-expanded="false"
+                  aria-controls="bu-split-menu" aria-label="${escape(t('bottomUp.action.moreAriaLabel'))}"><span class="bu-split-caret" aria-hidden="true"></span></button>
+          <div class="bd-vmenu bu-split-menu" id="bu-split-menu" role="menu" hidden>
+            <button class="bd-vmenu-item" type="button" role="menuitem" data-bu-act="reject-beat">${escape(t('bottomUp.action.rejectBeat'))}</button>
+          </div>
+        </div>`;
+    } else if (isBU() && isManager() && BU.phase === 'approving') {
+      headHtml = `<button class="bp-btn primary bd-btn-primary" type="button" data-bu-act="complete">${escape(t('bottomUp.action.completeApproval'))}</button>`;
+    }
+    head.innerHTML = headHtml;
+    head.hidden = !headHtml;
+
+    /* Right of the tabs: who it is waiting on, and when it last changed */
+    const acts = $('bu-actions');
+    let html = '';
+    if (isBU() && (BU.phase === 'pending' || BU.phase === 'approving')) {
+      const c = reviewCounts();
+      const waiting = isManager()
+        ? `${escape(t('bottomUp.waiting.manager'))} <span class="bu-wait-count">${escape(t('bottomUp.waiting.count', { done: c.approved + c.rejected, total: c.total }))}</span>`
+        : escape(t('bottomUp.waiting.rep'));
+      html = `
+        <span class="bu-wait">${APPROVAL_ICON}<span>${waiting}</span></span>
+        <span class="bd-cancel-rule" aria-hidden="true"></span>
+        <span class="bu-wait">${CLOCK_ICON}<span>${escape(t('bottomUp.waiting.lastUpdate', { time: BU.updatedAt }))}</span></span>`;
+    }
+    acts.innerHTML = html;
+    acts.hidden = !html;
+
+    /* Optimize Route is the rep's, and only while the beat is theirs to change */
+    $('bd-optimize').hidden = isBU() && (isManager() || BU.phase === 'approving' || BU.phase === 'rejected');
+    renderBell();
+  }
+
+  /* The split button's arrow opens the Reject Beat menu */
+  function setSplitMenu(open) {
+    const menu = $('bu-split-menu'), more = $('bu-split-more');
+    if (!menu) return;
+    menu.hidden = !open;
+    more.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('.bd-vmenu-item').focus();
+  }
+  $('bu-head').addEventListener('click', e => {
+    if (e.target.closest('#bu-split-more')) { e.stopPropagation(); setSplitMenu($('bu-split-menu').hidden); return; }
+    const btn = e.target.closest('[data-bu-act]');
+    if (!btn) return;
+    setSplitMenu(false);
+    runApprovalAct(btn.dataset.buAct);
+  });
+  document.addEventListener('click', e => { if (!e.target.closest('.bu-split')) setSplitMenu(false); });
+  document.addEventListener('keydown', e => {
+    const menu = $('bu-split-menu');
+    if (e.key === 'Escape' && menu && !menu.hidden) { setSplitMenu(false); $('bu-split-more').focus(); }
+  });
+
+  function resetApproval() {
+    BU.phase = 'pending';
+    BU.rejectReason = BU.rejectedAt = BU.approvedAt = '';
+    BU.notes = [];
+    BU.updatedAt = SUBMITTED_AT;
+    DAYS.forEach(d => d.visits.forEach(v => { delete v.approval; delete v.rejectReason; }));
+  }
+
+  /* Re-optimizing after approval: the approved visits keep their order on
+     the route and the rejected ones move below them, pins alongside */
+  function reorderDay(day) {
+    const pairs = day.visits.map((v, i) => ({ v, p: day.pins[i] }));
+    const kept = pairs.filter(x => !offRoute(x.v)), off = pairs.filter(x => offRoute(x.v));
+    const all = kept.concat(off);
+    day.visits.splice(0, day.visits.length, ...all.map(x => x.v));
+    day.pins.splice(0, day.pins.length, ...all.map(x => x.p || { x: BEAT_HOME.x + 40, y: BEAT_HOME.y + 30 }));
+  }
+
+  /* ── Notifications (the bell) ──────────────────────── */
+  /* What one side did reaches the other: a toast for the one acting, the
+     bell for the one it concerns. The prototype's bell starts at 5. */
+  const bell = $('bd-bell'), bellPop = $('bd-bell-pop');
+  function notify(to, text) {
+    BU.notes.unshift({ to, text, time: clock() });
+    renderBell();
+  }
+  function renderBell() {
+    const mine = BU.notes.filter(n => n.to === role());
+    $('bd-bell-count').textContent = String(5 + mine.length);
+    $('bd-bell-list').innerHTML = mine.length
+      ? mine.map(n => `<li class="bd-bell-item"><span>${escape(n.text)}</span><small>${escape(n.time)}</small></li>`).join('')
+      : `<li class="bd-bell-empty">${escape(t('bottomUp.bell.empty'))}</li>`;
+  }
+  function setBell(open) {
+    bellPop.hidden = !open;
+    bell.setAttribute('aria-expanded', String(open));
+  }
+  bell.addEventListener('click', e => { e.stopPropagation(); setBell(bellPop.hidden); });
+  document.addEventListener('click', e => {
+    if (!bellPop.hidden && !bellPop.contains(e.target)) setBell(false);
+  });
+
+  /* ── Soft limits ───────────────────────────────────── */
+  /* Company settings and the Beat Engine set a day's bounds; going past
+     them is allowed, after a confirmation that says what is exceeded */
+  function dayEnd(day) {
+    const ends = onRoute(day).map(v => v.time.split(' to ')[1]).filter(x => x && /^\d/.test(x)).map(clockToMinutes);
+    return ends.length ? Math.max(...ends) : null;
+  }
+  function limitIssues(day, { addVisits = 0, endShift = 0, newEnd = null }) {
+    const issues = [];
+    const count = onRoute(day).length + addVisits;
+    if (count > MAX_VISITS_PER_DAY) {
+      issues.push(t('bottomUp.limit.visits', { day: day.label, date: day.date, count, max: MAX_VISITS_PER_DAY }));
+    }
+    let end = dayEnd(day);
+    if (end != null) end += endShift;
+    if (newEnd != null) end = Math.max(end ?? 0, newEnd);
+    if (end != null && end > BUSINESS.end) {
+      issues.push(t('bottomUp.limit.hours', { day: day.label, date: day.date,
+        end: minutesToClock(end), close: minutesToClock(BUSINESS.end) }));
+    }
+    return issues;
+  }
+  let limitProceed = null;
+  function confirmLimits(issues, proceed) {
+    if (!issues.length) { proceed(); return; }
+    limitProceed = proceed;
+    $('bu-limit-list').innerHTML = issues.map(x => `<li>${escape(x)}</li>`).join('');
+    $('bu-limit-overlay').hidden = false;
+    $('bu-limit-go').focus();
+  }
+  $('bu-limit-back').addEventListener('click', () => { $('bu-limit-overlay').hidden = true; limitProceed = null; });
+  $('bu-limit-go').addEventListener('click', () => {
+    $('bu-limit-overlay').hidden = true;
+    const go = limitProceed;
+    limitProceed = null;
+    if (go) go();
+  });
+
+  /* ── Rejection reason (a visit, or the beat) ───────── */
+  const reasonText = $('bu-reason-text');
+  let reasonFor = null;   // { kind: 'visit', d, v } | { kind: 'beat' }
+  reasonText.addEventListener('input', () => setMsg(reasonText, ''));
+  function openReason(target) {
+    reasonFor = target;
+    const beat = target.kind === 'beat';
+    vaTarget = beat ? { d: selectedDay, v: -1 } : { d: target.d, v: target.v };
+    const name = beat ? '' : DAYS[target.d].visits[target.v].name;
+    $('bu-reason-title').textContent = beat ? t('bottomUp.rejectBeat.title') : t('bottomUp.reject.title', { name });
+    $('bu-reason-sub').textContent = beat ? t('bottomUp.rejectBeat.sub') : t('bottomUp.reject.sub');
+    $('bu-reason-go').textContent = beat ? t('bottomUp.action.rejectBeat') : t('bottomUp.reject.confirm');
+    reasonText.value = ''; setMsg(reasonText, '');
+    openOverlay('bu-reason-overlay');
+    reasonText.focus();
+  }
+  $('bu-reason-go').addEventListener('click', () => {
+    const reason = reasonText.value.trim();
+    if (!reason) { setMsg(reasonText, t('bottomUp.reject.error.reason')); return; }
+    const target = reasonFor;
+    closeOverlays();
+    if (target.kind === 'beat') {
+      BU.phase = 'rejected';
+      BU.rejectReason = reason;
+      BU.rejectedAt = clock();
+      notify('rep', t('bottomUp.note.beatRejected', { manager: MANAGER }));
+      toast(t('bottomUp.toast.beatRejected'));
+    } else {
+      const visit = DAYS[target.d].visits[target.v];
+      visit.approval = 'rejected';
+      visit.rejectReason = reason;
+      BU.updatedAt = clock();
+      if (BU.phase === 'approved') {
+        /* A visit waiting after approval is decided at once */
+        visit.status = 'rejected';
+        notify('rep', t('bottomUp.note.visitRejected', { manager: MANAGER, name: visit.name }));
+      }
+      toast(t('bottomUp.toast.visitRejected', { name: visit.name }));
+    }
     afterChange();
   });
 
+  /* ── Approve / reject one visit ────────────────────── */
+  function approveVisit(d, v) {
+    const visit = DAYS[d].visits[v];
+    if (BU.phase === 'approving') {
+      visit.approval = 'approved';
+      delete visit.rejectReason;
+      BU.updatedAt = clock();
+      afterChange();
+      return;
+    }
+    /* After approval: it joins the route as the last visit of its day, or
+       of the next day not yet started if its own has closed */
+    let target = d;
+    if (isClosed(DAYS[d])) {
+      const next = DAYS.findIndex(x => x.status === 'pending');
+      if (next !== -1) target = next;
+    }
+    const { visit: moved, pin } = liftVisit(d, v);
+    const day = DAYS[target];
+    const ends = onRoute(day).map(x => x.time.split(' to ')[1]).filter(x => x && /^\d/.test(x)).map(clockToMinutes);
+    const start = ends.length ? minutesToClock(Math.max(...ends) + TRAVEL_MINUTES) : '9:00 AM';
+    Object.assign(moved, { status: 'pending', approval: 'approved', time: timeRange(start, spanMinutes(moved.time)) });
+    const routeLen = onRoute(day).length;
+    day.visits.splice(routeLen, 0, moved);
+    day.pins.splice(routeLen, 0, pin || { x: BEAT_HOME.x + 40, y: BEAT_HOME.y + 30 });
+    notify('rep', t('bottomUp.note.visitApproved', { manager: MANAGER, name: moved.name }));
+    toast(t('bottomUp.toast.visitApprovedLast', { name: moved.name, day: day.label, date: day.date }));
+    afterChange();
+  }
+
+  function rejectVisit(d, v) {
+    openReason({ kind: 'visit', d, v });
+  }
+
+  /* The icons on the visit row */
+  daysEl.addEventListener('click', e => {
+    const area = e.target.closest('.bu-decide');
+    if (!area) return;
+    /* The icons' area answers only to approve and reject: a click beside
+       the two circles does not select the visit either */
+    e.stopPropagation();
+    const btn = e.target.closest('.bu-icon');
+    if (!btn) return;
+    hideTruncTip();
+    const row = btn.closest('.bd-visit');
+    const d = Number(row.closest('.bd-day').dataset.day), v = Number(row.dataset.visit);
+    if (btn.dataset.bu === 'approve') approveVisit(d, v); else rejectVisit(d, v);
+  }, true);
+
+  /* Remove (the rep, before the review): the visit and its pin go */
+  function removeVisit(d, v) {
+    const { visit } = liftVisit(d, v);
+    toast(t('bottomUp.toast.visitRemoved', { name: visit.name, day: DAYS[d].label }));
+    afterChange();
+  }
+
+  /* ── Start approval / Reject beat / Complete approval ── */
+  function runApprovalAct(act) {
+    if (act === 'start') {
+      BU.phase = 'approving';
+      BU.updatedAt = clock();
+      DAYS.forEach(d => d.visits.forEach(v => { if (v.approval !== 'approved') delete v.approval; delete v.rejectReason; }));
+      toast(t('bottomUp.toast.approvalStarted'));
+      afterChange();
+    } else if (act === 'reject-beat') {
+      openReason({ kind: 'beat' });
+    } else if (act === 'complete') {
+      openComplete();
+    }
+  }
+
+  /* Complete Beat Approval (Figma 2936:107703). With visits not yet
+     approved, the manager picks: approve them all, or go ahead with the
+     approved ones only (the rest are rejected). The Beat Details line
+     reads what the beat comes to under the choice. */
+  const unreviewedChoice = () => document.querySelector('input[name="bu-unreviewed"]:checked').value;
+  document.querySelectorAll('input[name="bu-unreviewed"]').forEach(r =>
+    r.addEventListener('change', () => { $('bu-complete-details').textContent = beatDetailsLine(); }));
+
+  /* Days, visits and distance of the beat the approval would leave */
+  function beatDetailsLine() {
+    const keepAll = reviewCounts().unreviewed === 0 || unreviewedChoice() === 'approve';
+    const kept = v => v.status === 'pending' && (v.approval === 'approved' || (keepAll && v.approval !== 'rejected'));
+    const days = DAYS.filter(d => d.visits.some(kept));
+    const visits = DAYS.reduce((n, d) => n + d.visits.filter(kept).length, 0);
+    const kmTotal = days.reduce((n, d) => n + kmIn(HOME.drive) + d.visits.filter(kept).reduce((m, v) => m + kmIn(v.drive), 0), 0);
+    if (!days.length) return t('bottomUp.complete.beatDetailsNone');
+    /* "1 day · 1 visit", "3 days · 9 visits"; one date when it is one day */
+    const vars = {
+      from: days[0].date, to: days[days.length - 1].date, date: days[0].date,
+      days: t(days.length === 1 ? 'bottomUp.complete.days.one' : 'bottomUp.complete.days.other', { n: days.length }),
+      visits: t(visits === 1 ? 'bottomUp.complete.visits.one' : 'bottomUp.complete.visits.other', { n: visits }),
+      km: kmTotal.toFixed(1),
+    };
+    return t(days.length === 1 ? 'bottomUp.complete.beatDetailsOneDay' : 'bottomUp.complete.beatDetails', vars);
+  }
+
+  function openComplete() {
+    const c = reviewCounts();
+    vaTarget = { d: selectedDay, v: -1 };
+    const some = c.unreviewed > 0;
+    $('bu-complete-desc').textContent = some
+      ? t('bottomUp.complete.desc')
+      : t('bottomUp.complete.allReviewed', { total: c.total });
+    $('bu-complete-choice').hidden = !some;
+    document.querySelector('input[name="bu-unreviewed"][value="approve"]').checked = true;
+    $('bu-complete-selected-hint').textContent = t('bottomUp.complete.selectedOnlyHint', { count: c.approved });
+    $('bu-complete-details').textContent = beatDetailsLine();
+    openOverlay('bu-complete-overlay');
+    $('bu-complete-go').focus();
+  }
+
+  $('bu-complete-go').addEventListener('click', () => {
+    const c = reviewCounts();
+    const reject = c.unreviewed > 0 && unreviewedChoice() === 'reject';
+    c.all.filter(v => !v.approval).forEach(v => { v.approval = reject ? 'rejected' : 'approved'; });
+    /* Rejected visits leave the route; the route is re-optimized */
+    DAYS.forEach(day => {
+      day.visits.forEach(v => { if (v.approval === 'rejected') v.status = 'rejected'; });
+      reorderDay(day);
+    });
+    BU.phase = 'approved';
+    BU.updatedAt = clock();
+    BU.approvedAt = t('bottomUp.info.approvedAt', { date: dayName(SIM.day), time: clock() });
+    notify('rep', t('bottomUp.note.approvalCompleted', { manager: MANAGER }));
+    closeOverlays();
+    afterChange();
+    toast(t('bottomUp.toast.approvalCompleted', { rep: THIS_REP }));
+  });
+
+  /* ── The model switch ──────────────────────────────── */
+  /* Switching resets everything — visits added, removed or edited, the
+     simulator, any cancellation — by reloading in the other model;
+     bottom-up opens as Pending Approval */
+  $('bd-model').addEventListener('click', e => {
+    const btn = e.target.closest('.bd-model-btn');
+    if (!btn || btn.dataset.model === model) return;
+    try { localStorage.setItem(MODEL_KEY, btn.dataset.model); } catch { /* private mode */ }
+    location.reload();
+  });
+
+  /* ── Back, mid-approval (Figma 2936:107696) ───────── */
+  /* Decisions only count once the approval is completed, so leaving
+     during one asks first; proceeding drops them and the beat is back to
+     Pending Approval when the manager returns */
+  $('bd-back').addEventListener('click', () => {
+    if (isBU() && isManager() && BU.phase === 'approving') {
+      vaTarget = { d: selectedDay, v: -1 };
+      openOverlay('bu-discard-overlay');
+      $('bu-discard-go').focus();
+      return;
+    }
+    location.href = 'index.html';
+  });
+  $('bu-discard-go').addEventListener('click', () => {
+    BU.phase = 'pending';
+    BU.updatedAt = SUBMITTED_AT;
+    DAYS.forEach(d => d.visits.forEach(v => {
+      if (v.approval !== 'approved' || !v.addedByManager) delete v.approval;
+      delete v.rejectReason;
+    }));
+    closeOverlays();
+    location.href = 'index.html';
+  });
+
   const VISIT_ACTION_OPEN = { reschedule: openReschedule, reassign: openReassign, cancel: openCancel,
-                              revise: openRevise, edit: openEdit };
+                              revise: openRevise, edit: openEdit,
+                              approve: approveVisit, reject: rejectVisit, remove: removeVisit,
+                              resubmit: (d, v) => openEdit(d, v, 'resubmit') };
 
   /* ── Optimize Route ────────────────────────────────── */
   /* In the product this re-orders the visits for the shortest route. With
@@ -2208,7 +2795,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('bd-optimize').addEventListener('click', () => {
     const running = activeIndex();
     const day = DAYS[running !== -1 ? running : selectedDay];
-    toast(`Route optimized for ${day.label} - ${day.date}.`);
+    toast(t('beatDetail.toast.routeOptimized', { day: day.label, date: day.date }));
   });
 
   /* ── Beat ⋯ menu ───────────────────────────────────── */
@@ -2227,8 +2814,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const item = e.target.closest('.bd-vmenu-item');
     if (!item) return;
     setBeatMenu(false);
-    if (item.textContent === 'Cancel Beat') { openCancelBeat(); return; }
-    toast(`${item.textContent} is not part of this prototype yet.`);
+    /* By its action, not its text: the text is the PM's to change */
+    if (item.dataset.action === 'cancel-beat') { openCancelBeat(); return; }
+    toast(t('beatDetail.toast.notInPrototype', { action: item.textContent }));
   });
   beatMenu.addEventListener('keydown', e => {
     const at = beatItems.indexOf(document.activeElement);
@@ -2254,7 +2842,7 @@ document.addEventListener('DOMContentLoaded', () => {
   cancelBeatReason.addEventListener('input', () => setMsg(cancelBeatReason, ''));
 
   function openCancelBeat() {
-    if (beatCancelled) { toast('BP-003 is already cancelled.'); return; }
+    if (beatCancelled) { toast(t('beatDetail.toast.beatAlreadyCancelled', { beat: 'BP-003' })); return; }
     cancelBeatReason.value = ''; setMsg(cancelBeatReason, '');
     cancelBeatOverlay.hidden = false;
     cancelBeatReason.focus();
@@ -2267,7 +2855,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   $('bd-cancel-beat-go').addEventListener('click', () => {
-    if (!cancelBeatReason.value.trim()) { setMsg(cancelBeatReason, 'Enter a reason.'); return; }
+    if (!cancelBeatReason.value.trim()) { setMsg(cancelBeatReason, t('visitForm.error.enterReason')); return; }
     beatCancelReason = cancelBeatReason.value.trim();
     DAYS.forEach(day => {
       if (day.status === 'done' || day.status === 'missed') return;
@@ -2284,7 +2872,7 @@ document.addEventListener('DOMContentLoaded', () => {
     beatCancelledAt = clock();
     closeCancelBeat();
     afterChange();
-    toast('BP-003 cancelled.');
+    toast(t('beatDetail.toast.beatCancelled', { beat: 'BP-003' }));
   });
 
   /* Record links in the related lists point nowhere in the prototype */
@@ -2367,12 +2955,14 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ── Simulate today (prototype only) ───────────────── */
   const simBtn = $('bd-sim-btn'), simPanel = $('bd-sim-panel');
   const simDate = $('bd-sim-date'), simTime = $('bd-sim-time');
-  const simViewer = $('bd-sim-viewer'), simOther = $('bd-sim-other');
+  const simViewer = $('bd-sim-viewer');
 
   /* The day before the beat, its three days, and the day after */
   for (let n = 3; n <= 7; n++) {
     const i = DAYS.findIndex((d, k) => dayNum(k) === n);
-    simDate.add(new Option(`${dayName(n)}${i !== -1 ? ` — ${DAYS[i].label}` : n < 4 ? ' — before the beat' : ' — after the beat'}`, n));
+    const date = dayName(n);
+    simDate.add(new Option(i !== -1 ? t('beatDetail.sim.dateOption.inBeat', { date, day: DAYS[i].label })
+      : t(n < 4 ? 'beatDetail.sim.dateOption.before' : 'beatDetail.sim.dateOption.after', { date }), n));
   }
   for (let m = 7 * 60; m <= 22 * 60; m += 30) simTime.add(new Option(minutesToClock(m), m));
 
@@ -2380,8 +2970,7 @@ document.addEventListener('DOMContentLoaded', () => {
     simDate.value = SIM.day;
     simTime.value = SIM.minutes;
     simViewer.value = SIM.viewer;
-    simOther.checked = SIM.otherBeat;
-    $('bd-sim-label').textContent = `Today: ${dayName(SIM.day)} · ${clock()}`;
+    $('bd-sim-label').textContent = t('beatDetail.sim.button', { date: dayName(SIM.day), time: clock() });
   }
 
   /* Time only moves forward on a beat: stepping the clock back would
@@ -2397,7 +2986,7 @@ document.addEventListener('DOMContentLoaded', () => {
     syncSim();
     hideTruncTip();
     render();
-    if (wentBack) toast('Clock moved back — the beat was reset to not started.');
+    if (wentBack) toast(t('beatDetail.toast.clockBack'));
   }
 
   function resetBeat(announce = true) {
@@ -2409,13 +2998,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     selectedDay = 0; expanded = true; focused = null;
     beatCancelled = false;
-    if (announce) { applyClock(); render(); toast('Beat reset — every day is back to not started.'); }
+    resetApproval();
+    if (announce) { applyClock(); render(); toast(t('beatDetail.toast.beatReset')); }
   }
 
   simDate.addEventListener('change', () => setSim({ day: Number(simDate.value) }));
   simTime.addEventListener('change', () => setSim({ minutes: Number(simTime.value) }));
   simViewer.addEventListener('change', () => setSim({ viewer: simViewer.value }));
-  simOther.addEventListener('change', () => setSim({ otherBeat: simOther.checked }));
   $('bd-sim-reset').addEventListener('click', () => resetBeat());
 
   simBtn.addEventListener('click', () => {
@@ -2432,6 +3021,46 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !simPanel.hidden) { simPanel.hidden = true; simBtn.focus(); }
   });
+
+  /* ── Show content keys (prototype only) ────────────── */
+  /* For the PM: hovering any text names its content key in the page's
+     tooltip, so the row to change in the sheet can be found without a
+     developer. The nearest element whose text, or tooltip, hint or
+     placeholder, comes from a key wins. Remembered for this viewer. */
+  const KEYS_KEY = 'bd-show-keys';
+  const simKeys = $('bd-sim-keys');
+
+  /* A hint or screen reader name counts on the element under the pointer
+     and on a control around it, not on a section that merely contains it */
+  const CONTROL = 'button, a, input, textarea, select, canvas, [data-tip], [title]';
+  function keyTarget(el) {
+    for (const start = el; el && el !== document.body; el = el.parentElement) {
+      const keys = Strings.keysFor(el, el === start || el.matches(CONTROL));
+      if (keys.length) return { el, keys };
+    }
+    return null;
+  }
+
+  document.addEventListener('mouseover', e => {
+    if (!showKeys) return;
+    const hit = keyTarget(e.target);
+    if (!hit) { hideTruncTip(); return; }
+    clearTimeout(truncTimer);
+    truncTip.textContent = hit.keys.join('\n');
+    placeTruncTip(hit.el);
+  });
+
+  function setShowKeys(on) {
+    showKeys = on;
+    simKeys.checked = on;
+    truncTip.classList.toggle('bd-key-tip', on);
+    hideTruncTip();
+    try { localStorage.setItem(KEYS_KEY, on ? '1' : '0'); } catch { /* private mode */ }
+  }
+  simKeys.addEventListener('change', () => setShowKeys(simKeys.checked));
+  let keysSaved = '0';
+  try { keysSaved = localStorage.getItem(KEYS_KEY) || '0'; } catch { /* private mode */ }
+  setShowKeys(keysSaved === '1');
 
   applyClock();
   syncSim();

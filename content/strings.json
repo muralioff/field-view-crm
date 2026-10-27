@@ -1,0 +1,2002 @@
+{
+  "topbar.title": {
+    "text": "Beats",
+    "where": "Top bar · page title",
+    "notes": ""
+  },
+  "topbar.search.placeholder": {
+    "text": "Search records",
+    "where": "Top bar · search box",
+    "notes": ""
+  },
+  "topbar.add.ariaLabel": {
+    "text": "Add",
+    "where": "Top bar · + button (screen reader name)",
+    "notes": ""
+  },
+  "topbar.zia.ariaLabel": {
+    "text": "Zia",
+    "where": "Top bar · Zia button (screen reader name)",
+    "notes": ""
+  },
+  "topbar.notifications.ariaLabel": {
+    "text": "Notifications",
+    "where": "Top bar · bell button (screen reader name)",
+    "notes": ""
+  },
+  "topbar.calendar.ariaLabel": {
+    "text": "Calendar",
+    "where": "Top bar · calendar button (screen reader name)",
+    "notes": ""
+  },
+  "topbar.help.ariaLabel": {
+    "text": "Help",
+    "where": "Top bar · help button (screen reader name)",
+    "notes": ""
+  },
+  "topbar.settings.ariaLabel": {
+    "text": "Settings",
+    "where": "Top bar · settings button (screen reader name)",
+    "notes": ""
+  },
+  "topbar.apps.ariaLabel": {
+    "text": "Apps",
+    "where": "Top bar · apps grid button (screen reader name)",
+    "notes": ""
+  },
+  "sidebar.logo.name": {
+    "text": "Beat Planner",
+    "where": "Left navigation · product name beside the logo (every page)",
+    "notes": ""
+  },
+  "sidebar.collapse.ariaLabel": {
+    "text": "Collapse sidebar",
+    "where": "Left navigation · collapse button (screen reader name)",
+    "notes": ""
+  },
+  "sidebar.item.home": {
+    "text": "Home",
+    "where": "Left navigation · Home item",
+    "notes": ""
+  },
+  "sidebar.item.config": {
+    "text": "Planner Configuration",
+    "where": "Left navigation · Planner Configuration item (not shown on Beat Detail)",
+    "notes": ""
+  },
+  "sidebar.section.modules": {
+    "text": "Modules",
+    "where": "Left navigation · section heading above the modules",
+    "notes": ""
+  },
+  "sidebar.item.beats": {
+    "text": "Beats",
+    "where": "Left navigation · Beats item",
+    "notes": ""
+  },
+  "sidebar.item.liveTracking": {
+    "text": "Live Tracking",
+    "where": "Left navigation · Live Tracking item",
+    "notes": ""
+  },
+  "sidebar.item.fieldView": {
+    "text": "Field View",
+    "where": "Left navigation · Field View item",
+    "notes": ""
+  },
+  "sidebar.item.visits": {
+    "text": "Visits",
+    "where": "Left navigation · Visits item",
+    "notes": ""
+  },
+  "sidebar.item.expenses": {
+    "text": "Expenses",
+    "where": "Left navigation · Expenses item",
+    "notes": ""
+  },
+  "sidebar.folder.crmModules": {
+    "text": "CRM Modules",
+    "where": "Left navigation · CRM Modules folder",
+    "notes": ""
+  },
+  "sidebar.item.contacts": {
+    "text": "Contacts",
+    "where": "Left navigation · CRM Modules › Contacts",
+    "notes": ""
+  },
+  "sidebar.item.deals": {
+    "text": "Deals",
+    "where": "Left navigation · CRM Modules › Deals",
+    "notes": ""
+  },
+  "sidebar.item.accounts": {
+    "text": "Accounts",
+    "where": "Left navigation · CRM Modules › Accounts",
+    "notes": ""
+  },
+  "sidebar.item.salesOrders": {
+    "text": "Sales Orders",
+    "where": "Left navigation · CRM Modules › Sales Orders",
+    "notes": ""
+  },
+  "beatDetail.layout.ariaLabel": {
+    "text": "Detail view layout",
+    "where": "Beat Detail · Type 1/2/3 layout switch (hidden)",
+    "notes": ""
+  },
+  "beatDetail.layout.type1": {
+    "text": "Type 1",
+    "where": "Beat Detail · layout switch, first option (hidden)",
+    "notes": ""
+  },
+  "beatDetail.layout.type2": {
+    "text": "Type 2",
+    "where": "Beat Detail · layout switch, second option (hidden)",
+    "notes": ""
+  },
+  "beatDetail.layout.type3": {
+    "text": "Type 3",
+    "where": "Beat Detail · layout switch, third option (hidden)",
+    "notes": ""
+  },
+  "beatDetail.header.back.ariaLabel": {
+    "text": "Back",
+    "where": "Beat Detail · record header · back arrow (screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.header.addTags.label": {
+    "text": "Add Tags",
+    "where": "Beat Detail · record header · link under the beat name",
+    "notes": ""
+  },
+  "beatDetail.header.zia.ariaLabel": {
+    "text": "Zia",
+    "where": "Beat Detail · record header · round Zia button (screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.header.optimize.label": {
+    "text": "Optimize Route",
+    "where": "Beat Detail · record header · Optimize Route button",
+    "notes": ""
+  },
+  "beatDetail.header.startDay.label": {
+    "text": "Start {day}",
+    "where": "Beat Detail · record header · primary button (Type 1 and 2 layouts only)",
+    "notes": "Keep {day} (filled in by the page). {day} = the day, e.g. \"Day 1\"."
+  },
+  "beatDetail.header.endDay.label": {
+    "text": "End {day}",
+    "where": "Beat Detail · record header · End button while a day runs (Type 1 and 2 layouts only)",
+    "notes": "Keep {day} (filled in by the page). {day} = the day, e.g. \"Day 1\"."
+  },
+  "beatDetail.header.edit.label": {
+    "text": "Edit",
+    "where": "Beat Detail · record header · Edit button",
+    "notes": ""
+  },
+  "beatDetail.header.more.ariaLabel": {
+    "text": "More actions",
+    "where": "Beat Detail · record header · ⋯ button (screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.header.prev.ariaLabel": {
+    "text": "Previous",
+    "where": "Beat Detail · record header · previous record arrow (screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.header.next.ariaLabel": {
+    "text": "Next",
+    "where": "Beat Detail · record header · next record arrow (screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.beatMenu.clone": {
+    "text": "Clone",
+    "where": "Beat Detail · record header ⋯ menu",
+    "notes": ""
+  },
+  "beatDetail.beatMenu.share": {
+    "text": "Share",
+    "where": "Beat Detail · record header ⋯ menu",
+    "notes": ""
+  },
+  "beatDetail.beatMenu.delete": {
+    "text": "Delete",
+    "where": "Beat Detail · record header ⋯ menu",
+    "notes": ""
+  },
+  "beatDetail.beatMenu.cancelBeat": {
+    "text": "Cancel Beat",
+    "where": "Beat Detail · record header ⋯ menu · opens the Cancel Beat dialog",
+    "notes": ""
+  },
+  "beatDetail.beatMenu.printPreview": {
+    "text": "Print Preview",
+    "where": "Beat Detail · record header ⋯ menu",
+    "notes": ""
+  },
+  "beatDetail.beatMenu.export": {
+    "text": "Export",
+    "where": "Beat Detail · record header ⋯ menu",
+    "notes": ""
+  },
+  "beatDetail.status.upcoming": {
+    "text": "Upcoming",
+    "where": "Beat Detail · record header · status badge, before the first day starts",
+    "notes": ""
+  },
+  "beatDetail.status.inProgress": {
+    "text": "In Progress",
+    "where": "Beat Detail · status badge while any day is running or part-done; also Show Details › Beat Status",
+    "notes": ""
+  },
+  "beatDetail.status.completed": {
+    "text": "Completed",
+    "where": "Beat Detail · status badge once every day is closed; also Show Details › Beat Status",
+    "notes": ""
+  },
+  "beatDetail.status.missed": {
+    "text": "Missed",
+    "where": "Beat Detail · status badge when every day was missed; also Show Details › Beat Status",
+    "notes": ""
+  },
+  "beatDetail.status.cancelled": {
+    "text": "Cancelled",
+    "where": "Beat Detail · status badge after Cancel Beat with nothing done; also Show Details › Beat Status",
+    "notes": ""
+  },
+  "beatDetail.status.partiallyCompleted": {
+    "text": "Partially Completed",
+    "where": "Beat Detail · status badge after Cancel Beat once some of it was done; also Show Details › Beat Status",
+    "notes": ""
+  },
+  "beatDetail.band.dayInProgress": {
+    "text": "{day} in progress — started at {time}.",
+    "where": "Beat Detail · banner under the record header while a day runs",
+    "notes": "Keep {day}, {time} (filled in by the page). {day} = the day, e.g. \"Day 1\"; {time} = a time, e.g. \"10:00 AM\"."
+  },
+  "beatDetail.relatedRail.ariaLabel": {
+    "text": "Related list",
+    "where": "Beat Detail · related list rail on the left (screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.relatedRail.title": {
+    "text": "Related List",
+    "where": "Beat Detail · related list rail · heading",
+    "notes": ""
+  },
+  "beatDetail.relatedRail.notes": {
+    "text": "Notes",
+    "where": "Beat Detail · related list rail · item",
+    "notes": ""
+  },
+  "beatDetail.relatedRail.attachments": {
+    "text": "Attachments",
+    "where": "Beat Detail · related list rail · item",
+    "notes": ""
+  },
+  "beatDetail.relatedRail.expenses": {
+    "text": "Expenses",
+    "where": "Beat Detail · related list rail · item",
+    "notes": ""
+  },
+  "beatDetail.relatedRail.addRelatedList": {
+    "text": "Add Related List",
+    "where": "Beat Detail · related list rail · link under the lists",
+    "notes": ""
+  },
+  "beatDetail.relatedRail.links": {
+    "text": "Links",
+    "where": "Beat Detail · related list rail · second heading",
+    "notes": ""
+  },
+  "beatDetail.relatedRail.addLink": {
+    "text": "Add Link",
+    "where": "Beat Detail · related list rail · link under Links",
+    "notes": ""
+  },
+  "beatDetail.relatedRail.toggle.show": {
+    "text": "Show related list",
+    "where": "Beat Detail · sidebar-icon button beside the tabs, while the rail is closed (screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.relatedRail.toggle.hide": {
+    "text": "Hide related list",
+    "where": "Beat Detail · sidebar-icon button beside the tabs, while the rail is open (screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.tabs.overview": {
+    "text": "Overview",
+    "where": "Beat Detail · tab row · first tab",
+    "notes": ""
+  },
+  "beatDetail.tabs.timeline": {
+    "text": "Timeline",
+    "where": "Beat Detail · tab row · second tab",
+    "notes": ""
+  },
+  "beatDetail.cancelNote.label": {
+    "text": "Beat Cancelled:",
+    "where": "Beat Detail · tab row, right side, after Cancel Beat",
+    "notes": ""
+  },
+  "beatDetail.cancelNote.viewReason": {
+    "text": "View Reason",
+    "where": "Beat Detail · tab row · link after \"\"Beat Cancelled:\"\"",
+    "notes": ""
+  },
+  "beatDetail.cancelNote.lastUpdated": {
+    "text": "Last Updated: {time}",
+    "where": "Beat Detail · tab row · clock text after Cancel Beat",
+    "notes": "Keep {time} (filled in by the page). {time} = a time, e.g. \"10:00 AM\"."
+  },
+  "beatDetail.cancelNote.pop.ariaLabel": {
+    "text": "Cancellation reason",
+    "where": "Beat Detail · View Reason popover (screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.cancelNote.pop.title": {
+    "text": "Cancellation Reason",
+    "where": "Beat Detail · View Reason popover · heading",
+    "notes": ""
+  },
+  "beatDetail.cancelNote.pop.meta": {
+    "text": "Cancelled by {name} · {time}",
+    "where": "Beat Detail · View Reason popover · line under the reason",
+    "notes": "Keep {name}, {time} (filled in by the page). {name} = the visit or record name; {time} = a time, e.g. \"10:00 AM\"."
+  },
+  "beatDetail.details.title": {
+    "text": "Beat Details",
+    "where": "Beat Detail · Beat Details card · heading",
+    "notes": ""
+  },
+  "beatDetail.details.owner": {
+    "text": "Beat Owner",
+    "where": "Beat Detail · Beat Details card · field label",
+    "notes": ""
+  },
+  "beatDetail.details.createdBy": {
+    "text": "Created By",
+    "where": "Beat Detail · Beat Details card · field label",
+    "notes": ""
+  },
+  "beatDetail.details.duration": {
+    "text": "Beat Duration",
+    "where": "Beat Detail · Beat Details card · field label",
+    "notes": ""
+  },
+  "beatDetail.details.plannedVisits": {
+    "text": "Total Planned Visits",
+    "where": "Beat Detail · Beat Details card · field label",
+    "notes": ""
+  },
+  "beatDetail.details.plannedDistance": {
+    "text": "Total Planned Distance",
+    "where": "Beat Detail · Beat Details card · field label",
+    "notes": ""
+  },
+  "beatDetail.detailView.ariaLabel": {
+    "text": "Beat Detail View",
+    "where": "Beat Detail · the Visits + Route Map card pair (screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.visits.title": {
+    "text": "Visits",
+    "where": "Beat Detail · Visits card · heading",
+    "notes": ""
+  },
+  "beatDetail.visits.addressToggle.ariaLabel": {
+    "text": "Show addresses",
+    "where": "Beat Detail · Visits card · address icon button (screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.visits.addressToggle.hideTip": {
+    "text": "Hide address",
+    "where": "Beat Detail · Visits card · tooltip on the address icon while addresses show",
+    "notes": ""
+  },
+  "beatDetail.visits.addressToggle.showTip": {
+    "text": "Show address",
+    "where": "Beat Detail · Visits card · tooltip on the address icon while addresses are hidden",
+    "notes": ""
+  },
+  "beatDetail.day.label": {
+    "text": "Day {n}",
+    "where": "Beat Detail · day row title; also inside every message that names a day",
+    "notes": "Keep {n} (filled in by the page). {n} = a number."
+  },
+  "beatDetail.day.tally.planned": {
+    "text": "{count} visits",
+    "where": "Beat Detail · day row · right side, for a day not yet worked",
+    "notes": "Keep {count} (filled in by the page). {count} = a number of visits."
+  },
+  "beatDetail.day.tally.progress": {
+    "text": "{done} / {total} visits",
+    "where": "Beat Detail · day row · right side, once the day is worked",
+    "notes": "Keep {done}, {total} (filled in by the page). {done} = how many are done; {total} = how many in all."
+  },
+  "beatDetail.day.startedAt": {
+    "text": "Started {time}",
+    "where": "Beat Detail · day row · clock text while the day runs",
+    "notes": "Keep {time} (filled in by the page). {time} = a time, e.g. \"10:00 AM\"."
+  },
+  "beatDetail.day.endedAuto": {
+    "text": "{time} (auto)",
+    "where": "Beat Detail · end time of a day closed by the clock at end of business hours",
+    "notes": "Keep {time} (filled in by the page). {time} = a time, e.g. \"10:00 AM\"."
+  },
+  "beatDetail.day.tag.completed": {
+    "text": "Completed",
+    "where": "Beat Detail · day row · green tag on a finished day",
+    "notes": ""
+  },
+  "beatDetail.day.tag.missed": {
+    "text": "Missed",
+    "where": "Beat Detail · day row · red tag on a day never started",
+    "notes": ""
+  },
+  "beatDetail.day.tag.cancelled": {
+    "text": "Cancelled",
+    "where": "Beat Detail · day row · red tag after Cancel Beat",
+    "notes": ""
+  },
+  "beatDetail.day.action.start": {
+    "text": "Start",
+    "where": "Beat Detail · day row · Start button (Type 3 layout)",
+    "notes": ""
+  },
+  "beatDetail.day.action.end": {
+    "text": "End",
+    "where": "Beat Detail · day row · End button while the day runs (Type 3 layout)",
+    "notes": ""
+  },
+  "beatDetail.day.action.ariaLabel": {
+    "text": "{action} {day}",
+    "where": "Beat Detail · day row · Start / End button (screen reader name)",
+    "notes": "Keep {action}, {day} (filled in by the page). {action} = the button or menu item, e.g. \"Start\" or \"Clone\"; {day} = the day, e.g. \"Day 1\"."
+  },
+  "beatDetail.day.action.blockedAriaLabel": {
+    "text": "{action} {day} — {reason}",
+    "where": "Beat Detail · day row · greyed Start button (screen reader name)",
+    "notes": "Keep {action}, {day}, {reason} (filled in by the page). {action} = the button or menu item, e.g. \"Start\" or \"Clone\"; {day} = the day, e.g. \"Day 1\"; {reason} = why Start is greyed (one of the startBlock messages)."
+  },
+  "beatDetail.day.startBlock.notYet": {
+    "text": "You can start this day on {date}",
+    "where": "Beat Detail · tooltip on a greyed Start, before the day's date",
+    "notes": "Keep {date} (filled in by the page). {date} = a date, e.g. \"4 May\"."
+  },
+  "beatDetail.day.startBlock.otherDayRunning": {
+    "text": "End {running} before starting {day}.",
+    "where": "Beat Detail · tooltip on a greyed Start, while another day runs",
+    "notes": "Keep {running}, {day} (filled in by the page). {running} = the day that is running, e.g. \"Day 1\"; {day} = the day, e.g. \"Day 1\"."
+  },
+  "beatDetail.day.startBlock.noVisits": {
+    "text": "Add a visit to start this day.",
+    "where": "Beat Detail · tooltip on a greyed Start, on a day with no visits",
+    "notes": ""
+  },
+  "beatDetail.day.startBlock.beforeHours": {
+    "text": "You can start this day from {time}.",
+    "where": "Beat Detail · tooltip on a greyed Start, before business hours",
+    "notes": "Keep {time} (filled in by the page). {time} = a time, e.g. \"10:00 AM\"."
+  },
+  "beatDetail.day.startBlock.afterHours": {
+    "text": "Business hours for today have ended.",
+    "where": "Beat Detail · tooltip on a greyed Start, after business hours",
+    "notes": ""
+  },
+  "beatDetail.day.summary.travel": {
+    "text": "Total Travel",
+    "where": "Beat Detail · finished day, opened · summary label",
+    "notes": ""
+  },
+  "beatDetail.day.summary.visitTime": {
+    "text": "Total Visit Time",
+    "where": "Beat Detail · finished day, opened · summary label",
+    "notes": ""
+  },
+  "beatDetail.day.summary.km": {
+    "text": "({km} km)",
+    "where": "Beat Detail · finished day, opened · distance after Total Travel",
+    "notes": "Keep {km} (filled in by the page). {km} = kilometres, e.g. \"12.3\"."
+  },
+  "beatDetail.timeline.home": {
+    "text": "Home",
+    "where": "Beat Detail · day timeline · first stop; also its card on the map",
+    "notes": ""
+  },
+  "beatDetail.timeline.office": {
+    "text": "Office",
+    "where": "Beat Detail · day timeline · last stop; also its card on the map",
+    "notes": ""
+  },
+  "beatDetail.timeline.at": {
+    "text": "at",
+    "where": "Beat Detail · day timeline · between \"\"Home\"\" and its time",
+    "notes": ""
+  },
+  "beatDetail.timeline.addVisit": {
+    "text": "Add Visit",
+    "where": "Beat Detail · day timeline · blue row above Office, on the selected day",
+    "notes": ""
+  },
+  "beatDetail.timeline.legEstimate": {
+    "text": "~ {drive}",
+    "where": "Beat Detail · day timeline · planned drive between stops, before it is driven",
+    "notes": "Keep {drive} (filled in by the page). {drive} = the drive, e.g. \"8 min (1.5 km)\"."
+  },
+  "beatDetail.visit.completeHint": {
+    "text": "Mark this visit completed",
+    "where": "Beat Detail · day timeline · hover hint on the visit in progress",
+    "notes": ""
+  },
+  "beatDetail.visit.tag.inProgress": {
+    "text": "In Progress",
+    "where": "Beat Detail · visit row tag; also the visit's card on the map",
+    "notes": ""
+  },
+  "beatDetail.visit.tag.completed": {
+    "text": "Completed",
+    "where": "Beat Detail · visit row tag; also the visit's card on the map",
+    "notes": ""
+  },
+  "beatDetail.visit.tag.missed": {
+    "text": "Missed",
+    "where": "Beat Detail · visit row tag; also the visit's card on the map",
+    "notes": ""
+  },
+  "beatDetail.visit.tag.cancelled": {
+    "text": "Cancelled",
+    "where": "Beat Detail · visit row tag; also the visit's card on the map",
+    "notes": ""
+  },
+  "beatDetail.visit.menu.ariaLabel": {
+    "text": "Actions for {name}",
+    "where": "Beat Detail · visit row · ⋯ button (screen reader name)",
+    "notes": "Keep {name} (filled in by the page). {name} = the visit or record name."
+  },
+  "beatDetail.visit.action.edit": {
+    "text": "Edit Visit",
+    "where": "Beat Detail · visit row ⋯ menu",
+    "notes": ""
+  },
+  "beatDetail.visit.action.reschedule": {
+    "text": "Reschedule Visit",
+    "where": "Beat Detail · visit row ⋯ menu",
+    "notes": ""
+  },
+  "beatDetail.visit.action.reassign": {
+    "text": "Transfer Visit",
+    "where": "Beat Detail · visit row ⋯ menu",
+    "notes": ""
+  },
+  "beatDetail.visit.action.location": {
+    "text": "Adjust Location",
+    "where": "Beat Detail · visit row ⋯ menu",
+    "notes": ""
+  },
+  "beatDetail.visit.action.cancel": {
+    "text": "Cancel Visit",
+    "where": "Beat Detail · visit row ⋯ menu (red, last)",
+    "notes": ""
+  },
+  "beatDetail.visit.action.revise": {
+    "text": "Revise Visit",
+    "where": "Beat Detail · visit row ⋯ menu, on a missed visit",
+    "notes": ""
+  },
+  "beatDetail.map.title": {
+    "text": "Route Map",
+    "where": "Beat Detail · Route Map card · heading",
+    "notes": ""
+  },
+  "beatDetail.map.viewFull": {
+    "text": "View Full Map",
+    "where": "Beat Detail · Route Map card · link in the heading",
+    "notes": ""
+  },
+  "beatDetail.map.canvas.ariaLabel": {
+    "text": "Route map",
+    "where": "Beat Detail · the map itself (screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.map.locate": {
+    "text": "Back to the current day",
+    "where": "Beat Detail · map · locate button (hover hint and screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.map.zoomIn": {
+    "text": "Zoom in",
+    "where": "Beat Detail · map · + button (screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.map.zoomOut": {
+    "text": "Zoom out",
+    "where": "Beat Detail · map · − button (screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.map.watermark": {
+    "text": "UX yet to be verified",
+    "where": "Beat Detail · map · faint review marker over the map",
+    "notes": ""
+  },
+  "beatDetail.map.layers": {
+    "text": "Layers",
+    "where": "Beat Detail · map · Layers button",
+    "notes": ""
+  },
+  "beatDetail.map.terrain.ariaLabel": {
+    "text": "Terrain",
+    "where": "Beat Detail · map · Layers menu (screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.map.terrain.map": {
+    "text": "Map",
+    "where": "Beat Detail · map · Layers menu option",
+    "notes": ""
+  },
+  "beatDetail.map.terrain.satellite": {
+    "text": "Satellite",
+    "where": "Beat Detail · map · Layers menu option",
+    "notes": ""
+  },
+  "beatDetail.map.terrain.terrain": {
+    "text": "Terrain",
+    "where": "Beat Detail · map · Layers menu option",
+    "notes": ""
+  },
+  "visitCard.ariaLabel": {
+    "text": "Visit details",
+    "where": "Beat Detail · map · card over a pin (screen reader name)",
+    "notes": ""
+  },
+  "visitCard.open": {
+    "text": "Open",
+    "where": "Beat Detail · map · card over a pin · link to the record",
+    "notes": ""
+  },
+  "visitCard.open.ariaLabel": {
+    "text": "Open {name} in CRM",
+    "where": "Beat Detail · map · card over a pin · Open link (screen reader name)",
+    "notes": "Keep {name} (filled in by the page). {name} = the visit or record name."
+  },
+  "visitCard.noAddress": {
+    "text": "No address",
+    "where": "Beat Detail · map · card over a pin, for a visit with no address",
+    "notes": ""
+  },
+  "bizCard.field.contactOwner": {
+    "text": "Contact Owner",
+    "where": "Business card on a visit name (Contacts) · field label",
+    "notes": ""
+  },
+  "bizCard.field.leadOwner": {
+    "text": "Lead Owner",
+    "where": "Business card on a visit name (Leads) · field label",
+    "notes": ""
+  },
+  "bizCard.field.accountOwner": {
+    "text": "Account Owner",
+    "where": "Business card on a visit name (Accounts) · field label",
+    "notes": ""
+  },
+  "bizCard.field.dealOwner": {
+    "text": "Deal Owner",
+    "where": "Business card on a visit name (Deals) · field label",
+    "notes": ""
+  },
+  "bizCard.field.email": {
+    "text": "Email",
+    "where": "Business card on a visit name · field label",
+    "notes": ""
+  },
+  "bizCard.field.phone": {
+    "text": "Phone",
+    "where": "Business card on a visit name · field label",
+    "notes": ""
+  },
+  "bizCard.field.mobile": {
+    "text": "Mobile",
+    "where": "Business card on a visit name · field label",
+    "notes": ""
+  },
+  "bizCard.field.preferredCommunication": {
+    "text": "Preferred Communication",
+    "where": "Business card on a visit name (Contacts) · field label",
+    "notes": ""
+  },
+  "bizCard.field.leadStatus": {
+    "text": "Lead Status",
+    "where": "Business card on a visit name (Leads) · field label",
+    "notes": ""
+  },
+  "bizCard.field.website": {
+    "text": "Website",
+    "where": "Business card on a visit name (Accounts) · field label",
+    "notes": ""
+  },
+  "bizCard.field.accountType": {
+    "text": "Account Type",
+    "where": "Business card on a visit name (Accounts) · field label",
+    "notes": ""
+  },
+  "bizCard.field.industry": {
+    "text": "Industry",
+    "where": "Business card on a visit name (Accounts) · field label",
+    "notes": ""
+  },
+  "bizCard.field.contactName": {
+    "text": "Contact Name",
+    "where": "Business card on a visit name (Deals) · field label",
+    "notes": ""
+  },
+  "bizCard.field.amount": {
+    "text": "Amount",
+    "where": "Business card on a visit name (Deals) · field label",
+    "notes": ""
+  },
+  "bizCard.field.stage": {
+    "text": "Stage",
+    "where": "Business card on a visit name (Deals) · field label",
+    "notes": ""
+  },
+  "bizCard.field.closingDate": {
+    "text": "Closing Date",
+    "where": "Business card on a visit name (Deals) · field label",
+    "notes": ""
+  },
+  "beatDetail.info.show": {
+    "text": "Show Details",
+    "where": "Beat Detail · bar under the Route Map, closed",
+    "notes": ""
+  },
+  "beatDetail.info.hide": {
+    "text": "Hide Details",
+    "where": "Beat Detail · bar under the Route Map, open",
+    "notes": ""
+  },
+  "beatDetail.info.title": {
+    "text": "Beat Information",
+    "where": "Beat Detail · Show Details · heading",
+    "notes": ""
+  },
+  "beatDetail.info.beatName": {
+    "text": "Beat Name",
+    "where": "Beat Detail · Show Details · field label",
+    "notes": ""
+  },
+  "beatDetail.info.beatOwner": {
+    "text": "Beat Owner",
+    "where": "Beat Detail · Show Details · field label",
+    "notes": ""
+  },
+  "beatDetail.info.beatDuration": {
+    "text": "Beat Duration",
+    "where": "Beat Detail · Show Details · field label",
+    "notes": ""
+  },
+  "beatDetail.info.plannedVisits": {
+    "text": "Total Planned Visits",
+    "where": "Beat Detail · Show Details · field label",
+    "notes": ""
+  },
+  "beatDetail.info.plannedDistance": {
+    "text": "Total Planned Distance",
+    "where": "Beat Detail · Show Details · field label",
+    "notes": ""
+  },
+  "beatDetail.info.completedDays": {
+    "text": "Completed Beat Days",
+    "where": "Beat Detail · Show Details · field label",
+    "notes": ""
+  },
+  "beatDetail.info.completedVisits": {
+    "text": "Actual Completed Visits",
+    "where": "Beat Detail · Show Details · field label",
+    "notes": ""
+  },
+  "beatDetail.info.travelled": {
+    "text": "Actual Travelled Distance",
+    "where": "Beat Detail · Show Details · field label",
+    "notes": ""
+  },
+  "beatDetail.info.expenses": {
+    "text": "Total Expenses",
+    "where": "Beat Detail · Show Details · field label",
+    "notes": ""
+  },
+  "beatDetail.info.status": {
+    "text": "Beat Status",
+    "where": "Beat Detail · Show Details · field label",
+    "notes": ""
+  },
+  "beatDetail.info.createdBy": {
+    "text": "Created By",
+    "where": "Beat Detail · Show Details · field label",
+    "notes": ""
+  },
+  "beatDetail.info.modifiedBy": {
+    "text": "Modified By",
+    "where": "Beat Detail · Show Details · field label",
+    "notes": ""
+  },
+  "beatDetail.info.layout": {
+    "text": "Layout",
+    "where": "Beat Detail · Show Details · field label",
+    "notes": ""
+  },
+  "beatDetail.info.tag": {
+    "text": "Tag",
+    "where": "Beat Detail · Show Details · field label",
+    "notes": ""
+  },
+  "beatDetail.info.description": {
+    "text": "Description",
+    "where": "Beat Detail · Show Details · field label",
+    "notes": ""
+  },
+  "beatDetail.notes.title": {
+    "text": "Notes",
+    "where": "Beat Detail · Notes card · heading",
+    "notes": ""
+  },
+  "beatDetail.notes.box.placeholder": {
+    "text": "Add a note",
+    "where": "Beat Detail · Notes card · empty note box (also its screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.attachments.title": {
+    "text": "Attachments",
+    "where": "Beat Detail · Attachments card · heading",
+    "notes": ""
+  },
+  "beatDetail.attachments.attach": {
+    "text": "Attach",
+    "where": "Beat Detail · Attachments card · button in the heading",
+    "notes": ""
+  },
+  "beatDetail.attachments.col.file": {
+    "text": "File Name",
+    "where": "Beat Detail · Attachments card · table column",
+    "notes": ""
+  },
+  "beatDetail.attachments.col.size": {
+    "text": "Size",
+    "where": "Beat Detail · Attachments card · table column",
+    "notes": ""
+  },
+  "beatDetail.attachments.col.by": {
+    "text": "Attached By",
+    "where": "Beat Detail · Attachments card · table column",
+    "notes": ""
+  },
+  "beatDetail.attachments.col.date": {
+    "text": "Date Added",
+    "where": "Beat Detail · Attachments card · table column",
+    "notes": ""
+  },
+  "beatDetail.attachments.empty": {
+    "text": "No Attachment",
+    "where": "Beat Detail · Attachments card · when there are none",
+    "notes": ""
+  },
+  "beatDetail.expenses.title": {
+    "text": "Expenses",
+    "where": "Beat Detail · Expenses card · heading",
+    "notes": ""
+  },
+  "beatDetail.expenses.assign": {
+    "text": "Assign",
+    "where": "Beat Detail · Expenses card · button in the heading",
+    "notes": ""
+  },
+  "beatDetail.expenses.new": {
+    "text": "New",
+    "where": "Beat Detail · Expenses card · button in the heading",
+    "notes": ""
+  },
+  "beatDetail.expenses.col.name": {
+    "text": "Expense Name",
+    "where": "Beat Detail · Expenses card · table column",
+    "notes": ""
+  },
+  "beatDetail.expenses.col.category": {
+    "text": "Category",
+    "where": "Beat Detail · Expenses card · table column",
+    "notes": ""
+  },
+  "beatDetail.expenses.col.day": {
+    "text": "Beat Day",
+    "where": "Beat Detail · Expenses card · table column",
+    "notes": ""
+  },
+  "beatDetail.expenses.col.amount": {
+    "text": "Amount",
+    "where": "Beat Detail · Expenses card · table column",
+    "notes": ""
+  },
+  "beatDetail.expenses.empty": {
+    "text": "No records found",
+    "where": "Beat Detail · Expenses card · when there are none",
+    "notes": ""
+  },
+  "beatDetail.toast.dismiss.ariaLabel": {
+    "text": "Dismiss",
+    "where": "Beat Detail · message box · close button (screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.toast.dayStarted": {
+    "text": "{day} started at {time}.",
+    "where": "Beat Detail · message box after Start Day",
+    "notes": "Keep {day}, {time} (filled in by the page). {day} = the day, e.g. \"Day 1\"; {time} = a time, e.g. \"10:00 AM\"."
+  },
+  "beatDetail.toast.dayEnded": {
+    "text": "{day} ended at {time}.",
+    "where": "Beat Detail · message box after End Day, when every visit was settled",
+    "notes": "Keep {day}, {time} (filled in by the page). {day} = the day, e.g. \"Day 1\"; {time} = a time, e.g. \"10:00 AM\"."
+  },
+  "beatDetail.toast.dayEndedMissed.one": {
+    "text": "{day} ended — {count} visit marked missed.",
+    "where": "Beat Detail · message box after End Day with one visit left open",
+    "notes": "Keep {day}, {count} (filled in by the page). {day} = the day, e.g. \"Day 1\"; {count} = a number of visits."
+  },
+  "beatDetail.toast.dayEndedMissed.other": {
+    "text": "{day} ended — {count} visits marked missed.",
+    "where": "Beat Detail · message box after End Day with several visits left open",
+    "notes": "Keep {day}, {count} (filled in by the page). {day} = the day, e.g. \"Day 1\"; {count} = a number of visits."
+  },
+  "beatDetail.toast.visitAdded": {
+    "text": "{name} added to {day}.",
+    "where": "Beat Detail · message box after Add Visit",
+    "notes": "Keep {name}, {day} (filled in by the page). {name} = the visit or record name; {day} = the day, e.g. \"Day 1\"."
+  },
+  "beatDetail.toast.recordOpened": {
+    "text": "{name} opened in a new tab.",
+    "where": "Beat Detail · message box after clicking a visit's name",
+    "notes": "Keep {name} (filled in by the page). {name} = the visit or record name."
+  },
+  "beatDetail.toast.visitRescheduled": {
+    "text": "Visit rescheduled to {day} • {date}.",
+    "where": "Beat Detail · message box after Reschedule Visit, within this beat",
+    "notes": "Keep {day}, {date} (filled in by the page). {day} = the day, e.g. \"Day 1\"; {date} = a date, e.g. \"4 May\"."
+  },
+  "beatDetail.toast.visitRescheduledOtherBeat": {
+    "text": "{name} rescheduled to {beat} • {day} • {date}.",
+    "where": "Beat Detail · message box after Reschedule Visit, to another beat",
+    "notes": "Keep {name}, {beat}, {day}, {date} (filled in by the page). {name} = the visit or record name; {beat} = the beat ID, e.g. \"BP-003\"; {day} = the day, e.g. \"Day 1\"; {date} = a date, e.g. \"4 May\"."
+  },
+  "beatDetail.toast.visitTransferred": {
+    "text": "{name} transferred to {rep} — {beat} • {day} • {date}.",
+    "where": "Beat Detail · message box after Transfer Visit",
+    "notes": "Keep {name}, {rep}, {beat}, {day}, {date} (filled in by the page). {name} = the visit or record name; {rep} = the sales rep's name; {beat} = the beat ID, e.g. \"BP-003\"; {day} = the day, e.g. \"Day 1\"; {date} = a date, e.g. \"4 May\"."
+  },
+  "beatDetail.toast.visitCancelled": {
+    "text": "{name} cancelled.",
+    "where": "Beat Detail · message box after Cancel Visit",
+    "notes": "Keep {name} (filled in by the page). {name} = the visit or record name."
+  },
+  "beatDetail.toast.visitRevised": {
+    "text": "{name} revised as completed.",
+    "where": "Beat Detail · message box after Revise Visit",
+    "notes": "Keep {name} (filled in by the page). {name} = the visit or record name."
+  },
+  "beatDetail.toast.visitUpdated": {
+    "text": "{name} updated.",
+    "where": "Beat Detail · message box after Edit Visit",
+    "notes": "Keep {name} (filled in by the page). {name} = the visit or record name."
+  },
+  "beatDetail.toast.visitUpdatedReplanned": {
+    "text": "{name} updated. {day} - {date} re-planned.",
+    "where": "Beat Detail · message box after Edit Visit changed the duration",
+    "notes": "Keep {name}, {day}, {date} (filled in by the page). {name} = the visit or record name; {day} = the day, e.g. \"Day 1\"; {date} = a date, e.g. \"4 May\"."
+  },
+  "beatDetail.toast.routeOptimized": {
+    "text": "Route optimized for {day} - {date}.",
+    "where": "Beat Detail · message box after Optimize Route",
+    "notes": "Keep {day}, {date} (filled in by the page). {day} = the day, e.g. \"Day 1\"; {date} = a date, e.g. \"4 May\"."
+  },
+  "beatDetail.toast.beatCancelled": {
+    "text": "{beat} cancelled.",
+    "where": "Beat Detail · message box after Cancel Beat",
+    "notes": "Keep {beat} (filled in by the page). {beat} = the beat ID, e.g. \"BP-003\"."
+  },
+  "beatDetail.toast.beatAlreadyCancelled": {
+    "text": "{beat} is already cancelled.",
+    "where": "Beat Detail · message box on ⋯ › Cancel Beat, once cancelled",
+    "notes": "Keep {beat} (filled in by the page). {beat} = the beat ID, e.g. \"BP-003\"."
+  },
+  "beatDetail.toast.notInPrototype": {
+    "text": "{action} is not part of this prototype yet.",
+    "where": "Beat Detail · message box on a record header ⋯ item with nothing behind it",
+    "notes": "Keep {action} (filled in by the page). {action} = the button or menu item, e.g. \"Start\" or \"Clone\"."
+  },
+  "beatDetail.toast.visitActionNotInPrototype": {
+    "text": "{action} for {name} is not part of this prototype yet.",
+    "where": "Beat Detail · message box on a visit ⋯ item with nothing behind it (Adjust Location)",
+    "notes": "Keep {action}, {name} (filled in by the page). {action} = the button or menu item, e.g. \"Start\" or \"Clone\"; {name} = the visit or record name."
+  },
+  "beatDetail.toast.clockBack": {
+    "text": "Clock moved back — the beat was reset to not started.",
+    "where": "Beat Detail · message box when the simulator's clock is moved back (prototype only)",
+    "notes": ""
+  },
+  "beatDetail.toast.beatReset": {
+    "text": "Beat reset — every day is back to not started.",
+    "where": "Beat Detail · message box after the simulator's Reset beat (prototype only)",
+    "notes": ""
+  },
+  "visitForm.record.label": {
+    "text": "Module & Record",
+    "where": "Add Visit and Revise Visit dialogs · field label",
+    "notes": ""
+  },
+  "visitForm.type.label": {
+    "text": "Visit Type",
+    "where": "Add, Reschedule, Transfer, Revise and Edit Visit dialogs · field label",
+    "notes": ""
+  },
+  "visitForm.duration.label": {
+    "text": "Visit Duration",
+    "where": "Add, Reschedule, Transfer and Edit Visit dialogs · field label",
+    "notes": ""
+  },
+  "visitForm.duration.unit": {
+    "text": "min",
+    "where": "Add, Reschedule, Transfer and Edit Visit dialogs · unit inside the duration box",
+    "notes": ""
+  },
+  "visitForm.comments.label": {
+    "text": "Comments",
+    "where": "Add, Revise and Edit Visit dialogs · field label",
+    "notes": ""
+  },
+  "visitForm.date.label": {
+    "text": "Date",
+    "where": "Reschedule and Transfer Visit dialogs · field label",
+    "notes": ""
+  },
+  "visitForm.placeholder.selectRecord": {
+    "text": "Select Record",
+    "where": "Add Visit dialog · Module & Record, before a record is picked",
+    "notes": ""
+  },
+  "visitForm.placeholder.selectVisitType": {
+    "text": "Select Visit Type",
+    "where": "Visit dialogs · Visit Type, before one is picked",
+    "notes": ""
+  },
+  "visitForm.placeholder.selectDate": {
+    "text": "Select Date",
+    "where": "Reschedule and Transfer Visit dialogs · Date, before one is picked",
+    "notes": ""
+  },
+  "visitForm.placeholder.selectBeat": {
+    "text": "Select Beat",
+    "where": "Reschedule and Transfer Visit dialogs · Beat, before one is picked",
+    "notes": ""
+  },
+  "visitForm.placeholder.selectRep": {
+    "text": "Select Rep",
+    "where": "Transfer Visit dialog · Sales Rep, before one is picked",
+    "notes": ""
+  },
+  "visitForm.placeholder.selectTime": {
+    "text": "Select Time",
+    "where": "Revise Visit dialog · check-in and check-out, before one is picked",
+    "notes": ""
+  },
+  "visitForm.option.day": {
+    "text": "{day}  •  {date}",
+    "where": "Reschedule and Transfer Visit dialogs · each option in the Date list",
+    "notes": "Keep {day}, {date} (filled in by the page). {day} = the day, e.g. \"Day 1\"; {date} = a date, e.g. \"4 May\"."
+  },
+  "visitForm.option.beat": {
+    "text": "{beat} • {start} - {end}",
+    "where": "Reschedule and Transfer Visit dialogs · each option in the Beat list",
+    "notes": "Keep {beat}, {start}, {end} (filled in by the page). {beat} = the beat ID, e.g. \"BP-003\"; {start} = the beat's first date; {end} = the beat's last date."
+  },
+  "visitForm.option.record": {
+    "text": "{name} • {module}",
+    "where": "Add Visit (Module & Record once picked) and Revise Visit (Module & Record)",
+    "notes": "Keep {name}, {module} (filled in by the page). {name} = the visit or record name; {module} = the CRM module, e.g. \"Contacts\"."
+  },
+  "visitForm.error.selectRecord": {
+    "text": "Select a record.",
+    "where": "Add Visit dialog · error under Module & Record",
+    "notes": ""
+  },
+  "visitForm.error.selectType": {
+    "text": "Select a visit type.",
+    "where": "Add and Reschedule Visit dialogs · error under Visit Type",
+    "notes": ""
+  },
+  "visitForm.error.selectBeat": {
+    "text": "Select a beat.",
+    "where": "Reschedule and Transfer Visit dialogs · error under Beat",
+    "notes": ""
+  },
+  "visitForm.error.selectDate": {
+    "text": "Select a date.",
+    "where": "Reschedule and Transfer Visit dialogs · error under Date",
+    "notes": ""
+  },
+  "visitForm.error.selectRep": {
+    "text": "Select a rep.",
+    "where": "Transfer Visit dialog · error under Sales Rep",
+    "notes": ""
+  },
+  "visitForm.error.selectTime": {
+    "text": "Select a time.",
+    "where": "Transfer Visit dialog · error under Visit Time",
+    "notes": ""
+  },
+  "visitForm.error.enterReason": {
+    "text": "Enter a reason.",
+    "where": "Reschedule Visit, Cancel Visit and Cancel Beat dialogs · error under the reason",
+    "notes": ""
+  },
+  "visitForm.error.durationEmpty": {
+    "text": "Enter the duration in minutes.",
+    "where": "Visit dialogs · error under Visit Duration when empty",
+    "notes": ""
+  },
+  "visitForm.error.durationMin": {
+    "text": "Must be at least 1 minute.",
+    "where": "Visit dialogs · error under Visit Duration when 0",
+    "notes": ""
+  },
+  "visitForm.error.durationMax": {
+    "text": "Must be {max} minutes or less.",
+    "where": "Visit dialogs · error under Visit Duration when too long",
+    "notes": "Keep {max} (filled in by the page). {max} = the longest allowed, 480."
+  },
+  "addVisit.title": {
+    "text": "Add Visit to {day} • {date}",
+    "where": "Add Visit dialog · title",
+    "notes": "Keep {day}, {date} (filled in by the page). {day} = the day, e.g. \"Day 1\"; {date} = a date, e.g. \"4 May\"."
+  },
+  "addVisit.submit": {
+    "text": "Add",
+    "where": "Add Visit dialog · primary button",
+    "notes": ""
+  },
+  "rescheduleVisit.title": {
+    "text": "Reschedule Visit",
+    "where": "Reschedule Visit dialog · title",
+    "notes": ""
+  },
+  "rescheduleVisit.sub": {
+    "text": "Select an active Beat for this Visit, then set a new date.",
+    "where": "Reschedule Visit dialog · line under the title",
+    "notes": ""
+  },
+  "rescheduleVisit.beat.label": {
+    "text": "Beat",
+    "where": "Reschedule Visit dialog · field label",
+    "notes": ""
+  },
+  "rescheduleVisit.reason.label": {
+    "text": "Reschedule Reason",
+    "where": "Reschedule Visit dialog · field label",
+    "notes": ""
+  },
+  "rescheduleVisit.sameDayTip": {
+    "text": "Same day can not be chosen for rescheduling.",
+    "where": "Reschedule Visit dialog · tooltip on the visit's own day, greyed in the Date list",
+    "notes": ""
+  },
+  "rescheduleVisit.closedDayTip": {
+    "text": "This day is already closed.",
+    "where": "Reschedule Visit dialog · tooltip on a closed day, greyed in the Date list",
+    "notes": ""
+  },
+  "rescheduleVisit.submit": {
+    "text": "Reschedule Visit",
+    "where": "Reschedule Visit dialog · primary button",
+    "notes": ""
+  },
+  "transferVisit.title": {
+    "text": "Transfer Visit",
+    "where": "Transfer Visit dialog · title",
+    "notes": ""
+  },
+  "transferVisit.sub": {
+    "text": "Choose a rep with an active beat, then set the new date and time",
+    "where": "Transfer Visit dialog · line under the title",
+    "notes": ""
+  },
+  "transferVisit.rep.label": {
+    "text": "Sales Rep",
+    "where": "Transfer Visit dialog · field label",
+    "notes": ""
+  },
+  "transferVisit.beat.label": {
+    "text": "Active Beat",
+    "where": "Transfer Visit dialog · field label",
+    "notes": ""
+  },
+  "transferVisit.time.label": {
+    "text": "Visit Time",
+    "where": "Transfer Visit dialog · field label",
+    "notes": ""
+  },
+  "transferVisit.reason.label": {
+    "text": "Transfer Reason",
+    "where": "Transfer Visit dialog · field label",
+    "notes": ""
+  },
+  "transferVisit.submit": {
+    "text": "Transfer Visit",
+    "where": "Transfer Visit dialog · primary button",
+    "notes": ""
+  },
+  "cancelVisit.title": {
+    "text": "Cancel “{name}”",
+    "where": "Cancel Visit dialog · title",
+    "notes": "Keep {name} (filled in by the page). {name} = the visit or record name."
+  },
+  "cancelVisit.sub": {
+    "text": "This Visit will be marked as canceled",
+    "where": "Cancel Visit dialog · line under the title",
+    "notes": ""
+  },
+  "cancelVisit.reason.label": {
+    "text": "Cancellation Reason",
+    "where": "Cancel Visit dialog · field label",
+    "notes": ""
+  },
+  "cancelVisit.keep": {
+    "text": "Keep Visit",
+    "where": "Cancel Visit dialog · button that closes without cancelling",
+    "notes": ""
+  },
+  "cancelVisit.submit": {
+    "text": "Cancel Visit",
+    "where": "Cancel Visit dialog · red button",
+    "notes": ""
+  },
+  "reviseVisit.title": {
+    "text": "Revise Visit",
+    "where": "Revise Visit dialog · title",
+    "notes": ""
+  },
+  "reviseVisit.checkIn.label": {
+    "text": "Check-in time",
+    "where": "Revise Visit dialog · field label",
+    "notes": ""
+  },
+  "reviseVisit.checkOut.label": {
+    "text": "Check-out time",
+    "where": "Revise Visit dialog · field label",
+    "notes": ""
+  },
+  "reviseVisit.error.checkInMissing": {
+    "text": "Select the check-in time.",
+    "where": "Revise Visit dialog · error under Check-in time",
+    "notes": ""
+  },
+  "reviseVisit.error.checkOutMissing": {
+    "text": "Select the check-out time.",
+    "where": "Revise Visit dialog · error under Check-out time",
+    "notes": ""
+  },
+  "reviseVisit.error.checkOutOrder": {
+    "text": "Check-out must be after check-in.",
+    "where": "Revise Visit dialog · error under Check-out time",
+    "notes": ""
+  },
+  "reviseVisit.submit": {
+    "text": "Add",
+    "where": "Revise Visit dialog · primary button",
+    "notes": ""
+  },
+  "editVisit.title": {
+    "text": "Edit “{name}”",
+    "where": "Edit Visit dialog · title",
+    "notes": "Keep {name} (filled in by the page). {name} = the visit or record name."
+  },
+  "editVisit.duration.replanInfo": {
+    "text": "Beat plan for the day {day} - {date} will be reoptimized based on updated duration.",
+    "where": "Edit Visit dialog · note under Visit Duration once it is changed",
+    "notes": "Keep {day}, {date} (filled in by the page). {day} = the day, e.g. \"Day 1\"; {date} = a date, e.g. \"4 May\"."
+  },
+  "editVisit.submit": {
+    "text": "Save",
+    "where": "Edit Visit dialog · primary button",
+    "notes": ""
+  },
+  "cancelBeat.title": {
+    "text": "Cancel Beat",
+    "where": "Cancel Beat dialog · title",
+    "notes": ""
+  },
+  "cancelBeat.sub": {
+    "text": "All remaining Visits and days in {beat} will be marked as canceled. Completed Visits stay as they are.",
+    "where": "Cancel Beat dialog · line under the title",
+    "notes": "Keep {beat} (filled in by the page). {beat} = the beat ID, e.g. \"BP-003\"."
+  },
+  "cancelBeat.reason.label": {
+    "text": "Cancellation Reason",
+    "where": "Cancel Beat dialog · field label",
+    "notes": ""
+  },
+  "cancelBeat.keep": {
+    "text": "Keep Beat",
+    "where": "Cancel Beat dialog · button that closes without cancelling",
+    "notes": ""
+  },
+  "cancelBeat.submit": {
+    "text": "Cancel Beat",
+    "where": "Cancel Beat dialog · red button",
+    "notes": ""
+  },
+  "endDay.title": {
+    "text": "End “{day} - {date}”",
+    "where": "End Day dialog · title",
+    "notes": "Keep {day}, {date} (filled in by the page). {day} = the day, e.g. \"Day 1\"; {date} = a date, e.g. \"4 May\"."
+  },
+  "endDay.summary.done": {
+    "text": "Visits Completed",
+    "where": "End Day dialog · summary label",
+    "notes": ""
+  },
+  "endDay.summary.doneValue": {
+    "text": "{done} of {total}",
+    "where": "End Day dialog · value beside Visits Completed",
+    "notes": "Keep {done}, {total} (filled in by the page). {done} = how many are done; {total} = how many in all."
+  },
+  "endDay.summary.missed": {
+    "text": "Missed Visits",
+    "where": "End Day dialog · summary label",
+    "notes": ""
+  },
+  "endDay.summary.canceled": {
+    "text": "Canceled Visits",
+    "where": "End Day dialog · summary label",
+    "notes": ""
+  },
+  "endDay.summary.rescheduled": {
+    "text": "Rescheduled Visits",
+    "where": "End Day dialog · summary label",
+    "notes": ""
+  },
+  "endDay.summary.duration": {
+    "text": "Day Duration",
+    "where": "End Day dialog · summary label",
+    "notes": ""
+  },
+  "endDay.summary.distance": {
+    "text": "Distance Covered",
+    "where": "End Day dialog · summary label",
+    "notes": ""
+  },
+  "endDay.note.text": {
+    "text": "Visits you haven't checked in to will be marked as missed when you end the day.",
+    "where": "End Day dialog · note under the summary, after \"Note:\"",
+    "notes": ""
+  },
+  "endDay.submit": {
+    "text": "End Day",
+    "where": "End Day dialog · red primary button",
+    "notes": ""
+  },
+  "startDay.title": {
+    "text": "Start “{day} - {date}”",
+    "where": "Start Day dialog · title",
+    "notes": "Keep {day}, {date} (filled in by the page). {day} = the day, e.g. \"Day 1\"; {date} = a date, e.g. \"4 May\"."
+  },
+  "startDay.summary.visits": {
+    "text": "Visits Planned",
+    "where": "Start Day dialog · summary label",
+    "notes": ""
+  },
+  "startDay.summary.distance": {
+    "text": "Planned Distance",
+    "where": "Start Day dialog · summary label",
+    "notes": ""
+  },
+  "startDay.summary.first": {
+    "text": "First Visit",
+    "where": "Start Day dialog · summary label",
+    "notes": ""
+  },
+  "startDay.summary.time": {
+    "text": "Start Time",
+    "where": "Start Day dialog · summary label",
+    "notes": ""
+  },
+  "startDay.note.text": {
+    "text": "Your device's current time is logged as the {day} start time and can't be changed later.",
+    "where": "Start Day dialog · note under the summary, after \"Note:\"",
+    "notes": "Keep {day} (filled in by the page). {day} = the day, e.g. \"Day 1\"."
+  },
+  "startDay.submit": {
+    "text": "Start Day",
+    "where": "Start Day dialog · primary button",
+    "notes": ""
+  },
+  "common.button.cancel": {
+    "text": "Cancel",
+    "where": "Every dialog · button that closes it (Add, Reschedule, Transfer, Revise, Edit, Start Day, End Day)",
+    "notes": ""
+  },
+  "common.note.label": {
+    "text": "Note:",
+    "where": "Start Day and End Day dialogs · bold lead-in to the note",
+    "notes": ""
+  },
+  "common.empty": {
+    "text": "—",
+    "where": "Anywhere a value is not there yet (Show Details, First Visit, Day Duration)",
+    "notes": ""
+  },
+  "common.fraction": {
+    "text": "{done} / {total}",
+    "where": "Beat Detail · Show Details · Completed Beat Days and Actual Completed Visits",
+    "notes": "Keep {done}, {total} (filled in by the page). {done} = how many are done; {total} = how many in all."
+  },
+  "common.distance.km": {
+    "text": "{km} km",
+    "where": "Distances: Beat Details, Show Details, Start Day and End Day dialogs",
+    "notes": "Keep {km} (filled in by the page). {km} = kilometres, e.g. \"12.3\"."
+  },
+  "common.dayRef": {
+    "text": "{day} - {date}",
+    "where": "Beat Detail · Expenses card · Beat Day column",
+    "notes": "Keep {day}, {date} (filled in by the page). {day} = the day, e.g. \"Day 1\"; {date} = a date, e.g. \"4 May\"."
+  },
+  "common.duration.hour": {
+    "text": "{n} hr",
+    "where": "Beat Detail · finished day summary · one hour",
+    "notes": "Keep {n} (filled in by the page). {n} = a number."
+  },
+  "common.duration.hours": {
+    "text": "{n} hrs",
+    "where": "Beat Detail · finished day summary · several hours",
+    "notes": "Keep {n} (filled in by the page). {n} = a number."
+  },
+  "common.duration.minute": {
+    "text": "{n} min",
+    "where": "Beat Detail · finished day summary · one minute",
+    "notes": "Keep {n} (filled in by the page). {n} = a number."
+  },
+  "common.duration.minutes": {
+    "text": "{n} mins",
+    "where": "Beat Detail · finished day summary · several minutes (also 0)",
+    "notes": "Keep {n} (filled in by the page). {n} = a number."
+  },
+  "common.elapsed.minutes": {
+    "text": "{m} min",
+    "where": "End Day dialog · Day Duration, under an hour",
+    "notes": "Keep {m} (filled in by the page). {m} = minutes."
+  },
+  "common.elapsed.hours": {
+    "text": "{h} hr",
+    "where": "End Day dialog · Day Duration, whole hours",
+    "notes": "Keep {h} (filled in by the page). {h} = hours."
+  },
+  "common.elapsed.hoursMinutes": {
+    "text": "{h} hr {m} min",
+    "where": "End Day dialog · Day Duration, hours and minutes",
+    "notes": "Keep {h}, {m} (filled in by the page). {h} = hours; {m} = minutes."
+  },
+  "recordPicker.placeholder": {
+    "text": "None",
+    "where": "Record lookup · before a record is picked, when the page gives no other text",
+    "notes": ""
+  },
+  "recordPicker.search.placeholder": {
+    "text": "Search",
+    "where": "Record lookup (Add Visit › Module & Record) · search box",
+    "notes": ""
+  },
+  "recordPicker.search.ariaLabel": {
+    "text": "Search records",
+    "where": "Record lookup · search box (screen reader name)",
+    "notes": ""
+  },
+  "recordPicker.list.ariaLabel": {
+    "text": "Records",
+    "where": "Record lookup · list of records (screen reader name)",
+    "notes": ""
+  },
+  "recordPicker.modules.ariaLabel": {
+    "text": "Modules",
+    "where": "Record lookup · module menu (screen reader name)",
+    "notes": ""
+  },
+  "recordPicker.empty": {
+    "text": "No records found",
+    "where": "Record lookup · when the search matches nothing",
+    "notes": ""
+  },
+  "beatDetail.sim.ariaLabel": {
+    "text": "Simulate today",
+    "where": "Simulate today panel (prototype only, screen reader name)",
+    "notes": ""
+  },
+  "beatDetail.sim.button": {
+    "text": "Today: {date} · {time}",
+    "where": "Simulate today · dashed button in the record header (prototype only)",
+    "notes": "Keep {date}, {time} (filled in by the page). {date} = a date, e.g. \"4 May\"; {time} = a time, e.g. \"10:00 AM\"."
+  },
+  "beatDetail.sim.title": {
+    "text": "Simulate today",
+    "where": "Simulate today panel · heading (prototype only)",
+    "notes": ""
+  },
+  "beatDetail.sim.badge": {
+    "text": "Prototype only",
+    "where": "Simulate today panel · pill beside the heading",
+    "notes": ""
+  },
+  "beatDetail.sim.date": {
+    "text": "Date",
+    "where": "Simulate today panel · field label (prototype only)",
+    "notes": ""
+  },
+  "beatDetail.sim.dateOption.inBeat": {
+    "text": "{date} — {day}",
+    "where": "Simulate today panel · Date list, a day of the beat (prototype only)",
+    "notes": "Keep {date}, {day} (filled in by the page). {date} = a date, e.g. \"4 May\"; {day} = the day, e.g. \"Day 1\"."
+  },
+  "beatDetail.sim.dateOption.before": {
+    "text": "{date} — before the beat",
+    "where": "Simulate today panel · Date list, the day before (prototype only)",
+    "notes": "Keep {date} (filled in by the page). {date} = a date, e.g. \"4 May\"."
+  },
+  "beatDetail.sim.dateOption.after": {
+    "text": "{date} — after the beat",
+    "where": "Simulate today panel · Date list, the day after (prototype only)",
+    "notes": "Keep {date} (filled in by the page). {date} = a date, e.g. \"4 May\"."
+  },
+  "beatDetail.sim.time": {
+    "text": "Time",
+    "where": "Simulate today panel · field label (prototype only)",
+    "notes": ""
+  },
+  "beatDetail.sim.viewAs": {
+    "text": "View as",
+    "where": "Simulate today panel · field label (prototype only)",
+    "notes": ""
+  },
+  "beatDetail.sim.viewer.owner": {
+    "text": "Beat owner — Cameron Williamson",
+    "where": "Simulate today panel · View as option (prototype only)",
+    "notes": ""
+  },
+  "beatDetail.sim.viewer.manager": {
+    "text": "Manager",
+    "where": "Simulate today panel · View as option (prototype only)",
+    "notes": ""
+  },
+  "beatDetail.sim.addressIcon": {
+    "text": "Address icon",
+    "where": "Simulate today panel · field label (prototype only)",
+    "notes": ""
+  },
+  "beatDetail.sim.iconSet1": {
+    "text": "Set 1 — Building",
+    "where": "Simulate today panel · Address icon option (prototype only)",
+    "notes": ""
+  },
+  "beatDetail.sim.iconSet2": {
+    "text": "Set 2 — Building with pin",
+    "where": "Simulate today panel · Address icon option (prototype only)",
+    "notes": ""
+  },
+  "beatDetail.sim.iconSet3": {
+    "text": "Set 3 — Lines",
+    "where": "Simulate today panel · Address icon option (prototype only)",
+    "notes": ""
+  },
+  "beatDetail.sim.showKeys": {
+    "text": "Show content keys",
+    "where": "Simulate today panel · checkbox; hover any text to see its key (prototype only)",
+    "notes": ""
+  },
+  "beatDetail.sim.hours": {
+    "text": "Business hours 09:00 AM – 07:00 PM",
+    "where": "Simulate today panel · footer note (prototype only)",
+    "notes": ""
+  },
+  "beatDetail.sim.reset": {
+    "text": "Reset beat",
+    "where": "Simulate today panel · footer link (prototype only)",
+    "notes": ""
+  },
+  "bottomUp.model.ariaLabel": {
+    "text": "Operating model",
+    "where": "Top bar · Top-down / Bottom-up switch (screen reader name, prototype only)",
+    "notes": ""
+  },
+  "bottomUp.model.topDown": {
+    "text": "Top-down",
+    "where": "Top bar · operating model switch, left option (prototype only)",
+    "notes": ""
+  },
+  "bottomUp.model.bottomUp": {
+    "text": "Bottom-up",
+    "where": "Top bar · operating model switch, right option (prototype only)",
+    "notes": ""
+  },
+  "bottomUp.status.pendingApproval": {
+    "text": "Pending Approval",
+    "where": "Beat Detail · bottom-up · status badge beside the beat code, before approval",
+    "notes": ""
+  },
+  "bottomUp.status.rejected": {
+    "text": "Rejected",
+    "where": "Beat Detail · bottom-up · status badge when the manager rejects the beat",
+    "notes": ""
+  },
+  "bottomUp.action.startApproval": {
+    "text": "Start Approval",
+    "where": "Beat Detail · bottom-up · button right of the Overview / Timeline tabs, manager, Pending Approval",
+    "notes": ""
+  },
+  "bottomUp.action.rejectBeat": {
+    "text": "Reject Beat",
+    "where": "Beat Detail · bottom-up · button right of the tabs, manager, Pending Approval; also the Reject Beat dialog button",
+    "notes": ""
+  },
+  "bottomUp.action.completeApproval": {
+    "text": "Complete Approval",
+    "where": "Beat Detail · bottom-up · button right of the tabs, manager, during approval",
+    "notes": ""
+  },
+  "bottomUp.visit.approve.tip": {
+    "text": "Approve",
+    "where": "Beat Detail · bottom-up · tooltip on a visit’s tick icon",
+    "notes": ""
+  },
+  "bottomUp.visit.approve.ariaLabel": {
+    "text": "Approve {name}",
+    "where": "Beat Detail · bottom-up · tick icon on a visit (screen reader name)",
+    "notes": ""
+  },
+  "bottomUp.visit.reject.tip": {
+    "text": "Reject",
+    "where": "Beat Detail · bottom-up · tooltip on a visit’s cross icon",
+    "notes": ""
+  },
+  "bottomUp.visit.reject.ariaLabel": {
+    "text": "Reject {name}",
+    "where": "Beat Detail · bottom-up · cross icon on a visit (screen reader name)",
+    "notes": ""
+  },
+  "bottomUp.tag.rejected": {
+    "text": "Rejected",
+    "where": "Beat Detail · bottom-up · tag beside a rejected visit’s name",
+    "notes": ""
+  },
+  "bottomUp.tag.awaiting": {
+    "text": "Pending Approval",
+    "where": "Beat Detail · bottom-up · tag beside a resubmitted or rep-added visit waiting for the manager",
+    "notes": ""
+  },
+  "beatDetail.visit.action.approve": {
+    "text": "Approve",
+    "where": "Beat Detail · visit ⋯ menu (bottom-up, manager)",
+    "notes": ""
+  },
+  "beatDetail.visit.action.reject": {
+    "text": "Reject",
+    "where": "Beat Detail · visit ⋯ menu (bottom-up, manager)",
+    "notes": ""
+  },
+  "beatDetail.visit.action.remove": {
+    "text": "Remove Visit",
+    "where": "Beat Detail · visit ⋯ menu (bottom-up, rep, before approval)",
+    "notes": ""
+  },
+  "beatDetail.visit.action.resubmit": {
+    "text": "Edit and Resubmit",
+    "where": "Beat Detail · visit ⋯ menu on a rejected visit (bottom-up, rep)",
+    "notes": ""
+  },
+  "bottomUp.reject.title": {
+    "text": "Reject “{name}”",
+    "where": "Reject Visit dialog · title",
+    "notes": ""
+  },
+  "bottomUp.reject.sub": {
+    "text": "This Visit will be sent back to the rep as rejected",
+    "where": "Reject Visit dialog · line under the title",
+    "notes": ""
+  },
+  "bottomUp.reject.reasonLabel": {
+    "text": "Rejection Reason",
+    "where": "Reject Visit / Reject Beat dialog · reason field label",
+    "notes": ""
+  },
+  "bottomUp.reject.confirm": {
+    "text": "Reject Visit",
+    "where": "Reject Visit dialog · red confirm button",
+    "notes": ""
+  },
+  "bottomUp.reject.error.reason": {
+    "text": "Enter a reason.",
+    "where": "Reject Visit / Reject Beat / Complete approval dialogs · error under an empty reason",
+    "notes": ""
+  },
+  "bottomUp.rejectBeat.title": {
+    "text": "Reject “BP-003”",
+    "where": "Reject Beat dialog · title",
+    "notes": ""
+  },
+  "bottomUp.rejectBeat.sub": {
+    "text": "This Beat will be marked as rejected",
+    "where": "Reject Beat dialog · line under the title",
+    "notes": ""
+  },
+  "bottomUp.rejectNote.label": {
+    "text": "Beat Rejected:",
+    "where": "Beat Detail · bottom-up · right of the tabs on a rejected beat, before View Reason",
+    "notes": ""
+  },
+  "bottomUp.rejectNote.pop.title": {
+    "text": "Rejection Reason",
+    "where": "Beat Detail · bottom-up · View Reason popover title on a rejected beat",
+    "notes": ""
+  },
+  "bottomUp.rejectNote.pop.meta": {
+    "text": "Rejected by {name} · {time}",
+    "where": "Beat Detail · bottom-up · View Reason popover, small line under the reason",
+    "notes": ""
+  },
+  "bottomUp.complete.title": {
+    "text": "Complete Beat Approval",
+    "where": "Complete Beat Approval dialog · title",
+    "notes": ""
+  },
+  "bottomUp.complete.allReviewed": {
+    "text": "All {total} visits are reviewed. Complete the approval to activate the beat.",
+    "where": "Complete Beat Approval dialog · line under the title when every visit was reviewed",
+    "notes": ""
+  },
+  "bottomUp.complete.confirm": {
+    "text": "Complete",
+    "where": "Complete Beat Approval dialog · blue confirm button",
+    "notes": ""
+  },
+  "bottomUp.toast.approvalStarted": {
+    "text": "Approval started. Approve or reject each visit.",
+    "where": "Toast · after Start Approval",
+    "notes": ""
+  },
+  "bottomUp.toast.approvalCompleted": {
+    "text": "Approval completed. Route re-optimized. {rep} can now start the beat.",
+    "where": "Toast · after Complete Approval",
+    "notes": ""
+  },
+  "bottomUp.toast.beatRejected": {
+    "text": "BP-003 rejected.",
+    "where": "Toast · after Reject Beat",
+    "notes": ""
+  },
+  "bottomUp.toast.visitRejected": {
+    "text": "{name} rejected.",
+    "where": "Toast · after rejecting a visit",
+    "notes": ""
+  },
+  "bottomUp.toast.visitApprovedLast": {
+    "text": "{name} approved and added as the last visit of {day} - {date}.",
+    "where": "Toast · after approving a resubmitted or rep-added visit",
+    "notes": ""
+  },
+  "bottomUp.toast.resubmitted": {
+    "text": "{name} sent to {manager} for approval.",
+    "where": "Toast · after Edit and Resubmit",
+    "notes": ""
+  },
+  "bottomUp.toast.editedNotified": {
+    "text": "{name} updated. {rep} has been notified.",
+    "where": "Toast · after the manager edits a visit",
+    "notes": ""
+  },
+  "bottomUp.toast.addedForApproval": {
+    "text": "{name} added. It joins the beat once {manager} approves it.",
+    "where": "Toast · after the rep adds a visit to a beat in progress",
+    "notes": ""
+  },
+  "bottomUp.toast.visitRemoved": {
+    "text": "{name} removed from {day}.",
+    "where": "Toast · after the rep removes a visit before approval",
+    "notes": ""
+  },
+  "bottomUp.resubmit.title": {
+    "text": "Edit and Resubmit “{name}”",
+    "where": "Edit Visit dialog · title when the rep reworks a rejected visit",
+    "notes": ""
+  },
+  "bottomUp.resubmit.confirm": {
+    "text": "Resubmit",
+    "where": "Edit Visit dialog · confirm button when resubmitting",
+    "notes": ""
+  },
+  "bottomUp.limit.title": {
+    "text": "Save anyway?",
+    "where": "Limit warning dialog · title (a change runs a day past its limits)",
+    "notes": ""
+  },
+  "bottomUp.limit.visits": {
+    "text": "{day} - {date} will have {count} visits — more than the {max} allowed per day.",
+    "where": "Limit warning dialog · visits-per-day line",
+    "notes": ""
+  },
+  "bottomUp.limit.hours": {
+    "text": "{day} - {date} will run until {end}, past business hours ({close}).",
+    "where": "Limit warning dialog · business-hours line",
+    "notes": ""
+  },
+  "bottomUp.limit.confirm": {
+    "text": "Save Anyway",
+    "where": "Limit warning dialog · confirm button",
+    "notes": ""
+  },
+  "bottomUp.bell.title": {
+    "text": "Notifications",
+    "where": "Top bar · bell popover title",
+    "notes": ""
+  },
+  "bottomUp.bell.empty": {
+    "text": "No new notifications on this beat.",
+    "where": "Top bar · bell popover when empty",
+    "notes": ""
+  },
+  "bottomUp.note.edited": {
+    "text": "{manager} edited {name}.",
+    "where": "Bell · rep’s notification after a manager edit",
+    "notes": ""
+  },
+  "bottomUp.note.approvalCompleted": {
+    "text": "{manager} completed the approval of BP-003.",
+    "where": "Bell · rep’s notification after Complete Approval",
+    "notes": ""
+  },
+  "bottomUp.note.beatRejected": {
+    "text": "{manager} rejected BP-003.",
+    "where": "Bell · rep’s notification after Reject Beat",
+    "notes": ""
+  },
+  "bottomUp.note.visitApproved": {
+    "text": "{manager} approved {name}.",
+    "where": "Bell · rep’s notification after a waiting visit is approved",
+    "notes": ""
+  },
+  "bottomUp.note.visitRejected": {
+    "text": "{manager} rejected {name}.",
+    "where": "Bell · rep’s notification after a waiting visit is rejected",
+    "notes": ""
+  },
+  "bottomUp.note.resubmitted": {
+    "text": "{rep} resubmitted {name} for approval.",
+    "where": "Bell · manager’s notification after Edit and Resubmit",
+    "notes": ""
+  },
+  "bottomUp.note.repAdded": {
+    "text": "{rep} added {name} for approval.",
+    "where": "Bell · manager’s notification after the rep adds a visit to a running beat",
+    "notes": ""
+  },
+  "bottomUp.info.approvedAt": {
+    "text": "{date} · {time}",
+    "where": "Show Details · Approved By, the date and time under the name",
+    "notes": ""
+  },
+  "beatDetail.info.approvedBy": {
+    "text": "Approved By",
+    "where": "Show Details · label (bottom-up, once approved)",
+    "notes": ""
+  },
+  "bottomUp.action.moreAriaLabel": {
+    "notes": "",
+    "text": "More approval actions",
+    "where": "Beat Detail · bottom-up · arrow half of the Start Approval button (screen reader name)"
+  },
+  "bottomUp.waiting.manager": {
+    "notes": "",
+    "text": "Waiting for your response:",
+    "where": "Beat Detail · bottom-up · right of the tabs, manager view, before approval completes"
+  },
+  "bottomUp.waiting.count": {
+    "notes": "",
+    "text": "{done}/{total}",
+    "where": "Beat Detail · bottom-up · after \"Waiting for your response:\" — visits reviewed out of all"
+  },
+  "bottomUp.waiting.rep": {
+    "notes": "",
+    "text": "Waiting for approval",
+    "where": "Beat Detail · bottom-up · right of the tabs, rep view, before approval completes"
+  },
+  "bottomUp.waiting.lastUpdate": {
+    "notes": "",
+    "text": "Last Update: {time}",
+    "where": "Beat Detail · bottom-up · right of the tabs, after the divider"
+  },
+  "bottomUp.complete.desc": {
+    "notes": "",
+    "text": "You have some unapproved visits, need your decision to proceed on activating the beat",
+    "where": "Complete Beat Approval dialog · line under the title"
+  },
+  "bottomUp.complete.approveRemaining": {
+    "notes": "",
+    "text": "Approve remaining visits",
+    "where": "Complete Beat Approval dialog · first option"
+  },
+  "bottomUp.complete.approveRemainingHint": {
+    "notes": "",
+    "text": "All visits will be included in the optimised route",
+    "where": "Complete Beat Approval dialog · grey line under the first option"
+  },
+  "bottomUp.complete.selectedOnly": {
+    "notes": "",
+    "text": "Proceed with selected only",
+    "where": "Complete Beat Approval dialog · second option"
+  },
+  "bottomUp.complete.selectedOnlyHint": {
+    "notes": "",
+    "text": "Route will be optimised for {count} approved visits others will be rejected",
+    "where": "Complete Beat Approval dialog · grey line under the second option"
+  },
+  "bottomUp.complete.beatDetailsLabel": {
+    "notes": "",
+    "text": "Beat Details:",
+    "where": "Complete Beat Approval dialog · info box, bold label"
+  },
+  "bottomUp.complete.beatDetails": {
+    "notes": "",
+    "text": "{from} – {to} · {days} · {visits} · {km} km",
+    "where": "Complete Beat Approval dialog · info box, after \"Beat Details:\" — {days} and {visits} come from the four keys below"
+  },
+  "bottomUp.complete.beatDetailsNone": {
+    "notes": "",
+    "text": "No visits left on the beat",
+    "where": "Complete Beat Approval dialog · info box when every visit would be rejected"
+  },
+  "bottomUp.complete.beatDetailsOneDay": {
+    "notes": "",
+    "text": "{date} · {days} · {visits} · {km} km",
+    "where": "Complete Beat Approval dialog · info box, when the beat comes to a single day"
+  },
+  "bottomUp.complete.days.one": {
+    "notes": "",
+    "text": "{n} day",
+    "where": "Complete Beat Approval dialog · info box · day count, one"
+  },
+  "bottomUp.complete.days.other": {
+    "notes": "",
+    "text": "{n} days",
+    "where": "Complete Beat Approval dialog · info box · day count, more than one"
+  },
+  "bottomUp.complete.visits.one": {
+    "notes": "",
+    "text": "{n} visit",
+    "where": "Complete Beat Approval dialog · info box · visit count, one"
+  },
+  "bottomUp.complete.visits.other": {
+    "notes": "",
+    "text": "{n} visits",
+    "where": "Complete Beat Approval dialog · info box · visit count, more than one"
+  },
+  "bottomUp.discard.title": {
+    "text": "Discard approval progress?",
+    "where": "Discard approval alert · title (Back pressed during an approval)",
+    "notes": ""
+  },
+  "bottomUp.discard.text": {
+    "text": "Your approved and rejected visits for this beat will be lost.",
+    "where": "Discard approval alert · line under the title",
+    "notes": ""
+  },
+  "bottomUp.discard.proceed": {
+    "text": "Proceed",
+    "where": "Discard approval alert · blue confirm button",
+    "notes": ""
+  },
+  "bottomUp.visit.reasonLabel": {
+    "text": "Reason:",
+    "where": "Beat Detail · bottom-up · bold label in the reason box under a rejected visit",
+    "notes": ""
+  }
+}

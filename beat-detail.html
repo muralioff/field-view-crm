@@ -14,6 +14,8 @@
   <link rel="stylesheet" href="src/time-picker.css" />
   <link rel="stylesheet" href="src/record-picker.css" />
   <link rel="stylesheet" href="src/select-menu.css" />
+  <!-- First, so the copy is in before anything renders -->
+  <script src="src/strings.js"></script>
 </head>
 <body>
   <div class="bp-app">
@@ -23,25 +25,40 @@
     <main class="bp-main">
 
       <header class="bp-topbar">
-        <h1 class="bp-topbar-title">Beats</h1>
+        <h1 class="bp-topbar-title" data-t="topbar.title">Beats</h1>
         <!-- Two arrangements of the same detail view; behaviour is identical -->
         <!-- Hidden: the page is fixed on Type 3 (Type 2 with Start / End on the day row). The other layouts stay in the
              code, so unhiding this brings the comparison back. -->
-        <div class="bd-layout" role="group" aria-label="Detail view layout" hidden>
-          <button class="bd-layout-btn active" type="button" data-layout="1">Type 1</button>
-          <button class="bd-layout-btn" type="button" data-layout="2">Type 2</button>
-          <button class="bd-layout-btn" type="button" data-layout="3">Type 3</button>
+        <div class="bd-layout" role="group" aria-label="Detail view layout" data-t="beatDetail.layout.ariaLabel" data-t-attr="aria-label" hidden>
+          <button class="bd-layout-btn active" type="button" data-layout="1" data-t="beatDetail.layout.type1">Type 1</button>
+          <button class="bd-layout-btn" type="button" data-layout="2" data-t="beatDetail.layout.type2">Type 2</button>
+          <button class="bd-layout-btn" type="button" data-layout="3" data-t="beatDetail.layout.type3">Type 3</button>
         </div>
-        <div class="bp-search"><i class="ti ti-search" aria-hidden="true"></i><span>Search records</span></div>
+        <div class="bp-search"><i class="ti ti-search" aria-hidden="true"></i><span data-t="topbar.search.placeholder">Search records</span></div>
+        <!-- Prototype only: which operating model the beat runs under. Top-down
+             is the manager's plan the rep works; bottom-up is the rep's plan
+             the manager approves first. -->
+        <div class="bd-model" id="bd-model" role="group" aria-label="Operating model" data-t="bottomUp.model.ariaLabel" data-t-attr="aria-label">
+          <button class="bd-model-btn" type="button" data-model="top" data-t="bottomUp.model.topDown">Top-down</button>
+          <button class="bd-model-btn" type="button" data-model="bottom" data-t="bottomUp.model.bottomUp">Bottom-up</button>
+        </div>
         <div class="bp-topbar-icons">
-          <button class="bp-tb-btn plus" aria-label="Add"><i class="ti ti-plus"></i></button>
-          <button class="bp-tb-btn" aria-label="Zia"><i class="ti ti-sparkles"></i></button>
-          <button class="bp-tb-btn" aria-label="Notifications"><i class="ti ti-bell"></i><span class="bp-tb-badge">5</span></button>
-          <button class="bp-tb-btn" aria-label="Calendar"><i class="ti ti-calendar"></i></button>
-          <button class="bp-tb-btn" aria-label="Help"><i class="ti ti-help-circle"></i></button>
-          <button class="bp-tb-btn" aria-label="Settings"><i class="ti ti-settings"></i></button>
+          <button class="bp-tb-btn plus" aria-label="Add" data-t="topbar.add.ariaLabel" data-t-attr="aria-label"><i class="ti ti-plus"></i></button>
+          <button class="bp-tb-btn" aria-label="Zia" data-t="topbar.zia.ariaLabel" data-t-attr="aria-label"><i class="ti ti-sparkles"></i></button>
+          <div class="bd-bell-wrap">
+            <button class="bp-tb-btn" id="bd-bell" aria-label="Notifications" data-t="topbar.notifications.ariaLabel" data-t-attr="aria-label"
+                    aria-haspopup="dialog" aria-expanded="false" aria-controls="bd-bell-pop"><i class="ti ti-bell"></i><span class="bp-tb-badge" id="bd-bell-count">5</span></button>
+            <!-- Bottom-up: what the other side did to this beat (prototype only) -->
+            <div class="bd-bell-pop" id="bd-bell-pop" role="dialog" aria-labelledby="bd-bell-title" hidden>
+              <p class="bd-bell-title" id="bd-bell-title" data-t="bottomUp.bell.title">Notifications</p>
+              <ul class="bd-bell-list" id="bd-bell-list"></ul>
+            </div>
+          </div>
+          <button class="bp-tb-btn" aria-label="Calendar" data-t="topbar.calendar.ariaLabel" data-t-attr="aria-label"><i class="ti ti-calendar"></i></button>
+          <button class="bp-tb-btn" aria-label="Help" data-t="topbar.help.ariaLabel" data-t-attr="aria-label"><i class="ti ti-help-circle"></i></button>
+          <button class="bp-tb-btn" aria-label="Settings" data-t="topbar.settings.ariaLabel" data-t-attr="aria-label"><i class="ti ti-settings"></i></button>
           <div class="bp-avatar-photo">M</div>
-          <button class="bp-tb-btn" aria-label="Apps"><i class="ti ti-grid-dots"></i></button>
+          <button class="bp-tb-btn" aria-label="Apps" data-t="topbar.apps.ariaLabel" data-t-attr="aria-label"><i class="ti ti-grid-dots"></i></button>
         </div>
       </header>
 
@@ -49,14 +66,14 @@
            time, so the button acts on the day that is theirs to work. -->
       <div class="bp-subheader">
         <div class="bp-sub-left">
-          <button class="bp-back" aria-label="Back" onclick="location.href='index.html'"><i class="ti ti-arrow-left"></i></button>
+          <button class="bp-back" id="bd-back" type="button" aria-label="Back" data-t="beatDetail.header.back.ariaLabel" data-t-attr="aria-label"><i class="ti ti-arrow-left"></i></button>
           <!-- No record image on this record -->
           <div>
             <div class="bp-sub-title-row">
               <span class="bp-code">BP - 003</span>
-              <span class="bp-badge" id="bd-beat-status">Upcoming</span>
+              <span class="bp-badge" id="bd-beat-status" data-t="beatDetail.status.upcoming">Upcoming</span>
             </div>
-            <a class="bp-addtags"><i class="ti ti-tag"></i>Add Tags</a>
+            <a class="bp-addtags" data-t="beatDetail.header.addTags.label"><i class="ti ti-tag"></i>Add Tags</a>
           </div>
         </div>
         <div class="bp-sub-right">
@@ -69,64 +86,69 @@
               <span id="bd-sim-label"></span>
               <i class="ti ti-chevron-down bd-sim-caret" aria-hidden="true"></i>
             </button>
-            <div class="bd-sim-panel" id="bd-sim-panel" role="dialog" aria-label="Simulate today" hidden>
-              <p class="bd-sim-title">Simulate today <span>Prototype only</span></p>
-              <label class="bd-sim-field">Date
+            <div class="bd-sim-panel" id="bd-sim-panel" role="dialog" aria-label="Simulate today" data-t="beatDetail.sim.ariaLabel" data-t-attr="aria-label" hidden>
+              <p class="bd-sim-title" data-t="beatDetail.sim.title">Simulate today <span data-t="beatDetail.sim.badge">Prototype only</span></p>
+              <label class="bd-sim-field" data-t="beatDetail.sim.date">Date
                 <select id="bd-sim-date"></select>
               </label>
-              <label class="bd-sim-field">Time
+              <label class="bd-sim-field" data-t="beatDetail.sim.time">Time
                 <select id="bd-sim-time"></select>
               </label>
-              <label class="bd-sim-field">View as
+              <label class="bd-sim-field" data-t="beatDetail.sim.viewAs">View as
                 <select id="bd-sim-viewer">
-                  <option value="owner">Beat owner — Cameron Williamson</option>
-                  <option value="manager">Manager</option>
+                  <option value="owner" data-t="beatDetail.sim.viewer.owner">Beat owner — Cameron Williamson</option>
+                  <option value="manager" data-t="beatDetail.sim.viewer.manager">Manager</option>
                 </select>
               </label>
               <!-- Which Figma icon set the Show / Hide Address toggle uses -->
-              <label class="bd-sim-field">Address icon
+              <label class="bd-sim-field" data-t="beatDetail.sim.addressIcon">Address icon
                 <select id="bd-sim-addr-icon">
-                  <option value="1">Set 1 — Building</option>
-                  <option value="2" selected>Set 2 — Building with pin</option>
-                  <option value="3">Set 3 — Lines</option>
+                  <option value="1" data-t="beatDetail.sim.iconSet1">Set 1 — Building</option>
+                  <option value="2" selected data-t="beatDetail.sim.iconSet2">Set 2 — Building with pin</option>
+                  <option value="3" data-t="beatDetail.sim.iconSet3">Set 3 — Lines</option>
                 </select>
               </label>
-              <label class="bd-sim-check">
-                <input type="checkbox" id="bd-sim-other" />
-                Rep has a day running on another beat (BP-002)
+              <!-- Hovering any text shows its content key, so the PM can find
+                   the row to edit in the sheet -->
+              <label class="bd-sim-check" data-t="beatDetail.sim.showKeys">
+                <input type="checkbox" id="bd-sim-keys" />
+                Show content keys
               </label>
               <div class="bd-sim-foot">
-                <span class="bd-sim-note">Business hours 09:00 AM – 07:00 PM</span>
-                <button class="bd-sim-reset" type="button" id="bd-sim-reset">Reset beat</button>
+                <span class="bd-sim-note" data-t="beatDetail.sim.hours">Business hours 09:00 AM – 07:00 PM</span>
+                <button class="bd-sim-reset" type="button" id="bd-sim-reset" data-t="beatDetail.sim.reset">Reset beat</button>
               </div>
             </div>
           </div>
-          <button class="bp-round" aria-label="Zia"><i class="ti ti-sparkles"></i></button>
+          <button class="bp-round" aria-label="Zia" data-t="beatDetail.header.zia.ariaLabel" data-t-attr="aria-label"><i class="ti ti-sparkles"></i></button>
           <span class="bd-head-divider" aria-hidden="true"></span>
           <!-- Figma 5988:149486. Re-plans the visit order; for now it only
                confirms, since the prototype has no routing behind the map. -->
-          <button class="bp-btn default" type="button" id="bd-optimize">Optimize Route</button>
+          <button class="bp-btn default" type="button" id="bd-optimize" data-t="beatDetail.header.optimize.label">Optimize Route</button>
           <!-- The rep's one job on this record, in the slot the frames gave
                Start Beat / End Beat -->
           <button class="bp-btn primary" type="button" id="bd-day-action" hidden></button>
-          <button class="bp-btn default">Edit</button>
+          <!-- Bottom-up, manager: Start Approval (its arrow holds Reject Beat,
+               Figma 6728:79291), then Complete Approval. Filled by beat-detail.js. -->
+          <div class="bu-head" id="bu-head" hidden></div>
+          <button class="bp-btn default" data-t="beatDetail.header.edit.label">Edit</button>
           <!-- Beat actions (Figma 5988:150027) -->
           <div class="bd-beat-menu-wrap">
             <button class="bp-btn default bd-more-btn" type="button" id="bd-more"
                     aria-haspopup="menu" aria-expanded="false" aria-controls="bd-beat-menu"
-                    aria-label="More actions"><i class="ti ti-dots" aria-hidden="true"></i></button>
+                    aria-label="More actions" data-t="beatDetail.header.more.ariaLabel" data-t-attr="aria-label"><i class="ti ti-dots" aria-hidden="true"></i></button>
             <div class="bd-vmenu bd-beat-menu" id="bd-beat-menu" role="menu" hidden>
-              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1">Clone</button>
-              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1">Share</button>
-              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1">Delete</button>
-              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1">Cancel Beat</button>
+              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1" data-action="clone" data-t="beatDetail.beatMenu.clone">Clone</button>
+              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1" data-action="share" data-t="beatDetail.beatMenu.share">Share</button>
+              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1" data-action="delete" data-t="beatDetail.beatMenu.delete">Delete</button>
+              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1" data-action="cancel-beat" data-t="beatDetail.beatMenu.cancelBeat">Cancel Beat</button>
               <span class="bd-menu-divider" role="separator"></span>
-              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1">Print Preview</button>
-              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1">Export</button>
+              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1" data-action="print" data-t="beatDetail.beatMenu.printPreview">Print Preview</button>
+              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1" data-action="export" data-t="beatDetail.beatMenu.export">Export</button>
             </div>
           </div>
-          <button class="bp-navarrow" aria-label="Previous" disabled><i class="ti ti-chevron-left"></i></button>
-          <button class="bp-navarrow" aria-label="Next"><i class="ti ti-chevron-right"></i></button>
+          <button class="bp-navarrow" aria-label="Previous" data-t="beatDetail.header.prev.ariaLabel" data-t-attr="aria-label" disabled><i class="ti ti-chevron-left"></i></button>
+          <button class="bp-navarrow" aria-label="Next" data-t="beatDetail.header.next.ariaLabel" data-t-attr="aria-label"><i class="ti ti-chevron-right"></i></button>
         </div>
       </div>
 
@@ -141,43 +163,48 @@
            expand/collapse. It stands beside the tab row, not under it, so
            it reads as part of the record's chrome. -->
       <div class="bd-shell">
-      <nav class="bd-rlist" id="bd-rlist" aria-label="Related list">
+      <nav class="bd-rlist" id="bd-rlist" aria-label="Related list" data-t="beatDetail.relatedRail.ariaLabel" data-t-attr="aria-label">
         <!-- Only the lists an admin can arrange. Beat Detail View and the
              summary are fixed parts of the record, so they are not listed. -->
-        <p class="bd-rlist-title">Related List</p>
-        <button class="bd-rlist-item" type="button" data-target="bd-notes">Notes</button>
-        <button class="bd-rlist-item" type="button" data-target="bd-attachments">Attachments</button>
-        <button class="bd-rlist-item" type="button" data-target="bd-expenses">Expenses</button>
-        <button class="bd-rlist-add" type="button">Add Related List</button>
+        <p class="bd-rlist-title" data-t="beatDetail.relatedRail.title">Related List</p>
+        <button class="bd-rlist-item" type="button" data-target="bd-notes" data-t="beatDetail.relatedRail.notes">Notes</button>
+        <button class="bd-rlist-item" type="button" data-target="bd-attachments" data-t="beatDetail.relatedRail.attachments">Attachments</button>
+        <button class="bd-rlist-item" type="button" data-target="bd-expenses" data-t="beatDetail.relatedRail.expenses">Expenses</button>
+        <button class="bd-rlist-add" type="button" data-t="beatDetail.relatedRail.addRelatedList">Add Related List</button>
 
-        <p class="bd-rlist-title bd-rlist-links">Links</p>
-        <button class="bd-rlist-add" type="button">Add Link</button>
+        <p class="bd-rlist-title bd-rlist-links" data-t="beatDetail.relatedRail.links">Links</p>
+        <button class="bd-rlist-add" type="button" data-t="beatDetail.relatedRail.addLink">Add Link</button>
       </nav>
 
       <div class="bd-col">
       <div class="bd-tabrow">
         <button class="bd-rlist-toggle" type="button" id="bd-rlist-toggle"
                 aria-expanded="false" aria-controls="bd-rlist"
-                aria-label="Show related list">
+                aria-label="Show related list" data-t="beatDetail.relatedRail.toggle.show" data-t-attr="aria-label">
           <i class="ti ti-layout-sidebar" aria-hidden="true"></i>
         </button>
         <div class="bp-tabs">
-          <button class="bp-tab active">Overview</button>
-          <button class="bp-tab">Timeline</button>
+          <button class="bp-tab active" data-t="beatDetail.tabs.overview">Overview</button>
+          <button class="bp-tab" data-t="beatDetail.tabs.timeline">Timeline</button>
         </div>
+        <!-- Bottom-up: who the beat is waiting on, right of the tabs
+             (Figma 3080:166192) — "Waiting for your response: 3/6" for the
+             manager, "Waiting for approval" for the rep. Filled by
+             beat-detail.js. -->
+        <div class="bu-actions" id="bu-actions" hidden></div>
         <!-- Once the beat is cancelled (Figma 6679:571392): its reason on
              a link, and when the record last changed -->
         <div class="bd-cancel-note" id="bd-cancel-note" hidden>
-          <span class="bd-cancel-label">Beat Cancelled:</span>
+          <span class="bd-cancel-label" data-t="beatDetail.cancelNote.label">Beat Cancelled:</span>
           <button class="bd-cancel-link" type="button" id="bd-cancel-link"
-                  aria-haspopup="dialog" aria-expanded="false" aria-controls="bd-cancel-pop">View Reason</button>
+                  aria-haspopup="dialog" aria-expanded="false" aria-controls="bd-cancel-pop" data-t="beatDetail.cancelNote.viewReason">View Reason</button>
           <span class="bd-cancel-rule" aria-hidden="true"></span>
           <span class="bd-cancel-updated">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.25" stroke="#616E88" stroke-width="1.5"/><path d="M6.99988 8.99997H10.9999C11.2999 8.99997 11.4999 8.79997 11.4999 8.49997C11.4999 8.19997 11.2999 7.99997 10.9999 7.99997H7.99988V4.99997C7.99988 4.69997 7.79988 4.49997 7.49988 4.49997C7.19988 4.49997 6.99988 4.69997 6.99988 4.99997V8.99997Z" fill="#616E88"/></svg>
-            <span id="bd-cancel-updated">Last Updated: —</span>
+            <span id="bd-cancel-updated" data-t="beatDetail.cancelNote.lastUpdated" data-t-var-time="—">Last Updated: —</span>
           </span>
-          <div class="bd-cancel-pop" id="bd-cancel-pop" role="dialog" aria-label="Cancellation reason" hidden>
-            <p class="bd-cancel-pop-title">Cancellation Reason</p>
+          <div class="bd-cancel-pop" id="bd-cancel-pop" role="dialog" aria-label="Cancellation reason" data-t="beatDetail.cancelNote.pop.ariaLabel" data-t-attr="aria-label" hidden>
+            <p class="bd-cancel-pop-title" data-t="beatDetail.cancelNote.pop.title">Cancellation Reason</p>
             <p class="bd-cancel-pop-text" id="bd-cancel-pop-text"></p>
             <p class="bd-cancel-pop-meta" id="bd-cancel-pop-meta"></p>
           </div>
@@ -188,28 +215,28 @@
         <!-- Beat Details, first in the column above the Beat Detail View.
              In Type 1 its grid area keeps it where it always was. -->
         <section class="card bd-card-details" id="bd-card-details">
-          <h2>Beat Details</h2>
+          <h2 data-t="beatDetail.details.title">Beat Details</h2>
           <!-- Label over value, no icons. Visits and distance are summed
                from the beat's days by beat-detail.js. -->
           <div class="bp-detail-grid">
             <div class="bp-detail">
-              <div class="bp-detail-label">Beat Owner</div>
+              <div class="bp-detail-label" data-t="beatDetail.details.owner">Beat Owner</div>
               <div class="bp-detail-value">Cameron Williamson</div>
             </div>
             <div class="bp-detail">
-              <div class="bp-detail-label">Created By</div>
+              <div class="bp-detail-label" data-t="beatDetail.details.createdBy">Created By</div>
               <div class="bp-detail-value">Jenny Wilson</div>
             </div>
             <div class="bp-detail">
-              <div class="bp-detail-label">Beat Duration</div>
+              <div class="bp-detail-label" data-t="beatDetail.details.duration">Beat Duration</div>
               <div class="bp-detail-value">4 May 2026 - 6 May 2026</div>
             </div>
             <div class="bp-detail">
-              <div class="bp-detail-label">Total Planned Visits</div>
+              <div class="bp-detail-label" data-t="beatDetail.details.plannedVisits">Total Planned Visits</div>
               <div class="bp-detail-value" id="bd-sum-visits"></div>
             </div>
             <div class="bp-detail">
-              <div class="bp-detail-label">Total Planned Distance</div>
+              <div class="bp-detail-label" data-t="beatDetail.details.plannedDistance">Total Planned Distance</div>
               <div class="bp-detail-value" id="bd-sum-distance"></div>
             </div>
           </div>
@@ -221,16 +248,16 @@
              open and the column scrolls. In Type 1 it is display:contents,
              so the two cards sit in the page grid exactly as before and
              the header never shows. -->
-        <section class="bd-related bd-rl-detail" id="bd-related" aria-label="Beat Detail View">
+        <section class="bd-related bd-rl-detail" id="bd-related" aria-label="Beat Detail View" data-t="beatDetail.detailView.ariaLabel" data-t-attr="aria-label">
           <div class="bd-related-body" id="bd-related-body">
             <section class="card bd-card-visits bp-details">
               <div class="bp-visits-title">
-                <span>Visits</span>
+                <span data-t="beatDetail.visits.title">Visits</span>
                 <!-- Icon toggle for the visits' address line. The icon shows the
                      current state (plain pin: showing, struck-out pin: hidden);
                      the tooltip names what a click will do. -->
                 <button class="bd-addr-toggle" type="button" id="bd-addr-link"
-                        aria-pressed="true" aria-label="Show addresses" data-tip="Hide address">
+                        aria-pressed="true" aria-label="Show addresses" data-t="beatDetail.visits.addressToggle.ariaLabel" data-t-attr="aria-label">
                 </button>
               </div>
               <div id="bd-days"></div>
@@ -238,25 +265,26 @@
 
             <section class="bp-routemap card bd-card-map">
               <div class="bp-routemap-header">
-                <h2>Route Map</h2>
-                <a href="#">View Full Map <i class="ti ti-arrow-up-right"></i></a>
+                <h2 data-t="beatDetail.map.title">Route Map</h2>
+                <a href="#" data-t="beatDetail.map.viewFull">View Full Map <i class="ti ti-arrow-up-right"></i></a>
               </div>
               <div class="map-area" id="map-area">
-                <canvas id="map-canvas" aria-label="Route map"></canvas>
+                <canvas id="map-canvas" aria-label="Route map" data-t="beatDetail.map.canvas.ariaLabel" data-t-attr="aria-label"></canvas>
 
                 <!-- The map is big enough to work in where it stands, so the
                      controls ride on it rather than on a separate full view.
                      Types 1 and 2 both; the terrain switch below is Type 2's. -->
                 <div class="cb-map-controls bd-map-ctrls">
                   <button class="cb-ctrl-btn" type="button" id="bd-map-locate"
-                          aria-label="Back to the current day" title="Back to the current day">
+                          aria-label="Back to the current day" title="Back to the current day"
+                          data-t="beatDetail.map.locate" data-t-attr="aria-label title">
                     <i class="ti ti-current-location" aria-hidden="true"></i>
                   </button>
                   <div class="cb-zoom">
-                    <button type="button" id="bd-map-zoom-in" aria-label="Zoom in">
+                    <button type="button" id="bd-map-zoom-in" aria-label="Zoom in" data-t="beatDetail.map.zoomIn" data-t-attr="aria-label">
                       <i class="ti ti-plus" aria-hidden="true"></i>
                     </button>
-                    <button type="button" id="bd-map-zoom-out" aria-label="Zoom out">
+                    <button type="button" id="bd-map-zoom-out" aria-label="Zoom out" data-t="beatDetail.map.zoomOut" data-t-attr="aria-label">
                       <i class="ti ti-minus" aria-hidden="true"></i>
                     </button>
                   </div>
@@ -264,17 +292,17 @@
 
                 <!-- Review marker (Figma 6575:665625): the map's interaction is
                      still to be verified. Floats over the map, takes no clicks. -->
-                <p class="bd-watermark" aria-hidden="true">UX yet to be verified</p>
+                <p class="bd-watermark" aria-hidden="true" data-t="beatDetail.map.watermark">UX yet to be verified</p>
 
                 <button class="cb-layers bd-terrain bd-only-2" type="button" id="bd-terrain"
                         aria-expanded="false" aria-controls="bd-terrain-menu">
-                  <span class="cb-layers-label"><i class="ti ti-stack-2" aria-hidden="true"></i>Layers</span>
+                  <span class="cb-layers-label" data-t="beatDetail.map.layers"><i class="ti ti-stack-2" aria-hidden="true"></i>Layers</span>
                 </button>
 
-                <div class="bd-terrain-menu bd-only-2" id="bd-terrain-menu" role="group" aria-label="Terrain" hidden>
-                  <button class="bd-terrain-opt active" type="button" data-terrain="map">Map</button>
-                  <button class="bd-terrain-opt" type="button" data-terrain="satellite">Satellite</button>
-                  <button class="bd-terrain-opt" type="button" data-terrain="terrain">Terrain</button>
+                <div class="bd-terrain-menu bd-only-2" id="bd-terrain-menu" role="group" aria-label="Terrain" data-t="beatDetail.map.terrain.ariaLabel" data-t-attr="aria-label" hidden>
+                  <button class="bd-terrain-opt active" type="button" data-terrain="map" data-t="beatDetail.map.terrain.map">Map</button>
+                  <button class="bd-terrain-opt" type="button" data-terrain="satellite" data-t="beatDetail.map.terrain.satellite">Satellite</button>
+                  <button class="bd-terrain-opt" type="button" data-terrain="terrain" data-t="beatDetail.map.terrain.terrain">Terrain</button>
                 </div>
               </div>
             </section>
@@ -286,9 +314,9 @@
              label / value list. Filled by beat-detail.js. -->
         <section class="bd-related bd-rl-info" id="bd-info">
           <button class="bd-info-toggle" type="button" id="bd-info-toggle"
-                  aria-expanded="false" aria-controls="bd-info-body"><img class="bd-info-chev" src="src/day-chevron.svg" alt="" aria-hidden="true" /><span>Show Details</span></button>
+                  aria-expanded="false" aria-controls="bd-info-body"><img class="bd-info-chev" src="src/day-chevron.svg" alt="" aria-hidden="true" /><span data-t="beatDetail.info.show">Show Details</span></button>
           <div class="bd-info-body" id="bd-info-body" hidden>
-            <h3 class="bd-info-title">Beat Information</h3>
+            <h3 class="bd-info-title" data-t="beatDetail.info.title">Beat Information</h3>
             <div class="bd-info-grid" id="bd-info-grid"></div>
           </div>
         </section>
@@ -298,12 +326,12 @@
              happens to it. Type 2 only. -->
         <section class="bd-related bd-rl-notes" id="bd-notes">
           <header class="bd-related-head">
-            <h2>Notes</h2>
+            <h2 data-t="beatDetail.notes.title">Notes</h2>
           </header>
 
           <div class="bd-related-body" id="bd-notes-body">
             <textarea class="bd-note-box" rows="2" placeholder="Add a note"
-                      aria-label="Add a note"></textarea>
+                      aria-label="Add a note" data-t="beatDetail.notes.box.placeholder" data-t-attr="placeholder aria-label"></textarea>
           </div>
         </section>
 
@@ -311,17 +339,17 @@
              under Notes. Type 2 only; rows are drawn by beat-detail.js. -->
         <section class="bd-related bd-rl-extra" id="bd-attachments">
           <header class="bd-related-head">
-            <h2>Attachments</h2>
-            <button class="bd-rl-btn bd-rl-btn-menu" type="button" aria-haspopup="menu">Attach<img src="src/caret-blue.svg" alt="" /></button>
+            <h2 data-t="beatDetail.attachments.title">Attachments</h2>
+            <button class="bd-rl-btn bd-rl-btn-menu" type="button" aria-haspopup="menu" data-t="beatDetail.attachments.attach">Attach<img src="src/caret-blue.svg" alt="" /></button>
           </header>
           <div class="bd-rl-table-wrap" id="bd-attachments-body"></div>
         </section>
 
         <section class="bd-related bd-rl-extra" id="bd-expenses">
           <header class="bd-related-head">
-            <h2>Expenses</h2>
-            <button class="bd-rl-btn" type="button">Assign</button>
-            <button class="bd-rl-btn" type="button">New</button>
+            <h2 data-t="beatDetail.expenses.title">Expenses</h2>
+            <button class="bd-rl-btn" type="button" data-t="beatDetail.expenses.assign">Assign</button>
+            <button class="bd-rl-btn" type="button" data-t="beatDetail.expenses.new">New</button>
           </header>
           <div class="bd-rl-table-wrap" id="bd-expenses-body"></div>
         </section>
@@ -341,7 +369,7 @@
 
       <div class="bd-modal-body">
         <div class="bd-field">
-          <label for="av-record">Module &amp; Record</label>
+          <label for="av-record" data-t="visitForm.record.label">Module &amp; Record</label>
           <div class="bd-control">
             <!-- Module & Record lookup (Figma 6678:569481): pick a module,
                  search, then a record by name -->
@@ -351,10 +379,10 @@
         </div>
 
         <div class="bd-field">
-          <label for="av-type">Visit Type</label>
+          <label for="av-type" data-t="visitForm.type.label">Visit Type</label>
           <div class="bd-control">
             <select class="bd-input mandatory" id="av-type">
-              <option value="" selected disabled>Select Visit Type</option>
+              <option value="" selected disabled data-t="visitForm.placeholder.selectVisitType">Select Visit Type</option>
               <option>Order Delivery</option>
               <option>Gate Approval</option>
               <option>Shop Delivery</option>
@@ -368,18 +396,18 @@
 
         <!-- How long the visit runs, typed in minutes -->
         <div class="bd-field">
-          <label for="av-dur">Visit Duration</label>
+          <label for="av-dur" data-t="visitForm.duration.label">Visit Duration</label>
           <div class="bd-control">
             <div class="bd-input-unit">
               <input class="bd-unit-input" type="text" id="av-dur" inputmode="numeric" maxlength="3" autocomplete="off" />
-              <span class="bd-unit" aria-hidden="true">min</span>
+              <span class="bd-unit" aria-hidden="true" data-t="visitForm.duration.unit">min</span>
             </div>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
 
         <div class="bd-field">
-          <label for="av-desc">Comments</label>
+          <label for="av-desc" data-t="visitForm.comments.label">Comments</label>
           <div class="bd-control">
             <textarea class="bd-input bd-textarea" id="av-desc" rows="3"></textarea>
           </div>
@@ -387,8 +415,8 @@
       </div>
 
       <footer class="bd-modal-foot">
-        <button class="bp-btn default" type="button" id="av-cancel">Cancel</button>
-        <button class="bp-btn primary" type="button" id="av-add">Add</button>
+        <button class="bp-btn default" type="button" id="av-cancel" data-t="common.button.cancel">Cancel</button>
+        <button class="bp-btn primary" type="button" id="av-add" data-t="addVisit.submit">Add</button>
       </footer>
     </div>
   </div>
@@ -400,18 +428,18 @@
     <div class="bd-modal bd-modal-add bd-va-resched" role="dialog" aria-modal="true" aria-labelledby="va-resched-title">
       <header class="bd-modal-head">
         <h2 class="bd-modal-title" id="va-resched-title"></h2>
-        <p class="bd-modal-sub">Select an active Beat for this Visit, then set a new date.</p>
+        <p class="bd-modal-sub" data-t="rescheduleVisit.sub">Select an active Beat for this Visit, then set a new date.</p>
       </header>
       <div class="bd-modal-body">
         <div class="bd-field">
-          <label for="va-resched-beat">Beat</label>
+          <label for="va-resched-beat" data-t="rescheduleVisit.beat.label">Beat</label>
           <div class="bd-control">
             <select class="bd-input mandatory" id="va-resched-beat"></select>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-resched-date">Date</label>
+          <label for="va-resched-date" data-t="visitForm.date.label">Date</label>
           <div class="bd-control">
             <!-- A drawn dropdown: the visit's own day is greyed out and says why -->
             <div class="bd-sm" id="va-resched-date-host"></div>
@@ -419,24 +447,24 @@
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-resched-type">Visit Type</label>
+          <label for="va-resched-type" data-t="visitForm.type.label">Visit Type</label>
           <div class="bd-control">
             <select class="bd-input mandatory" id="va-resched-type"></select>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-resched-dur">Visit Duration</label>
+          <label for="va-resched-dur" data-t="visitForm.duration.label">Visit Duration</label>
           <div class="bd-control">
             <div class="bd-input-unit">
               <input class="bd-unit-input" type="text" id="va-resched-dur" inputmode="numeric" maxlength="3" autocomplete="off" />
-              <span class="bd-unit" aria-hidden="true">min</span>
+              <span class="bd-unit" aria-hidden="true" data-t="visitForm.duration.unit">min</span>
             </div>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-resched-reason">Reschedule Reason</label>
+          <label for="va-resched-reason" data-t="rescheduleVisit.reason.label">Reschedule Reason</label>
           <div class="bd-control">
             <textarea class="bd-input bd-textarea mandatory" id="va-resched-reason" rows="3"></textarea>
             <span class="bd-msg" hidden></span>
@@ -444,8 +472,8 @@
         </div>
       </div>
       <footer class="bd-modal-foot">
-        <button class="bp-btn default" type="button" data-va-close>Cancel</button>
-        <button class="bp-btn primary bd-btn-primary" type="button" id="va-resched-go">Reschedule Visit</button>
+        <button class="bp-btn default" type="button" data-va-close data-t="common.button.cancel">Cancel</button>
+        <button class="bp-btn primary bd-btn-primary" type="button" id="va-resched-go" data-t="rescheduleVisit.submit">Reschedule Visit</button>
       </footer>
     </div>
   </div>
@@ -454,56 +482,56 @@
     <div class="bd-modal bd-modal-add bd-va-reassign" role="dialog" aria-modal="true" aria-labelledby="va-reassign-title">
       <header class="bd-modal-head">
         <h2 class="bd-modal-title" id="va-reassign-title"></h2>
-        <p class="bd-modal-sub">Choose a rep with an active beat, then set the new date and time</p>
+        <p class="bd-modal-sub" data-t="transferVisit.sub">Choose a rep with an active beat, then set the new date and time</p>
       </header>
       <div class="bd-modal-body">
         <div class="bd-field">
-          <label for="va-reassign-rep">Sales Rep</label>
+          <label for="va-reassign-rep" data-t="transferVisit.rep.label">Sales Rep</label>
           <div class="bd-control">
             <select class="bd-input mandatory" id="va-reassign-rep"></select>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-reassign-beat">Active Beat</label>
+          <label for="va-reassign-beat" data-t="transferVisit.beat.label">Active Beat</label>
           <div class="bd-control">
             <select class="bd-input" id="va-reassign-beat" disabled></select>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-reassign-date">Date</label>
+          <label for="va-reassign-date" data-t="visitForm.date.label">Date</label>
           <div class="bd-control">
             <select class="bd-input" id="va-reassign-date" disabled></select>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-reassign-type">Visit Type</label>
+          <label for="va-reassign-type" data-t="visitForm.type.label">Visit Type</label>
           <div class="bd-control">
             <select class="bd-input" id="va-reassign-type" disabled></select>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-reassign-time">Visit Time</label>
+          <label for="va-reassign-time" data-t="transferVisit.time.label">Visit Time</label>
           <div class="bd-control">
             <div class="bd-tp" id="va-reassign-time-host"></div>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-reassign-dur">Visit Duration</label>
+          <label for="va-reassign-dur" data-t="visitForm.duration.label">Visit Duration</label>
           <div class="bd-control">
             <div class="bd-input-unit">
               <input class="bd-unit-input" type="text" id="va-reassign-dur" inputmode="numeric" maxlength="3" autocomplete="off" />
-              <span class="bd-unit" aria-hidden="true">min</span>
+              <span class="bd-unit" aria-hidden="true" data-t="visitForm.duration.unit">min</span>
             </div>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-reassign-reason">Transfer Reason</label>
+          <label for="va-reassign-reason" data-t="transferVisit.reason.label">Transfer Reason</label>
           <div class="bd-control">
             <textarea class="bd-input bd-textarea" id="va-reassign-reason" rows="3"></textarea>
             <span class="bd-msg" hidden></span>
@@ -511,8 +539,8 @@
         </div>
       </div>
       <footer class="bd-modal-foot">
-        <button class="bp-btn default" type="button" data-va-close>Cancel</button>
-        <button class="bp-btn primary bd-btn-primary" type="button" id="va-reassign-go">Transfer Visit</button>
+        <button class="bp-btn default" type="button" data-va-close data-t="common.button.cancel">Cancel</button>
+        <button class="bp-btn primary bd-btn-primary" type="button" id="va-reassign-go" data-t="transferVisit.submit">Transfer Visit</button>
       </footer>
     </div>
   </div>
@@ -521,11 +549,11 @@
     <div class="bd-modal bd-modal-add bd-va-cancel" role="dialog" aria-modal="true" aria-labelledby="va-cancel-title">
       <header class="bd-modal-head">
         <h2 class="bd-modal-title" id="va-cancel-title"></h2>
-        <p class="bd-modal-sub">This Visit will be marked as canceled</p>
+        <p class="bd-modal-sub" data-t="cancelVisit.sub">This Visit will be marked as canceled</p>
       </header>
       <div class="bd-modal-body">
         <div class="bd-field">
-          <label for="va-cancel-reason">Cancellation Reason</label>
+          <label for="va-cancel-reason" data-t="cancelVisit.reason.label">Cancellation Reason</label>
           <div class="bd-control">
             <textarea class="bd-input bd-textarea mandatory" id="va-cancel-reason" rows="3"></textarea>
             <span class="bd-msg" hidden></span>
@@ -533,8 +561,8 @@
         </div>
       </div>
       <footer class="bd-modal-foot">
-        <button class="bp-btn bd-btn-keep" type="button" data-va-close>Keep Visit</button>
-        <button class="bp-btn bd-btn-negative" type="button" id="va-cancel-go">Cancel Visit</button>
+        <button class="bp-btn bd-btn-keep" type="button" data-va-close data-t="cancelVisit.keep">Keep Visit</button>
+        <button class="bp-btn bd-btn-negative" type="button" id="va-cancel-go" data-t="cancelVisit.submit">Cancel Visit</button>
       </footer>
     </div>
   </div>
@@ -544,45 +572,45 @@
   <div class="bd-overlay bd-overlay-top" id="va-revise-overlay" hidden>
     <div class="bd-modal bd-modal-add bd-va-revise" role="dialog" aria-modal="true" aria-labelledby="va-revise-title">
       <header class="bd-modal-head">
-        <h2 class="bd-modal-title" id="va-revise-title">Revise Visit</h2>
+        <h2 class="bd-modal-title" id="va-revise-title" data-t="reviseVisit.title">Revise Visit</h2>
       </header>
       <div class="bd-modal-body">
         <div class="bd-field">
-          <label for="va-revise-record">Module &amp; Record</label>
+          <label for="va-revise-record" data-t="visitForm.record.label">Module &amp; Record</label>
           <div class="bd-control">
             <select class="bd-input mandatory" id="va-revise-record" disabled></select>
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-revise-type">Visit Type</label>
+          <label for="va-revise-type" data-t="visitForm.type.label">Visit Type</label>
           <div class="bd-control">
             <select class="bd-input mandatory" id="va-revise-type" disabled></select>
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-revise-in">Check-in time</label>
+          <label for="va-revise-in" data-t="reviseVisit.checkIn.label">Check-in time</label>
           <div class="bd-control">
             <select class="bd-input" id="va-revise-in"></select>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-revise-out">Check-out time</label>
+          <label for="va-revise-out" data-t="reviseVisit.checkOut.label">Check-out time</label>
           <div class="bd-control">
             <select class="bd-input" id="va-revise-out"></select>
             <span class="bd-msg" hidden></span>
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-revise-comments">Comments</label>
+          <label for="va-revise-comments" data-t="visitForm.comments.label">Comments</label>
           <div class="bd-control">
             <textarea class="bd-input bd-textarea" id="va-revise-comments" rows="3"></textarea>
           </div>
         </div>
       </div>
       <footer class="bd-modal-foot">
-        <button class="bp-btn default" type="button" data-va-close>Cancel</button>
-        <button class="bp-btn primary bd-btn-primary" type="button" id="va-revise-go">Add</button>
+        <button class="bp-btn default" type="button" data-va-close data-t="common.button.cancel">Cancel</button>
+        <button class="bp-btn primary bd-btn-primary" type="button" id="va-revise-go" data-t="reviseVisit.submit">Add</button>
       </footer>
     </div>
   </div>
@@ -596,17 +624,17 @@
       </header>
       <div class="bd-modal-body">
         <div class="bd-field">
-          <label for="va-edit-type">Visit Type</label>
+          <label for="va-edit-type" data-t="visitForm.type.label">Visit Type</label>
           <div class="bd-control">
             <select class="bd-input" id="va-edit-type"></select>
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-edit-dur">Visit Duration</label>
+          <label for="va-edit-dur" data-t="visitForm.duration.label">Visit Duration</label>
           <div class="bd-control">
             <div class="bd-input-unit">
               <input class="bd-unit-input" type="text" id="va-edit-dur" inputmode="numeric" maxlength="3" autocomplete="off" />
-              <span class="bd-unit" aria-hidden="true">min</span>
+              <span class="bd-unit" aria-hidden="true" data-t="visitForm.duration.unit">min</span>
             </div>
             <span class="bd-msg" hidden></span>
             <!-- Shown once the duration differs from the visit's own -->
@@ -614,15 +642,15 @@
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-edit-comments">Comments</label>
+          <label for="va-edit-comments" data-t="visitForm.comments.label">Comments</label>
           <div class="bd-control">
             <textarea class="bd-input bd-textarea" id="va-edit-comments" rows="3"></textarea>
           </div>
         </div>
       </div>
       <footer class="bd-modal-foot">
-        <button class="bp-btn default" type="button" data-va-close>Cancel</button>
-        <button class="bp-btn primary bd-btn-primary" type="button" id="va-edit-go">Save</button>
+        <button class="bp-btn default" type="button" data-va-close data-t="common.button.cancel">Cancel</button>
+        <button class="bp-btn primary bd-btn-primary" type="button" id="va-edit-go" data-t="editVisit.submit">Save</button>
       </footer>
     </div>
   </div>
@@ -632,12 +660,12 @@
     <!-- Same layout and wording as Cancel Visit: title, one line, a reason -->
     <div class="bd-modal bd-modal-add bd-va-cancel" role="dialog" aria-modal="true" aria-labelledby="bd-cancel-beat-title">
       <header class="bd-modal-head">
-        <h2 class="bd-modal-title" id="bd-cancel-beat-title">Cancel Beat</h2>
-        <p class="bd-modal-sub">All remaining Visits and days in <span class="bd-beat-name">BP-003</span> will be marked as canceled. Completed Visits stay as they are.</p>
+        <h2 class="bd-modal-title" id="bd-cancel-beat-title" data-t="cancelBeat.title">Cancel Beat</h2>
+        <p class="bd-modal-sub" data-t="cancelBeat.sub" data-t-var-beat="BP-003">All remaining Visits and days in BP-003 will be marked as canceled. Completed Visits stay as they are.</p>
       </header>
       <div class="bd-modal-body">
         <div class="bd-field">
-          <label for="bd-cancel-beat-reason">Cancellation Reason</label>
+          <label for="bd-cancel-beat-reason" data-t="cancelBeat.reason.label">Cancellation Reason</label>
           <div class="bd-control">
             <textarea class="bd-input bd-textarea mandatory" id="bd-cancel-beat-reason" rows="3"></textarea>
             <span class="bd-msg" hidden></span>
@@ -645,8 +673,104 @@
         </div>
       </div>
       <footer class="bd-modal-foot">
-        <button class="bp-btn bd-btn-keep" type="button" id="bd-cancel-beat-keep">Keep Beat</button>
-        <button class="bp-btn bd-btn-negative" type="button" id="bd-cancel-beat-go">Cancel Beat</button>
+        <button class="bp-btn bd-btn-keep" type="button" id="bd-cancel-beat-keep" data-t="cancelBeat.keep">Keep Beat</button>
+        <button class="bp-btn bd-btn-negative" type="button" id="bd-cancel-beat-go" data-t="cancelBeat.submit">Cancel Beat</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Bottom-up: a rejection reason — for one visit, or the whole beat.
+       Built like Cancel Visit. Texts set by beat-detail.js. -->
+  <div class="bd-overlay bd-overlay-top" id="bu-reason-overlay" hidden>
+    <div class="bd-modal bd-modal-add bd-va-cancel" role="dialog" aria-modal="true" aria-labelledby="bu-reason-title">
+      <header class="bd-modal-head">
+        <h2 class="bd-modal-title" id="bu-reason-title"></h2>
+        <p class="bd-modal-sub" id="bu-reason-sub"></p>
+      </header>
+      <div class="bd-modal-body">
+        <div class="bd-field">
+          <label for="bu-reason-text" data-t="bottomUp.reject.reasonLabel">Rejection Reason</label>
+          <div class="bd-control">
+            <textarea class="bd-input bd-textarea mandatory" id="bu-reason-text" rows="3"></textarea>
+            <span class="bd-msg" hidden></span>
+          </div>
+        </div>
+      </div>
+      <footer class="bd-modal-foot">
+        <button class="bp-btn bd-btn-keep" type="button" data-va-close data-t="common.button.cancel">Cancel</button>
+        <button class="bp-btn bd-btn-negative" type="button" id="bu-reason-go"></button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Bottom-up: Complete Beat Approval (Figma 2936:107703) — what to do
+       with the visits not yet approved, and what the beat comes to -->
+  <div class="bd-overlay bd-overlay-top" id="bu-complete-overlay" hidden>
+    <div class="bd-modal bd-modal-add bu-complete" role="dialog" aria-modal="true" aria-labelledby="bu-complete-title">
+      <header class="bu-complete-head">
+        <h2 class="bd-modal-title" id="bu-complete-title" data-t="bottomUp.complete.title">Complete Beat Approval</h2>
+      </header>
+      <div class="bu-complete-body">
+        <p class="bu-complete-desc" id="bu-complete-desc"></p>
+        <div class="bu-options" id="bu-complete-choice" role="radiogroup" aria-labelledby="bu-complete-desc">
+          <label class="bu-option">
+            <input type="radio" name="bu-unreviewed" value="approve" checked />
+            <span class="bu-radio-dot" aria-hidden="true"></span>
+            <span class="bu-option-text">
+              <span class="bu-option-label" data-t="bottomUp.complete.approveRemaining">Approve remaining visits</span>
+              <span class="bu-option-hint" data-t="bottomUp.complete.approveRemainingHint">All visits will be included in the optimised route</span>
+            </span>
+          </label>
+          <label class="bu-option">
+            <input type="radio" name="bu-unreviewed" value="reject" />
+            <span class="bu-radio-dot" aria-hidden="true"></span>
+            <span class="bu-option-text">
+              <span class="bu-option-label" data-t="bottomUp.complete.selectedOnly">Proceed with selected only</span>
+              <span class="bu-option-hint" id="bu-complete-selected-hint"></span>
+            </span>
+          </label>
+        </div>
+      </div>
+      <div class="bu-complete-info">
+        <p class="bu-info-box"><b data-t="bottomUp.complete.beatDetailsLabel">Beat Details:</b> <span id="bu-complete-details"></span></p>
+      </div>
+      <footer class="bu-complete-foot">
+        <button class="bp-btn default" type="button" data-va-close data-t="common.button.cancel">Cancel</button>
+        <button class="bp-btn primary bd-btn-primary" type="button" id="bu-complete-go" data-t="bottomUp.complete.confirm">Complete</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Bottom-up: a change that runs the day past its limits still saves,
+       once the user agrees -->
+  <div class="bd-overlay bd-overlay-top" id="bu-limit-overlay" hidden>
+    <div class="bd-modal bd-modal-add bd-va-cancel" role="dialog" aria-modal="true" aria-labelledby="bu-limit-title">
+      <header class="bd-modal-head">
+        <h2 class="bd-modal-title" id="bu-limit-title" data-t="bottomUp.limit.title">Save anyway?</h2>
+      </header>
+      <div class="bd-modal-body">
+        <ul class="bu-limit-list" id="bu-limit-list"></ul>
+      </div>
+      <footer class="bd-modal-foot">
+        <button class="bp-btn default" type="button" id="bu-limit-back" data-t="common.button.cancel">Cancel</button>
+        <button class="bp-btn primary bd-btn-primary" type="button" id="bu-limit-go" data-t="bottomUp.limit.confirm">Save Anyway</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Bottom-up: leaving mid-approval (Figma 2936:107696) — decisions are
+       kept only once the approval is completed -->
+  <div class="bd-overlay bd-overlay-top" id="bu-discard-overlay" hidden>
+    <div class="bd-modal bd-modal-add bd-modal-alert" role="alertdialog" aria-modal="true"
+         aria-labelledby="bu-discard-title" aria-describedby="bu-discard-text">
+      <div class="bd-alert-head">
+        <img class="bd-alert-icon" src="src/alert-warn-orange.svg" alt="" width="25" height="25" />
+        <h2 class="bd-modal-title" id="bu-discard-title" data-t="bottomUp.discard.title">Discard approval progress?</h2>
+      </div>
+      <p class="bd-alert-text" id="bu-discard-text" data-t="bottomUp.discard.text">Your approved and rejected visits for this beat will be lost.</p>
+      <footer class="bd-alert-foot">
+        <button class="bp-btn default" type="button" data-va-close data-t="common.button.cancel">Cancel</button>
+        <button class="bp-btn primary bd-btn-primary" type="button" id="bu-discard-go" data-t="bottomUp.discard.proceed">Proceed</button>
       </footer>
     </div>
   </div>
@@ -660,21 +784,21 @@
 
       <div class="bd-modal-body">
         <dl class="bd-summary">
-          <div><dt>Visits Completed</dt><dd id="bd-sum-done"></dd></div>
-          <div><dt>Missed Visits</dt><dd id="bd-sum-missed"></dd></div>
-          <div><dt>Canceled Visits</dt><dd id="bd-sum-canceled"></dd></div>
-          <div><dt>Rescheduled Visits</dt><dd id="bd-sum-rescheduled"></dd></div>
-          <div><dt>Day Duration</dt><dd id="bd-sum-time"></dd></div>
-          <div><dt>Distance Covered</dt><dd id="bd-sum-km"></dd></div>
+          <div><dt data-t="endDay.summary.done">Visits Completed</dt><dd id="bd-sum-done"></dd></div>
+          <div><dt data-t="endDay.summary.missed">Missed Visits</dt><dd id="bd-sum-missed"></dd></div>
+          <div><dt data-t="endDay.summary.canceled">Canceled Visits</dt><dd id="bd-sum-canceled"></dd></div>
+          <div><dt data-t="endDay.summary.rescheduled">Rescheduled Visits</dt><dd id="bd-sum-rescheduled"></dd></div>
+          <div><dt data-t="endDay.summary.duration">Day Duration</dt><dd id="bd-sum-time"></dd></div>
+          <div><dt data-t="endDay.summary.distance">Distance Covered</dt><dd id="bd-sum-km"></dd></div>
         </dl>
         <div class="bd-end-note-wrap">
-          <p class="bd-end-note"><b>Note:</b> Visits you haven't checked in to will be marked as missed when you end the day.</p>
+          <p class="bd-end-note"><b data-t="common.note.label">Note:</b> <span data-t="endDay.note.text">Visits you haven't checked in to will be marked as missed when you end the day.</span></p>
         </div>
       </div>
 
       <footer class="bd-modal-foot">
-        <button class="bp-btn default" type="button" id="bd-end-cancel">Cancel</button>
-        <button class="bp-btn bd-end" type="button" id="bd-end-confirm">End Day</button>
+        <button class="bp-btn default" type="button" id="bd-end-cancel" data-t="common.button.cancel">Cancel</button>
+        <button class="bp-btn bd-end" type="button" id="bd-end-confirm" data-t="endDay.submit">End Day</button>
       </footer>
     </div>
   </div>
@@ -689,19 +813,19 @@
 
       <div class="bd-modal-body">
         <dl class="bd-summary">
-          <div><dt>Visits Planned</dt><dd id="bd-start-visits"></dd></div>
-          <div><dt>Planned Distance</dt><dd id="bd-start-km"></dd></div>
-          <div><dt>First Visit</dt><dd id="bd-start-first"></dd></div>
-          <div><dt>Start Time</dt><dd id="bd-start-clock"></dd></div>
+          <div><dt data-t="startDay.summary.visits">Visits Planned</dt><dd id="bd-start-visits"></dd></div>
+          <div><dt data-t="startDay.summary.distance">Planned Distance</dt><dd id="bd-start-km"></dd></div>
+          <div><dt data-t="startDay.summary.first">First Visit</dt><dd id="bd-start-first"></dd></div>
+          <div><dt data-t="startDay.summary.time">Start Time</dt><dd id="bd-start-clock"></dd></div>
         </dl>
         <div class="bd-end-note-wrap">
-          <p class="bd-end-note"><b>Note:</b> Your device's current time is logged as the <span id="bd-start-note-day"></span> start time and can't be changed later.</p>
+          <p class="bd-end-note"><b data-t="common.note.label">Note:</b> <span id="bd-start-note"></span></p>
         </div>
       </div>
 
       <footer class="bd-modal-foot">
-        <button class="bp-btn default" type="button" id="bd-start-cancel">Cancel</button>
-        <button class="bp-btn primary" type="button" id="bd-start-confirm">Start Day</button>
+        <button class="bp-btn default" type="button" id="bd-start-cancel" data-t="common.button.cancel">Cancel</button>
+        <button class="bp-btn primary" type="button" id="bd-start-confirm" data-t="startDay.submit">Start Day</button>
       </footer>
     </div>
   </div>

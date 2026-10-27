@@ -8,34 +8,38 @@
    data-hide="config".
    ============================================================ */
 (function () {
+  /* Content keys (src/strings.js) where the page loads them; the text
+     here is the fallback for pages that do not */
+  const T = (key, fallback) => (window.Strings ? Strings.t(key, null, fallback) : fallback);
+
   const TOP_ITEMS = [
-    { key: 'home',   label: 'Home',                  icon: 'ti-home',     href: 'index.html' },
-    { key: 'config', label: 'Planner Configuration', icon: 'ti-settings', href: 'planner-config.html' },
+    { key: 'home',   tkey: 'home',   label: 'Home',                  icon: 'ti-home',     href: 'index.html' },
+    { key: 'config', tkey: 'config', label: 'Planner Configuration', icon: 'ti-settings', href: 'planner-config.html' },
   ];
 
   const MODULE_ITEMS = [
-    { key: 'beats',       label: 'Beats',         icon: 'ti-route',          href: 'bottom-up.html' },
-    { key: 'tracking',    label: 'Live Tracking', icon: 'ti-navigation',     href: '#' },
-    { key: 'field-view',  label: 'Field View',    icon: 'ti-map',            href: 'non-map.html' },
-    { key: 'visits',      label: 'Visits',        icon: 'ti-briefcase',      href: '#' },
-    { key: 'expenses',    label: 'Expenses',      icon: 'ti-receipt',        href: '#' },
+    { key: 'beats',       tkey: 'beats',        label: 'Beats',         icon: 'ti-route',          href: 'bottom-up.html' },
+    { key: 'tracking',    tkey: 'liveTracking', label: 'Live Tracking', icon: 'ti-navigation',     href: '#' },
+    { key: 'field-view',  tkey: 'fieldView',    label: 'Field View',    icon: 'ti-map',            href: 'non-map.html' },
+    { key: 'visits',      tkey: 'visits',       label: 'Visits',        icon: 'ti-briefcase',      href: '#' },
+    { key: 'expenses',    tkey: 'expenses',     label: 'Expenses',      icon: 'ti-receipt',        href: '#' },
   ];
 
   /* The CRM's own modules, grouped in a folder the way the CRM sidebar
      groups them: open by default, the choice remembered per viewer */
   const CRM_FOLDER = { key: 'crm-modules', label: 'CRM Modules' };
   const CRM_ITEMS = [
-    { key: 'contacts',    label: 'Contacts',      icon: 'ti-users',          href: '#' },
-    { key: 'deals',       label: 'Deals',         icon: 'ti-topology-star',  href: '#' },
-    { key: 'accounts',    label: 'Accounts',      icon: 'ti-building',       href: '#' },
-    { key: 'orders',      label: 'Sales Orders',  icon: 'ti-shopping-cart',  href: '#' },
+    { key: 'contacts',    tkey: 'contacts',     label: 'Contacts',      icon: 'ti-users',          href: '#' },
+    { key: 'deals',       tkey: 'deals',        label: 'Deals',         icon: 'ti-topology-star',  href: '#' },
+    { key: 'accounts',    tkey: 'accounts',     label: 'Accounts',      icon: 'ti-building',       href: '#' },
+    { key: 'orders',      tkey: 'salesOrders',  label: 'Sales Orders',  icon: 'ti-shopping-cart',  href: '#' },
   ];
   const FOLDER_KEY = 'sb-folder-crm-modules';
 
   function itemHtml(it, active) {
     const cls = 'sb-item' + (it.key === active ? ' active' : '');
     return `<a class="${cls}" data-key="${it.key}" href="${it.href}">
-      <i class="ti ${it.icon}" aria-hidden="true"></i><span>${it.label}</span>
+      <i class="ti ${it.icon}" aria-hidden="true"></i><span>${T(`sidebar.item.${it.tkey}`, it.label)}</span>
     </a>`;
   }
 
@@ -48,9 +52,9 @@
     const logoHtml = showLogo ? `
       <div class="sb-logo">
         <div class="sb-logo-icon"><i class="ti ti-map-pin-2" aria-hidden="true"></i></div>
-        <span class="sb-logo-name">Beat Planner</span>
+        <span class="sb-logo-name">${T('sidebar.logo.name', 'Beat Planner')}</span>
         <i class="ti ti-chevron-down sb-logo-caret" aria-hidden="true"></i>
-        <button class="sb-collapse" aria-label="Collapse sidebar">
+        <button class="sb-collapse" aria-label="${T('sidebar.collapse.ariaLabel', 'Collapse sidebar')}">
           <i class="ti ti-layout-sidebar-left-collapse" aria-hidden="true"></i>
         </button>
       </div>` : '';
@@ -64,7 +68,7 @@
 
       <div class="sb-section">
         <i class="ti ti-layout-grid sb-section-icon" aria-hidden="true"></i>
-        <span class="sb-section-title">Modules</span>
+        <span class="sb-section-title">${T('sidebar.section.modules', 'Modules')}</span>
         <i class="ti ti-dots sb-section-more" aria-hidden="true"></i>
       </div>
 
@@ -96,7 +100,7 @@
     const id = `sb-${CRM_FOLDER.key}`;
     return `<li class="sb-folder-wrap">
       <button class="sb-item sb-folder" type="button" aria-expanded="${open}" aria-controls="${id}">
-        <svg class="sb-folder-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 5.5A2.5 2.5 0 0 1 4.5 3h3.4c.6 0 1.2.24 1.65.66L10.9 5H15.5A2.5 2.5 0 0 1 18 7.5v7a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 2 14.5v-9Z"/></svg><span>${CRM_FOLDER.label}</span>
+        <svg class="sb-folder-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 5.5A2.5 2.5 0 0 1 4.5 3h3.4c.6 0 1.2.24 1.65.66L10.9 5H15.5A2.5 2.5 0 0 1 18 7.5v7a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 2 14.5v-9Z"/></svg><span>${T('sidebar.folder.crmModules', CRM_FOLDER.label)}</span>
         <i class="ti ti-chevron-down sb-folder-caret" aria-hidden="true"></i>
       </button>
       <ul class="sb-sub" id="${id}"${open ? '' : ' hidden'}>
@@ -115,9 +119,11 @@
     document.querySelectorAll('#app-sidebar, .app-sidebar[data-active]').forEach(render);
   }
 
+  /* On a page with content keys, wait for them so the labels never flash */
+  const start = () => (window.Strings ? Strings.ready.then(init) : init());
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', start);
   } else {
-    init();
+    start();
   }
 })();

@@ -24,6 +24,10 @@
    ============================================================ */
 (function () {
   let uid = 0;
+  /* Content keys (src/strings.js) where the page loads them; the text
+     here is the fallback for pages that do not */
+  const T = (key, fallback, vars) => (window.Strings ? Strings.t(key, vars, fallback)
+    : fallback.replace(/\{(\w+)\}/g, (all, k) => (vars && k in vars ? vars[k] : all)));
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   const TICK = '<svg class="rp-tick" width="11" height="9" viewBox="0 0 11 8.38833" fill="none" aria-hidden="true"><path d="M1 4.333L3.769 7L10 1" stroke-width="2" stroke-linecap="round" stroke="currentColor"/></svg>';
@@ -44,7 +48,7 @@
       <button class="rp-field" type="button" id="${opts.fieldId || id}"
               aria-haspopup="listbox" aria-expanded="false" aria-controls="${id}-panel">
         <span class="rp-marker" aria-hidden="true"></span>
-        <span class="rp-value placeholder">${esc(opts.placeholder || 'None')}</span>
+        <span class="rp-value placeholder">${esc(opts.placeholder || T('recordPicker.placeholder', 'None'))}</span>
         <span class="rp-caret" aria-hidden="true"></span>
       </button>
       <div class="rp-panel" id="${id}-panel" hidden>
@@ -55,14 +59,14 @@
             <span class="rp-divider" aria-hidden="true"></span>
             <label class="rp-search">
               ${SEARCH}
-              <input class="rp-search-input" type="text" placeholder="Search" autocomplete="off" spellcheck="false"
+              <input class="rp-search-input" type="text" placeholder="${esc(T('recordPicker.search.placeholder', 'Search'))}" autocomplete="off" spellcheck="false"
                      role="combobox" aria-autocomplete="list" aria-controls="${id}-list" aria-expanded="true"
-                     aria-label="Search records" />
+                     aria-label="${esc(T('recordPicker.search.ariaLabel', 'Search records'))}" />
             </label>
           </div>
         </div>
-        <ul class="rp-list" id="${id}-list" role="listbox" aria-label="Records"></ul>
-        <ul class="rp-mods" id="${id}-mods" role="listbox" aria-label="Modules" hidden></ul>
+        <ul class="rp-list" id="${id}-list" role="listbox" aria-label="${esc(T('recordPicker.list.ariaLabel', 'Records'))}"></ul>
+        <ul class="rp-mods" id="${id}-mods" role="listbox" aria-label="${esc(T('recordPicker.modules.ariaLabel', 'Modules'))}" hidden></ul>
       </div>`;
 
     const field = host.querySelector('.rp-field');
@@ -88,7 +92,7 @@
             return `<li class="rp-opt${sel ? ' selected' : ''}" role="option" id="${id}-r${i}"
                         aria-selected="${sel}" data-i="${i}">${sel ? TICK : ''}<span>${esc(n)}</span></li>`;
           }).join('')
-        : '<li class="rp-empty" role="presentation">No records found</li>';
+        : `<li class="rp-empty" role="presentation">${esc(T('recordPicker.empty', 'No records found'))}</li>`;
       active = Math.max(0, items.findIndex(n => n === value && module === valueModule));
       if (!items.length) active = -1;
       markActive();
@@ -108,7 +112,9 @@
     function showValue() {
       /* Picked, the field reads "Record • Module", as Revise Visit shows it;
          the list itself stays names only */
-      valueEl.textContent = value ? `${value} • ${valueModule}` : (opts.placeholder || 'None');
+      valueEl.textContent = value
+        ? T('visitForm.option.record', '{name} • {module}', { name: value, module: valueModule })
+        : (opts.placeholder || T('recordPicker.placeholder', 'None'));
       valueEl.classList.toggle('placeholder', !value);
     }
 

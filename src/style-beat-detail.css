@@ -1495,6 +1495,15 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 
 .bd-trunc-tip[hidden] { display: none; }
 
+/* Show content keys: the same tooltip names the text's key(s), one a line,
+   above the dialogs and menus too */
+.bd-trunc-tip.bd-key-tip {
+  z-index: 400;
+  white-space: pre-line;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
 /* ── Visit ⋯ menu ──────────────────────────────────────────────────── */
 /* The ⋯ sits at the row's right edge, shown while the row is hovered or
    focused, and held while its menu is open */
@@ -2185,3 +2194,270 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 
 /* The record title and its badge never break across lines */
 .bp-sub-title-row .bp-code { white-space: nowrap; }
+
+/* ══ Bottom-up approval ══════════════════════════════════ */
+
+/* Top bar: the prototype's operating-model switch, the layout switch's
+   segmented look, after the search box */
+.bd-model {
+  display: inline-flex;
+  gap: 2px;
+  margin-left: 14px;
+  padding: 2px;
+  background: #e8ebf5;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.bd-model-btn {
+  height: 26px;
+  padding: 0 12px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--label);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.bd-model-btn:hover { color: var(--base); }
+.bd-model-btn.active { background: #fff; color: var(--heading); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
+.bd-model-btn:focus-visible { outline: 2px solid var(--bd-link); outline-offset: 1px; }
+
+/* Tab row, right (Figma 3080:166192): "Waiting for your response: 3/6",
+   a rule, "Last Update: …" — Medium 13 label grey, the count in link
+   blue, 16 apart. Where a rejected beat later states its reason. */
+.bu-actions {
+  margin: 0 20px 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bu-actions[hidden] { display: none; }
+.bu-actions .bd-cancel-rule { margin: 0; }
+
+.bu-wait {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #616e88;
+  white-space: nowrap;
+  font-feature-settings: "calt" 0;
+}
+
+.bu-wait svg { flex-shrink: 0; }
+.bu-wait-count { color: #5464f2; }
+
+/* Header: Start Approval as a split primary button (Figma 6728:79291) —
+   the label, then a 34px arrow half behind a 60% white rule, which opens
+   Reject Beat. Hover / pressed #1344A9; disabled #ADB3EE. */
+.bu-head { display: flex; }
+.bu-head[hidden] { display: none; }
+
+.bu-split {
+  position: relative;
+  display: inline-flex;
+  height: 32px;
+  border-radius: 6px;
+  background: linear-gradient(to top, #124dc3, #5767f6);
+}
+
+.bu-split-main,
+.bu-split-more {
+  height: 32px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  color: #fff;
+  cursor: pointer;
+}
+
+.bu-split-main {
+  padding: 0 10px 0 14px;
+  border-radius: 6px 0 0 6px;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.bu-split-more {
+  width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 2px;
+  border-left: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 0 6px 6px 0;
+}
+
+.bu-split-caret {
+  width: 10px;
+  height: 5px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M8.79289 0H1.20711C0.761654 0 0.53857 0.53857 0.853553 0.853553L4.64645 4.64645C4.84171 4.84171 5.15829 4.84171 5.35355 4.64645L9.14645 0.853553C9.46143 0.538571 9.23835 0 8.79289 0Z' fill='white'/%3E%3C/svg%3E") no-repeat center / 10px 5px;
+}
+
+.bu-split-main:hover,
+.bu-split-more:hover,
+.bu-split-more[aria-expanded="true"] { background: #1344a9; }
+.bu-split-main:focus-visible,
+.bu-split-more:focus-visible { outline: 2px solid #fff; outline-offset: -3px; }
+.bu-split.is-disabled { background: #adb3ee; pointer-events: none; }
+
+.bu-split-menu {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 150px;
+}
+
+/* Visit row: tick and cross (Figma 2936:106658) — 32px circles with a
+   #D6D6E3 hairline, 10 apart: a 16px green tick, an 8px red cross, on a
+   visit not yet decided. The row's hover tint runs under them as on any
+   row, but a click there only decides — the text is what selects the
+   visit and shows it on the map. */
+.bu-decide { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; flex-shrink: 0; align-self: center; padding: 5px 0; margin-right: 10px; }
+
+.bu-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #fff;
+  border: 1px solid #d6d6e3;
+  border-radius: 40px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+/* The page's plain hover, not the tick's green or the cross's red */
+.bu-icon:hover { background: #f2f5fe; }
+.bu-icon:focus-visible { outline: 2px solid var(--bd-link); outline-offset: 2px; }
+
+/* A visit off the route: no number, a quiet circle */
+.bp-visit-num.bu-off { color: #b4bacb; border-color: #e0e3ee; }
+
+/* Rejected tag (Figma 3479:109250): #FFECEC pill, Medium 13 #F14949 */
+.bp-visit-tag.bu-tag-rejected { background: #ffecec; color: #f14949; }
+
+/* The reason (Figma 3479:108647): a pale band under the visit — #F8FAFF,
+   #EDF0F4 hairline, 5px corners, 8 / 11; "Reason:" in Medium. Stays when
+   addresses are hidden. */
+.bd-visit-reason {
+  margin-top: 3px;
+  padding: 8px 11px;
+  background: #f8faff;
+  border: 1px solid #edf0f4;
+  border-radius: 5px;
+  font-size: 14px;
+  line-height: 18px;
+  color: #434d5e;
+  overflow-wrap: anywhere;
+}
+
+.bd-visit-reason b { font-weight: 500; }
+
+/* Complete Beat Approval (Figma 2936:107703): 674 wide. Title 25 / 30 /
+   20; the description and two options (15px radios, 14px label, 13/18
+   grey hint, 16 apart); the Message Info box 20 below; buttons 20 / 30. */
+.bd-modal.bu-complete { width: 674px; gap: 0; }
+
+.bu-complete-head { padding: 25px 30px 20px; }
+
+.bu-complete-body { display: flex; flex-direction: column; gap: 10px; padding: 0 30px; }
+
+.bu-complete-desc { font-size: 14px; line-height: 20px; color: #434d5e; }
+
+.bu-options { display: flex; flex-direction: column; gap: 16px; padding-top: 6px; }
+.bu-options[hidden] { display: none; }
+
+.bu-option { position: relative; display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
+.bu-option input { position: absolute; opacity: 0; width: 15px; height: 15px; margin: 1px 0 0; }
+
+/* The radio: a 2px #C0C8E2 ring; checked, filled #5464F2 with a white dot */
+.bu-radio-dot {
+  position: relative;
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+  margin-top: 1px;
+  border: 2px solid #c0c8e2;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.bu-option input:checked + .bu-radio-dot { border-color: #5464f2; background: #5464f2; }
+.bu-option input:checked + .bu-radio-dot::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.bu-option input:focus-visible + .bu-radio-dot { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #5464f2; }
+
+.bu-option-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.bu-option-label { max-width: 400px; font-size: 14px; line-height: normal; color: #313949; }
+.bu-option-hint { max-width: 550px; font-size: 13px; line-height: 18px; color: #616e88; }
+
+.bu-complete-info { padding: 20px 30px 0; }
+.bu-info-box {
+  padding: 8px 15px;
+  background: #f9faff;
+  border: 1px solid #dcdbee;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 18px;
+  color: #313949;
+}
+
+.bu-info-box b { font-weight: 500; }
+
+.bu-complete-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 20px 30px 30px; }
+
+/* Limit warning: one line per limit exceeded */
+.bu-limit-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.bu-limit-list li { font-size: 14px; line-height: 20px; color: var(--base); }
+
+/* Top bar bell: what the other side did, in a small list */
+.bd-bell-wrap { position: relative; display: flex; }
+
+.bd-bell-pop {
+  position: absolute;
+  z-index: 80;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 300px;
+  padding: 10px 0 6px;
+  background: #fff;
+  border: 1px solid #ced0e1;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.bd-bell-pop[hidden] { display: none; }
+.bd-bell-title { padding: 0 14px 6px; font-size: 13px; font-weight: 600; color: var(--heading); }
+.bd-bell-list { margin: 0; padding: 0; list-style: none; max-height: 260px; overflow-y: auto; }
+
+.bd-bell-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 14px;
+  border-top: 1px solid #eef0f6;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--base);
+}
+
+.bd-bell-item small { font-size: 12px; color: var(--label); }
+.bd-bell-empty { padding: 8px 14px; font-size: 13px; color: var(--label); }
