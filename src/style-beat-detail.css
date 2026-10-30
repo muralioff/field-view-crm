@@ -2324,22 +2324,36 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
    visit and shows it on the map. */
 .bu-decide { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; flex-shrink: 0; align-self: center; padding: 5px 0; margin-right: 10px; }
 
+/* Figma 6911:569364: 28px solid circles, 10 apart — green with a white
+   tick, red with a white cross. They wait for the row's hover (or a key
+   reaching them); their space stays, so the row never shifts. */
 .bu-icon {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  background: #fff;
-  border: 1px solid #d6d6e3;
+  border: 1px solid;
   border-radius: 40px;
   cursor: pointer;
-  transition: background 0.12s, border-color 0.12s;
+  transition: filter 0.12s;
 }
 
-/* The page's plain hover, not the tick's green or the cross's red */
-.bu-icon:hover { background: #f2f5fe; }
+.bu-approve { background: #12aa67; border-color: #009653; }
+.bu-reject  { background: #ff5d5a; border-color: #f14949; }
+.bu-icon:hover { filter: brightness(0.93); }
+
+.bu-decide { opacity: 0; transition: opacity 0.12s; }
+.bu-decide .bu-icon { pointer-events: none; }
+.bd-visit:hover .bu-decide,
+.bu-decide:focus-within { opacity: 1; }
+.bd-visit:hover .bu-decide .bu-icon,
+.bu-decide:focus-within .bu-icon { pointer-events: auto; }
+
+/* Pending, on a visit the review has not reached (Figma 6911:569364) */
+.bd-day .bp-visit-tag.bu-tag-pending { background: #fdeddd; color: #c46a0f; }
+
 .bu-icon:focus-visible { outline: 2px solid var(--bd-link); outline-offset: 2px; }
 
 /* A visit off the route: no number, a quiet circle */
@@ -2351,17 +2365,19 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 /* The reason (Figma 3479:108647): a pale band under the visit — #F8FAFF,
    #EDF0F4 hairline, 5px corners, 8 / 11; "Reason:" in Medium. Stays when
    addresses are hidden. */
+/* A rejected visit: the reason takes the second line, set like the time
+   (medium, paragraph colour), and the time and type below it step back */
 .bd-visit-reason {
-  margin-top: 3px;
-  padding: 8px 11px;
-  background: #f8faff;
-  border: 1px solid #edf0f4;
-  border-radius: 5px;
   font-size: 14px;
-  line-height: 18px;
-  color: #434d5e;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--para);
   overflow-wrap: anywhere;
 }
+
+.bu-rejected-row .bd-visit-when .vtime,
+.bu-rejected-row .bd-visit-when .vtype { font-weight: 400; color: #8c91ab; }
+.bu-rejected-row .bd-visit-when .dot { color: #b4bacb; }
 
 .bd-visit-reason b { font-weight: 500; }
 
@@ -2370,7 +2386,17 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
    grey hint, 16 apart); the Message Info box 20 below; buttons 20 / 30. */
 .bd-modal.bu-complete { width: 674px; gap: 0; }
 
-.bu-complete-head { padding: 25px 30px 20px; }
+.bu-complete-head { display: flex; align-items: flex-start; gap: 10px; padding: 25px 30px 20px; }
+.bu-complete-head .bd-modal-title { flex: 1; }
+
+
+/* State B: the reason, under the option, in line with its text */
+.bu-complete-reason { display: flex; flex-direction: column; gap: 6px; margin: -4px 0 0 23px; }
+.bu-complete-reason[hidden] { display: none; }
+.bu-reason-label { font-size: 14px; font-weight: 500; line-height: 20px; color: var(--heading); }
+.bu-reason-help { font-size: 12px; line-height: 16px; color: #616e88; }
+
+.bu-complete-foot .bp-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
 
 .bu-complete-body { display: flex; flex-direction: column; gap: 10px; padding: 0 30px; }
 
@@ -2407,7 +2433,7 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 
 .bu-option-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .bu-option-label { max-width: 400px; font-size: 14px; line-height: normal; color: #313949; }
-.bu-option-hint { max-width: 550px; font-size: 13px; line-height: 18px; color: #616e88; }
+.bu-option-hint { font-size: 13px; line-height: 18px; color: #616e88; }
 
 .bu-complete-info { padding: 20px 30px 0; }
 .bu-info-box {

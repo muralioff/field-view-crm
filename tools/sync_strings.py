@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Content keys: bring the PM's edits into content/strings.json.
 
-  python3 tools/sync_strings.py pull    # content/strings.csv → content/strings.json
-  python3 tools/sync_strings.py csv     # content/strings.json → content/strings.csv (to import into the sheet)
+  python3 tools/sync_strings.py pull    # content/beat_detail_strings.csv → content/strings.json
+  python3 tools/sync_strings.py csv     # content/strings.json → content/beat_detail_strings.csv (to import into the sheet)
 
 The PM edits a Zoho Sheet with the columns key | text | where it appears |
-notes. Export it as CSV (UTF-8), replace content/strings.csv, run `pull`,
+notes. Export it as CSV (UTF-8), replace content/beat_detail_strings.csv, run `pull`,
 and refresh the page.
 
 `pull` only changes keys the page already has. A row whose text is empty,
@@ -13,7 +13,7 @@ or uses a {placeholder} the page does not fill, keeps the current text and is
 reported instead.
 
 Keys the page has but the sheet lacks (new UI added since the sheet was
-made) are written to content/strings-new.csv, rows only with no header:
+made) are written to content/beat_detail_strings_new.csv, rows only with no header:
 paste them below the last row of the sheet, so the PM's edits are never overwritten by a fresh
 import. Keys the sheet has but the page no longer uses are listed so their
 rows can be deleted from the sheet.
@@ -23,8 +23,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 STRINGS = ROOT / 'content' / 'strings.json'
-CSV = ROOT / 'content' / 'strings.csv'
-NEW = ROOT / 'content' / 'strings-new.csv'
+CSV = ROOT / 'content' / 'beat_detail_strings.csv'
+NEW = ROOT / 'content' / 'beat_detail_strings_new.csv'
 COLUMNS = ['key', 'text', 'where it appears', 'notes']
 
 placeholders = lambda s: set(re.findall(r'\{(\w+)\}', s))
@@ -90,7 +90,7 @@ def pull():
             print(f'{title} ({len(items)}):')
             for i in items: print(f'  {i}')
     report('Text changed', changed)
-    report('New keys, not in the sheet yet — add the rows from content/strings-new.csv', missing)
+    report('New keys, not in the sheet yet — add the rows from content/beat_detail_strings_new.csv', missing)
     report('Empty in the sheet, kept as is', empty)
     report('Uses a placeholder the page does not fill, kept as is', bad)
     report('In the sheet but no longer used by the page — delete these rows from the sheet', unknown)

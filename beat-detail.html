@@ -142,9 +142,6 @@
               <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1" data-action="share" data-t="beatDetail.beatMenu.share">Share</button>
               <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1" data-action="delete" data-t="beatDetail.beatMenu.delete">Delete</button>
               <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1" data-action="cancel-beat" data-t="beatDetail.beatMenu.cancelBeat">Cancel Beat</button>
-              <span class="bd-menu-divider" role="separator"></span>
-              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1" data-action="print" data-t="beatDetail.beatMenu.printPreview">Print Preview</button>
-              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1" data-action="export" data-t="beatDetail.beatMenu.export">Export</button>
             </div>
           </div>
           <button class="bp-navarrow" aria-label="Previous" data-t="beatDetail.header.prev.ariaLabel" data-t-attr="aria-label" disabled><i class="ti ti-chevron-left"></i></button>
@@ -718,17 +715,26 @@
             <span class="bu-radio-dot" aria-hidden="true"></span>
             <span class="bu-option-text">
               <span class="bu-option-label" data-t="bottomUp.complete.approveRemaining">Approve remaining visits</span>
-              <span class="bu-option-hint" data-t="bottomUp.complete.approveRemainingHint">All visits will be included in the optimised route</span>
+              <span class="bu-option-hint" id="bu-complete-all-hint"></span>
             </span>
           </label>
           <label class="bu-option">
             <input type="radio" name="bu-unreviewed" value="reject" />
             <span class="bu-radio-dot" aria-hidden="true"></span>
             <span class="bu-option-text">
-              <span class="bu-option-label" data-t="bottomUp.complete.selectedOnly">Proceed with selected only</span>
-              <span class="bu-option-hint" id="bu-complete-selected-hint"></span>
+              <span class="bu-option-label" data-t="bottomUp.complete.selectedOnly">Proceed with approved visits only</span>
+              <span class="bu-option-hint"><span id="bu-complete-selected-hint"></span> <span data-t="bottomUp.complete.selectedOnlyRejectNote">The remaining visits will be rejected.</span></span>
             </span>
           </label>
+          <!-- Proceeding with the approved ones only rejects the rest: one
+               reason for all of them, which the rep sees on each -->
+          <div class="bu-complete-reason" id="bu-complete-reason" hidden>
+            <label class="bu-reason-label" for="bu-complete-reason-box"><span data-t="bottomUp.complete.reason.label">Rejection Reason</span></label>
+            <textarea class="bd-input bd-textarea mandatory" id="bu-complete-reason-box" rows="3"
+                      placeholder="Enter a reason for rejecting the remaining visits." aria-describedby="bu-complete-reason-help"
+                      data-t="bottomUp.complete.reason.placeholder" data-t-attr="placeholder"></textarea>
+            <p class="bu-reason-help" id="bu-complete-reason-help" data-t="bottomUp.complete.reason.help">Shared reason for all rejected visits. Shown to the rep.</p>
+          </div>
         </div>
       </div>
       <div class="bu-complete-info">

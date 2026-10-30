@@ -2,7 +2,7 @@
    Content keys — the page's copy, owned by product management
    Every user-facing string is a named key. Its text lives in
    content/strings.json, a snapshot of the PM's Zoho Sheet: the sheet is
-   exported to content/strings.csv by hand and tools/sync_strings.py pull
+   exported to content/beat_detail_strings.csv by hand and tools/sync_strings.py pull
    brings it in — no code change.
 
      t('beatDetail.toast.routeOptimized', { day: 'Day 1', date: '4 May' })

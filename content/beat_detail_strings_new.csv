@@ -1,0 +1,67 @@
+beatList.views.ariaLabel,Views,Beat List · views row (screen reader),
+beatList.view.all,All Beats,Beat List · views row,
+beatList.view.upcoming,Upcoming,Beat List · views row,
+beatList.view.inProgress,In Progress,Beat List · views row,
+beatList.view.more.ariaLabel,More views,"Beat List · views row · ⋯ (screen reader, also names it in the prototype toast)",
+beatList.toolbar.filter,Filter,Beat List · toolbar,
+beatList.toolbar.sort,Sort,Beat List · toolbar,
+beatList.toolbar.listView.ariaLabel,List view,Beat List · toolbar · list icon (screen reader),
+beatList.toolbar.calendarView.ariaLabel,Calendar view,Beat List · toolbar · calendar icon (screen reader),
+beatList.toolbar.createBeatPlan,Create Beat Plan,Beat List · toolbar · primary button,
+beatList.toolbar.distributeBeatPlan,Distribute Beat Plan,Beat List · toolbar · button,
+beatList.col.selectAll.ariaLabel,Select all beats,Beat List · header checkbox (screen reader),
+beatList.col.beatId,Beat ID,Beat List · column header,
+beatList.col.rep,Rep,Beat List · column header,
+beatList.col.status,Status,Beat List · column header,
+beatList.col.dates,Dates,Beat List · column header,
+beatList.col.visits,Visits,Beat List · column header,
+beatList.col.mileage,Mileage,Beat List · column header,
+beatList.col.createdDate,Created date,Beat List · column header,
+beatList.col.settings.ariaLabel,Manage columns,Beat List · column settings icon (screen reader),
+beatList.row.select.ariaLabel,Select {beat},Beat List · row checkbox (screen reader),Keep {beat}: the Beat ID
+beatList.empty,No Beats in this view.,Beat List · a view with no beats,
+beatList.footer.total,Total Records,"Beat List · footer, before the count",
+beatList.footer.range,{from} - {to},Beat List · footer · pager,Keep {from} and {to}
+beatList.footer.prev.ariaLabel,Previous page,Beat List · footer · pager (screen reader),
+beatList.footer.next.ariaLabel,Next page,Beat List · footer · pager (screen reader),
+beatList.bulk.selected.one,1 Beat selected,"Beat List · bulk toolbar · count, one beat",
+beatList.bulk.selected.other,{count} Beats selected,Beat List · bulk toolbar · count,Keep {count}
+beatList.bulk.clear,Clear,Beat List · bulk toolbar · clears the selection,
+beatList.bulk.sendEmail,Send Email,Beat List · bulk toolbar,Shows only if the Beats module has an email field
+beatList.bulk.tags,Tags,Beat List · bulk toolbar · menu button,
+beatList.bulk.addTags,Add Tags,Beat List · bulk toolbar · Tags menu,
+beatList.bulk.removeTags,Remove Tags,Beat List · bulk toolbar · Tags menu,
+beatList.bulk.massUpdate,Mass Update,Beat List · bulk toolbar,
+beatList.bulk.more.ariaLabel,More actions,Beat List · bulk toolbar · ⋯ (screen reader),
+beatList.bulk.runMacro,Run Macro,Beat List · bulk ⋯ menu,Works on custom fields only
+beatList.bulk.createTask,Create Task,Beat List · bulk ⋯ menu,
+beatList.bulk.changeOwner,Change Owner,"Beat List · bulk ⋯ menu (All Beats, Upcoming)",
+beatList.bulk.delete,Delete,"Beat List · bulk ⋯ menu (All Beats, Upcoming)",
+beatList.delete.title,Delete Beats?,Beat List · Delete dialog · title,"Placeholder copy, not from the spec"
+beatList.delete.text.one,The selected Beat will be deleted.,"Beat List · Delete dialog · every selected beat is Upcoming, one beat","Placeholder copy, not from the spec"
+beatList.delete.text.other,{count} Beats will be deleted.,Beat List · Delete dialog · every selected beat is Upcoming,"Keep {count}. Placeholder copy, not from the spec"
+beatList.delete.mixed,"Only Upcoming Beats can be deleted. In Progress, Completed and Canceled Beats can not be deleted.","Beat List · Delete dialog · All Beats, selection mixes statuses",
+beatList.delete.confirm,Delete,Beat List · Delete dialog · button,
+beatList.toast.deleted.partial,{done} of {total} Beats deleted.,Toast · after Delete on a mixed selection,Keep {done} and {total}
+beatList.toast.deleted.one,1 Beat deleted.,"Toast · after Delete, one beat","Placeholder copy, not from the spec"
+beatList.toast.deleted.other,{count} Beats deleted.,Toast · after Delete,"Keep {count}. Placeholder copy, not from the spec"
+beatList.owner.title,Change Owner,Beat List · Change Owner dialog · title,
+beatList.owner.mixed,"Only the owner of Upcoming Beats can be changed. The owner of In Progress, Completed and Canceled Beats can not be changed.","Beat List · Change Owner dialog · All Beats, selection mixes statuses",
+beatList.owner.label,Owner,Beat List · Change Owner dialog · field label,
+beatList.owner.placeholder,Select User,Beat List · Change Owner dialog · field placeholder,
+beatList.owner.required,Select a user.,Beat List · Change Owner dialog · error when no user is picked,"Placeholder copy, not from the spec"
+beatList.owner.confirm,Change,Beat List · Change Owner dialog · button,"Placeholder copy, not from the spec"
+beatList.toast.ownerChanged.partial,Owner changed for {done} of {total} Beats.,Toast · after Change Owner on a mixed selection,Keep {done} and {total}
+beatList.toast.ownerChanged.one,Owner changed for 1 Beat.,"Toast · after Change Owner, one beat","Placeholder copy, not from the spec"
+beatList.toast.ownerChanged.other,Owner changed for {count} Beats.,Toast · after Change Owner,"Keep {count}. Placeholder copy, not from the spec"
+beatList.toast.notInPrototype,{action} is not part of this prototype yet.,Toast · a Beat List action the prototype does not build,Keep {action}
+bottomUp.complete.desc.one,{n} visit is still pending approval.,"Complete Beat Approval dialog · first line, one visit not reviewed",Keep {n}
+bottomUp.complete.desc.other,{n} visits are still pending approval.,Complete Beat Approval dialog · first line,Keep {n}
+bottomUp.complete.descSelect,Select an option to proceed.,Complete Beat Approval dialog · second line,
+bottomUp.complete.selectedOnlyHint.one,The route will be optimized for the 1 approved visit.,"Complete Beat Approval dialog · second option hint, one approved visit",
+bottomUp.complete.selectedOnlyRejectNote,The remaining visits will be rejected.,"Complete Beat Approval dialog · second option hint, second line",
+bottomUp.complete.reason.label,Rejection Reason,Complete Beat Approval dialog · reason field label (second option),
+bottomUp.complete.reason.placeholder,Enter a reason for rejecting the remaining visits.,Complete Beat Approval dialog · reason field placeholder,
+bottomUp.complete.reason.help,Shared reason for all rejected visits. Shown to the rep.,Complete Beat Approval dialog · under the reason field,
+bottomUp.tag.approved,Approved,Beat Detail · bottom-up · tag on a visit approved during the review (goes once the approval is completed),
+bottomUp.tag.pending,Pending,Beat Detail · bottom-up · tag on a visit not yet approved or rejected during the review (goes once the approval is completed),

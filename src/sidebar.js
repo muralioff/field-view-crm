@@ -18,7 +18,7 @@
   ];
 
   const MODULE_ITEMS = [
-    { key: 'beats',       tkey: 'beats',        label: 'Beats',         icon: 'ti-route',          href: 'bottom-up.html' },
+    { key: 'beats',       tkey: 'beats',        label: 'Beats',         icon: 'ti-route',          href: 'beat-list.html' },
     { key: 'tracking',    tkey: 'liveTracking', label: 'Live Tracking', icon: 'ti-navigation',     href: '#' },
     { key: 'field-view',  tkey: 'fieldView',    label: 'Field View',    icon: 'ti-map',            href: 'non-map.html' },
     { key: 'visits',      tkey: 'visits',       label: 'Visits',        icon: 'ti-briefcase',      href: '#' },

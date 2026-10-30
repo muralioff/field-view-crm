@@ -209,16 +209,6 @@
     "where": "Beat Detail · record header ⋯ menu · opens the Cancel Beat dialog",
     "notes": ""
   },
-  "beatDetail.beatMenu.printPreview": {
-    "text": "Print Preview",
-    "where": "Beat Detail · record header ⋯ menu",
-    "notes": ""
-  },
-  "beatDetail.beatMenu.export": {
-    "text": "Export",
-    "where": "Beat Detail · record header ⋯ menu",
-    "notes": ""
-  },
   "beatDetail.status.upcoming": {
     "text": "Upcoming",
     "where": "Beat Detail · record header · status badge, before the first day starts",
@@ -816,11 +806,6 @@
   },
   "beatDetail.info.modifiedBy": {
     "text": "Modified By",
-    "where": "Beat Detail · Show Details · field label",
-    "notes": ""
-  },
-  "beatDetail.info.layout": {
-    "text": "Layout",
     "where": "Beat Detail · Show Details · field label",
     "notes": ""
   },
@@ -1690,7 +1675,7 @@
     "notes": ""
   },
   "beatDetail.visit.action.resubmit": {
-    "text": "Edit and Resubmit",
+    "text": "Resubmit",
     "where": "Beat Detail · visit ⋯ menu on a rejected visit (bottom-up, rep)",
     "notes": ""
   },
@@ -1914,29 +1899,24 @@
     "text": "Last Update: {time}",
     "where": "Beat Detail · bottom-up · right of the tabs, after the divider"
   },
-  "bottomUp.complete.desc": {
-    "notes": "",
-    "text": "You have some unapproved visits, need your decision to proceed on activating the beat",
-    "where": "Complete Beat Approval dialog · line under the title"
-  },
   "bottomUp.complete.approveRemaining": {
     "notes": "",
     "text": "Approve remaining visits",
     "where": "Complete Beat Approval dialog · first option"
   },
   "bottomUp.complete.approveRemainingHint": {
-    "notes": "",
-    "text": "All visits will be included in the optimised route",
+    "notes": "Keep {total}: the visits the route keeps",
+    "text": "All {total} visits will be included in the optimized route.",
     "where": "Complete Beat Approval dialog · grey line under the first option"
   },
   "bottomUp.complete.selectedOnly": {
     "notes": "",
-    "text": "Proceed with selected only",
+    "text": "Proceed with approved visits only",
     "where": "Complete Beat Approval dialog · second option"
   },
   "bottomUp.complete.selectedOnlyHint": {
     "notes": "",
-    "text": "Route will be optimised for {count} approved visits others will be rejected",
+    "text": "The route will be optimized for the {count} approved visits.",
     "where": "Complete Beat Approval dialog · grey line under the second option"
   },
   "bottomUp.complete.beatDetailsLabel": {
@@ -1946,7 +1926,7 @@
   },
   "bottomUp.complete.beatDetails": {
     "notes": "",
-    "text": "{from} – {to} · {days} · {visits} · {km} km",
+    "text": "{from} to {to} · {days} · {visits} · {km} km",
     "where": "Complete Beat Approval dialog · info box, after \"Beat Details:\" — {days} and {visits} come from the four keys below"
   },
   "bottomUp.complete.beatDetailsNone": {
@@ -1997,6 +1977,341 @@
   "bottomUp.visit.reasonLabel": {
     "text": "Reason:",
     "where": "Beat Detail · bottom-up · bold label in the reason box under a rejected visit",
+    "notes": ""
+  },
+  "beatList.views.ariaLabel": {
+    "text": "Views",
+    "where": "Beat List · views row (screen reader)",
+    "notes": ""
+  },
+  "beatList.view.all": {
+    "text": "All Beats",
+    "where": "Beat List · views row",
+    "notes": ""
+  },
+  "beatList.view.upcoming": {
+    "text": "Upcoming",
+    "where": "Beat List · views row",
+    "notes": ""
+  },
+  "beatList.view.inProgress": {
+    "text": "In Progress",
+    "where": "Beat List · views row",
+    "notes": ""
+  },
+  "beatList.view.more.ariaLabel": {
+    "text": "More views",
+    "where": "Beat List · views row · ⋯ (screen reader, also names it in the prototype toast)",
+    "notes": ""
+  },
+  "beatList.toolbar.filter": {
+    "text": "Filter",
+    "where": "Beat List · toolbar",
+    "notes": ""
+  },
+  "beatList.toolbar.sort": {
+    "text": "Sort",
+    "where": "Beat List · toolbar",
+    "notes": ""
+  },
+  "beatList.toolbar.listView.ariaLabel": {
+    "text": "List view",
+    "where": "Beat List · toolbar · list icon (screen reader)",
+    "notes": ""
+  },
+  "beatList.toolbar.calendarView.ariaLabel": {
+    "text": "Calendar view",
+    "where": "Beat List · toolbar · calendar icon (screen reader)",
+    "notes": ""
+  },
+  "beatList.toolbar.createBeatPlan": {
+    "text": "Create Beat Plan",
+    "where": "Beat List · toolbar · primary button",
+    "notes": ""
+  },
+  "beatList.toolbar.distributeBeatPlan": {
+    "text": "Distribute Beat Plan",
+    "where": "Beat List · toolbar · button",
+    "notes": ""
+  },
+  "beatList.col.selectAll.ariaLabel": {
+    "text": "Select all beats",
+    "where": "Beat List · header checkbox (screen reader)",
+    "notes": ""
+  },
+  "beatList.col.beatId": {
+    "text": "Beat ID",
+    "where": "Beat List · column header",
+    "notes": ""
+  },
+  "beatList.col.rep": {
+    "text": "Rep",
+    "where": "Beat List · column header",
+    "notes": ""
+  },
+  "beatList.col.status": {
+    "text": "Status",
+    "where": "Beat List · column header",
+    "notes": ""
+  },
+  "beatList.col.dates": {
+    "text": "Dates",
+    "where": "Beat List · column header",
+    "notes": ""
+  },
+  "beatList.col.visits": {
+    "text": "Visits",
+    "where": "Beat List · column header",
+    "notes": ""
+  },
+  "beatList.col.mileage": {
+    "text": "Mileage",
+    "where": "Beat List · column header",
+    "notes": ""
+  },
+  "beatList.col.createdDate": {
+    "text": "Created date",
+    "where": "Beat List · column header",
+    "notes": ""
+  },
+  "beatList.col.settings.ariaLabel": {
+    "text": "Manage columns",
+    "where": "Beat List · column settings icon (screen reader)",
+    "notes": ""
+  },
+  "beatList.row.select.ariaLabel": {
+    "text": "Select {beat}",
+    "where": "Beat List · row checkbox (screen reader)",
+    "notes": "Keep {beat}: the Beat ID"
+  },
+  "beatList.empty": {
+    "text": "No Beats in this view.",
+    "where": "Beat List · a view with no beats",
+    "notes": ""
+  },
+  "beatList.footer.total": {
+    "text": "Total Records",
+    "where": "Beat List · footer, before the count",
+    "notes": ""
+  },
+  "beatList.footer.range": {
+    "text": "{from} - {to}",
+    "where": "Beat List · footer · pager",
+    "notes": "Keep {from} and {to}"
+  },
+  "beatList.footer.prev.ariaLabel": {
+    "text": "Previous page",
+    "where": "Beat List · footer · pager (screen reader)",
+    "notes": ""
+  },
+  "beatList.footer.next.ariaLabel": {
+    "text": "Next page",
+    "where": "Beat List · footer · pager (screen reader)",
+    "notes": ""
+  },
+  "beatList.bulk.selected.one": {
+    "text": "1 Beat selected",
+    "where": "Beat List · bulk toolbar · count, one beat",
+    "notes": ""
+  },
+  "beatList.bulk.selected.other": {
+    "text": "{count} Beats selected",
+    "where": "Beat List · bulk toolbar · count",
+    "notes": "Keep {count}"
+  },
+  "beatList.bulk.clear": {
+    "text": "Clear",
+    "where": "Beat List · bulk toolbar · clears the selection",
+    "notes": ""
+  },
+  "beatList.bulk.sendEmail": {
+    "text": "Send Email",
+    "where": "Beat List · bulk toolbar",
+    "notes": "Shows only if the Beats module has an email field"
+  },
+  "beatList.bulk.tags": {
+    "text": "Tags",
+    "where": "Beat List · bulk toolbar · menu button",
+    "notes": ""
+  },
+  "beatList.bulk.addTags": {
+    "text": "Add Tags",
+    "where": "Beat List · bulk toolbar · Tags menu",
+    "notes": ""
+  },
+  "beatList.bulk.removeTags": {
+    "text": "Remove Tags",
+    "where": "Beat List · bulk toolbar · Tags menu",
+    "notes": ""
+  },
+  "beatList.bulk.massUpdate": {
+    "text": "Mass Update",
+    "where": "Beat List · bulk toolbar",
+    "notes": ""
+  },
+  "beatList.bulk.more.ariaLabel": {
+    "text": "More actions",
+    "where": "Beat List · bulk toolbar · ⋯ (screen reader)",
+    "notes": ""
+  },
+  "beatList.bulk.runMacro": {
+    "text": "Run Macro",
+    "where": "Beat List · bulk ⋯ menu",
+    "notes": "Works on custom fields only"
+  },
+  "beatList.bulk.createTask": {
+    "text": "Create Task",
+    "where": "Beat List · bulk ⋯ menu",
+    "notes": ""
+  },
+  "beatList.bulk.changeOwner": {
+    "text": "Change Owner",
+    "where": "Beat List · bulk ⋯ menu (All Beats, Upcoming)",
+    "notes": ""
+  },
+  "beatList.bulk.delete": {
+    "text": "Delete",
+    "where": "Beat List · bulk ⋯ menu (All Beats, Upcoming)",
+    "notes": ""
+  },
+  "beatList.delete.title": {
+    "text": "Delete Beats?",
+    "where": "Beat List · Delete dialog · title",
+    "notes": "Placeholder copy, not from the spec"
+  },
+  "beatList.delete.text.one": {
+    "text": "The selected Beat will be deleted.",
+    "where": "Beat List · Delete dialog · every selected beat is Upcoming, one beat",
+    "notes": "Placeholder copy, not from the spec"
+  },
+  "beatList.delete.text.other": {
+    "text": "{count} Beats will be deleted.",
+    "where": "Beat List · Delete dialog · every selected beat is Upcoming",
+    "notes": "Keep {count}. Placeholder copy, not from the spec"
+  },
+  "beatList.delete.mixed": {
+    "text": "Only Upcoming Beats can be deleted. In Progress, Completed and Canceled Beats can not be deleted.",
+    "where": "Beat List · Delete dialog · All Beats, selection mixes statuses",
+    "notes": ""
+  },
+  "beatList.delete.confirm": {
+    "text": "Delete",
+    "where": "Beat List · Delete dialog · button",
+    "notes": ""
+  },
+  "beatList.toast.deleted.partial": {
+    "text": "{done} of {total} Beats deleted.",
+    "where": "Toast · after Delete on a mixed selection",
+    "notes": "Keep {done} and {total}"
+  },
+  "beatList.toast.deleted.one": {
+    "text": "1 Beat deleted.",
+    "where": "Toast · after Delete, one beat",
+    "notes": "Placeholder copy, not from the spec"
+  },
+  "beatList.toast.deleted.other": {
+    "text": "{count} Beats deleted.",
+    "where": "Toast · after Delete",
+    "notes": "Keep {count}. Placeholder copy, not from the spec"
+  },
+  "beatList.owner.title": {
+    "text": "Change Owner",
+    "where": "Beat List · Change Owner dialog · title",
+    "notes": ""
+  },
+  "beatList.owner.mixed": {
+    "text": "Only the owner of Upcoming Beats can be changed. The owner of In Progress, Completed and Canceled Beats can not be changed.",
+    "where": "Beat List · Change Owner dialog · All Beats, selection mixes statuses",
+    "notes": ""
+  },
+  "beatList.owner.label": {
+    "text": "Owner",
+    "where": "Beat List · Change Owner dialog · field label",
+    "notes": ""
+  },
+  "beatList.owner.placeholder": {
+    "text": "Select User",
+    "where": "Beat List · Change Owner dialog · field placeholder",
+    "notes": ""
+  },
+  "beatList.owner.required": {
+    "text": "Select a user.",
+    "where": "Beat List · Change Owner dialog · error when no user is picked",
+    "notes": "Placeholder copy, not from the spec"
+  },
+  "beatList.owner.confirm": {
+    "text": "Change",
+    "where": "Beat List · Change Owner dialog · button",
+    "notes": "Placeholder copy, not from the spec"
+  },
+  "beatList.toast.ownerChanged.partial": {
+    "text": "Owner changed for {done} of {total} Beats.",
+    "where": "Toast · after Change Owner on a mixed selection",
+    "notes": "Keep {done} and {total}"
+  },
+  "beatList.toast.ownerChanged.one": {
+    "text": "Owner changed for 1 Beat.",
+    "where": "Toast · after Change Owner, one beat",
+    "notes": "Placeholder copy, not from the spec"
+  },
+  "beatList.toast.ownerChanged.other": {
+    "text": "Owner changed for {count} Beats.",
+    "where": "Toast · after Change Owner",
+    "notes": "Keep {count}. Placeholder copy, not from the spec"
+  },
+  "beatList.toast.notInPrototype": {
+    "text": "{action} is not part of this prototype yet.",
+    "where": "Toast · a Beat List action the prototype does not build",
+    "notes": "Keep {action}"
+  },
+  "bottomUp.complete.desc.one": {
+    "text": "{n} visit is still pending approval.",
+    "where": "Complete Beat Approval dialog · first line, one visit not reviewed",
+    "notes": "Keep {n}"
+  },
+  "bottomUp.complete.desc.other": {
+    "text": "{n} visits are still pending approval.",
+    "where": "Complete Beat Approval dialog · first line",
+    "notes": "Keep {n}"
+  },
+  "bottomUp.complete.descSelect": {
+    "text": "Select an option to proceed.",
+    "where": "Complete Beat Approval dialog · second line",
+    "notes": ""
+  },
+  "bottomUp.complete.selectedOnlyHint.one": {
+    "text": "The route will be optimized for the 1 approved visit.",
+    "where": "Complete Beat Approval dialog · second option hint, one approved visit",
+    "notes": ""
+  },
+  "bottomUp.complete.selectedOnlyRejectNote": {
+    "text": "The remaining visits will be rejected.",
+    "where": "Complete Beat Approval dialog · second option hint, second line",
+    "notes": ""
+  },
+  "bottomUp.complete.reason.label": {
+    "text": "Rejection Reason",
+    "where": "Complete Beat Approval dialog · reason field label (second option)",
+    "notes": ""
+  },
+  "bottomUp.complete.reason.placeholder": {
+    "text": "Enter a reason for rejecting the remaining visits.",
+    "where": "Complete Beat Approval dialog · reason field placeholder",
+    "notes": ""
+  },
+  "bottomUp.complete.reason.help": {
+    "text": "Shared reason for all rejected visits. Shown to the rep.",
+    "where": "Complete Beat Approval dialog · under the reason field",
+    "notes": ""
+  },
+  "bottomUp.tag.approved": {
+    "text": "Approved",
+    "where": "Beat Detail · bottom-up · tag on a visit approved during the review (goes once the approval is completed)",
+    "notes": ""
+  },
+  "bottomUp.tag.pending": {
+    "text": "Pending",
+    "where": "Beat Detail · bottom-up · tag on a visit not yet approved or rejected during the review (goes once the approval is completed)",
     "notes": ""
   }
 }

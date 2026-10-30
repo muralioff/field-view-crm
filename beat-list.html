@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beats — List</title>
+  <link rel="stylesheet" href="src/fonts.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="src/sidebar.css" />
+  <link rel="stylesheet" href="src/topbar.css" />
+  <!-- The detail page's sheets, for the shell, the status pills, the
+       menus, the dialogs and the toast this page shares with it -->
+  <link rel="stylesheet" href="src/style-bottom-up.css" />
+  <link rel="stylesheet" href="src/style-beat-detail.css" />
+  <link rel="stylesheet" href="src/select-menu.css" />
+  <link rel="stylesheet" href="src/style-beat-list.css" />
+  <!-- First, so the copy is in before anything renders -->
+  <script src="src/strings.js"></script>
+</head>
+<body>
+  <div class="bp-app">
+    <aside id="app-sidebar" class="app-sidebar" data-active="beats" data-hide="config"></aside>
+    <main class="bp-main">
+
+      <header class="bp-topbar">
+        <h1 class="bp-topbar-title" data-t="topbar.title">Beats</h1>
+        <div class="bp-search"><i class="ti ti-search" aria-hidden="true"></i><span data-t="topbar.search.placeholder">Search records</span></div>
+        <div class="bp-topbar-icons">
+          <button class="bp-tb-btn plus" aria-label="Add" data-t="topbar.add.ariaLabel" data-t-attr="aria-label"><i class="ti ti-plus"></i></button>
+          <button class="bp-tb-btn" aria-label="Zia" data-t="topbar.zia.ariaLabel" data-t-attr="aria-label"><i class="ti ti-sparkles"></i></button>
+          <button class="bp-tb-btn" aria-label="Notifications" data-t="topbar.notifications.ariaLabel" data-t-attr="aria-label"><i class="ti ti-bell"></i><span class="bp-tb-badge">5</span></button>
+          <button class="bp-tb-btn" aria-label="Calendar" data-t="topbar.calendar.ariaLabel" data-t-attr="aria-label"><i class="ti ti-calendar"></i></button>
+          <button class="bp-tb-btn" aria-label="Help" data-t="topbar.help.ariaLabel" data-t-attr="aria-label"><i class="ti ti-help-circle"></i></button>
+          <button class="bp-tb-btn" aria-label="Settings" data-t="topbar.settings.ariaLabel" data-t-attr="aria-label"><i class="ti ti-settings"></i></button>
+          <div class="bp-avatar-photo">M</div>
+          <button class="bp-tb-btn" aria-label="Apps" data-t="topbar.apps.ariaLabel" data-t-attr="aria-label"><i class="ti ti-grid-dots"></i></button>
+        </div>
+      </header>
+
+      <!-- Figma 2055:43116: the views, then the toolbar, then the list -->
+      <nav class="bl-views" id="bl-views" aria-label="Views" data-t="beatList.views.ariaLabel" data-t-attr="aria-label">
+        <button class="bl-view active" type="button" data-view="all" aria-pressed="true" data-t="beatList.view.all">All Beats</button>
+        <button class="bl-view" type="button" data-view="upcoming" aria-pressed="false" data-t="beatList.view.upcoming">Upcoming</button>
+        <button class="bl-view" type="button" data-view="progress" aria-pressed="false" data-t="beatList.view.inProgress">In Progress</button>
+        <button class="bl-view-more" type="button" aria-label="More views" data-t="beatList.view.more.ariaLabel" data-t-attr="aria-label"><i class="ti ti-dots" aria-hidden="true"></i></button>
+      </nav>
+
+      <div class="bl-toolbar">
+        <!-- Nothing selected: filter, sort and the two views of the list -->
+        <div class="bl-tools" id="bl-tools">
+          <button class="bl-tool" type="button" data-proto="beatList.toolbar.filter"><i class="ti ti-filter" aria-hidden="true"></i><span data-t="beatList.toolbar.filter">Filter</span></button>
+          <button class="bl-tool" type="button" data-proto="beatList.toolbar.sort"><i class="ti ti-arrows-sort" aria-hidden="true"></i><span data-t="beatList.toolbar.sort">Sort</span></button>
+          <span class="bl-tool-divider" aria-hidden="true"></span>
+          <button class="bl-icon-btn active" type="button" aria-pressed="true" aria-label="List view" data-t="beatList.toolbar.listView.ariaLabel" data-t-attr="aria-label"><i class="ti ti-list-details" aria-hidden="true"></i></button>
+          <button class="bl-icon-btn" type="button" aria-pressed="false" aria-label="Calendar view" data-t="beatList.toolbar.calendarView.ariaLabel" data-t-attr="aria-label" data-proto="beatList.toolbar.calendarView.ariaLabel"><i class="ti ti-calendar" aria-hidden="true"></i></button>
+          <div class="bl-tools-right">
+            <a class="bp-btn bd-btn-primary" href="create-beat.html" data-t="beatList.toolbar.createBeatPlan">Create Beat Plan</a>
+            <a class="bp-btn default" href="distribute-beat.html" data-t="beatList.toolbar.distributeBeatPlan">Distribute Beat Plan</a>
+          </div>
+        </div>
+
+        <!-- Beats selected: the bulk actions take the toolbar's place. Which
+             ones show depends on the view (beat-list.js, BULK_ACTIONS). -->
+        <div class="bl-bulk" id="bl-bulk" hidden>
+          <button class="bp-btn default" type="button" id="bl-send-email" data-bulk="sendEmail" data-t="beatList.bulk.sendEmail">Send Email</button>
+          <div class="bl-menu-wrap">
+            <button class="bp-btn default" type="button" id="bl-tags-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="bl-tags-menu">
+              <span data-t="beatList.bulk.tags">Tags</span><i class="ti ti-chevron-down bl-caret" aria-hidden="true"></i></button>
+            <div class="bd-vmenu bl-menu" id="bl-tags-menu" role="menu" hidden>
+              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1" data-bulk="addTags" data-t="beatList.bulk.addTags">Add Tags</button>
+              <button class="bd-vmenu-item" type="button" role="menuitem" tabindex="-1" data-bulk="removeTags" data-t="beatList.bulk.removeTags">Remove Tags</button>
+            </div>
+          </div>
+          <button class="bp-btn default" type="button" data-bulk="massUpdate" data-t="beatList.bulk.massUpdate">Mass Update</button>
+          <div class="bl-menu-wrap">
+            <button class="bp-btn default bl-more" type="button" id="bl-more-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="bl-more-menu"
+                    aria-label="More actions" data-t="beatList.bulk.more.ariaLabel" data-t-attr="aria-label"><i class="ti ti-dots" aria-hidden="true"></i></button>
+            <div class="bd-vmenu bl-menu" id="bl-more-menu" role="menu" hidden></div>
+          </div>
+          <span class="bl-bulk-count" id="bl-bulk-count"></span>
+          <button class="bl-clear" type="button" id="bl-clear" data-t="beatList.bulk.clear">Clear</button>
+        </div>
+      </div>
+
+      <section class="bl-card">
+        <div class="bl-scroll">
+          <table class="bl-table">
+            <thead>
+              <tr>
+                <th class="bl-check-col" scope="col">
+                  <input type="checkbox" class="bl-check" id="bl-check-all" aria-label="Select all beats" data-t="beatList.col.selectAll.ariaLabel" data-t-attr="aria-label" />
+                </th>
+                <th scope="col" class="bl-col-id" data-t="beatList.col.beatId">Beat ID</th>
+                <th scope="col" class="bl-col-rep" data-t="beatList.col.rep">Rep</th>
+                <th scope="col" class="bl-col-status" data-t="beatList.col.status">Status</th>
+                <th scope="col" class="bl-col-dates" data-t="beatList.col.dates">Dates</th>
+                <th scope="col" class="bl-col-visits" data-t="beatList.col.visits">Visits</th>
+                <th scope="col" class="bl-col-mileage" data-t="beatList.col.mileage">Mileage</th>
+                <th scope="col" class="bl-col-created" data-t="beatList.col.createdDate">Created date</th>
+                <th class="bl-col-settings">
+                  <button class="bl-settings" type="button" aria-label="Manage columns" data-t="beatList.col.settings.ariaLabel" data-t-attr="aria-label" data-proto="beatList.col.settings.ariaLabel"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i></button>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="bl-rows"></tbody>
+          </table>
+          <p class="bl-empty" id="bl-empty" hidden data-t="beatList.empty">No Beats in this view.</p>
+          <p class="bd-watermark bl-watermark" aria-hidden="true" data-t="beatDetail.map.watermark">UX yet to be verified</p>
+        </div>
+        <footer class="bl-foot">
+          <p class="bl-total"><span data-t="beatList.footer.total">Total Records</span> <b id="bl-total"></b></p>
+          <div class="bl-pager">
+            <button class="bl-page-btn" type="button" disabled aria-label="Previous page" data-t="beatList.footer.prev.ariaLabel" data-t-attr="aria-label"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
+            <b id="bl-range"></b>
+            <button class="bl-page-btn" type="button" disabled aria-label="Next page" data-t="beatList.footer.next.ariaLabel" data-t-attr="aria-label"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+          </div>
+        </footer>
+      </section>
+    </main>
+  </div>
+
+  <!-- Delete: a plain confirmation, or — when the selection mixes statuses
+       in All Beats — the rule, and only the Upcoming ones go -->
+  <div class="bd-overlay bd-overlay-top" id="bl-delete-overlay" hidden>
+    <div class="bd-modal bd-modal-add bd-modal-alert" role="alertdialog" aria-modal="true"
+         aria-labelledby="bl-delete-title" aria-describedby="bl-delete-text">
+      <div class="bd-alert-head">
+        <img class="bd-alert-icon" src="src/alert-warn-orange.svg" alt="" width="25" height="25" />
+        <h2 class="bd-modal-title" id="bl-delete-title" data-t="beatList.delete.title">Delete Beats?</h2>
+      </div>
+      <p class="bd-alert-text bl-alert-text" id="bl-delete-text"></p>
+      <footer class="bd-alert-foot">
+        <button class="bp-btn default" type="button" data-bl-close data-t="common.button.cancel">Cancel</button>
+        <button class="bp-btn primary bd-btn-primary bl-danger" type="button" id="bl-delete-go" data-t="beatList.delete.confirm">Delete</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Change Owner: the new owner, with the same rule for mixed selections -->
+  <div class="bd-overlay bd-overlay-top" id="bl-owner-overlay" hidden>
+    <div class="bd-modal bd-modal-add bl-modal-owner" role="dialog" aria-modal="true" aria-labelledby="bl-owner-title">
+      <header class="bd-modal-head"><h2 class="bd-modal-title" id="bl-owner-title" data-t="beatList.owner.title">Change Owner</h2></header>
+      <div class="bd-modal-body bl-owner-body">
+        <p class="bl-warn" id="bl-owner-warn" hidden>
+          <img src="src/alert-warn-orange.svg" alt="" width="16" height="16" />
+          <span data-t="beatList.owner.mixed">Only the owner of Upcoming Beats can be changed. The owner of In Progress, Completed and Canceled Beats can not be changed.</span>
+        </p>
+        <div class="bl-field">
+          <label class="bl-label" for="bl-owner-field" data-t="beatList.owner.label">Owner</label>
+          <div id="bl-owner-pick"></div>
+        </div>
+        <p class="bl-field-error" id="bl-owner-error" hidden data-t="beatList.owner.required">Select a user.</p>
+      </div>
+      <footer class="bd-alert-foot bl-modal-foot">
+        <button class="bp-btn default" type="button" data-bl-close data-t="common.button.cancel">Cancel</button>
+        <button class="bp-btn primary bd-btn-primary" type="button" id="bl-owner-go" data-t="beatList.owner.confirm">Change</button>
+      </footer>
+    </div>
+  </div>
+
+  <div class="bd-toast" id="bd-toast" role="status" aria-live="polite"></div>
+
+  <script src="src/sidebar.js"></script>
+  <script src="src/select-menu.js"></script>
+  <script src="src/beat-list.js"></script>
+</body>
+</html>

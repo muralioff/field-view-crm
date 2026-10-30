@@ -1,0 +1,320 @@
+/* ============================================================
+   Beat list (Figma 2055:43116)
+   The shell, the status pills, menus, dialogs and the toast come from
+   style-bottom-up.css and style-beat-detail.css; this is the list itself.
+   ============================================================ */
+
+.bp-main { display: flex; flex-direction: column; min-height: 0; }
+
+/* ── Views: All Beats · Upcoming · In Progress · ⋯ ───── */
+.bl-views {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: #fff;
+  border-bottom: 1px solid #e6e9f2;
+}
+
+.bl-view,
+.bl-view-more {
+  height: 28px;
+  padding: 0 10px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--base);
+  cursor: pointer;
+}
+
+.bl-view:hover,
+.bl-view-more:hover { background: #f2f5fe; }
+.bl-view.active { background: #eef1f9; font-weight: 600; color: var(--heading); }
+.bl-view-more { display: flex; align-items: center; margin-left: 8px; font-size: 16px; }
+.bl-view:focus-visible,
+.bl-view-more:focus-visible { outline: 2px solid var(--bd-link); outline-offset: 1px; }
+
+/* ── Toolbar, and the bulk actions that replace it ───── */
+.bl-toolbar {
+  flex-shrink: 0;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  background: #fff;
+}
+
+.bl-tools,
+.bl-bulk { flex: 1; display: flex; align-items: center; gap: 8px; }
+.bl-tools[hidden],
+.bl-bulk[hidden] { display: none; }
+
+.bl-tool {
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 6px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--base);
+  cursor: pointer;
+}
+
+.bl-tool i { font-size: 16px; }
+.bl-tool:hover { background: #f2f5fe; }
+
+.bl-tool-divider { width: 1px; height: 20px; margin: 0 6px; background: #dcdbee; }
+
+.bl-icon-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  font-size: 17px;
+  color: var(--label);
+  cursor: pointer;
+}
+
+.bl-icon-btn:hover { background: #f2f5fe; }
+.bl-icon-btn.active { background: #ebedff; color: var(--bd-link); }
+
+.bl-tools-right { margin-left: auto; display: flex; gap: 6px; }
+.bl-tools-right .bp-btn { text-decoration: none; }
+
+.bl-tool:focus-visible,
+.bl-icon-btn:focus-visible,
+.bl-toolbar .bp-btn:focus-visible { outline: 2px solid var(--bd-link); outline-offset: 2px; }
+
+.bl-menu-wrap { position: relative; }
+.bl-menu { left: 0; right: auto; width: 160px; }
+.bl-caret { font-size: 14px; margin-right: -4px; }
+.bl-more { width: 34px; padding: 0; font-size: 16px; }
+
+.bl-bulk-count { margin-left: 8px; font-size: 14px; color: var(--base); }
+
+.bl-clear {
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--bd-link);
+  cursor: pointer;
+}
+
+.bl-clear:hover { text-decoration: underline; }
+
+/* ── The list card ───────────────────────────────────── */
+.bl-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0 14px 14px;
+  background: #fff;
+  border: 1px solid #e6e9f2;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.bl-scroll { flex: 1; min-height: 0; overflow: auto; }
+
+.bl-table { width: 100%; min-width: 1100px; border-collapse: collapse; table-layout: fixed; }
+
+/* Header: 36 tall, Medium 14, a 2px rule under it and a 20px hairline
+   after each column */
+.bl-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 36px;
+  padding: 0 10px 0 15px;
+  background: #fff;
+  border-bottom: 2px solid #d9e0eb;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--heading);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bl-table th:not(.bl-check-col):not(.bl-col-settings):not(.bl-col-created)::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 0;
+  width: 1px;
+  height: 20px;
+  background: #dcdbee;
+}
+
+/* Rows: 40 tall, a pale rule between them */
+.bl-table td {
+  height: 40px;
+  padding: 0 10px 0 15px;
+  border-bottom: 1px solid #eef1f7;
+  font-size: 14px;
+  color: var(--base);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bl-table tbody tr:hover td { background: #f7f8fb; }
+.bl-table tbody tr.selected td { background: #f2f5fe; }
+
+.bl-check-col { width: 62px; text-align: right; }
+.bl-table .bl-check-col { padding: 0 5px 0 20px; }
+.bl-col-id       { width: 110px; }
+.bl-col-rep      { width: 242px; }
+.bl-col-status   { width: 171px; }
+.bl-col-dates    { width: 130px; }
+.bl-col-visits   { width: 110px; }
+.bl-col-mileage  { width: 110px; }
+.bl-col-created  { width: 173px; }
+.bl-col-settings { width: 56px; }
+.bl-table .bl-col-settings { padding: 0; text-align: center; }
+
+/* Checkbox: 15 square, a 2px #C0C8E2 outline, 3px corners */
+.bl-check {
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  display: block;
+  margin-left: auto;
+  background: #fff;
+  border: 2px solid #c0c8e2;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.bl-check:hover { border-color: #8c96b8; }
+.bl-check:checked,
+.bl-check:indeterminate { background: var(--bd-link); border-color: var(--bd-link); }
+.bl-check:checked {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='7' viewBox='0 0 11 8.4'%3E%3Cpath d='M1 4.333L3.769 7L10 1' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.bl-check:indeterminate {
+  background-image: linear-gradient(#fff, #fff);
+  background-size: 7px 2px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.bl-check:focus-visible { outline: 2px solid var(--bd-link); outline-offset: 2px; }
+
+.bl-link { color: var(--bd-link); text-decoration: none; }
+.bl-link:hover { text-decoration: underline; }
+
+/* Rep: a 26px avatar, 10 to the name */
+.bl-rep { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.bl-avatar {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+}
+.bl-ellipsis { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+.bl-settings {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  font-size: 17px;
+  color: var(--base);
+  cursor: pointer;
+}
+.bl-settings:hover { background: #f2f5fe; }
+
+.bl-empty { padding: 40px 0; font-size: 14px; color: var(--label); text-align: center; }
+.bl-empty[hidden] { display: none; }
+
+/* Above the footer, where the frame has it */
+.bl-watermark { bottom: 60px; }
+
+/* Footer: 32 tall, 13px, Total Records left and the pager right */
+.bl-foot {
+  flex-shrink: 0;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px 0 16px;
+  border-top: 1px solid #dcdbee;
+  font-size: 13px;
+  color: var(--base);
+}
+
+.bl-total b, .bl-pager b { font-weight: 600; }
+.bl-pager { display: flex; align-items: center; gap: 4px; }
+.bl-page-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: var(--base);
+}
+.bl-page-btn:disabled { color: #ccd2db; }
+
+/* ── Dialogs ─────────────────────────────────────────── */
+.bl-alert-text { max-width: 480px; white-space: normal; }
+.bl-danger.bd-btn-primary { background: #ff5d5a; }
+.bl-danger.bd-btn-primary:hover { filter: brightness(0.95); }
+
+.bl-modal-owner { width: 520px; }
+.bl-owner-body { padding-bottom: 4px; }
+.bl-modal-foot { padding: 0 30px 30px; }
+
+.bl-warn {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 11px;
+  background: #fff9ec;
+  border: 1px solid #f6dfae;
+  border-radius: 5px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--para);
+}
+.bl-warn[hidden] { display: none; }
+.bl-warn img { flex-shrink: 0; margin-top: 1px; }
+
+.bl-field { display: flex; align-items: center; gap: 20px; }
+.bl-label { width: 80px; flex-shrink: 0; font-size: 14px; color: var(--label); text-align: right; }
+.bl-field > div { flex: 1; min-width: 0; }
+.bl-field-error { margin: -12px 0 0 100px; font-size: 13px; color: #ff5d5a; }
+.bl-field-error[hidden] { display: none; }

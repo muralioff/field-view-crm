@@ -246,6 +246,11 @@ Strings.ready.then(() => {
      losing the one they are on. */
   let selectedDay = 0;
   let expanded = true;
+  /* During the approval every day stays open, so the manager reads the
+     whole plan; these are the ones they folded away themselves */
+  const reviewFolded = new Set();
+  const reviewing = () => isBU() && BU.phase === 'approving';
+  const dayOpen = index => (reviewing() ? !reviewFolded.has(index) : index === selectedDay && expanded);
 
   /* The stop picked on either side — its row in the list, its pin on the
      map — so both show the same one. { day, visit } for a visit,
@@ -370,13 +375,19 @@ Strings.ready.then(() => {
     cancelled: { label: t('beatDetail.visit.tag.cancelled'),  cls: 'rejected' },
     rejected:  { label: t('bottomUp.tag.rejected'),           cls: 'rejected bu-tag-rejected' },
     awaiting:  { label: t('bottomUp.tag.awaiting'),           cls: 'pending' },
+    approved:  { label: t('bottomUp.tag.approved'),           cls: 'approved' },
+    review:    { label: t('bottomUp.tag.pending'),            cls: 'bu-tag-pending' },
   };
 
   /* A cancelled visit says so even on a day not yet started */
-  /* Bottom-up adds two that show at once: Rejected (no tag for approved),
-     and Pending Approval on a visit waiting for the manager */
+  /* Bottom-up adds four that show at once: Rejected; while the review
+     runs, Approved and Pending (not decided yet) — both go once the
+     approval is completed; and Pending Approval on a visit waiting for the
+     manager after it */
   const tagFor = (day, visit) => {
     if (visit.status === 'rejected' || (isBU() && visit.approval === 'rejected')) return VISIT_TAG.rejected;
+    if (isBU() && BU.phase === 'approving' && visit.approval === 'approved') return VISIT_TAG.approved;
+    if (isBU() && BU.phase === 'approving' && visit.status === 'pending' && !visit.approval) return VISIT_TAG.review;
     if (visit.status === 'awaiting') return VISIT_TAG.awaiting;
     return (visit.status === 'cancelled' || day.status !== 'pending') ? VISIT_TAG[visit.status] || null : null;
   };
@@ -504,7 +515,7 @@ Strings.ready.then(() => {
     const when = visit.status === 'done' && visit.actual ? visit.actual : visit.time;
     const isFocused = focused && DAYS[focused.day] === day && focused.visit === i;
     return `
-      <div class="bd-row bd-visit ${reached ? 'reached' : ''} ${isCurrent ? 'bd-current' : ''} ${settle ? 'bd-settleable' : ''} ${isFocused ? 'bd-focus' : ''}"
+      <div class="bd-row bd-visit ${reasonLineHtml(visit) ? 'bu-rejected-row' : ''} ${reached ? 'reached' : ''} ${isCurrent ? 'bd-current' : ''} ${settle ? 'bd-settleable' : ''} ${isFocused ? 'bd-focus' : ''}"
            data-visit="${i}" ${settle ? `title="${escape(t('beatDetail.visit.completeHint'))}"` : ''}>
         <span class="bd-rail ${visit.status === 'active' ? 'bd-pulsing' : ''}"><span class="bp-visit-num ${visit.status}${no ? '' : ' bu-off'}">${no || '–'}</span></span>
         <div class="bd-text">
@@ -514,9 +525,9 @@ Strings.ready.then(() => {
           </p>
           <!-- Figma 6522:80059: time • type, then the address, 6 apart -->
           <div class="bd-visit-where">
+            ${reasonLineHtml(visit)}
             <p class="bd-visit-meta bd-visit-when"><span class="vtime">${escape(when)}</span><span class="dot">•</span><span class="vtype" data-trunc>${escape(visit.type)}</span></p>
             ${visit.address ? `<p class="bd-visit-addr" data-trunc>${escape(visit.address)}</p>` : ''}
-            ${reasonLineHtml(visit)}
           </div>
         </div>
         ${approvalIconsHtml(visit)}
@@ -578,8 +589,8 @@ Strings.ready.then(() => {
     const tag = DAY_TAG[day.status];
     const act = layout === '3' ? dayAct(index) : null;
     return `
-      <div class="bp-day bd-day ${index === selectedDay ? 'selected' : ''} ${index === selectedDay && expanded ? 'expanded' : ''} ${day.status}" data-day="${index}">
-        <div class="bp-day-header" aria-expanded="${index === selectedDay && expanded}">
+      <div class="bp-day bd-day ${index === selectedDay ? 'selected' : ''} ${dayOpen(index) ? 'expanded' : ''} ${day.status}" data-day="${index}">
+        <div class="bp-day-header" aria-expanded="${dayOpen(index)}">
           <span class="bd-chev"><img src="src/day-chevron.svg" alt="" aria-hidden="true" /></span>
           <span class="bd-day-title">${escape(day.label)}<span class="dot">&nbsp;&nbsp;•&nbsp;&nbsp;</span><span class="date">${escape(day.date)}</span></span>
           ${tag ? `<span class="bp-visit-tag ${tag.cls}">${escape(tag.label)}</span>` : ''}
@@ -718,7 +729,6 @@ Strings.ready.then(() => {
       ['modifiedBy', 'Cameron Williamson<small>Mon, 4 May 2026 09:40 AM</small>', true],
       ...(isBU() && BU.approvedAt
         ? [['approvedBy', `${escape(MANAGER)}<small>${escape(BU.approvedAt)}</small>`, true]] : []),
-      ['layout', 'Standard'],
       ['tag', null],
       ['description', null],
     ];
@@ -828,9 +838,8 @@ Strings.ready.then(() => {
     day.status = 'done';
     day.endedAt = clock();
     day.endedMin = SIM.minutes;
-    /* Move the rep on to the next day they have to work */
-    const next = DAYS.findIndex(d => d.status === 'pending');
-    if (next !== -1) { selectedDay = next; expanded = true; }
+    /* The ended day stays open, so the rep sees how it closed; the next
+       day is theirs to open */
     render();
     toast(left.length
       ? t(left.length === 1 ? 'beatDetail.toast.dayEndedMissed.one' : 'beatDetail.toast.dayEndedMissed.other',
@@ -1082,7 +1091,11 @@ Strings.ready.then(() => {
     const i = Number(card.dataset.day);
     /* Clicking the day already selected folds it away and leaves it
        selected; clicking another one selects and opens it */
-    if (i === selectedDay) expanded = !expanded;
+    if (reviewing()) {
+      /* Each day folds on its own while the approval runs */
+      if (reviewFolded.has(i)) reviewFolded.delete(i); else reviewFolded.add(i);
+      if (i !== selectedDay) { selectedDay = i; focused = null; }
+    } else if (i === selectedDay) expanded = !expanded;
     else { selectedDay = i; expanded = true; focused = null; }
     render();
   });
@@ -2389,12 +2402,12 @@ Strings.ready.then(() => {
     return DAYS.some(d => d.status !== 'pending') ? !mgr : mgr;
   }
 
-  /* Tick and cross (Figma 2936:106658), on a visit not yet decided. Once
-     decided they go and the ⋯ takes their place (approved shows nothing
-     more, rejected its tag and reason). After approval, on a visit
-     waiting for the manager. */
-  const TICK_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 9L5 12L13 4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#12AA67"/></svg>';
-  const CROSS_SVG = '<svg width="8" height="8" viewBox="-0.75 -0.75 9.5 9.5" fill="none" aria-hidden="true"><path d="M8 0L0 8M0 0L8 8" stroke-width="1.5" stroke-linecap="round" stroke="#FF5D5A"/></svg>';
+  /* Tick and cross (Figma 6911:569364), on a visit not yet decided,
+     showing on hover beside its Pending tag. Once decided they go and the
+     ⋯ takes their place. After approval, on a visit waiting for the
+     manager. */
+  const TICK_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 9L5 12L13 4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#fff"/></svg>';
+  const CROSS_SVG = '<svg width="8" height="8" viewBox="-0.75 -0.75 9.5 9.5" fill="none" aria-hidden="true"><path d="M8 0L0 8M0 0L8 8" stroke-width="1.5" stroke-linecap="round" stroke="#fff"/></svg>';
   function approvalIconsHtml(visit) {
     if (!isBU() || !isManager()) return '';
     const reviewing = BU.phase === 'approving' && visit.status === 'pending';
@@ -2613,11 +2626,26 @@ Strings.ready.then(() => {
         notify('rep', t('bottomUp.note.visitRejected', { manager: MANAGER, name: visit.name }));
       }
       toast(t('bottomUp.toast.visitRejected', { name: visit.name }));
+      if (BU.phase === 'approving') nextReviewDay(target.d);
     }
     afterChange();
   });
 
   /* ── Approve / reject one visit ────────────────────── */
+  /* The last visit of a day decided: on to the next day still waiting,
+     which is brought into view; the day just finished stays open */
+  function nextReviewDay(d) {
+    if (DAYS[d].visits.some(v => v.status === 'pending' && !v.approval)) return;
+    const next = DAYS.findIndex((day, i) => i > d && day.visits.some(v => v.status === 'pending' && !v.approval));
+    if (next === -1) return;
+    selectedDay = next;
+    reviewFolded.delete(next);
+    requestAnimationFrame(() => {
+      const el = daysEl.querySelector(`.bd-day[data-day="${next}"]`);
+      if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    });
+  }
+
   function approveVisit(d, v) {
     const visit = DAYS[d].visits[v];
     if (BU.phase === 'approving') {
@@ -2625,6 +2653,8 @@ Strings.ready.then(() => {
       delete visit.rejectReason;
       BU.updatedAt = clock();
       afterChange();
+      nextReviewDay(d);
+      if (selectedDay !== d) render();
       return;
     }
     /* After approval: it joins the route as the last visit of its day, or
@@ -2693,8 +2723,19 @@ Strings.ready.then(() => {
      approved ones only (the rest are rejected). The Beat Details line
      reads what the beat comes to under the choice. */
   const unreviewedChoice = () => document.querySelector('input[name="bu-unreviewed"]:checked').value;
-  document.querySelectorAll('input[name="bu-unreviewed"]').forEach(r =>
-    r.addEventListener('change', () => { $('bu-complete-details').textContent = beatDetailsLine(); }));
+  /* Proceeding with the approved ones only asks for the rejection reason,
+     and Complete waits for it */
+  function syncComplete() {
+    const reject = reviewCounts().unreviewed > 0 && unreviewedChoice() === 'reject';
+    $('bu-complete-reason').hidden = !reject;
+    $('bu-complete-go').disabled = reject && !$('bu-complete-reason-box').value.trim();
+    $('bu-complete-details').textContent = beatDetailsLine();
+  }
+  document.querySelectorAll('input[name="bu-unreviewed"]').forEach(r => r.addEventListener('change', () => {
+    syncComplete();
+    if (unreviewedChoice() === 'reject') $('bu-complete-reason-box').focus();
+  }));
+  $('bu-complete-reason-box').addEventListener('input', syncComplete);
 
   /* Days, visits and distance of the beat the approval would leave */
   function beatDetailsLine() {
@@ -2718,13 +2759,17 @@ Strings.ready.then(() => {
     const c = reviewCounts();
     vaTarget = { d: selectedDay, v: -1 };
     const some = c.unreviewed > 0;
-    $('bu-complete-desc').textContent = some
-      ? t('bottomUp.complete.desc')
-      : t('bottomUp.complete.allReviewed', { total: c.total });
+    /* "3 visits are still pending approval. Select an option to proceed.",
+       one line while it fits */
+    $('bu-complete-desc').innerHTML = some
+      ? `${escape(t(c.unreviewed === 1 ? 'bottomUp.complete.desc.one' : 'bottomUp.complete.desc.other', { n: c.unreviewed }))} ${escape(t('bottomUp.complete.descSelect'))}`
+      : escape(t('bottomUp.complete.allReviewed', { total: c.total }));
     $('bu-complete-choice').hidden = !some;
     document.querySelector('input[name="bu-unreviewed"][value="approve"]').checked = true;
-    $('bu-complete-selected-hint').textContent = t('bottomUp.complete.selectedOnlyHint', { count: c.approved });
-    $('bu-complete-details').textContent = beatDetailsLine();
+    $('bu-complete-all-hint').textContent = t('bottomUp.complete.approveRemainingHint', { total: c.total - c.rejected });
+    $('bu-complete-selected-hint').textContent = t(c.approved === 1 ? 'bottomUp.complete.selectedOnlyHint.one' : 'bottomUp.complete.selectedOnlyHint', { count: c.approved });
+    $('bu-complete-reason-box').value = '';
+    syncComplete();
     openOverlay('bu-complete-overlay');
     $('bu-complete-go').focus();
   }
@@ -2732,7 +2777,12 @@ Strings.ready.then(() => {
   $('bu-complete-go').addEventListener('click', () => {
     const c = reviewCounts();
     const reject = c.unreviewed > 0 && unreviewedChoice() === 'reject';
-    c.all.filter(v => !v.approval).forEach(v => { v.approval = reject ? 'rejected' : 'approved'; });
+    const reason = $('bu-complete-reason-box').value.trim();
+    if (reject && !reason) return;
+    c.all.filter(v => !v.approval).forEach(v => {
+      v.approval = reject ? 'rejected' : 'approved';
+      if (reject) v.rejectReason = reason;
+    });
     /* Rejected visits leave the route; the route is re-optimized */
     DAYS.forEach(day => {
       day.visits.forEach(v => { if (v.approval === 'rejected') v.status = 'rejected'; });
@@ -2769,7 +2819,7 @@ Strings.ready.then(() => {
       $('bu-discard-go').focus();
       return;
     }
-    location.href = 'index.html';
+    location.href = 'beat-list.html';
   });
   $('bu-discard-go').addEventListener('click', () => {
     BU.phase = 'pending';
@@ -2779,7 +2829,7 @@ Strings.ready.then(() => {
       delete v.rejectReason;
     }));
     closeOverlays();
-    location.href = 'index.html';
+    location.href = 'beat-list.html';
   });
 
   const VISIT_ACTION_OPEN = { reschedule: openReschedule, reassign: openReassign, cancel: openCancel,
