@@ -2110,12 +2110,12 @@
     "notes": ""
   },
   "beatList.bulk.selected.one": {
-    "text": "1 Beat selected",
+    "text": "{count} Record Selected.",
     "where": "Beat List · bulk toolbar · count, one beat",
-    "notes": ""
+    "notes": "Keep {count} (always 1)"
   },
   "beatList.bulk.selected.other": {
-    "text": "{count} Beats selected",
+    "text": "{count} Records Selected.",
     "where": "Beat List · bulk toolbar · count",
     "notes": "Keep {count}"
   },
@@ -2164,11 +2164,6 @@
     "where": "Beat List · bulk ⋯ menu",
     "notes": ""
   },
-  "beatList.bulk.changeOwner": {
-    "text": "Change Owner",
-    "where": "Beat List · bulk ⋯ menu (All Beats, Upcoming)",
-    "notes": ""
-  },
   "beatList.bulk.delete": {
     "text": "Delete",
     "where": "Beat List · bulk ⋯ menu (All Beats, Upcoming)",
@@ -2212,51 +2207,6 @@
   "beatList.toast.deleted.other": {
     "text": "{count} Beats deleted.",
     "where": "Toast · after Delete",
-    "notes": "Keep {count}. Placeholder copy, not from the spec"
-  },
-  "beatList.owner.title": {
-    "text": "Change Owner",
-    "where": "Beat List · Change Owner dialog · title",
-    "notes": ""
-  },
-  "beatList.owner.mixed": {
-    "text": "Only the owner of Upcoming Beats can be changed. The owner of In Progress, Completed and Canceled Beats can not be changed.",
-    "where": "Beat List · Change Owner dialog · All Beats, selection mixes statuses",
-    "notes": ""
-  },
-  "beatList.owner.label": {
-    "text": "Owner",
-    "where": "Beat List · Change Owner dialog · field label",
-    "notes": ""
-  },
-  "beatList.owner.placeholder": {
-    "text": "Select User",
-    "where": "Beat List · Change Owner dialog · field placeholder",
-    "notes": ""
-  },
-  "beatList.owner.required": {
-    "text": "Select a user.",
-    "where": "Beat List · Change Owner dialog · error when no user is picked",
-    "notes": "Placeholder copy, not from the spec"
-  },
-  "beatList.owner.confirm": {
-    "text": "Change",
-    "where": "Beat List · Change Owner dialog · button",
-    "notes": "Placeholder copy, not from the spec"
-  },
-  "beatList.toast.ownerChanged.partial": {
-    "text": "Owner changed for {done} of {total} Beats.",
-    "where": "Toast · after Change Owner on a mixed selection",
-    "notes": "Keep {done} and {total}"
-  },
-  "beatList.toast.ownerChanged.one": {
-    "text": "Owner changed for 1 Beat.",
-    "where": "Toast · after Change Owner, one beat",
-    "notes": "Placeholder copy, not from the spec"
-  },
-  "beatList.toast.ownerChanged.other": {
-    "text": "Owner changed for {count} Beats.",
-    "where": "Toast · after Change Owner",
     "notes": "Keep {count}. Placeholder copy, not from the spec"
   },
   "beatList.toast.notInPrototype": {
@@ -2309,9 +2259,39 @@
     "where": "Beat Detail · bottom-up · tag on a visit approved during the review (goes once the approval is completed)",
     "notes": ""
   },
-  "bottomUp.tag.pending": {
-    "text": "Pending",
-    "where": "Beat Detail · bottom-up · tag on a visit not yet approved or rejected during the review (goes once the approval is completed)",
+  "beatDetail.visit.action.forceCheckout": {
+    "text": "Force Checkout",
+    "where": "Beat Detail · visit ⋯ menu on the visit in progress",
     "notes": ""
+  },
+  "forceCheckout.title": {
+    "text": "Force checkout “{name}”",
+    "where": "Force Checkout dialog · title",
+    "notes": "Keep {name}"
+  },
+  "forceCheckout.text": {
+    "text": "Once checked out, the visit will be marked as completed.",
+    "where": "Force Checkout dialog · message, second line",
+    "notes": ""
+  },
+  "forceCheckout.confirm": {
+    "text": "Yes",
+    "where": "Force Checkout dialog · primary button",
+    "notes": ""
+  },
+  "forceCheckout.toast": {
+    "text": "{name} checked out.",
+    "where": "Toast · after Force Checkout",
+    "notes": "Keep {name}. Placeholder copy — PM to confirm"
+  },
+  "beatDetail.sim.iconSet4": {
+    "text": "Set 4 — Building with pin (latest)",
+    "where": "Simulate today panel · Address icon option (prototype only)",
+    "notes": ""
+  },
+  "forceCheckout.ask": {
+    "text": "Are you sure you want to force checkout “{name}”?",
+    "where": "Force Checkout dialog · message, first line",
+    "notes": "Keep {name}"
   }
 }

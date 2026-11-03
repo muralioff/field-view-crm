@@ -104,8 +104,9 @@
               <label class="bd-sim-field" data-t="beatDetail.sim.addressIcon">Address icon
                 <select id="bd-sim-addr-icon">
                   <option value="1" data-t="beatDetail.sim.iconSet1">Set 1 — Building</option>
-                  <option value="2" selected data-t="beatDetail.sim.iconSet2">Set 2 — Building with pin</option>
+                  <option value="2" data-t="beatDetail.sim.iconSet2">Set 2 — Building with pin</option>
                   <option value="3" data-t="beatDetail.sim.iconSet3">Set 3 — Lines</option>
+                  <option value="4" selected data-t="beatDetail.sim.iconSet4">Set 4 — Building with pin (latest)</option>
                 </select>
               </label>
               <!-- Hovering any text shows its content key, so the PM can find
@@ -766,6 +767,22 @@
 
   <!-- Bottom-up: leaving mid-approval (Figma 2936:107696) — decisions are
        kept only once the approval is completed -->
+  <!-- Force Checkout: closes the visit in hand, as completed -->
+  <div class="bd-overlay bd-overlay-top" id="va-force-overlay" hidden>
+    <div class="bd-modal bd-modal-add bd-modal-alert" role="alertdialog" aria-modal="true"
+         aria-labelledby="va-force-title" aria-describedby="va-force-text">
+      <div class="bd-alert-head">
+        <img class="bd-alert-icon" src="src/alert-warn-orange.svg" alt="" width="25" height="25" />
+        <h2 class="bd-modal-title" id="va-force-title"></h2>
+      </div>
+      <p class="bd-alert-text va-force-text" id="va-force-text"><span id="va-force-ask"></span><br /><span data-t="forceCheckout.text">Once checked out, the visit will be marked as completed.</span></p>
+      <footer class="bd-alert-foot">
+        <button class="bp-btn default" type="button" data-va-close data-t="common.button.cancel">Cancel</button>
+        <button class="bp-btn primary bd-btn-primary" type="button" id="va-force-go" data-t="forceCheckout.confirm">Yes</button>
+      </footer>
+    </div>
+  </div>
+
   <div class="bd-overlay bd-overlay-top" id="bu-discard-overlay" hidden>
     <div class="bd-modal bd-modal-add bd-modal-alert" role="alertdialog" aria-modal="true"
          aria-labelledby="bu-discard-title" aria-describedby="bu-discard-text">

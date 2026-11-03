@@ -4,8 +4,11 @@
    Three views — All Beats, Upcoming, In Progress — over one table. A tick
    on a row swaps the toolbar for the bulk actions; which actions the ⋯
    holds depends on the view (BULK_ACTIONS). Only Upcoming beats can be
-   deleted or change owner: when All Beats mixes statuses, the dialog
-   says so and only the Upcoming ones are acted on.
+   deleted: when All Beats mixes statuses, the dialog says so and only the
+   Upcoming ones are deleted.
+
+   No Change Owner in Phase 1: checking each new rep's free days, time
+   slots and beats in bulk takes too long to run on demand.
 
    Status pills use the detail page's colours (style-beat-detail.css,
    .bp-badge.bd-*), not the frame's.
@@ -41,8 +44,6 @@ Strings.ready.then(() => {
     { id: 'BP - 009', rep: 'Devon Lane',         status: 'cancelled', dates: '20 Apr - 21 Apr', visits: 5, km: 22.8, created: '02/04/2026' },
   ];
 
-  const USERS = ['Savannah Nguyen', 'Kathryn Murphy', 'Cameron Williamson', 'Cody Fisher', 'Devon Lane', 'Jenny Wilson', 'Annette Black'];
-
   const VIEWS = {
     all:      () => true,
     upcoming: b => b.status === 'upcoming',
@@ -50,10 +51,10 @@ Strings.ready.then(() => {
   };
 
   /* The ⋯ in the bulk toolbar, by view. In Progress beats cannot be
-     deleted or change owner, so that view does not offer them. */
+     deleted, so that view does not offer it. */
   const BULK_ACTIONS = {
-    all:      ['runMacro', 'createTask', 'changeOwner', 'delete'],
-    upcoming: ['runMacro', 'createTask', 'changeOwner', 'delete'],
+    all:      ['runMacro', 'createTask', 'delete'],
+    upcoming: ['runMacro', 'createTask', 'delete'],
     progress: ['runMacro', 'createTask'],
   };
 
@@ -102,7 +103,9 @@ Strings.ready.then(() => {
     $('bl-tools').hidden = n > 0;
     $('bl-bulk').hidden = n === 0;
     $('bl-send-email').hidden = !HAS_EMAIL_FIELD;
-    $('bl-bulk-count').textContent = t(n === 1 ? 'beatList.bulk.selected.one' : 'beatList.bulk.selected.other', { count: n });
+    /* "2 Records Selected." with the number in bold */
+    $('bl-bulk-count').innerHTML = escape(t(n === 1 ? 'beatList.bulk.selected.one' : 'beatList.bulk.selected.other', { count: '\u0000' }))
+      .replace('\u0000', `<b>${n}</b>`);
     $('bl-more-menu').innerHTML = BULK_ACTIONS[view].map(a => `
       <button class="bd-vmenu-item${a === 'delete' ? ' danger' : ''}" type="button" role="menuitem" tabindex="-1"
               data-bulk="${a}">${escape(t(`beatList.bulk.${a}`))}</button>`).join('');
@@ -186,13 +189,12 @@ Strings.ready.then(() => {
     closeMenus();
     const act = btn.dataset.bulk;
     if (act === 'delete') openDelete();
-    else if (act === 'changeOwner') openOwner();
     /* Run Macro acts on custom fields only; Send Email needs the module's
        email field. Neither, nor the rest, runs in the prototype. */
     else toast(t('beatList.toast.notInPrototype', { action: t(`beatList.bulk.${act}`) }));
   });
 
-  /* Only Upcoming beats can be deleted or change owner */
+  /* Only Upcoming beats can be deleted */
   const eligible = () => picked().filter(b => b.status === 'upcoming');
 
   function openDelete() {
@@ -215,41 +217,6 @@ Strings.ready.then(() => {
     toast(ok.length < all.length
       ? t('beatList.toast.deleted.partial', { done: ok.length, total: all.length })
       : t(ok.length === 1 ? 'beatList.toast.deleted.one' : 'beatList.toast.deleted.other', { count: ok.length }));
-  });
-
-  const ownerPick = SelectMenu.create($('bl-owner-pick'), {
-    placeholder: t('beatList.owner.placeholder'), mandatory: true, fieldId: 'bl-owner-field',
-    onChange() { $('bl-owner-error').hidden = true; ownerPick.field.classList.remove('invalid'); },
-  });
-  ownerPick.setOptions(USERS.map(u => ({ value: u, label: u })));
-
-  function openOwner() {
-    const all = picked(), ok = eligible();
-    $('bl-owner-warn').hidden = ok.length === all.length;
-    ownerPick.clear();
-    ownerPick.setDisabled(ok.length === 0);
-    $('bl-owner-go').hidden = ok.length === 0;
-    $('bl-owner-error').hidden = true;
-    ownerPick.field.classList.remove('invalid');
-    openOverlay('bl-owner-overlay');
-    (ok.length ? ownerPick.field : document.querySelector('#bl-owner-overlay [data-bl-close]')).focus();
-  }
-
-  $('bl-owner-go').addEventListener('click', () => {
-    if (!ownerPick.value) {
-      $('bl-owner-error').hidden = false;
-      ownerPick.field.classList.add('invalid');
-      ownerPick.field.focus();
-      return;
-    }
-    const all = picked(), ok = eligible();
-    ok.forEach(b => { b.rep = ownerPick.value; });
-    selected.clear();
-    closeOverlays();
-    render();
-    toast(ok.length < all.length
-      ? t('beatList.toast.ownerChanged.partial', { done: ok.length, total: all.length })
-      : t(ok.length === 1 ? 'beatList.toast.ownerChanged.one' : 'beatList.toast.ownerChanged.other', { count: ok.length }));
   });
 
   /* ── Dialogs ───────────────────────────────────────── */

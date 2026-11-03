@@ -123,7 +123,7 @@ Strings.ready.then(() => {
      on every visit; how much it lets change depends on the visit. */
   const VISIT_ACTIONS = {
     pending:   ['edit', 'reschedule', 'reassign', 'location', 'cancel'],
-    active:    ['edit', 'reschedule', 'reassign', 'location', 'cancel'],
+    active:    ['forceCheckout', 'edit', 'reschedule', 'reassign', 'location', 'cancel'],
     missed:    ['revise', 'edit', 'reschedule', 'reassign'],
     cancelled: ['edit', 'reschedule'],
     done:      ['edit'],
@@ -376,18 +376,15 @@ Strings.ready.then(() => {
     rejected:  { label: t('bottomUp.tag.rejected'),           cls: 'rejected bu-tag-rejected' },
     awaiting:  { label: t('bottomUp.tag.awaiting'),           cls: 'pending' },
     approved:  { label: t('bottomUp.tag.approved'),           cls: 'approved' },
-    review:    { label: t('bottomUp.tag.pending'),            cls: 'bu-tag-pending' },
   };
 
   /* A cancelled visit says so even on a day not yet started */
-  /* Bottom-up adds four that show at once: Rejected; while the review
-     runs, Approved and Pending (not decided yet) — both go once the
-     approval is completed; and Pending Approval on a visit waiting for the
-     manager after it */
+  /* Bottom-up adds three that show at once: Rejected; Approved, only while
+     the review runs (it goes once the approval is completed); and Pending
+     Approval on a visit waiting for the manager after it */
   const tagFor = (day, visit) => {
     if (visit.status === 'rejected' || (isBU() && visit.approval === 'rejected')) return VISIT_TAG.rejected;
     if (isBU() && BU.phase === 'approving' && visit.approval === 'approved') return VISIT_TAG.approved;
-    if (isBU() && BU.phase === 'approving' && visit.status === 'pending' && !visit.approval) return VISIT_TAG.review;
     if (visit.status === 'awaiting') return VISIT_TAG.awaiting;
     return (visit.status === 'cancelled' || day.status !== 'pending') ? VISIT_TAG[visit.status] || null : null;
   };
@@ -541,9 +538,9 @@ Strings.ready.then(() => {
     return `
         <div class="bd-vmenu-wrap">
           <button class="bd-vmore" type="button" aria-haspopup="menu" aria-expanded="false"
-                  aria-label="${escape(t('beatDetail.visit.menu.ariaLabel', { name: visit.name }))}"><i class="ti ti-dots" aria-hidden="true"></i></button>
+                  aria-label="${escape(t('beatDetail.visit.menu.ariaLabel', { name: visit.name }))}"><svg class="bd-dots" width="12" height="3" viewBox="0 0 12 3" aria-hidden="true"><circle cx="1.5" cy="1.5" r="1.5"/><circle cx="6" cy="1.5" r="1.5"/><circle cx="10.5" cy="1.5" r="1.5"/></svg></button>
           <div class="bd-vmenu" role="menu" hidden>
-            ${actions.map(a => `<button class="bd-vmenu-item${a === 'cancel' || a === 'reject' || a === 'remove' ? ' danger' : ''}" type="button"
+            ${actions.map(a => `<button class="bd-vmenu-item${a === 'cancel' || a === 'remove' ? ' danger' : ''}" type="button"
                     role="menuitem" tabindex="-1" data-action="${a}">${escape(actionLabel(a))}</button>`).join('')}
           </div>
         </div>`;
@@ -581,8 +578,18 @@ Strings.ready.then(() => {
           </div>
         </div>`);
     }
-    rows.push(placeHtml(OFFICE, 'office', allDone, 'last', index));
+    rows.push(placeHtml({ ...OFFICE, time: officeTime(prev, allDone) }, 'office', allDone, 'last', index));
     return `<div class="bd-timeline">${rows.join('')}</div>`;
+  }
+
+  /* When the day reaches the Office: the last stop's end, plus the drive
+     out of it (what it really took, once driven) */
+  function officeTime(last, driven) {
+    const visitEnd = last.status === 'done' && last.actual ? last.actual : last.time;
+    const clocks = (visitEnd || '').match(/\d+:\d+ (AM|PM)/g);
+    const drive = ((driven && last.actualDrive) || last.drive || '').match(/(\d+)\s*min/);
+    if (!clocks || !drive) return '';
+    return minutesToClock(clockToMinutes(clocks[clocks.length - 1]) + Number(drive[1]));
   }
 
   function dayHtml(day, index) {
@@ -1841,12 +1848,17 @@ Strings.ready.then(() => {
   const hideTruncTip = () => { clearTimeout(truncTimer); truncTip.hidden = true; };
 
   /* Below the element, or above it when there is no room */
+  /* The approve and reject buttons take the black tooltip (Figma
+     6996:570505), centred on them */
   function placeTruncTip(el) {
+    const dark = el.classList.contains('bu-icon');
+    truncTip.classList.toggle('bd-tip-dark', dark);
     truncTip.hidden = false;
     const r = el.getBoundingClientRect();
     const w = truncTip.offsetWidth, h = truncTip.offsetHeight;
     const below = r.bottom + 6 + h <= window.innerHeight - 8;
-    truncTip.style.left = `${Math.min(Math.max(8, r.left), window.innerWidth - w - 8)}px`;
+    const left = dark ? r.left + r.width / 2 - w / 2 : r.left;
+    truncTip.style.left = `${Math.min(Math.max(8, left), window.innerWidth - w - 8)}px`;
     truncTip.style.top = `${below ? r.bottom + 6 : r.top - 6 - h}px`;
   }
 
@@ -1892,13 +1904,13 @@ Strings.ready.then(() => {
   const ADDR_KEY = 'bd-show-address';
   const addrLink = $('bd-addr-link');
 
-  /* Which of the three Figma icon sets the toggle draws (src/address-icons.js),
+  /* Which of the four icon sets the toggle draws (src/address-icons.js),
      picked in the simulator and remembered for this viewer */
-  const ICON_SET_KEY = 'bd-addr-icon-set';
-  /* Set 2 (building with pin) unless the simulator picked another */
-  let addrIconSet = '2';
-  try { addrIconSet = localStorage.getItem(ICON_SET_KEY) || '2'; } catch { /* private mode */ }
-  if (!ADDRESS_ICONS[addrIconSet]) addrIconSet = '2';
+  const ICON_SET_KEY = 'bd-addr-icon-set-v2';
+  /* Set 4 (the latest building with pin) unless the simulator picked another */
+  let addrIconSet = '4';
+  try { addrIconSet = localStorage.getItem(ICON_SET_KEY) || '4'; } catch { /* private mode */ }
+  if (!ADDRESS_ICONS[addrIconSet]) addrIconSet = '4';
   function drawAddrIcon() {
     const shown = !daysEl.classList.contains('bd-hide-addr');
     addrLink.innerHTML = ADDRESS_ICONS[addrIconSet][shown ? 'shown' : 'hidden'];
@@ -1974,7 +1986,7 @@ Strings.ready.then(() => {
   let vaTarget = null;   /* { d, v } the dialog acts on */
   const vaVisit = () => DAYS[vaTarget.d].visits[vaTarget.v];
 
-  const VA_OVERLAYS = ['bu-reason-overlay', 'bu-complete-overlay', 'bu-limit-overlay', 'bu-discard-overlay',
+  const VA_OVERLAYS = ['va-force-overlay', 'bu-reason-overlay', 'bu-complete-overlay', 'bu-limit-overlay', 'bu-discard-overlay',
                        'va-resched-overlay', 'va-reassign-overlay', 'va-cancel-overlay',
                        'va-revise-overlay', 'va-edit-overlay'];
   function openOverlay(id) { $(id).hidden = false; }
@@ -2402,12 +2414,11 @@ Strings.ready.then(() => {
     return DAYS.some(d => d.status !== 'pending') ? !mgr : mgr;
   }
 
-  /* Tick and cross (Figma 6911:569364), on a visit not yet decided,
-     showing on hover beside its Pending tag. Once decided they go and the
-     ⋯ takes their place. After approval, on a visit waiting for the
-     manager. */
-  const TICK_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 9L5 12L13 4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#fff"/></svg>';
-  const CROSS_SVG = '<svg width="8" height="8" viewBox="-0.75 -0.75 9.5 9.5" fill="none" aria-hidden="true"><path d="M8 0L0 8M0 0L8 8" stroke-width="1.5" stroke-linecap="round" stroke="#fff"/></svg>';
+  /* Tick and cross (Figma 7002:574351), always shown on a visit not yet
+     decided. Once decided they go and the ⋯ takes their place. After
+     approval, on a visit waiting for the manager. */
+  const TICK_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 9L5 12L13 4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#12AA67"/></svg>';
+  const CROSS_SVG = '<svg width="8" height="8" viewBox="-0.75 -0.75 9.5 9.5" fill="none" aria-hidden="true"><path d="M8 0L0 8M0 0L8 8" stroke-width="1.5" stroke-linecap="round" stroke="#FF5D5A"/></svg>';
   function approvalIconsHtml(visit) {
     if (!isBU() || !isManager()) return '';
     const reviewing = BU.phase === 'approving' && visit.status === 'pending';
@@ -2832,7 +2843,26 @@ Strings.ready.then(() => {
     location.href = 'beat-list.html';
   });
 
-  const VISIT_ACTION_OPEN = { reschedule: openReschedule, reassign: openReassign, cancel: openCancel,
+  /* Force Checkout: the product's way to close the visit in hand, so the
+     day moves on. Clicking the visit does the same in the prototype, for
+     demos; both stay. */
+  function openForceCheckout(d, v) {
+    vaTarget = { d, v };
+    const name = DAYS[d].visits[v].name;
+    $('va-force-title').textContent = t('forceCheckout.title', { name });
+    $('va-force-ask').textContent = t('forceCheckout.ask', { name });
+    openOverlay('va-force-overlay');
+    $('va-force-go').focus();
+  }
+  $('va-force-go').addEventListener('click', () => {
+    const { d, v } = vaTarget;
+    const visit = DAYS[d].visits[v];
+    closeOverlays();
+    completeVisit(DAYS[d], visit);
+    toast(t('forceCheckout.toast', { name: visit.name }));
+  });
+
+  const VISIT_ACTION_OPEN = { forceCheckout: openForceCheckout, reschedule: openReschedule, reassign: openReassign, cancel: openCancel,
                               revise: openRevise, edit: openEdit,
                               approve: approveVisit, reject: rejectVisit, remove: removeVisit,
                               resubmit: (d, v) => openEdit(d, v, 'resubmit') };

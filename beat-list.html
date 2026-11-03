@@ -12,7 +12,6 @@
        menus, the dialogs and the toast this page shares with it -->
   <link rel="stylesheet" href="src/style-bottom-up.css" />
   <link rel="stylesheet" href="src/style-beat-detail.css" />
-  <link rel="stylesheet" href="src/select-menu.css" />
   <link rel="stylesheet" href="src/style-beat-list.css" />
   <!-- First, so the copy is in before anything renders -->
   <script src="src/strings.js"></script>
@@ -62,6 +61,9 @@
         <!-- Beats selected: the bulk actions take the toolbar's place. Which
              ones show depends on the view (beat-list.js, BULK_ACTIONS). -->
         <div class="bl-bulk" id="bl-bulk" hidden>
+          <!-- The count and Clear lead, then the actions (as on the CRM's lists) -->
+          <span class="bl-bulk-count" id="bl-bulk-count"></span>
+          <button class="bl-clear" type="button" id="bl-clear" data-t="beatList.bulk.clear">Clear</button>
           <button class="bp-btn default" type="button" id="bl-send-email" data-bulk="sendEmail" data-t="beatList.bulk.sendEmail">Send Email</button>
           <div class="bl-menu-wrap">
             <button class="bp-btn default" type="button" id="bl-tags-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="bl-tags-menu">
@@ -77,8 +79,6 @@
                     aria-label="More actions" data-t="beatList.bulk.more.ariaLabel" data-t-attr="aria-label"><i class="ti ti-dots" aria-hidden="true"></i></button>
             <div class="bd-vmenu bl-menu" id="bl-more-menu" role="menu" hidden></div>
           </div>
-          <span class="bl-bulk-count" id="bl-bulk-count"></span>
-          <button class="bl-clear" type="button" id="bl-clear" data-t="beatList.bulk.clear">Clear</button>
         </div>
       </div>
 
@@ -136,32 +136,9 @@
     </div>
   </div>
 
-  <!-- Change Owner: the new owner, with the same rule for mixed selections -->
-  <div class="bd-overlay bd-overlay-top" id="bl-owner-overlay" hidden>
-    <div class="bd-modal bd-modal-add bl-modal-owner" role="dialog" aria-modal="true" aria-labelledby="bl-owner-title">
-      <header class="bd-modal-head"><h2 class="bd-modal-title" id="bl-owner-title" data-t="beatList.owner.title">Change Owner</h2></header>
-      <div class="bd-modal-body bl-owner-body">
-        <p class="bl-warn" id="bl-owner-warn" hidden>
-          <img src="src/alert-warn-orange.svg" alt="" width="16" height="16" />
-          <span data-t="beatList.owner.mixed">Only the owner of Upcoming Beats can be changed. The owner of In Progress, Completed and Canceled Beats can not be changed.</span>
-        </p>
-        <div class="bl-field">
-          <label class="bl-label" for="bl-owner-field" data-t="beatList.owner.label">Owner</label>
-          <div id="bl-owner-pick"></div>
-        </div>
-        <p class="bl-field-error" id="bl-owner-error" hidden data-t="beatList.owner.required">Select a user.</p>
-      </div>
-      <footer class="bd-alert-foot bl-modal-foot">
-        <button class="bp-btn default" type="button" data-bl-close data-t="common.button.cancel">Cancel</button>
-        <button class="bp-btn primary bd-btn-primary" type="button" id="bl-owner-go" data-t="beatList.owner.confirm">Change</button>
-      </footer>
-    </div>
-  </div>
-
   <div class="bd-toast" id="bd-toast" role="status" aria-live="polite"></div>
 
   <script src="src/sidebar.js"></script>
-  <script src="src/select-menu.js"></script>
   <script src="src/beat-list.js"></script>
 </body>
 </html>

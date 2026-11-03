@@ -102,19 +102,26 @@
 .bl-caret { font-size: 14px; margin-right: -4px; }
 .bl-more { width: 34px; padding: 0; font-size: 16px; }
 
-.bl-bulk-count { margin-left: 8px; font-size: 14px; color: var(--base); }
+/* "2 Records Selected." then Clear, ahead of the actions */
+.bl-bulk-count { font-size: 14px; color: var(--base); white-space: nowrap; }
+.bl-bulk-count b { font-weight: 600; }
 
 .bl-clear {
+  margin: 0 12px 0 2px;
   padding: 0;
   background: none;
   border: none;
   font-family: inherit;
   font-size: 14px;
-  color: var(--bd-link);
+  color: var(--base);
+  text-decoration: underline;
+  text-decoration-color: #8c91ab;
+  text-underline-offset: 4px;
   cursor: pointer;
 }
 
-.bl-clear:hover { text-decoration: underline; }
+.bl-clear:hover { color: var(--bd-link); text-decoration-color: currentColor; }
+.bl-clear:focus-visible { outline: 2px solid var(--bd-link); outline-offset: 2px; border-radius: 2px; }
 
 /* ── The list card ───────────────────────────────────── */
 .bl-card {
@@ -293,28 +300,3 @@
 .bl-alert-text { max-width: 480px; white-space: normal; }
 .bl-danger.bd-btn-primary { background: #ff5d5a; }
 .bl-danger.bd-btn-primary:hover { filter: brightness(0.95); }
-
-.bl-modal-owner { width: 520px; }
-.bl-owner-body { padding-bottom: 4px; }
-.bl-modal-foot { padding: 0 30px 30px; }
-
-.bl-warn {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 8px 11px;
-  background: #fff9ec;
-  border: 1px solid #f6dfae;
-  border-radius: 5px;
-  font-size: 13px;
-  line-height: 18px;
-  color: var(--para);
-}
-.bl-warn[hidden] { display: none; }
-.bl-warn img { flex-shrink: 0; margin-top: 1px; }
-
-.bl-field { display: flex; align-items: center; gap: 20px; }
-.bl-label { width: 80px; flex-shrink: 0; font-size: 14px; color: var(--label); text-align: right; }
-.bl-field > div { flex: 1; min-width: 0; }
-.bl-field-error { margin: -12px 0 0 100px; font-size: 13px; color: #ff5d5a; }
-.bl-field-error[hidden] { display: none; }

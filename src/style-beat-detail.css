@@ -1495,6 +1495,17 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 
 .bd-trunc-tip[hidden] { display: none; }
 
+/* Black tooltip (Figma 6996:570505): #313949, 6 / 10, 6px corners,
+   Regular 13 / 18 white */
+.bd-trunc-tip.bd-tip-dark {
+  padding: 5px 9px;
+  background: #313949;
+  border-color: #313949;
+  filter: none;
+  color: #fff;
+  white-space: nowrap;
+}
+
 /* Show content keys: the same tooltip names the text's key(s), one a line,
    above the dialogs and menus too */
 .bd-trunc-tip.bd-key-tip {
@@ -1538,6 +1549,9 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 .bd-vmenu-wrap.open .bd-vmore { background: #e4e7f7; color: var(--base); }
 
 .bd-vmore:focus-visible { outline: 2px solid var(--bd-link); outline-offset: 2px; }
+
+/* Three drawn dots, so they sit at the circle's true centre */
+.bd-vmore .bd-dots { display: block; flex-shrink: 0; fill: currentColor; }
 
 /* Menu: Figma 5988:145775 — 140 wide, 6 above and below the items, each
    item 30 tall inside a 6px inset, hovered item tinted with 5px corners */
@@ -2324,9 +2338,8 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
    visit and shows it on the map. */
 .bu-decide { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; flex-shrink: 0; align-self: center; padding: 5px 0; margin-right: 10px; }
 
-/* Figma 6911:569364: 28px solid circles, 10 apart — green with a white
-   tick, red with a white cross. They wait for the row's hover (or a key
-   reaching them); their space stays, so the row never shifts. */
+/* Figma 7002:574351: 28px circles, 10 apart — a pale green with the
+   green tick, a pale red with the red cross; always shown */
 .bu-icon {
   width: 28px;
   height: 28px;
@@ -2340,19 +2353,9 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
   transition: filter 0.12s;
 }
 
-.bu-approve { background: #12aa67; border-color: #009653; }
-.bu-reject  { background: #ff5d5a; border-color: #f14949; }
-.bu-icon:hover { filter: brightness(0.93); }
-
-.bu-decide { opacity: 0; transition: opacity 0.12s; }
-.bu-decide .bu-icon { pointer-events: none; }
-.bd-visit:hover .bu-decide,
-.bu-decide:focus-within { opacity: 1; }
-.bd-visit:hover .bu-decide .bu-icon,
-.bu-decide:focus-within .bu-icon { pointer-events: auto; }
-
-/* Pending, on a visit the review has not reached (Figma 6911:569364) */
-.bd-day .bp-visit-tag.bu-tag-pending { background: #fdeddd; color: #c46a0f; }
+.bu-approve { background: #e5faf1; border-color: #8dd8b7; }
+.bu-reject  { background: #ffe8e9; border-color: #ffb2b7; }
+.bu-icon:hover { filter: brightness(0.96); }
 
 .bu-icon:focus-visible { outline: 2px solid var(--bd-link); outline-offset: 2px; }
 
@@ -2487,3 +2490,6 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 
 .bd-bell-item small { font-size: 12px; color: var(--label); }
 .bd-bell-empty { padding: 8px 14px; font-size: 13px; color: var(--label); }
+
+/* Force Checkout: the placeholder text wraps */
+.va-force-text { max-width: 460px; white-space: normal; }
