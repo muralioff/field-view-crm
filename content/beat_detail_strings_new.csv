@@ -61,3 +61,5 @@ forceCheckout.confirm,Yes,Force Checkout dialog · primary button,
 forceCheckout.toast,{name} checked out.,Toast · after Force Checkout,Keep {name}. Placeholder copy — PM to confirm
 beatDetail.sim.iconSet4,Set 4 — Building with pin (latest),Simulate today panel · Address icon option (prototype only),
 forceCheckout.ask,Are you sure you want to force checkout “{name}”?,"Force Checkout dialog · message, first line",Keep {name}
+beatDetail.details.pick.ariaLabel,{field} — change the field shown here,"Beat Details · a field's label, which opens the field list (screen reader)",Keep {field}
+beatDetail.details.pick.listLabel,Fields,Beat Details · the field list (screen reader),

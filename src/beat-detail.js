@@ -188,6 +188,17 @@ Strings.ready.then(() => {
   const role = () => (isManager() ? 'manager' : 'rep');
   /* The waiting status's icons (Figma 3080:166192); here because the first
      render can run before the approval section below */
+  /* Beat Details' five picked fields (renderDetailsCard); up here because
+     render() runs before the rest of the script */
+  /* Every load opens in this order: Beat Owner, Created By, Beat Duration,
+     Total Planned Visits, Total Planned Distance */
+  const DETAIL_DEFAULT = ['beatOwner', 'createdBy', 'beatDuration', 'plannedVisits', 'plannedDistance'];
+  let detailSlots = DETAIL_DEFAULT.slice();
+  let detailMenuSlot = -1;   /* the slot whose list is open */
+
+  const DD_CARET = '<svg class="bd-dd-caret" width="10" height="5" viewBox="0 0 10 5" aria-hidden="true"><path d="M8.79289 0H1.20711C0.761654 0 0.53857 0.53857 0.853553 0.853553L4.64645 4.64645C4.84171 4.84171 5.15829 4.84171 5.35355 4.64645L9.14645 0.853553C9.46143 0.538571 9.23835 0 8.79289 0Z" fill="currentColor"/></svg>';
+  const DD_TICK = '<svg class="bd-dd-tick" width="11" height="9" viewBox="0 0 11 8.38833" fill="none" aria-hidden="true"><path d="M1 4.333L3.769 7L10 1" stroke-width="2" stroke-linecap="round" stroke="currentColor"/></svg>';
+
   const CLOCK_ICON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.25" stroke="#616E88" stroke-width="1.5"/><path d="M6.99988 8.99997H10.9999C11.2999 8.99997 11.4999 8.79997 11.4999 8.49997C11.4999 8.19997 11.2999 7.99997 10.9999 7.99997H7.99988V4.99997C7.99988 4.69997 7.79988 4.49997 7.49988 4.49997C7.19988 4.49997 6.99988 4.69997 6.99988 4.99997V8.99997Z" fill="#616E88"/></svg>';
   const APPROVAL_ICON = '<svg width="16" height="16" viewBox="0 0 16.0565 16" fill="none" aria-hidden="true"><path d="M10 12.8761L11.7688 14.7523L15.3065 11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#616E88"/><path d="M7.28571 12H2.47466C1.76783 12 1.2841 11.2867 1.54563 10.63L1.89195 9.76043C2.04345 9.38004 2.41153 9.13043 2.82098 9.13043H3.57143C4.676 9.13043 5.57143 8.235 5.57143 7.13043V4.82609L5.07503 3.99515C4.65196 3.28698 4.42857 2.47746 4.42857 1.65254C4.42857 1.29215 4.72072 1 5.08111 1H9.49032C9.8507 1 10.1429 1.29215 10.1429 1.65254C10.1429 2.47746 9.91947 3.28698 9.4964 3.99515L9 4.82609V7.13043C9 8.235 9.89543 9.13043 11 9.13043H11.8611C12.2131 9.13043 12.5391 9.31544 12.7196 9.61758L13 10.087" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#616E88"/><path d="M2 15H8" stroke-width="1.5" stroke-linecap="round" stroke="#616E88"/></svg>';
 
@@ -691,10 +702,7 @@ Strings.ready.then(() => {
       t('beatDetail.attachments.empty'));
 
     renderInfo();
-
-    /* Beat Details: what the beat is planned to be, summed over its days */
-    $('bd-sum-visits').textContent = DAYS.reduce((n, day) => n + onRoute(day).length, 0);
-    $('bd-sum-distance').textContent = km(DAYS.reduce((n, day) => n + plannedKm(day), 0));
+    renderDetailsCard();
   }
 
   /* ── Show / Hide Details ─────────────────────────────── */
@@ -709,7 +717,9 @@ Strings.ready.then(() => {
     infoToggle.querySelector('span').textContent = t(open ? 'beatDetail.info.hide' : 'beatDetail.info.show');
   });
 
-  function renderInfo() {
+  /* Every Show Details field as [key, value, value is HTML]; Beat Details
+     shows five of them */
+  function infoFields() {
     const visits = DAYS.reduce((n, d) => n + onRoute(d).length, 0);
     const doneVisits = DAYS.reduce((n, d) => n + d.visits.filter(v => v.status === 'done').length, 0);
     const doneDays = DAYS.filter(d => d.status === 'done').length;
@@ -739,11 +749,97 @@ Strings.ready.then(() => {
       ['tag', null],
       ['description', null],
     ];
+    return { left, right, none };
+  }
+
+  function renderInfo() {
+    const { left, right, none } = infoFields();
     const col = rows => `<dl class="bd-info-col">${rows.map(([k, v, html]) => `
         <div class="bd-info-row"><dt>${escape(t(`beatDetail.info.${k}`))}</dt><dd>${v == null ? none : html ? v : escape(v)}</dd></div>`).join('')}
       </dl>`;
     $('bd-info-grid').innerHTML = col(left) + col(right);
   }
+
+  /* ── Beat Details: five picked fields ──────────────── */
+  /* Each slot shows one Show Details field. Hovering it boxes the label
+     and the value (Figma BP-Internal 49:80434); the label box opens the
+     list of fields, and picking one shown in another slot swaps the two.
+     No field is editable here, so the value box carries no pencil. A
+     reload goes back to the initial five. */
+  function renderDetailsCard() {
+    const { left, right, none } = infoFields();
+    const all = [...left, ...right];
+    const byKey = Object.fromEntries(all.map(f => [f[0], f]));
+    /* a field that has gone (Approved By, outside bottom-up) falls back */
+    detailSlots = detailSlots.map((k, i) => (byKey[k] ? k : DETAIL_DEFAULT[i]));
+    /* The card shows the name alone; the stamp under it stays in Show Details */
+    const short = html => html.replace(/<small>[\s\S]*?<\/small>/g, '');
+    $('bd-detail-grid').classList.toggle('has-open', detailMenuSlot !== -1);
+    $('bd-detail-grid').innerHTML = detailSlots.map((k, i) => {
+      const [, v, html] = byKey[k];
+      const open = i === detailMenuSlot;
+      return `
+        <div class="bp-detail bd-pick${open ? ' open' : ''}" data-slot="${i}">
+          <button class="bp-detail-label bd-pick-label" type="button" aria-haspopup="listbox" aria-expanded="${open}"
+                  aria-label="${escape(t('beatDetail.details.pick.ariaLabel', { field: t(`beatDetail.info.${k}`) }))}">
+            <span>${escape(t(`beatDetail.info.${k}`))}</span>${DD_CARET}</button>
+          <div class="bp-detail-value bd-pick-value">${v == null ? none : html ? short(v) : escape(v)}</div>
+          ${open ? `<ul class="bd-vmenu bd-pick-menu" role="listbox" aria-label="${escape(t('beatDetail.details.pick.listLabel'))}">
+            ${all.map(([f]) => `<li class="bd-vmenu-item${f === k ? ' selected' : ''}" role="option" tabindex="-1"
+                  aria-selected="${f === k}" data-field="${f}">${f === k ? DD_TICK : ''}<span>${escape(t(`beatDetail.info.${f}`))}</span></li>`).join('')}
+          </ul>` : ''}
+        </div>`;
+    }).join('');
+  }
+
+  function pickDetailField(slot, field) {
+    const other = detailSlots.indexOf(field);
+    if (other !== -1) detailSlots[other] = detailSlots[slot];   /* swap */
+    detailSlots[slot] = field;
+  }
+
+  function closeDetailMenu(refocus) {
+    if (detailMenuSlot === -1) return;
+    const slot = detailMenuSlot;
+    detailMenuSlot = -1;
+    renderDetailsCard();
+    if (refocus) $('bd-detail-grid').querySelector(`[data-slot="${slot}"] .bd-pick-label`).focus();
+  }
+
+  $('bd-detail-grid').addEventListener('click', e => {
+    const label = e.target.closest('.bd-pick-label');
+    if (label) {
+      const slot = Number(label.closest('.bd-pick').dataset.slot);
+      detailMenuSlot = detailMenuSlot === slot ? -1 : slot;
+      renderDetailsCard();
+      const sel = $('bd-detail-grid').querySelector('.bd-pick-menu .selected');
+      if (sel) { sel.scrollIntoView({ block: 'nearest' }); if (e.detail === 0) sel.focus(); }
+      return;
+    }
+    const opt = e.target.closest('.bd-pick-menu [data-field]');
+    if (opt) {
+      const slot = detailMenuSlot;
+      pickDetailField(slot, opt.dataset.field);
+      closeDetailMenu(false);
+      $('bd-detail-grid').querySelector(`[data-slot="${slot}"] .bd-pick-label`).focus();
+    }
+  });
+  $('bd-detail-grid').addEventListener('keydown', e => {
+    const menu = $('bd-detail-grid').querySelector('.bd-pick-menu');
+    if (!menu) return;
+    const items = [...menu.querySelectorAll('[data-field]')];
+    const at = items.indexOf(document.activeElement);
+    if (e.key === 'Escape') { e.preventDefault(); closeDetailMenu(true); }
+    else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const step = e.key === 'ArrowDown' ? 1 : -1;
+      items[at === -1 ? 0 : (at + step + items.length) % items.length].focus();
+    } else if ((e.key === 'Enter' || e.key === ' ') && at !== -1) {
+      e.preventDefault();
+      items[at].click();
+    }
+  });
+  document.addEventListener('click', e => { if (!e.target.closest('.bd-pick')) closeDetailMenu(false); });
 
   /* ── Cancelled: the note on the tab row and its reason popover ── */
   const cancelNote = $('bd-cancel-note'), cancelLink = $('bd-cancel-link'), cancelPop = $('bd-cancel-pop');

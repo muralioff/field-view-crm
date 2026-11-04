@@ -339,31 +339,6 @@
     "where": "Beat Detail · Beat Details card · heading",
     "notes": ""
   },
-  "beatDetail.details.owner": {
-    "text": "Beat Owner",
-    "where": "Beat Detail · Beat Details card · field label",
-    "notes": ""
-  },
-  "beatDetail.details.createdBy": {
-    "text": "Created By",
-    "where": "Beat Detail · Beat Details card · field label",
-    "notes": ""
-  },
-  "beatDetail.details.duration": {
-    "text": "Beat Duration",
-    "where": "Beat Detail · Beat Details card · field label",
-    "notes": ""
-  },
-  "beatDetail.details.plannedVisits": {
-    "text": "Total Planned Visits",
-    "where": "Beat Detail · Beat Details card · field label",
-    "notes": ""
-  },
-  "beatDetail.details.plannedDistance": {
-    "text": "Total Planned Distance",
-    "where": "Beat Detail · Beat Details card · field label",
-    "notes": ""
-  },
   "beatDetail.detailView.ariaLabel": {
     "text": "Beat Detail View",
     "where": "Beat Detail · the Visits + Route Map card pair (screen reader name)",
@@ -2293,5 +2268,15 @@
     "text": "Are you sure you want to force checkout “{name}”?",
     "where": "Force Checkout dialog · message, first line",
     "notes": "Keep {name}"
+  },
+  "beatDetail.details.pick.ariaLabel": {
+    "text": "{field} — change the field shown here",
+    "where": "Beat Details · a field's label, which opens the field list (screen reader)",
+    "notes": "Keep {field}"
+  },
+  "beatDetail.details.pick.listLabel": {
+    "text": "Fields",
+    "where": "Beat Details · the field list (screen reader)",
+    "notes": ""
   }
 }

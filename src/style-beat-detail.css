@@ -832,53 +832,135 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 
 .bp-content.type-2 > * { flex-shrink: 0; }
 
-.bd-card-details { padding: 18px; }
+/* ── Beat Details (Figma BP-Internal 49:80445) ─────── */
+/* 12 above, 8 below; the title 18 in, 16 over the fields; the fields 8
+   in, equal shares of the row, 16 / 28 apart. Each field is the CRM's
+   field pair — a Small Dropdown for the label over a Dropdown for the
+   value, overlapping 1px — drawn bare until it is hovered. */
+.bd-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px 0 8px;
+  overflow: visible;
+}
 .type-1 .bd-card-details { grid-area: details; }
 
-/* The shared sheet styles this heading via .bp-details, which now sits on
-   the visits card instead — so it needs saying again here */
-.bd-card-details h2 { font-size: 15px; font-weight: 600; color: var(--heading); }
+.bd-card-details h2 {
+  margin: 0;
+  padding: 0 18px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 17.5px;
+  color: #202123;
+}
 
-/* ── Beat Details ────────────────────────────────────── */
-/* The original icon grid (commit 90efa9d) for every type: heading, then
-   owner, duration, planned visits and planned distance side by side */
-/* Flexible: each field takes its own width, as many share a line as fit
-   with at least 28 between them, and the line's spare width is shared
-   out among them. Fields wrap rather than clip. */
 .bd-card-details .bp-detail-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 16px 28px;
-  margin-bottom: 0;
+  margin: 0;
+  padding: 0 8px;
 }
 
-.bd-card-details .bp-detail-grid > .bp-detail { flex: 1 0 auto; }
+.bd-card-details .bp-detail-grid > .bp-detail {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
 
-
-/* No icon beside the fields: label stacked over value. Type and spacing
-   from the Revenue Schedules field pair (Figma 6570:570805): label Medium
-   13/18 label grey, value Medium 14/20 base, 4 between, 28 between
-   fields. */
-.bd-card-details .bp-detail { flex-direction: column; gap: 4px; }
-
-.bd-card-details .bp-detail .bp-detail-label {
-  margin-bottom: 0;
+/* Small Dropdown: 25 tall, a 3px spacer and 8 to the label, 5 after it;
+   the 1px hover outline is drawn outside it, so nothing moves. At rest Medium 13 #616E88;
+   hovered Regular 13 #313949 with the 10×5 caret (#313949 at 60%), 8
+   after it, and a #797883 outline, 5px corners (Figma 49:80645). */
+.bd-card-details .bp-detail .bd-pick-label {
+  position: relative;
+  z-index: 2;
+  max-width: 100%;
+  height: 25px;
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 -1px;
+  padding: 0 0 0 11px;
+  background: none;            /* white only with its box, or it hides the value box's top edge */
+  border: none;
+  border-radius: 5px;
+  font-family: inherit;
   font-size: 13px;
   font-weight: 500;
-  line-height: 18px;
+  line-height: normal;
   color: #616e88;
+  text-align: left;
   white-space: nowrap;
+  cursor: pointer;
   font-feature-settings: "calt" 0;
 }
 
-.bd-card-details .bp-detail .bp-detail-value {
+.bd-pick-label span { min-width: 0; padding-right: 5px; overflow: hidden; text-overflow: ellipsis; }
+.bd-dd-caret { display: none; flex-shrink: 0; margin-right: 8px; color: #313949; opacity: 0.6; }
+
+/* Dropdown: 34 tall, the field's full width; a 3px spacer and 10 to the
+   value, Medium 14 #313949; hovered, a #797883 outline, 6px corners. No
+   pencil: nothing here is editable. */
+.bd-card-details .bp-detail .bd-pick-value {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 100%;
+  height: 34px;
+  display: block;
+  padding: 0 10px 0 13px;
+  background: #fff;
+  border: none;
+  border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
-  line-height: 20px;
+  line-height: 34px;
   color: #313949;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-feature-settings: "calt" 0;
 }
+
+/* Only the part under the pointer: the label's box, or the value's. The
+   label keeps its box while its list is open; meanwhile no other field
+   reacts. */
+#bd-detail-grid:not(.has-open) .bd-pick-label:hover,
+.bd-pick.open .bd-pick-label,
+.bd-pick-label:focus-visible { outline: 1px solid #797883; background: #fff; font-weight: 400; color: #313949; }
+
+#bd-detail-grid:not(.has-open) .bd-pick-label:hover .bd-dd-caret,
+.bd-pick.open .bd-dd-caret,
+.bd-pick-label:focus-visible .bd-dd-caret { display: block; }
+
+#bd-detail-grid:not(.has-open) .bd-pick-value:hover { box-shadow: inset 0 0 0 1px #797883; }
+
+.bd-pick-label:focus-visible { outline: 2px solid var(--bd-link); }
+
+/* The list of fields: the page's menu, under the label */
+/* Opens right under the label's box, over the value */
+.bd-vmenu.bd-pick-menu {
+  top: 29px;
+  left: -1px;
+  right: auto;
+  width: 220px;
+  max-height: min(440px, calc(100vh - 160px));   /* all 14 fields at once, unless the window is short */
+  overflow-y: auto;
+  margin: 0;
+  list-style: none;
+  z-index: 60;
+}
+
+/* Items spaced as in the visit menu: 30 tall (7 / 10), 6 from the edge.
+   They must not shrink to fit the list's height — the list scrolls. */
+.bd-pick-menu .bd-vmenu-item { flex-shrink: 0; display: flex; align-items: center; gap: 6px; padding-left: 27px; }
+.bd-pick-menu .bd-vmenu-item.selected { padding-left: 10px; font-weight: 500; }
+.bd-pick-menu .bd-vmenu-item:focus { background: #f2f5fe; outline: none; }
+.bd-dd-tick { flex-shrink: 0; width: 11px; height: 9px; color: var(--bd-link); }
 
 /* Parts drawn for one type only — the map's terrain switch */
 .type-1 .bd-only-2,
