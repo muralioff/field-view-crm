@@ -673,18 +673,16 @@ body {
 
 /* Built on .cb-btn; only the Figma fills differ from the page's own pair */
 .cb-btn.cbf-btn-default {
-  padding: 7px 19px;   /* Figma 8 / 20, less the inside stroke */
-  background: linear-gradient(to bottom, #fcfcff 1.4%, #ebeaf5);
+  padding: 7px 11px 7px 13px;   /* Figma Default Button 8 / 12 / 14, less the border */
+  background: linear-gradient(to bottom, var(--btn-def-top) 1.4%, var(--btn-def-bottom));
   border: 1px solid var(--btn-def-border);
-  box-shadow: inset 0 -2px 0 #cdd1e5;
   line-height: normal;
   color: var(--text-base);
 }
 
 .cb-btn.cbf-btn-primary {
-  padding: 8px 20px;
-  background: linear-gradient(to top, #3954cc, #5f7cfc);
-  box-shadow: inset 0 -2px 0 #2b42a9;
+  padding: 8px 12px 8px 14px;   /* Figma Primary Button */
+  background: linear-gradient(to top, #124dc3, var(--btn-primary));
   line-height: normal;
   color: #fff;
 }
@@ -797,3 +795,921 @@ body {
 #map-canvas.dragging { cursor: grabbing; }
 
 /* Floating map controls (layers + zoom) live in shared src/map-controls.css */
+
+/* ============================================================
+   Visits — the rep, the dates, the days (src/create-beat-visits.js)
+   Figma section 3104:167448
+   ============================================================ */
+
+/* ── Panel views ──────────────────────────────────── */
+/* Records selected and Unassigned visits fill the panel edge to edge,
+   a 50px header over a scrolling list, with Beats Information's padding
+   lifted */
+.cb-panel.is-sheet { padding: 0; display: flex; flex-direction: column; overflow: hidden; }
+.cbv-view[hidden] { display: none; }
+.cbv-sheet { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+
+.cbv-sheet-head {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 50px;
+  padding: 10px 10px 10px 15px;
+  border-bottom: 1px solid #dcdbee;
+}
+
+.cbv-sheet-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--text-heading);
+}
+
+.cbv-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.cbv-back img { width: 16.25px; height: 16px; }
+
+.cbv-sheet-foot {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 11px 15px 11px 10px;
+  border-top: 1px solid var(--border-3);
+  background: #fff;
+}
+
+/* ── Rep and dates ────────────────────────────────── */
+.cbv-rep-wrap > .cb-input { padding: 0 10px 0 13px; }   /* the 3px strip slot, then 10 */
+.cbv-rep-wrap > .cb-menu { width: 100%; }
+.cbv-caret { display: block; width: 10px; height: 5px; flex-shrink: 0; }
+.cbv-rep-wrap.open .cbv-caret { transform: rotate(180deg); }
+.cbv-rep-wrap.open > .cb-input { border-color: var(--btn-primary); }
+
+.cb-duration .cb-input.date { flex: 1 1 0; min-width: 0; padding: 0 8px 0 13px; cursor: text; }
+.cbv-date {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text-base);
+}
+.cbv-date:invalid { color: var(--placeholder-date); }   /* empty: the dd/mm/yyyy prompt */
+.cbv-date { cursor: pointer; }
+/* The whole box opens the calendar, so its icon goes */
+.cbv-date::-webkit-calendar-picker-indicator { display: none; }
+.cb-duration .cb-input:focus-within { border-color: var(--btn-primary); position: relative; z-index: 1; }
+.cb-duration .cb-input.is-invalid { border-color: #ff5d5a; position: relative; z-index: 1; }
+
+/* The row's message sits under the joined boxes, so the row grows */
+.cbv-duration-row { align-items: flex-start; }
+.cbv-duration-row .cb-field-label { line-height: 34px; }
+.cbv-msg { margin-top: 4px; font-size: 11px; line-height: 13px; color: #ff5d5a; }
+.cbv-msg[hidden] { display: none; }
+
+/* ── Yellow note (Message Info) ───────────────────── */
+.cbv-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 7px 14px;          /* 8 / 15, less the border */
+  background: #ffffea;
+  border: 1px solid #e5dec5;
+  border-radius: 6px;
+}
+.cbv-note[hidden] { display: none; }
+.cbv-note-icon { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7; }
+.cbv-note-text { flex: 1; min-width: 0; font-size: 13px; line-height: 18px; color: #56564d; }
+
+.cbv-link {
+  flex-shrink: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16px;
+  color: #5464f2;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.cbv-link:hover { text-decoration: underline; }
+
+.cbv-visits-title { margin-bottom: 10px; }
+
+/* ── Day card ─────────────────────────────────────── */
+.cbv-days { display: flex; flex-direction: column; gap: 15px; }
+
+.cbv-day {
+  --pad-x: 15px;
+  --pad-b: 12px;
+  position: relative;
+  padding: 10px var(--pad-x) var(--pad-b);
+  background: #fff;
+  border: 1px solid #dcdbee;
+  border-radius: 15px;
+}
+/* The selected day: a 2px blue edge, the padding one less to hold its size */
+.cbv-day.is-selected { --pad-x: 14px; --pad-b: 11px; padding-top: 9px; border: 2px solid #5464f2; }
+
+.cbv-day-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+  min-height: 32px;
+}
+/* A folded day opens from anywhere on it; an open one folds only on its
+   chevron, so only the chevron looks clickable there */
+.cbv-day:not(.is-open) { cursor: pointer; }
+
+.cbv-day-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--text-base);
+  white-space: nowrap;
+}
+.cbv-day-title .dot { color: #9c9ca6; }
+.cbv-day-title .date { color: var(--text-label); }
+
+.cbv-day-count { flex-shrink: 0; font-size: 13px; line-height: 18px; color: var(--text-base); white-space: nowrap; }
+.cbv-day.is-open .cbv-day-count { padding-right: 6px; font-size: 14px; line-height: 20px; }
+
+/* Blue Ghost Btn (Preview) */
+.cbv-ghost {
+  flex-shrink: 0;
+  height: 32px;
+  padding: 8px 12px 8px 14px;
+  background: #fff;
+  border: none;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: normal;
+  color: #5464f2;
+  cursor: pointer;
+  opacity: 0;
+}
+.cbv-ghost:focus-visible,
+.cbv-ghost.is-shown { opacity: 1; }
+.cbv-ghost:hover { background: #f0f1ff; }
+
+.cbv-day-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 72px;
+  font-size: 14px;
+  color: var(--text-label);
+}
+
+/* The route: start, the visits, Add Visit, end — joined by a rail
+   through the middle of their 28px icons */
+.cbv-route { position: relative; }
+.cbv-route::before {
+  content: '';
+  position: absolute;
+  left: 13.5px;
+  top: 22px;              /* the start icon's middle */
+  bottom: 34px;           /* the end icon's middle */
+  width: 1px;
+  background: #d6d6e3;
+  z-index: 1;
+}
+
+.cbv-stop { position: relative; display: flex; align-items: flex-start; gap: 14px; }
+.cbv-stop-start { padding-top: 8px; }
+.cbv-stop-end { padding: 14px 0 6px; }
+.cbv-stop-icon {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  background: #fff;
+  border: 1px solid #edf0f4;
+  border-radius: 55px;
+}
+.cbv-stop-icon img { width: 16px; height: 16px; }
+.cbv-stop-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.cbv-stop-start .cbv-stop-main { padding-bottom: 6px; }
+.cbv-stop-row { display: flex; align-items: center; gap: 10px; }
+.cbv-at { font-size: 14px; line-height: 20px; color: var(--text-label); margin-right: -6px; }
+.cbv-stop-line { font-size: 14px; line-height: 20px; color: var(--text-label); }
+.cbv-stop-line.is-clipped { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cbv-stop-end .cbv-ghost { align-self: flex-end; width: 81px; padding: 8px 12px 8px 14px; }
+
+/* Small Dropdown (25 high): the strip slot, 13px value, the caret.
+   Bare ones — a start time, a visit's duration — have no outline. */
+.cbv-dd-wrap, .cbv-row-dd { flex-shrink: 0; }
+.cbv-sdd {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  background: #fff;
+  border: 1px solid var(--input-outline);
+  border-radius: 5px;
+  font: inherit;
+  color: var(--text-base);
+  cursor: pointer;
+  text-align: left;
+}
+.cbv-sdd.is-bare { border-color: transparent; }
+.cbv-sdd.is-bare:hover { background: #f5f6fb; }
+.cbv-sdd-strip { width: 3px; height: 25px; flex-shrink: 0; }
+.cbv-sdd.is-bare .cbv-sdd-strip { height: 27px; }
+.cbv-sdd-text {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 5px 6px 8px;
+  font-size: 13px;
+  line-height: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cbv-sdd-caret { width: 10px; height: 5px; margin-right: 8px; flex-shrink: 0; }
+.open > .cbv-sdd { border-color: var(--btn-primary); }
+.open > .cbv-sdd .cbv-sdd-caret { transform: rotate(180deg); }
+
+.cbv-dd-wrap > .cb-menu,
+.cbv-row-dd > .cb-menu { min-width: 100%; max-height: 260px; overflow-y: auto; z-index: 30; }
+.cbv-row-dd > .cb-menu { left: auto; right: 0; }
+
+/* The address menu: name over its line, New Address under a rule */
+.cbv-addr-menu { min-width: 275px; padding: 6px 0 0; max-height: none; }
+.cbv-addr-opt { align-items: baseline; margin: 0 6px; padding: 5px 15px 5px 10px; }
+.cbv-addr-text { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.cbv-addr-name { font-size: 13px; line-height: normal; color: var(--text-base); }
+.cbv-addr-line { font-size: 11px; line-height: normal; color: var(--text-label); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cbv-addr-opt .cb-menu-tick { align-self: center; }
+.cbv-addr-opt.is-selected .cbv-addr-name { font-weight: 600; }
+.cbv-addr-new {
+  display: block;
+  width: calc(100% - 12px);
+  margin: 6px 6px 6px;
+  padding: 6px 15px 6px 25px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0 -6.5px 0 -6px #d6d6e3;    /* the 0.5px rule 6px above */
+  font: inherit;
+  font-size: 13px;
+  color: #5464f2;
+  text-align: left;
+  cursor: pointer;
+}
+.cbv-addr-new:hover { background: var(--menu-hover); }
+
+/* Visit rows */
+.cbv-visits { list-style: none; }
+.cbv-visit {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 0;
+  cursor: grab;
+  touch-action: none;
+}
+/* Hover: the table hover tint across the card, the drag handle in its
+   left padding */
+.cbv-visit::before {
+  content: '';
+  position: absolute;
+  inset: 0 -13px;
+  background: #f7f8fb;
+  opacity: 0;
+}
+.cbv-visit > * { position: relative; }
+.cbv-visit:hover::before { opacity: 1; }
+.cbv-drag {
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 3px;
+  position: absolute;
+  z-index: 3;
+  left: -13px;          /* a 16 × 24 grip round the 12px icon at -11 */
+  top: 50%;
+  width: 16px;
+  height: 24px;
+  margin-top: -12px;
+  opacity: 0;
+  cursor: grab;
+}
+.cbv-drag img { position: absolute; left: 5px; top: 7px; width: 5px; height: 10px; }
+.cbv-visit:hover .cbv-drag,
+.cbv-drag:focus-visible { opacity: 1; }
+.cbv-drag:focus-visible { outline: 2px solid #5464f2; }
+.cbv-visit:first-child { padding-top: 2px; }
+.cbv-num {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  background: #fff;
+  border: 1px solid #dcdbee;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 17px;
+  color: var(--text-base);
+}
+.cbv-visit-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; padding: 4px 11px; }
+.cbv-visit-title {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--text-base);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cbv-visit-title .dot { color: #9c9ca6; }
+.cbv-visit-title .module { color: var(--text-label); }
+.cbv-visit-meta { display: flex; align-items: center; gap: 4px; font-size: 14px; line-height: 20px; color: #434d5e; }
+.cbv-visit-type { white-space: nowrap; }
+.cbv-visit-sep { margin: 0 6px 0 8px; }
+
+/* A visit's minutes: a small box alone, 25 high like the row's dropdowns,
+   with the input states of the page's fields */
+.cbv-mins {
+  width: 72px;
+  height: 25px;
+  padding: 0 8px;
+  background: #fff;
+  border: 1px solid var(--input-outline);
+  border-radius: 5px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--text-base);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.cbv-mins:hover { border-color: #a6b0d6; box-shadow: 0 0 6px rgba(84, 100, 242, 0.12); }
+.cbv-mins:focus { border-color: #5464f2; box-shadow: 0 0 6px rgba(84, 100, 242, 0.25); }
+
+/* Start time: the shared time picker (src/time-picker.css) without its box */
+.cbv-tp.tp { width: 96px; }
+.cbv-tp .tp-box { height: 27px; padding: 0; border-color: transparent; border-radius: 5px; }
+.cbv-tp .tp-marker { width: 0; }
+.cbv-tp .tp-input { padding: 0 4px 0 8px; font-size: 13px; }
+.cbv-tp .tp-caret { margin-right: 8px; }
+.cbv-tp.tp:not(.disabled) .tp-box:hover,
+.cbv-tp.tp.focus .tp-box,
+.cbv-tp.tp.focus .tp-box:hover { border-color: transparent; box-shadow: none; background: #f5f6fb; }
+
+/* Pencil and close show on the row's hover */
+.cbv-visit-acts { display: flex; align-items: center; gap: 6px; flex-shrink: 0; opacity: 0; }
+.cbv-visit:hover .cbv-visit-acts,
+.cbv-visit:focus-within .cbv-visit-acts { opacity: 1; }
+.cbv-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 60px;
+  cursor: pointer;
+}
+.cbv-icon-btn img { width: 12px; height: 12px; }
+.cbv-icon-btn img[src$="remove.svg"] { width: 9.5px; height: 9.5px; }
+.cbv-icon-btn:hover { background: #f1f0f7; }
+
+/* Dragging: the row stays as an empty slot with its number; the name
+   and module float with the pointer (Figma 7415:81404) */
+/* The slot: the details box, emptied and tinted, across the row */
+.cbv-visit.is-dragging .cbv-visit-main {
+  background: #f3f5ff;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px #b9c3fa;
+}
+.cbv-visit.is-dragging .cbv-visit-main > * { visibility: hidden; }
+.cbv-visit.is-dragging .cbv-visit-acts { display: none; }
+.cbv-visit.is-dragging .cbv-drag { visibility: hidden; }
+.cbv-visit.is-dragging::before { opacity: 0; }
+body.cbv-dragging,
+body.cbv-dragging * { cursor: grabbing !important; user-select: none; }
+body.cbv-dragging .cbv-visit:hover::before { opacity: 0; }
+body.cbv-dragging .cbv-visit:hover .cbv-drag,
+body.cbv-dragging .cbv-visit:hover .cbv-visit-acts { opacity: 0; }
+
+.cbv-drag-chip {
+  position: fixed;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 8px 7px 3px;   /* 8 / 4, less the border */
+  background: #fff;
+  border: 1px solid #dcdbee;
+  border-radius: 7px;
+  filter: drop-shadow(0 4px 9px rgba(49, 57, 73, 0.6));
+  pointer-events: none;
+  white-space: nowrap;
+}
+.cbv-drag-chip img { width: 5px; height: 10px; margin: 0 3.5px 0 3px; }
+.cbv-drag-chip .cbv-visit-title { overflow: visible; }
+.cbv-drag-chip.is-blocked { opacity: 0.55; }
+
+/* A folded or empty day the visit would join */
+.cbv-day.is-drop-day { border-color: #5464f2; background: #f7f8ff; }
+
+.cbv-add-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 8px 0;
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+.cbv-add-icon {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  background: #fff;
+  border: 1px dashed #abb3ff;
+  border-radius: 15px;
+}
+.cbv-add-icon img { width: 12px; height: 12px; }
+.cbv-link-text { font-size: 14px; font-weight: 500; line-height: 16px; color: #5464f2; }
+.cbv-add-row:hover .cbv-link-text { text-decoration: underline; }
+
+/* Route not optimized: across the card's foot, inside its border. The
+   info tint, not the notes yellow: it is the user's own choice, and
+   yellow stays for what needs attention (unassigned visits) */
+.cbv-day-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px calc(-1 * var(--pad-x)) calc(-1 * var(--pad-b));
+  padding: 8px 15px 8px 11px;
+  background: #f3f5ff;
+  border-top: 1px solid #d9defc;
+  border-radius: 0 0 13px 13px;
+}
+.cbv-day-note > .ti { flex-shrink: 0; font-size: 16px; color: #5464f2; }
+.cbv-day-note p { flex: 1; min-width: 0; font-size: 13px; line-height: 18px; color: #434d5e; }
+
+/* A folded day whose order was changed says so in its header */
+.cbv-day-order { display: flex; flex-shrink: 0; font-size: 15px; color: #5464f2; }
+
+/* ── Records selected ─────────────────────────────── */
+.cbv-ghost-sm {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 27px;
+  padding: 6px 10px 6px 12px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: normal;
+  color: #5464f2;
+  cursor: pointer;
+}
+.cbv-ghost-sm img { width: 10px; height: 5px; margin-top: 1px; }
+.cbv-ghost-sm:hover,
+.cbv-apply-wrap.open .cbv-ghost-sm { background: #f0f1ff; }
+.cbv-apply-wrap > .cb-menu { left: auto; right: 0; min-width: 160px; }
+
+.cbv-picked-list { list-style: none; flex: 1; min-height: 0; overflow-y: auto; }
+.cbv-pick {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px 10px 10px;
+  border-bottom: 0.5px solid #dcdbee;
+}
+.cbv-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 60px;
+  cursor: pointer;
+}
+.cbv-check img { width: 15px; height: 15px; }
+/* Checkbox, Default: 15px, a 2px outline, 3px corners */
+.cbv-check-box { width: 15px; height: 15px; background: #fff; border: 2px solid var(--input-outline); border-radius: 3px; }
+.cbv-pick-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; margin-right: -7px; }
+.cbv-pick-name,
+.cbv-pick-module { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cbv-pick-name { font-size: 14px; font-weight: 500; line-height: 20px; color: var(--text-base); }
+.cbv-pick-module { font-size: 13px; line-height: normal; color: var(--text-label); }
+
+/* ── Unassigned visits ────────────────────────────── */
+.cbv-ua-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+.cbv-ua {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 0 16px;
+  padding: 16px 4px 20px;
+  border-bottom: 1px solid #dcdbee;
+}
+.cbv-ua-text { display: flex; flex-direction: column; gap: 4px; }
+.cbv-ua-top { display: flex; align-items: center; gap: 5px; }
+.cbv-ua-name { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; line-height: 20px; color: var(--text-heading); }
+.cbv-ua-date { flex-shrink: 0; font-size: 13px; font-weight: 500; line-height: 18px; color: var(--text-label); }
+.cbv-ua-sub { font-size: 13px; line-height: 18px; color: var(--text-label); }
+.cbv-ua-assign { display: flex; align-items: center; gap: 20px; }
+.cbv-ua-label { font-size: 14px; line-height: 22px; color: var(--text-label); }
+.cbv-ua-dd { flex: 1; min-width: 0; }
+.cbv-ua-dd > .cb-menu { left: 0; right: auto; }
+.cbv-ua-day { width: 100%; padding: 0 10px 0 13px; font: inherit; font-size: 14px; color: var(--text-base); text-align: left; white-space: pre; }
+.cbv-ua-dd.open .cbv-ua-day { border-color: var(--btn-primary); }
+.cbv-ua-dd.open .cbv-caret { transform: rotate(180deg); }
+
+.cbv-outline-btn {
+  flex-shrink: 0;
+  height: 32px;
+  padding: 7px 11px 7px 13px;
+  background: #f0f1ff;
+  border: 1px solid #5464f2;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: normal;
+  color: #5464f2;
+  cursor: pointer;
+}
+.cbv-outline-btn:hover { background: #e4e7ff; }
+
+.cbv-ua-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--placeholder);
+}
+
+/* ── Map: pins, hover card, lasso ─────────────────── */
+#map-canvas.cbv-over-pin { cursor: pointer; }
+#map-canvas.cbv-lasso-mode { cursor: crosshair; }
+.cb-ctrl-btn.is-active { background: #eef0fe; color: #5464f2; }
+
+.cbv-pin-tip {
+  position: absolute;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 15px;
+  background: #fff;
+  border: 1px solid #cacaca;
+  border-radius: 6px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  pointer-events: none;
+  white-space: nowrap;
+}
+.cbv-pin-tip[hidden] { display: none; }
+/* The arrow, 29px in from the left, pointing down at the pin */
+.cbv-pin-tip::after {
+  content: '';
+  position: absolute;
+  left: 32px;
+  bottom: -7px;
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border-right: 1px solid #d0d0d0;
+  border-bottom: 1px solid #d0d0d0;
+  border-radius: 0 0 1px 0;
+  transform: rotate(45deg);
+}
+.cbv-tip-title { font-size: 14px; font-weight: 600; line-height: normal; color: #313949; }
+.cbv-tip-line { font-size: 14px; line-height: 20px; color: #434d5e; }
+.cbv-tip-line .dot { margin: 0 6px; color: #9c9ca6; }
+
+/* ── Toast (Message Box, success) ─────────────────── */
+.cbv-toast {
+  position: fixed;
+  left: 50%;
+  top: 60px;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 40px);
+  padding: 9px 14px;
+  background: #f5faf5;
+  border: 1px solid #a9d3ab;
+  border-radius: 6px;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+  transform: translateX(-50%) translateY(-8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.cbv-toast.show { opacity: 1; transform: translateX(-50%); pointer-events: auto; }
+.cbv-toast-icon { width: 22px; height: 22px; flex-shrink: 0; }
+.cbv-toast-text { font-size: 14px; font-weight: 500; line-height: normal; color: #132c14; white-space: pre; }
+.cbv-toast-undo {
+  margin-left: 20px;
+  padding: 0;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: #5464f2;
+  cursor: pointer;
+}
+.cbv-toast-undo:hover { text-decoration: underline; }
+.cbv-toast-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 48px;
+  padding: 0;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.cbv-toast-close img { width: 8px; height: 8px; }
+.cbv-toast-close:hover { background: rgba(19, 44, 20, 0.08); }
+
+@media (prefers-reduced-motion: reduce) {
+  .cbv-toast { transition: none; }
+}
+
+/* ── Add Visit / Edit Visit dialog ────────────────── */
+/* 582 wide, dropped from the top edge with its foot rounded 15 ·
+   30px sides · labels 112 + 20 · controls 390 · rows 20 apart */
+.cbm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background: rgba(32, 33, 35, 0.45);
+  animation: cbm-fade 0.16s ease-out;
+}
+.cbm-overlay[hidden] { display: none; }
+@keyframes cbm-fade { from { opacity: 0; } }
+
+.cbm-modal {
+  width: 582px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 0 0 15px 15px;
+  box-shadow: 0 4px 18px rgba(49, 57, 73, 0.6);
+  animation: cbm-in 0.2s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+@keyframes cbm-in { from { opacity: 0; transform: translateY(-16px); } }
+@media (prefers-reduced-motion: reduce) { .cbm-overlay, .cbm-modal { animation: none; } }
+
+.cbm-head { flex-shrink: 0; padding: 25px 30px 15px; }
+.cbm-title { font-size: 20px; font-weight: 600; line-height: 25px; color: var(--text-heading); white-space: pre; }
+.cbm-title .dot { font-size: 18px; font-weight: 400; }
+
+.cbm-body { flex: 1; min-height: 0; overflow-y: auto; padding: 0 30px; display: flex; flex-direction: column; gap: 20px; }
+.cbm-field { display: flex; align-items: flex-start; gap: 20px; }
+.cbm-field[hidden] { display: none; }
+.cbm-field > label {
+  width: 112px;
+  flex-shrink: 0;
+  padding-top: 9px;
+  font-size: 14px;
+  line-height: normal;
+  color: var(--text-label);
+  text-align: right;
+}
+.cbm-control { width: 390px; display: flex; flex-direction: column; gap: 4px; }
+
+.cbm-input {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px 0 13px;
+  background: #fff;
+  border: 1px solid var(--input-outline);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text-base);
+  outline: none;
+}
+select.cbm-input {
+  appearance: none;
+  padding-right: 30px;
+  background: #fff url('cb-filter/caret.svg') no-repeat right 10px center / 10px 5px;
+  cursor: pointer;
+}
+select.cbm-input.is-placeholder { color: var(--placeholder); }
+.cbm-input:focus { border-color: var(--btn-primary); }
+.cbm-input.mandatory { box-shadow: inset 3px 0 0 #ff5d5a; }
+.cbm-input:disabled { background-color: #f5f6f8; border-color: #d2d9f1; cursor: not-allowed; }
+.cbm-input.invalid { border-color: #ff5d5a; }
+.cbm-input[hidden] { display: none; }
+
+/* Visit Time: minutes with the unit, 200 wide — Beat Detail's Visit Duration */
+.cbm-unit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 200px;
+  height: 34px;
+  padding: 0 11px 0 13px;
+  background: #fff;
+  border: 1px solid var(--input-outline);
+  border-radius: 6px;
+}
+.cbm-unit-input {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text-base);
+}
+.cbm-unit-label {
+  flex-shrink: 0;
+  padding-left: 10px;
+  border-left: 1px solid var(--input-outline);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: normal;
+  color: var(--text-label);
+}
+.cbm-unit:focus-within { border-color: var(--btn-primary); }
+.cbm-unit:has(.invalid) { border-color: #ff5d5a; }
+.cbm-unit:has(:disabled) { background: #f5f6f8; border-color: #d2d9f1; }
+.cbm-unit:has(:disabled) .cbm-unit-input { color: #8c91ab; cursor: not-allowed; }
+.cbm-unit:has(:disabled) .cbm-unit-label { border-left-color: #d2d9f1; color: #8c91ab; }
+.cbm-input::placeholder { color: var(--placeholder); }
+
+.cbm-textarea { height: 76px; padding: 7px 10px 7px 13px; line-height: 18px; resize: vertical; }
+
+.cbm-upload {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  background: #fff;
+  border: 1px solid var(--input-outline);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.cbm-upload-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 10px 0 13px;
+  border: none;
+  outline: none;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text-base);
+  cursor: default;
+}
+.cbm-upload-input::placeholder { color: var(--placeholder); }
+.cbm-upload-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  background: #f4f4f6;
+}
+.cbm-upload-icon img { width: 16px; height: 16px; }
+
+.cbm-msg { font-size: 11px; line-height: 13px; color: #ff5d5a; }
+.cbm-msg[hidden] { display: none; }
+
+.cbm-foot { flex-shrink: 0; display: flex; justify-content: flex-end; gap: 10px; padding: 30px; }
+
+/* Dates being changed: the days wait, greyed and out of reach */
+#cbv-visits.is-stale { opacity: 0.5; pointer-events: none; user-select: none; }
+
+/* ── Confirmation (rep change, shorter dates) ─────── */
+.cbm-modal.cbc-modal { width: 480px; }
+.cbc-body { gap: 8px; font-size: 14px; line-height: 20px; color: var(--text-base); }
+.cbc-list { margin: 0; padding-left: 18px; color: var(--text-label); }
+.cbc-list li + li { margin-top: 4px; }
+
+/* Preview: not built yet — greyed, with a Coming soon hint */
+.cbv-ghost.is-soon { color: #a4abc7; cursor: default; position: relative; }
+.cbv-ghost.is-soon:hover { background: none; }
+.cbv-ghost.is-soon::after {
+  content: attr(data-tip);
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  padding: 6px 10px;
+  background: #313949;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: #fff;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.cbv-ghost.is-soon:hover::after,
+.cbv-ghost.is-soon:focus-visible::after { opacity: 1; }
+
+/* A visit's minutes that won't do */
+.cbv-mins.invalid,
+.cbv-mins.invalid:hover,
+.cbv-mins.invalid:focus { border-color: #ff5d5a; box-shadow: none; }
+.cbv-mins-msg { font-size: 11px; line-height: 13px; color: #ff5d5a; }
+
+/* The day the picked records go to, beside the count */
+.cbv-pick-day { flex-shrink: 0; }
+.cbv-pick-day-dd { width: 128px; }
+.cbv-pick-day > .cb-menu { left: auto; right: 0; min-width: 160px; }
+/* The count and the day read as one line; Apply to all keeps the right edge */
+#cbv-picked .cbv-sheet-head { gap: 8px; }
+#cbv-picked .cbv-sheet-title { flex: 0 1 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#cbv-picked .cbv-apply-wrap { margin-left: auto; }
+
+/* Lasso on: how to use it, centred at the foot of the map */
+.cbv-lasso-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  z-index: 6;
+  transform: translateX(-50%);
+  padding: 7px 14px;
+  background: rgba(32, 33, 35, 0.86);
+  border-radius: 100px;
+  font-size: 12.5px;
+  line-height: 17px;
+  color: #fff;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.cbv-lasso-hint[hidden] { display: none; }
+
+/* Read out, not shown */
+.cbv-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

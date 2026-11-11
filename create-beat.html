@@ -6,53 +6,119 @@
   <title>Create Beat — Beat Planner</title>
   <link rel="stylesheet" href="src/fonts.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="src/record-picker.css" />
+  <link rel="stylesheet" href="src/time-picker.css" />
+  <link rel="stylesheet" href="src/day-chevron.css" />
   <link rel="stylesheet" href="src/style-create-beat.css" />
   <link rel="stylesheet" href="src/map-controls.css" />
+  <!-- Content keys: the page's copy, from content/strings.json -->
+  <script src="src/strings.js"></script>
 </head>
 <body>
   <div class="cb-app">
 
     <!-- Header -->
     <header class="cb-header">
-      <div class="cb-title">Create Beat</div>
+      <div class="cb-title" data-t="createBeat.header.title">Create Beat</div>
       <div class="cb-actions">
-        <button class="cb-btn cancel" id="cb-cancel">Cancel</button>
-        <button class="cb-btn save" id="cb-save" disabled>Save</button>
+        <button class="cb-btn cancel" id="cb-cancel" data-t="createBeat.header.cancel">Cancel</button>
+        <button class="cb-btn save" id="cb-save" disabled data-t="createBeat.header.save">Save</button>
       </div>
     </header>
 
     <!-- Body -->
     <div class="cb-body">
 
-      <!-- Left panel: Beats Information -->
-      <aside class="cb-panel">
-        <h2 class="cb-panel-title">Beats Information</h2>
+      <!-- Left panel: three views share it — Beats Information (the rep, the
+           dates and the days), the records picked off the map, and the
+           rep's unassigned visits. One shows at a time. -->
+      <aside class="cb-panel" id="cb-panel">
 
-        <div class="cb-field-row">
-          <label class="cb-field-label">Assign Rep</label>
-          <div class="cb-field-control">
-            <div class="cb-input" id="cb-assign-rep" role="button" tabindex="0">
-              <span class="cb-fill cb-placeholder">Select</span>
-              <i class="ti ti-chevron-down cb-chevron" aria-hidden="true"></i>
-            </div>
-          </div>
-        </div>
+        <section class="cbv-view" id="cbv-info">
+          <h2 class="cb-panel-title" data-t="createBeat.info.title">Beats Information</h2>
 
-        <div class="cb-field-row">
-          <label class="cb-field-label">Beat Duration</label>
-          <div class="cb-field-control">
-            <div class="cb-duration">
-              <div class="cb-input date" id="cb-start-date" role="button" tabindex="0">
-                <span class="cb-fill cb-placeholder">DD/MM/YYYY</span>
-                <i class="ti ti-calendar-event" aria-hidden="true"></i>
-              </div>
-              <div class="cb-input date" id="cb-end-date" role="button" tabindex="0">
-                <span class="cb-fill cb-placeholder">DD/MM/YYYY</span>
-                <i class="ti ti-chevron-down cb-chevron" aria-hidden="true"></i>
+          <div class="cb-field-row">
+            <label class="cb-field-label" id="cb-rep-label" data-t="createBeat.info.rep.label">Assign Rep</label>
+            <div class="cb-field-control">
+              <div class="cb-module-wrap cbv-rep-wrap" id="cb-rep-wrap">
+                <div class="cb-input" id="cb-assign-rep" role="button" tabindex="0"
+                     aria-haspopup="listbox" aria-expanded="false" aria-labelledby="cb-rep-label">
+                  <span class="cb-fill cb-placeholder" id="cb-rep-value" data-t="createBeat.info.rep.placeholder">Select</span>
+                  <img class="cbv-caret" src="src/cb-filter/caret.svg" alt="" aria-hidden="true" />
+                </div>
+                <!-- menu: CbMenu, the reps -->
               </div>
             </div>
           </div>
-        </div>
+
+          <div class="cb-field-row cbv-duration-row">
+            <label class="cb-field-label" data-t="createBeat.info.duration.label">Beat Duration</label>
+            <div class="cb-field-control">
+              <!-- The browser's own date picker: no past dates, and the end
+                   no more than 30 days from the start (min / max set by
+                   create-beat-visits.js) -->
+              <div class="cb-duration">
+                <label class="cb-input date">
+                  <input class="cbv-date" id="cb-start-date" type="date" required
+                         data-t="createBeat.info.startDate.ariaLabel" data-t-attr="aria-label" aria-label="Start date"
+                         aria-describedby="cb-date-msg" />
+                </label>
+                <label class="cb-input date">
+                  <input class="cbv-date" id="cb-end-date" type="date" required
+                         data-t="createBeat.info.endDate.ariaLabel" data-t-attr="aria-label" aria-label="End date"
+                         aria-describedby="cb-date-msg" />
+                </label>
+              </div>
+              <p class="cbv-msg" id="cb-date-msg" role="alert" hidden></p>
+            </div>
+          </div>
+
+          <!-- The rep's unassigned visits, once a rep and the dates are in -->
+          <div class="cbv-note" id="cbv-banner" hidden>
+            <img class="cbv-note-icon" src="src/pa-warn-line.svg" alt="" aria-hidden="true" />
+            <p class="cbv-note-text" id="cbv-banner-text"></p>
+            <button class="cbv-link" type="button" id="cbv-banner-link" data-t="createBeat.unassigned.banner.link">View &amp; Assign</button>
+          </div>
+
+          <!-- Hidden until a rep and both dates are chosen -->
+          <div id="cbv-visits" hidden>
+            <h2 class="cb-panel-title cbv-visits-title" data-t="createBeat.visits.title">Visits Information</h2>
+            <div class="cbv-days" id="cbv-days"></div>
+          </div>
+        </section>
+
+        <!-- Records picked off the map, by a pin or the lasso -->
+        <section class="cbv-view cbv-sheet" id="cbv-picked" hidden>
+          <header class="cbv-sheet-head">
+            <h2 class="cbv-sheet-title" id="cbv-picked-count"></h2>
+            <!-- The day the visits go to: the selected day, changeable here -->
+            <div class="cb-module-wrap cbv-row-dd cbv-pick-day" id="cbv-pick-day"></div>
+            <div class="cb-module-wrap cbv-apply-wrap" id="cbv-apply-wrap">
+              <button class="cbv-ghost-sm" type="button" id="cbv-apply" aria-haspopup="listbox" aria-expanded="false">
+                <span data-t="createBeat.picked.applyAll">Apply to all</span>
+                <img src="src/caret-blue.svg" alt="" aria-hidden="true" />
+              </button>
+              <!-- menu: CbMenu, the visit types -->
+            </div>
+          </header>
+          <ul class="cbv-picked-list" id="cbv-picked-list"></ul>
+          <footer class="cbv-sheet-foot">
+            <button class="cb-btn cbf-btn-default" type="button" id="cbv-picked-cancel" data-t="createBeat.picked.cancel">Cancel</button>
+            <button class="cb-btn cbf-btn-primary" type="button" id="cbv-picked-add" data-t="createBeat.picked.add">Add Visits</button>
+          </footer>
+        </section>
+
+        <!-- The rep's visits not yet on a beat -->
+        <section class="cbv-view cbv-sheet" id="cbv-unassigned" hidden>
+          <header class="cbv-sheet-head">
+            <button class="cbv-back" type="button" id="cbv-unassigned-back"
+                    data-t="createBeat.unassigned.back.ariaLabel" data-t-attr="aria-label" aria-label="Back to Beats Information">
+              <img src="src/create-beat/back-arrow.svg" alt="" aria-hidden="true" />
+            </button>
+            <h2 class="cbv-sheet-title" data-t="createBeat.unassigned.title">Unassigned visits</h2>
+          </header>
+          <div class="cbv-ua-list" id="cbv-ua-list"></div>
+        </section>
       </aside>
 
       <!-- Map -->
@@ -144,6 +210,12 @@
         <div class="map-area" id="map-area">
           <canvas id="map-canvas" aria-label="Beat map"></canvas>
 
+          <!-- While the lasso is on, how to use it and how to stop -->
+          <p class="cbv-lasso-hint" id="cbv-lasso-hint" hidden data-t="createBeat.lasso.hint">Draw around pins to select them · Esc to stop</p>
+
+          <!-- Hovering a pin that is on a day names the visit -->
+          <div class="cbv-pin-tip" id="cbv-pin-tip" role="tooltip" hidden></div>
+
           <!-- Layers thumbnail -->
           <button class="cb-layers" id="cb-layers" aria-label="Toggle layers">
             <span class="cb-layers-label"><i class="ti ti-stack-2" aria-hidden="true"></i>Layers</span>
@@ -151,7 +223,8 @@
 
           <!-- Floating controls -->
           <div class="cb-map-controls">
-            <button class="cb-ctrl-btn" id="cb-lasso" aria-label="Lasso select">
+            <button class="cb-ctrl-btn" id="cb-lasso" aria-pressed="false"
+                    data-t="createBeat.lasso.ariaLabel" data-t-attr="aria-label title" aria-label="Lasso select" title="Lasso select">
               <i class="ti ti-lasso" aria-hidden="true"></i>
             </button>
             <button class="cb-ctrl-btn" id="cb-locate" aria-label="Locate">
@@ -167,11 +240,99 @@
     </div>
   </div>
 
+  <!-- Add Visit and Edit Visit (Figma 3192:93322, 3128:77178). One dialog:
+       Add asks for the record; Edit shows the visit's own fields. Drops in
+       from the top edge, like the Add Visit dialog on Beat Detail. -->
+  <div class="cbm-overlay" id="cbm-overlay" hidden>
+    <div class="cbm-modal" role="dialog" aria-modal="true" aria-labelledby="cbm-title">
+      <header class="cbm-head">
+        <h2 class="cbm-title" id="cbm-title"></h2>
+      </header>
+      <div class="cbm-body">
+        <div class="cbm-field" id="cbm-record-row">
+          <label for="cbm-record" data-t="createBeat.modal.record.label">Module &amp; Record</label>
+          <div class="cbm-control">
+            <div id="cbm-record-host"></div>
+            <span class="cbm-msg" hidden></span>
+          </div>
+        </div>
+        <div class="cbm-field">
+          <label for="cbm-type" data-t="createBeat.modal.type.label">Visit Type</label>
+          <div class="cbm-control">
+            <select class="cbm-input" id="cbm-type"></select>
+            <span class="cbm-msg" hidden></span>
+          </div>
+        </div>
+        <div class="cbm-field">
+          <label for="cbm-time" data-t="createBeat.modal.time.label">Visit Time</label>
+          <div class="cbm-control">
+            <!-- How long the visit runs, typed in minutes -->
+            <div class="cbm-unit">
+              <input class="cbm-unit-input" id="cbm-time" type="text" inputmode="numeric" maxlength="3" autocomplete="off" />
+              <span class="cbm-unit-label" aria-hidden="true" data-t="createBeat.modal.time.unit">min</span>
+            </div>
+            <span class="cbm-msg" hidden></span>
+          </div>
+        </div>
+        <div class="cbm-field cbm-field-top">
+          <label for="cbm-desc" data-t="createBeat.modal.desc.label">Description</label>
+          <div class="cbm-control">
+            <textarea class="cbm-input cbm-textarea" id="cbm-desc" rows="3"></textarea>
+          </div>
+        </div>
+        <!-- Dummy for now: neither field does anything yet -->
+        <div class="cbm-field">
+          <label for="cbm-pic" data-t="createBeat.modal.pic.label">Visit Location Pic</label>
+          <div class="cbm-control">
+            <div class="cbm-upload">
+              <input class="cbm-upload-input" id="cbm-pic" type="text" readonly tabindex="-1"
+                     data-t="createBeat.modal.pic.placeholder" data-t-attr="placeholder" placeholder="Upload your file" />
+              <span class="cbm-upload-icon" aria-hidden="true"><img src="src/create-beat/upload.svg" alt="" /></span>
+            </div>
+          </div>
+        </div>
+        <div class="cbm-field">
+          <label for="cbm-status" data-t="createBeat.modal.status.label">Location Status</label>
+          <div class="cbm-control">
+            <select class="cbm-input is-placeholder" id="cbm-status">
+              <option value="" selected disabled data-t="createBeat.modal.status.placeholder">Select Status</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <footer class="cbm-foot">
+        <button class="cb-btn cbf-btn-default" type="button" id="cbm-cancel" data-t="createBeat.modal.cancel">Cancel</button>
+        <button class="cb-btn cbf-btn-primary" type="button" id="cbm-submit"></button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Confirmation: changing the rep, or dates that leave visits behind.
+       The same dialog shell as Add Visit; its text and buttons are filled
+       in by create-beat-visits.js -->
+  <div class="cbm-overlay" id="cbc-overlay" hidden>
+    <div class="cbm-modal cbc-modal" role="alertdialog" aria-modal="true" aria-labelledby="cbc-title" aria-describedby="cbc-body">
+      <header class="cbm-head">
+        <h2 class="cbm-title" id="cbc-title"></h2>
+      </header>
+      <div class="cbm-body cbc-body" id="cbc-body"></div>
+      <footer class="cbm-foot" id="cbc-foot"></footer>
+    </div>
+  </div>
+
+  <!-- Announces keyboard reordering to screen readers -->
+  <p class="cbv-sr" id="cbv-live" aria-live="polite"></p>
+
+  <!-- Success message, with Undo where an action can be taken back -->
+  <div class="cbv-toast" id="cbv-toast" role="status" aria-live="polite"></div>
+
   <script src="src/data.js"></script>
   <script src="src/map.js"></script>
   <script src="src/create-beat-records.js"></script>
   <script src="src/cb-menu.js"></script>
   <script src="src/cb-toolbar.js"></script>
+  <script src="src/record-picker.js"></script>
+  <script src="src/time-picker.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const fieldMap = new FieldMap('map-canvas', 'map-area');
@@ -189,28 +350,17 @@
         fieldMap.zoom(0.8, fieldMap.canvas.width / 2, fieldMap.canvas.height / 2);
       });
 
-      /* Enable Save only once both a rep and a duration are chosen (placeholder logic) */
-      const saveBtn = document.getElementById('cb-save');
-      window.cbRefreshSave = () => {
-        const repChosen   = !document.querySelector('#cb-assign-rep .cb-placeholder');
-        const startChosen = !document.querySelector('#cb-start-date .cb-placeholder');
-        const enabled = repChosen && startChosen;
-        saveBtn.classList.toggle('enabled', enabled);
-        saveBtn.disabled = !enabled;
-      };
-
       /* Module menu, pagination and Records per Page — see cb-toolbar.js */
       CbToolbar.init(fieldMap, {
         modules: [['leads', 'Leads'], ['contacts', 'Contacts'], ['deals', 'Deals'], ['vendors', 'Vendors']],
         selected: 'contacts',
       });
 
-      /* Cancel returns to the field view */
-      document.getElementById('cb-cancel').addEventListener('click', () => {
-        window.location.href = 'non-map.html';
-      });
+      /* The rep, the dates, the days and their visits — see create-beat-visits.js */
+      CbVisits.init(fieldMap);
     });
   </script>
   <script src="src/create-beat-filter.js"></script>
+  <script src="src/create-beat-visits.js"></script>
 </body>
 </html>

@@ -414,6 +414,16 @@
     "where": "Beat Detail · day row · End button while the day runs (Type 3 layout)",
     "notes": ""
   },
+  "beatDetail.day.expandAriaLabel": {
+    "text": "Show {day} visits",
+    "where": "Beat Detail · day row · chevron, while the day is folded (screen reader name)",
+    "notes": "Keep {day} (filled in by the page), e.g. \"Day 1\"."
+  },
+  "beatDetail.day.collapseAriaLabel": {
+    "text": "Hide {day} visits",
+    "where": "Beat Detail · day row · chevron, while the day is open (screen reader name)",
+    "notes": "Keep {day} (filled in by the page), e.g. \"Day 1\"."
+  },
   "beatDetail.day.action.ariaLabel": {
     "text": "{action} {day}",
     "where": "Beat Detail · day row · Start / End button (screen reader name)",
@@ -1520,33 +1530,13 @@
     "notes": ""
   },
   "beatDetail.sim.viewer.owner": {
-    "text": "Beat owner — Cameron Williamson",
+    "text": "Rep",
     "where": "Simulate today panel · View as option (prototype only)",
     "notes": ""
   },
   "beatDetail.sim.viewer.manager": {
     "text": "Manager",
     "where": "Simulate today panel · View as option (prototype only)",
-    "notes": ""
-  },
-  "beatDetail.sim.addressIcon": {
-    "text": "Address icon",
-    "where": "Simulate today panel · field label (prototype only)",
-    "notes": ""
-  },
-  "beatDetail.sim.iconSet1": {
-    "text": "Set 1 — Building",
-    "where": "Simulate today panel · Address icon option (prototype only)",
-    "notes": ""
-  },
-  "beatDetail.sim.iconSet2": {
-    "text": "Set 2 — Building with pin",
-    "where": "Simulate today panel · Address icon option (prototype only)",
-    "notes": ""
-  },
-  "beatDetail.sim.iconSet3": {
-    "text": "Set 3 — Lines",
-    "where": "Simulate today panel · Address icon option (prototype only)",
     "notes": ""
   },
   "beatDetail.sim.showKeys": {
@@ -2259,11 +2249,6 @@
     "where": "Toast · after Force Checkout",
     "notes": "Keep {name}. Placeholder copy — PM to confirm"
   },
-  "beatDetail.sim.iconSet4": {
-    "text": "Set 4 — Building with pin (latest)",
-    "where": "Simulate today panel · Address icon option (prototype only)",
-    "notes": ""
-  },
   "forceCheckout.ask": {
     "text": "Are you sure you want to force checkout “{name}”?",
     "where": "Force Checkout dialog · message, first line",
@@ -2278,5 +2263,585 @@
     "text": "Fields",
     "where": "Beat Details · the field list (screen reader)",
     "notes": ""
+  },
+  "bottomUp.status.approved": {
+    "text": "Approved",
+    "where": "Beat Detail · bottom-up · status badge once the manager approves the beat, until the rep starts it",
+    "notes": ""
+  },
+  "bottomUp.action.resubmit": {
+    "text": "Resubmit",
+    "where": "Beat Detail · bottom-up · record header button, rep, approved beat with rejected visits, before it starts",
+    "notes": ""
+  },
+  "bottomUp.action.sendForApproval": {
+    "text": "Send for Approval",
+    "where": "Beat Detail · bottom-up · record header button while the rep edits a resubmission",
+    "notes": ""
+  },
+  "bottomUp.editing.note": {
+    "text": "Edit or add visits, then send them for approval.",
+    "where": "Beat Detail · bottom-up · right of the tabs while the rep edits a resubmission",
+    "notes": ""
+  },
+  "bottomUp.toast.editedForResubmit": {
+    "text": "{name} updated. It goes for approval when you send.",
+    "where": "Toast · after the rep edits a visit during a resubmission",
+    "notes": "Keep {name} (filled in by the page). {name} = the visit or record name."
+  },
+  "bottomUp.toast.editingStarted": {
+    "text": "Edit or add visits, then click Send for Approval.",
+    "where": "Toast · after the rep clicks Resubmit",
+    "notes": ""
+  },
+  "bottomUp.toast.editingCancelled": {
+    "text": "Changes discarded.",
+    "where": "Toast · after the rep cancels a resubmission",
+    "notes": ""
+  },
+  "bottomUp.toast.nothingToSend": {
+    "text": "Edit or add a visit before sending for approval.",
+    "where": "Toast · Send for Approval with no edited or added visits",
+    "notes": ""
+  },
+  "bottomUp.rejectBeat.noneApproved": {
+    "text": "No visits were approved, so this Beat will be marked as rejected.",
+    "where": "Reject Beat dialog · line under the title, when Complete Approval has no approved visits",
+    "notes": ""
+  },
+  "bottomUp.note.resubmitted.one": {
+    "text": "{rep} resubmitted {count} visit for approval.",
+    "where": "Bell notification · manager, after the rep resubmits one visit",
+    "notes": "Keep {rep}, {count} (filled in by the page). {rep} = the sales rep's name; {count} = a number of visits."
+  },
+  "bottomUp.note.resubmitted.other": {
+    "text": "{rep} resubmitted {count} visits for approval.",
+    "where": "Bell notification · manager, after the rep resubmits several visits",
+    "notes": "Keep {rep}, {count} (filled in by the page). {rep} = the sales rep's name; {count} = a number of visits."
+  },
+  "bottomUp.toast.resubmitted.one": {
+    "text": "{count} visit sent to {manager} for approval.",
+    "where": "Toast · rep, after Send for Approval with one visit",
+    "notes": "Keep {count}, {manager} (filled in by the page). {count} = a number of visits; {manager} = the manager's name."
+  },
+  "bottomUp.toast.resubmitted.other": {
+    "text": "{count} visits sent to {manager} for approval.",
+    "where": "Toast · rep, after Send for Approval with several visits",
+    "notes": "Keep {count}, {manager} (filled in by the page). {count} = a number of visits; {manager} = the manager's name."
+  },
+  "createBeat.header.title": {
+    "text": "Create Beat",
+    "where": "Create Beat · header · page title",
+    "notes": ""
+  },
+  "createBeat.header.cancel": {
+    "text": "Cancel",
+    "where": "Create Beat · header · button",
+    "notes": ""
+  },
+  "createBeat.header.save": {
+    "text": "Save",
+    "where": "Create Beat · header · button",
+    "notes": "Turns on once a rep and dates are chosen and at least one day has a visit. Saving shows a message and stays on the page."
+  },
+  "createBeat.info.title": {
+    "text": "Beats Information",
+    "where": "Create Beat · left panel · section heading",
+    "notes": ""
+  },
+  "createBeat.info.rep.label": {
+    "text": "Assign Rep",
+    "where": "Create Beat · Beats Information · field label",
+    "notes": ""
+  },
+  "createBeat.info.rep.placeholder": {
+    "text": "Select",
+    "where": "Create Beat · Beats Information · Assign Rep, before a rep is chosen",
+    "notes": ""
+  },
+  "createBeat.info.duration.label": {
+    "text": "Beat Duration",
+    "where": "Create Beat · Beats Information · field label",
+    "notes": ""
+  },
+  "createBeat.info.error.pastStart": {
+    "text": "The start date can't be in the past",
+    "where": "Create Beat · Beats Information · under the dates",
+    "notes": ""
+  },
+  "createBeat.info.error.endBeforeStart": {
+    "text": "The end date can't be before the start date",
+    "where": "Create Beat · Beats Information · under the dates",
+    "notes": ""
+  },
+  "createBeat.info.error.tooLong": {
+    "text": "A beat can run for up to {max} days",
+    "where": "Create Beat · Beats Information · under the dates",
+    "notes": "Keep {max} (filled in by the page: 30)."
+  },
+  "createBeat.unassigned.banner.one": {
+    "text": "1 unassigned visit for this rep",
+    "where": "Create Beat · Beats Information · yellow note above Visits Information",
+    "notes": ""
+  },
+  "createBeat.unassigned.banner.other": {
+    "text": "{count} unassigned visits for this rep",
+    "where": "Create Beat · Beats Information · yellow note above Visits Information",
+    "notes": "Keep {count}."
+  },
+  "createBeat.unassigned.banner.link": {
+    "text": "View & Assign",
+    "where": "Create Beat · Beats Information · link in the yellow note",
+    "notes": ""
+  },
+  "createBeat.visits.title": {
+    "text": "Visits Information",
+    "where": "Create Beat · left panel · section heading",
+    "notes": ""
+  },
+  "createBeat.day.title": {
+    "text": "Day {n}",
+    "where": "Create Beat · day card · title, before the date",
+    "notes": "Keep {n}, the day number."
+  },
+  "createBeat.day.count.one": {
+    "text": "1 visit",
+    "where": "Create Beat · day card · header, right",
+    "notes": ""
+  },
+  "createBeat.day.count.other": {
+    "text": "{count} visits",
+    "where": "Create Beat · day card · header, right",
+    "notes": "Keep {count}."
+  },
+  "createBeat.day.expandAriaLabel": {
+    "text": "Show {day} visits",
+    "where": "Create Beat · day card · chevron, while folded (screen reader name)",
+    "notes": "Keep {day}, e.g. \"Day 1\"."
+  },
+  "createBeat.day.collapseAriaLabel": {
+    "text": "Hide {day} visits",
+    "where": "Create Beat · day card · chevron, while open (screen reader name)",
+    "notes": "Keep {day}, e.g. \"Day 1\"."
+  },
+  "createBeat.day.empty": {
+    "text": "Pick records on the map or",
+    "where": "Create Beat · day card · any day with no visits yet, before the Add Visit link",
+    "notes": ""
+  },
+  "createBeat.day.addVisit": {
+    "text": "Add Visit",
+    "where": "Create Beat · day card · link and button",
+    "notes": ""
+  },
+  "createBeat.day.at": {
+    "text": "at",
+    "where": "Create Beat · day card · between the start location and the start time",
+    "notes": ""
+  },
+  "createBeat.day.start.ariaLabel": {
+    "text": "Start location: {value}",
+    "where": "Create Beat · day card · start location dropdown (screen reader name)",
+    "notes": "Keep {value}."
+  },
+  "createBeat.day.startTime.ariaLabel": {
+    "text": "Start time: {value}",
+    "where": "Create Beat · day card · start time dropdown (screen reader name)",
+    "notes": "Keep {value}."
+  },
+  "createBeat.day.end.ariaLabel": {
+    "text": "End location: {value}",
+    "where": "Create Beat · day card · end location dropdown (screen reader name)",
+    "notes": "Keep {value}."
+  },
+  "createBeat.day.preview": {
+    "text": "Preview",
+    "where": "Create Beat · day card · footer button",
+    "notes": ""
+  },
+  "createBeat.day.reordered": {
+    "text": "Route won't be optimized due to your order preference.",
+    "where": "Create Beat · day card · yellow note after visits are dragged into a new order",
+    "notes": ""
+  },
+  "createBeat.day.optimize": {
+    "text": "Optimize Route",
+    "where": "Create Beat · day card · link in the yellow note",
+    "notes": "Puts the visits back in their optimized order."
+  },
+  "createBeat.address.new": {
+    "text": "New Address",
+    "where": "Create Beat · day card · start/end location menu, last row",
+    "notes": ""
+  },
+  "createBeat.visit.name": {
+    "text": "{name} Visit",
+    "where": "Create Beat · day card and Records selected · a visit made from a record",
+    "notes": "Keep {name}, the record name."
+  },
+  "createBeat.visit.duration.mins": {
+    "text": "{count} mins",
+    "where": "Create Beat · map pin hover card · visit duration",
+    "notes": "Keep {count}."
+  },
+  "createBeat.visit.duration.ariaLabel": {
+    "text": "Visit time for {name}: {value}",
+    "where": "Create Beat · day card · visit minutes box (screen reader name)",
+    "notes": "Keep {name} and {value}."
+  },
+  "createBeat.visit.edit.ariaLabel": {
+    "text": "Edit {name}",
+    "where": "Create Beat · day card · pencil on a visit row (screen reader name)",
+    "notes": "Keep {name}."
+  },
+  "createBeat.visit.remove.ariaLabel": {
+    "text": "Remove {name}",
+    "where": "Create Beat · day card · close on a visit row (screen reader name)",
+    "notes": "Keep {name}."
+  },
+  "createBeat.picked.applyAll": {
+    "text": "Apply to all",
+    "where": "Create Beat · Records selected · menu button sets one visit type on every row",
+    "notes": ""
+  },
+  "createBeat.picked.check.ariaLabel": {
+    "text": "Include {name}",
+    "where": "Create Beat · Records selected · row checkbox (screen reader name)",
+    "notes": "Keep {name}."
+  },
+  "createBeat.picked.type.ariaLabel": {
+    "text": "Visit type for {name}: {type}",
+    "where": "Create Beat · Records selected · row dropdown (screen reader name)",
+    "notes": "Keep {name} and {type}."
+  },
+  "createBeat.picked.cancel": {
+    "text": "Cancel",
+    "where": "Create Beat · Records selected · footer button",
+    "notes": ""
+  },
+  "createBeat.picked.add": {
+    "text": "Add Visits",
+    "where": "Create Beat · Records selected · footer button",
+    "notes": ""
+  },
+  "createBeat.unassigned.title": {
+    "text": "Unassigned visits",
+    "where": "Create Beat · Unassigned visits · heading",
+    "notes": ""
+  },
+  "createBeat.unassigned.back.ariaLabel": {
+    "text": "Back to Beats Information",
+    "where": "Create Beat · Unassigned visits · back arrow (screen reader name)",
+    "notes": ""
+  },
+  "createBeat.unassigned.repeat": {
+    "text": "{type} • {frequency}",
+    "where": "Create Beat · Unassigned visits · card, under the name",
+    "notes": "Keep {type} and {frequency}."
+  },
+  "createBeat.unassigned.assign.label": {
+    "text": "Assign",
+    "where": "Create Beat · Unassigned visits · card, before the day dropdown",
+    "notes": ""
+  },
+  "createBeat.unassigned.day.ariaLabel": {
+    "text": "Day for {name}: {day}",
+    "where": "Create Beat · Unassigned visits · card day dropdown (screen reader name)",
+    "notes": "Keep {name} and {day}."
+  },
+  "createBeat.unassigned.assign.button": {
+    "text": "Assign",
+    "where": "Create Beat · Unassigned visits · card button",
+    "notes": ""
+  },
+  "createBeat.unassigned.empty": {
+    "text": "No Unassigned visit records",
+    "where": "Create Beat · Unassigned visits · when every visit is assigned",
+    "notes": ""
+  },
+  "createBeat.toast.assigned": {
+    "text": "{name} assigned to {day} • {date}",
+    "where": "Create Beat · message after Assign",
+    "notes": "Keep {name}, {day} and {date}."
+  },
+  "createBeat.toast.undo": {
+    "text": "Undo",
+    "where": "Create Beat · message after Assign · link",
+    "notes": ""
+  },
+  "createBeat.toast.dismiss.ariaLabel": {
+    "text": "Dismiss",
+    "where": "Create Beat · message · close button (screen reader name)",
+    "notes": ""
+  },
+  "createBeat.tooltip.title": {
+    "text": "{day} “{name}”",
+    "where": "Create Beat · map · pin hover card, first line",
+    "notes": "Keep {day} and {name}."
+  },
+  "createBeat.lasso.ariaLabel": {
+    "text": "Lasso select",
+    "where": "Create Beat · map · lasso button (screen reader name and hint)",
+    "notes": ""
+  },
+  "createBeat.modal.add.title": {
+    "text": "Add Visit for “{day} • {date}”",
+    "where": "Create Beat · Add Visit dialog · title",
+    "notes": "Keep {day} and {date}."
+  },
+  "createBeat.modal.edit.title": {
+    "text": "Edit “{name}”",
+    "where": "Create Beat · Edit Visit dialog · title",
+    "notes": "Keep {name}."
+  },
+  "createBeat.modal.record.label": {
+    "text": "Module & Record",
+    "where": "Create Beat · Add Visit dialog · field label",
+    "notes": ""
+  },
+  "createBeat.modal.record.placeholder": {
+    "text": "Select Record",
+    "where": "Create Beat · Add Visit dialog · Module & Record, before a record is picked",
+    "notes": ""
+  },
+  "createBeat.modal.type.label": {
+    "text": "Visit Type",
+    "where": "Create Beat · Visit dialogs · field label",
+    "notes": ""
+  },
+  "createBeat.modal.type.placeholder": {
+    "text": "Select Visit Type",
+    "where": "Create Beat · Visit dialogs · Visit Type, before one is picked",
+    "notes": ""
+  },
+  "createBeat.modal.time.label": {
+    "text": "Visit Time",
+    "where": "Create Beat · Visit dialogs · field label",
+    "notes": ""
+  },
+  "createBeat.modal.desc.label": {
+    "text": "Description",
+    "where": "Create Beat · Visit dialogs · field label",
+    "notes": ""
+  },
+  "createBeat.modal.pic.label": {
+    "text": "Visit Location Pic",
+    "where": "Create Beat · Visit dialogs · field label",
+    "notes": ""
+  },
+  "createBeat.modal.pic.placeholder": {
+    "text": "Upload your file",
+    "where": "Create Beat · Visit dialogs · Visit Location Pic box",
+    "notes": ""
+  },
+  "createBeat.modal.status.label": {
+    "text": "Location Status",
+    "where": "Create Beat · Visit dialogs · field label",
+    "notes": ""
+  },
+  "createBeat.modal.status.placeholder": {
+    "text": "Select Status",
+    "where": "Create Beat · Visit dialogs · Location Status, before one is picked",
+    "notes": ""
+  },
+  "createBeat.modal.error.record": {
+    "text": "Select a record",
+    "where": "Create Beat · Add Visit dialog · under Module & Record",
+    "notes": ""
+  },
+  "createBeat.modal.error.type": {
+    "text": "Select a visit type",
+    "where": "Create Beat · Visit dialogs · under Visit Type",
+    "notes": ""
+  },
+  "createBeat.modal.error.time": {
+    "text": "Enter the visit time in minutes",
+    "where": "Create Beat · Visit dialogs · under Visit Time, left empty",
+    "notes": ""
+  },
+  "createBeat.modal.cancel": {
+    "text": "Cancel",
+    "where": "Create Beat · Visit dialogs · footer button",
+    "notes": ""
+  },
+  "createBeat.modal.add.submit": {
+    "text": "Add",
+    "where": "Create Beat · Add Visit dialog · footer button",
+    "notes": ""
+  },
+  "createBeat.modal.edit.submit": {
+    "text": "Done",
+    "where": "Create Beat · Edit Visit dialog · footer button",
+    "notes": ""
+  },
+  "createBeat.info.startDate.ariaLabel": {
+    "text": "Start date",
+    "where": "Create Beat · Beats Information · start date picker (screen reader name)",
+    "notes": ""
+  },
+  "createBeat.info.endDate.ariaLabel": {
+    "text": "End date",
+    "where": "Create Beat · Beats Information · end date picker (screen reader name)",
+    "notes": ""
+  },
+  "createBeat.modal.time.unit": {
+    "text": "min",
+    "where": "Create Beat · Visit dialogs and day card · after the visit minutes",
+    "notes": ""
+  },
+  "createBeat.modal.error.timeMin": {
+    "text": "Visit time must be at least 1 min",
+    "where": "Create Beat · Visit dialogs · under Visit Time",
+    "notes": ""
+  },
+  "createBeat.modal.error.timeMax": {
+    "text": "Visit time can't be more than {max} mins",
+    "where": "Create Beat · Visit dialogs · under Visit Time",
+    "notes": "Keep {max} (filled in by the page: 480)."
+  },
+  "createBeat.toast.saved": {
+    "text": "Beat saved",
+    "where": "Create Beat · message after Save",
+    "notes": ""
+  },
+  "createBeat.day.customOrder": {
+    "text": "Custom order — route won't be optimized",
+    "where": "Create Beat · folded day header · order icon (hint and screen reader name)",
+    "notes": ""
+  },
+  "createBeat.confirm.cancel": {
+    "text": "Cancel",
+    "where": "Create Beat · confirmation dialogs · way-out button",
+    "notes": ""
+  },
+  "createBeat.confirm.rep.title": {
+    "text": "Change the rep?",
+    "where": "Create Beat · rep change confirmation · title",
+    "notes": ""
+  },
+  "createBeat.confirm.rep.body": {
+    "text": "The visits selected for {rep} will be erased, along with each day’s start and end settings.",
+    "where": "Create Beat · rep change confirmation · text",
+    "notes": "Keep {rep}, the rep being replaced."
+  },
+  "createBeat.confirm.rep.submit": {
+    "text": "Change rep",
+    "where": "Create Beat · rep change confirmation · button",
+    "notes": ""
+  },
+  "createBeat.confirm.shorten.title": {
+    "text": "Shorten the beat?",
+    "where": "Create Beat · shorter dates confirmation · title",
+    "notes": ""
+  },
+  "createBeat.confirm.shorten.body.one": {
+    "text": "1 visit is on a day outside the new dates:",
+    "where": "Create Beat · shorter dates confirmation · text, before the list of days",
+    "notes": ""
+  },
+  "createBeat.confirm.shorten.body.other": {
+    "text": "{count} visits are on days outside the new dates:",
+    "where": "Create Beat · shorter dates confirmation · text, before the list of days",
+    "notes": "Keep {count}."
+  },
+  "createBeat.confirm.shorten.dayLine.one": {
+    "text": "{day} • {date} — 1 visit",
+    "where": "Create Beat · shorter dates confirmation · one line per day dropped",
+    "notes": "Keep {day} and {date}."
+  },
+  "createBeat.confirm.shorten.dayLine.other": {
+    "text": "{day} • {date} — {count} visits",
+    "where": "Create Beat · shorter dates confirmation · one line per day dropped",
+    "notes": "Keep {day}, {date} and {count}."
+  },
+  "createBeat.confirm.shorten.remove": {
+    "text": "Remove visits",
+    "where": "Create Beat · shorter dates confirmation · button",
+    "notes": ""
+  },
+  "createBeat.confirm.shorten.move": {
+    "text": "Move to unassigned",
+    "where": "Create Beat · shorter dates confirmation · button (default)",
+    "notes": ""
+  },
+  "createBeat.toast.moved.one": {
+    "text": "1 visit moved to unassigned visits",
+    "where": "Create Beat · message after shortening the dates, with Undo",
+    "notes": ""
+  },
+  "createBeat.toast.moved.other": {
+    "text": "{count} visits moved to unassigned visits",
+    "where": "Create Beat · message after shortening the dates, with Undo",
+    "notes": "Keep {count}."
+  },
+  "createBeat.toast.removed.one": {
+    "text": "1 visit removed",
+    "where": "Create Beat · message after shortening the dates, with Undo",
+    "notes": ""
+  },
+  "createBeat.toast.removed.other": {
+    "text": "{count} visits removed",
+    "where": "Create Beat · message after shortening the dates, with Undo",
+    "notes": "Keep {count}."
+  },
+  "createBeat.day.previewSoon": {
+    "text": "Coming soon",
+    "where": "Create Beat · day card · hint on the Preview button",
+    "notes": ""
+  },
+  "createBeat.visit.move.ariaLabel": {
+    "text": "Reorder {name}. Use the up and down arrow keys to move it.",
+    "where": "Create Beat · day card · drag handle on a visit row (screen reader name)",
+    "notes": "Keep {name}."
+  },
+  "createBeat.visit.moved": {
+    "text": "{name} moved to position {n} of {total}",
+    "where": "Create Beat · day card · read out after a keyboard reorder (screen reader)",
+    "notes": "Keep {name}, {n} and {total}."
+  },
+  "createBeat.toast.visitRemoved": {
+    "text": "{name} removed",
+    "where": "Create Beat · message after removing a visit, with Undo",
+    "notes": "Keep {name}."
+  },
+  "createBeat.picked.day.ariaLabel": {
+    "text": "Add to: {day}",
+    "where": "Create Beat · Records selected · day dropdown beside the count (screen reader name)",
+    "notes": "Keep {day}."
+  },
+  "createBeat.lasso.hint": {
+    "text": "Draw around pins to select them · Esc to stop",
+    "where": "Create Beat · map · hint while the lasso is on",
+    "notes": ""
+  },
+  "createBeat.confirm.discard.title": {
+    "text": "Discard changes?",
+    "where": "Create Beat · Cancel confirmation · title",
+    "notes": ""
+  },
+  "createBeat.confirm.discard.body": {
+    "text": "The selections you've made will be erased.",
+    "where": "Create Beat · Cancel confirmation · text",
+    "notes": ""
+  },
+  "createBeat.confirm.discard.keep": {
+    "text": "Keep editing",
+    "where": "Create Beat · Cancel confirmation · way-out button",
+    "notes": ""
+  },
+  "createBeat.confirm.discard.submit": {
+    "text": "Discard",
+    "where": "Create Beat · Cancel confirmation · button",
+    "notes": ""
+  },
+  "createBeat.picked.countTo.one": {
+    "text": "1 record to",
+    "where": "Create Beat · Records selected · heading, before the day dropdown",
+    "notes": "Reads on into the day: \"1 record to Day 1 • 15 Nov\"."
+  },
+  "createBeat.picked.countTo.other": {
+    "text": "{count} records to",
+    "where": "Create Beat · Records selected · heading, before the day dropdown",
+    "notes": "Keep {count}. Reads on into the day: \"4 records to Day 1 • 15 Nov\"."
   }
 }

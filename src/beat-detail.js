@@ -35,7 +35,7 @@ Strings.ready.then(() => {
   const DAYS = [
     {
       label: 'Day 1', date: '4 May',
-      pins: [{ x: 180, y: 350 }, { x: 220, y: 450 }, { x: 320, y: 490 }, { x: 370, y: 550 }],
+      pins: [{ x: 186, y: 314 }, { x: 218, y: 468 }, { x: 286, y: 510 }, { x: 362, y: 562 }],
       visits: [
         { name: 'Alex Newman Visit',  module: 'Contacts',
           address: '533 Broadway, New York, NY 10105, USA', type: 'Order Delivery',  time: '10:53 AM to 11:03 AM', drive: '20 min (2.5 km)',
@@ -53,7 +53,7 @@ Strings.ready.then(() => {
     },
     {
       label: 'Day 2', date: '5 May',
-      pins: [{ x: 370, y: 240 }, { x: 450, y: 190 }, { x: 560, y: 200 }],
+      pins: [{ x: 392, y: 256 }, { x: 434, y: 210 }, { x: 564, y: 194 }],
       visits: [
         { name: 'Priya Raman Visit',  module: 'Contacts',
           address: '350 5th Ave, New York, NY 10118, USA', type: 'Order Delivery', time: '10:15 AM to 10:30 AM', drive: '18 min (2.2 km)',
@@ -68,7 +68,7 @@ Strings.ready.then(() => {
     },
     {
       label: 'Day 3', date: '6 May',
-      pins: [{ x: 560, y: 380 }, { x: 640, y: 470 }],
+      pins: [{ x: 530, y: 370 }, { x: 616, y: 480 }],
       visits: [
         { name: 'Arun Menon Visit',   module: 'Deals',
           address: '200 Park Ave, New York, NY 10166, USA',    type: 'Order Approval', time: '10:30 AM to 10:50 AM', drive: '16 min (2.1 km)',
@@ -204,13 +204,29 @@ Strings.ready.then(() => {
 
   const MAX_VISITS_PER_DAY = 6;     /* Beat Engine · Max Visits per day */
 
-  /* Bottom-up approval. phase: pending (submitted, waiting) → approving
-     (the manager reviewing) → approved, or rejected outright. During a
-     review each visit carries its decision in visit.approval; completing
-     it turns rejected ones into status 'rejected'. A visit the rep
-     resubmits, or adds while the beat runs, waits as status 'awaiting'. */
+  /* Bottom-up approval. The beat's approval status (phase) is only
+     pending (Pending Approval) → approving (the manager reviewing, still
+     Pending Approval) → approved, or rejected. During a review each visit
+     carries its decision in visit.approval; completing it turns rejected
+     ones into status 'rejected', and visits never reviewed count as
+     rejected.
+
+     After approval, before the beat starts, the rep can Resubmit: an edit
+     of the whole beat (simulated here; BU.editing) in which visits are
+     edited or added. Sending it makes just those visits Pending Approval
+     (status 'awaiting') while the beat stays Approved. BU.review then runs
+     'waiting' → 'reviewing' (the manager's second round, on the awaiting
+     visits only) → '' once completed. */
   const SUBMITTED_AT = '7:00 AM';
-  const BU = { phase: 'pending', rejectReason: '', rejectedAt: '', approvedAt: '', notes: [], updatedAt: SUBMITTED_AT };
+  const BU = { phase: 'pending', review: '', editing: false, snapshot: null,
+               rejectReason: '', rejectedAt: '', approvedAt: '', notes: [], updatedAt: SUBMITTED_AT };
+  /* A review is running: the first approval, or a resubmission's */
+  const inReview = () => isBU() && (BU.phase === 'approving' || BU.review === 'reviewing');
+  /* The visits that review decides on: all of them the first time, the
+     resubmitted ones after */
+  const inScope = v => (BU.phase === 'approving' ? v.status === 'pending'
+    : BU.review === 'reviewing' ? v.status === 'awaiting' : false);
+  const beatStarted = () => DAYS.some(d => d.status !== 'pending');
 
   /* Off the route: rejected, or waiting on the manager. Such visits stay
      listed but leave the map, the counts and the distance. A rejection
@@ -223,45 +239,60 @@ Strings.ready.then(() => {
     const d = new Date(`${BEAT_MONTH} ${n}, ${BEAT_YEAR}`);
     return `${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()]}, ${BEAT_MONTH} ${n}`;
   };
-  const isClosed = d => d.status === 'done' || d.status === 'missed' || d.status === 'cancelled';
+  /* A day with nothing left to work — every visit cancelled, or rejected
+     or waiting in bottom-up — is skipped: closed, but never missed */
+  const isEmptyDay = d => d.status === 'pending' && !d.visits.some(v => v.status === 'pending');
+  const isClosed = d => d.status === 'done' || d.status === 'missed' || d.status === 'cancelled' || isEmptyDay(d);
+
+  /* After business hours a day not yet started can still be started for
+     this long; then it is missed */
+  const START_GRACE = 3 * 60;
 
   /* Set by Cancel Beat; the simulator's reset clears it */
   let beatCancelled = false;
   let beatCancelReason = '';
   let beatCancelledAt = '';
 
-  /* What the clock has made true since it last moved. A running day closes
-     itself at the end of business hours, or once its date is behind us —
-     whatever was not worked is marked missed. A day whose date passed
-     without being started is missed outright. */
+  /* What the clock has made true since it last moved.
+     - A day not started by the end of business hours plus the grace (or
+       whose date has passed) is missed, with all its visits, and the
+       Start moves on to the next day.
+     - A started day is never cut off by business hours: the rep ends it,
+       and whatever was not worked is missed then. One still running when
+       its date is over ends itself at midnight, the same way.
+     - A day with nothing to work is skipped, not missed.
+     Bottom-up: only once the beat is approved — an unapproved beat's days
+     are not the rep's to miss. */
   function applyClock() {
+    if (isBU() && BU.phase !== 'approved') return;
     DAYS.forEach((day, i) => {
       const n = dayNum(i);
-      const over = n < SIM.day || (n === SIM.day && SIM.minutes >= BUSINESS.end);
-      if (day.status === 'active' && over) {
+      if (day.status === 'active' && n < SIM.day) {
         day.visits.forEach(v => { if (v.status === 'pending' || v.status === 'active') v.status = 'missed'; });
         day.status = 'done';
-        day.endedAt = t('beatDetail.day.endedAuto', { time: minutesToClock(BUSINESS.end) });
-        day.endedMin = BUSINESS.end;
+        day.endedAt = t('beatDetail.day.endedAuto', { time: minutesToClock(24 * 60 - 1) });
+        day.endedMin = 24 * 60 - 1;
       }
-      if (day.status === 'pending' && n < SIM.day) {
-        day.visits.forEach(v => { if (v.status === 'pending' || v.status === 'active') v.status = 'missed'; });
+      const tooLate = n < SIM.day || (n === SIM.day && SIM.minutes >= BUSINESS.end + START_GRACE);
+      if (day.status === 'pending' && !isEmptyDay(day) && tooLate) {
+        day.visits.forEach(v => { if (v.status === 'pending') v.status = 'missed'; });
         day.status = 'missed';
       }
     });
   }
 
   /* Two separate things: which day is selected — highlighted, and the one
-     the route map draws — and whether its visits are showing. A selected day
-     can be collapsed, so the rep can see all the days at once without
-     losing the one they are on. */
+     the route map draws — and which days have their visits showing. Any
+     number can be open; the selected one can be folded too, so the rep can
+     see all the days at once without losing the one they are on. Today's
+     day starts open, the rest folded. */
   let selectedDay = 0;
-  let expanded = true;
+  const openDays = new Set([selectedDay]);
   /* During the approval every day stays open, so the manager reads the
      whole plan; these are the ones they folded away themselves */
   const reviewFolded = new Set();
-  const reviewing = () => isBU() && BU.phase === 'approving';
-  const dayOpen = index => (reviewing() ? !reviewFolded.has(index) : index === selectedDay && expanded);
+  const reviewing = () => inReview();
+  const dayOpen = index => (reviewing() ? !reviewFolded.has(index) : openDays.has(index));
 
   /* The stop picked on either side — its row in the list, its pin on the
      map — so both show the same one. { day, visit } for a visit,
@@ -298,7 +329,7 @@ Strings.ready.then(() => {
   /* A day opens for work only when it is next in line and nothing else
      is running — the rep works the beat in order, one day at a time. */
   function canStart(index) {
-    if (DAYS[index].status !== 'pending') return false;
+    if (DAYS[index].status !== 'pending' || isEmptyDay(DAYS[index])) return false;
     if (activeIndex() !== -1) return false;
     return DAYS.slice(0, index).every(isClosed);
   }
@@ -306,7 +337,7 @@ Strings.ready.then(() => {
   /* The day next in line: the first one not yet worked, with every day
      before it closed one way or the other */
   const nextIndex = () => DAYS.findIndex((d, i) =>
-    d.status === 'pending' && DAYS.slice(0, i).every(isClosed));
+    d.status === 'pending' && !isEmptyDay(d) && DAYS.slice(0, i).every(isClosed));
 
   /* Why the next day cannot be started right now, or null when it can.
      Checked in this order, so the reason given is the one to act on first. */
@@ -319,7 +350,8 @@ Strings.ready.then(() => {
     }
     if (!day.visits.length) return t('beatDetail.day.startBlock.noVisits');
     if (SIM.minutes < BUSINESS.start) return t('beatDetail.day.startBlock.beforeHours', { time: minutesToClock(BUSINESS.start) });
-    if (SIM.minutes >= BUSINESS.end) return t('beatDetail.day.startBlock.afterHours');
+    /* Late is fine, up to the grace after business hours */
+    if (SIM.minutes >= BUSINESS.end + START_GRACE) return t('beatDetail.day.startBlock.afterHours');
     return null;
   }
 
@@ -332,8 +364,9 @@ Strings.ready.then(() => {
   function dayAct(i) {
     /* Only the beat owner logs their own day; anyone else sees none */
     if (SIM.viewer !== 'owner') return null;
-    /* Bottom-up: a beat is worked only once it is approved */
-    if (isBU() && BU.phase !== 'approved') return null;
+    /* Bottom-up: a beat is worked only once it is approved, and not while
+       the rep is editing it or the manager is reviewing a resubmission */
+    if (isBU() && (BU.phase !== 'approved' || BU.editing || BU.review === 'reviewing')) return null;
     if (DAYS[i].status === 'active') {
       return { act: 'end', label: t('beatDetail.day.action.end'), cls: 'bd-day-act-end' };
     }
@@ -358,8 +391,14 @@ Strings.ready.then(() => {
     if (isBU()) {
       if (BU.phase === 'rejected') return { label: t('bottomUp.status.rejected'), cls: 'bd-missed' };
       if (BU.phase !== 'approved') return { label: t('bottomUp.status.pendingApproval'), cls: 'bd-progress' };
+      /* Approved until the rep starts it — through any resubmission too */
+      if (!beatStarted()) return { label: t('bottomUp.status.approved'), cls: 'bd-done' };
     }
-    if (DAYS.every(d => d.status === 'missed')) return { label: t('beatDetail.status.missed'), cls: 'bd-missed' };
+    /* Every day missed (skipped empty ones aside) reads Missed; any day
+       worked and the rest closed reads Completed */
+    if (DAYS.some(d => d.status === 'missed') && DAYS.every(d => d.status === 'missed' || isEmptyDay(d))) {
+      return { label: t('beatDetail.status.missed'), cls: 'bd-missed' };
+    }
     if (DAYS.every(isClosed)) return { label: t('beatDetail.status.completed'), cls: 'bd-done' };
     if (DAYS.some(d => d.status !== 'pending')) return { label: t('beatDetail.status.inProgress'), cls: 'bd-progress' };
     return { label: t('beatDetail.status.upcoming'), cls: 'bd-upcoming' };
@@ -391,11 +430,11 @@ Strings.ready.then(() => {
 
   /* A cancelled visit says so even on a day not yet started */
   /* Bottom-up adds three that show at once: Rejected; Approved, only while
-     the review runs (it goes once the approval is completed); and Pending
-     Approval on a visit waiting for the manager after it */
+     a review runs (it goes once the approval is completed); and Pending
+     Approval on a resubmitted visit until the manager decides it */
   const tagFor = (day, visit) => {
     if (visit.status === 'rejected' || (isBU() && visit.approval === 'rejected')) return VISIT_TAG.rejected;
-    if (isBU() && BU.phase === 'approving' && visit.approval === 'approved') return VISIT_TAG.approved;
+    if (inReview() && inScope(visit) && visit.approval === 'approved') return VISIT_TAG.approved;
     if (visit.status === 'awaiting') return VISIT_TAG.awaiting;
     return (visit.status === 'cancelled' || day.status !== 'pending') ? VISIT_TAG[visit.status] || null : null;
   };
@@ -608,8 +647,9 @@ Strings.ready.then(() => {
     const act = layout === '3' ? dayAct(index) : null;
     return `
       <div class="bp-day bd-day ${index === selectedDay ? 'selected' : ''} ${dayOpen(index) ? 'expanded' : ''} ${day.status}" data-day="${index}">
-        <div class="bp-day-header" aria-expanded="${dayOpen(index)}">
-          <span class="bd-chev"><img src="src/day-chevron.svg" alt="" aria-hidden="true" /></span>
+        <div class="bp-day-header">
+          <button class="bd-chev" type="button" aria-expanded="${dayOpen(index)}"
+                  aria-label="${escape(t(dayOpen(index) ? 'beatDetail.day.collapseAriaLabel' : 'beatDetail.day.expandAriaLabel', { day: day.label }))}"><img src="src/day-chevron.svg" alt="" aria-hidden="true" /></button>
           <span class="bd-day-title">${escape(day.label)}<span class="dot">&nbsp;&nbsp;•&nbsp;&nbsp;</span><span class="date">${escape(day.date)}</span></span>
           ${tag ? `<span class="bp-visit-tag ${tag.cls}">${escape(tag.label)}</span>` : ''}
           <span class="bd-day-count">${escape(dayTally(day))}</span>
@@ -761,11 +801,11 @@ Strings.ready.then(() => {
   }
 
   /* ── Beat Details: five picked fields ──────────────── */
-  /* Each slot shows one Show Details field. Hovering it boxes the label
-     and the value (Figma BP-Internal 49:80434); the label box opens the
-     list of fields, and picking one shown in another slot swaps the two.
-     No field is editable here, so the value box carries no pencil. A
-     reload goes back to the initial five. */
+  /* Each slot shows one Show Details field. Hovering it boxes the
+     label (Figma BP-Internal 49:80645); it opens the list of fields not
+     already on the card, this slot's own ticked. No field is editable
+     here, so the value never gets a box. A reload goes back to the initial
+     five. */
   function renderDetailsCard() {
     const { left, right, none } = infoFields();
     const all = [...left, ...right];
@@ -785,7 +825,7 @@ Strings.ready.then(() => {
             <span>${escape(t(`beatDetail.info.${k}`))}</span>${DD_CARET}</button>
           <div class="bp-detail-value bd-pick-value">${v == null ? none : html ? short(v) : escape(v)}</div>
           ${open ? `<ul class="bd-vmenu bd-pick-menu" role="listbox" aria-label="${escape(t('beatDetail.details.pick.listLabel'))}">
-            ${all.map(([f]) => `<li class="bd-vmenu-item${f === k ? ' selected' : ''}" role="option" tabindex="-1"
+            ${all.filter(([f]) => f === k || !detailSlots.includes(f)).map(([f]) => `<li class="bd-vmenu-item${f === k ? ' selected' : ''}" role="option" tabindex="-1"
                   aria-selected="${f === k}" data-field="${f}">${f === k ? DD_TICK : ''}<span>${escape(t(`beatDetail.info.${f}`))}</span></li>`).join('')}
           </ul>` : ''}
         </div>`;
@@ -926,7 +966,7 @@ Strings.ready.then(() => {
     const first = DAYS[i].visits.find(v => v.status === 'pending');
     if (first) first.status = 'active';
     selectedDay = i;
-    expanded = true;
+    openDays.add(i);
     render();
     revealDay(i);
     toast(t('beatDetail.toast.dayStarted', { day: DAYS[i].label, time: DAYS[i].startedAt }));
@@ -978,8 +1018,10 @@ Strings.ready.then(() => {
   /* A day's planned route: the drive out of Home, then the drive out of each
      stop — estimates, before anything has been driven */
   const kmIn = text => { const m = (text || '').match(/([\d.]+)\s*km/); return m ? Number(m[1]) : 0; };
+  /* A day left with no visits on its route (all rejected) is not driven */
   function plannedKm(day) {
-    return kmIn(HOME.drive) + onRoute(day).reduce((n, v) => n + kmIn(v.drive), 0);
+    const route = onRoute(day);
+    return route.length ? kmIn(HOME.drive) + route.reduce((n, v) => n + kmIn(v.drive), 0) : 0;
   }
 
   const kmOf = visit => {
@@ -1173,6 +1215,8 @@ Strings.ready.then(() => {
         : { day: d, visit: Number(vrow.dataset.visit) };
       daysEl.querySelectorAll('.bd-focus').forEach(el => el.classList.remove('bd-focus'));
       vrow.classList.add('bd-focus');
+      /* A stop in another open day takes the map to that day */
+      if (d !== selectedDay) { selectedDay = d; render(); }
       popPinned = true;
       placeVisitPop();    /* shows at once; the glide's redraws keep it on the pin */
       panToStop(focused);
@@ -1192,14 +1236,16 @@ Strings.ready.then(() => {
     const card = e.target.closest('.bd-day');
     if (!card) return;
     const i = Number(card.dataset.day);
-    /* Clicking the day already selected folds it away and leaves it
-       selected; clicking another one selects and opens it */
+    /* The whole header folds or opens its day. Opening one selects it, so
+       the map follows the day just opened; folding leaves the selection
+       where it is, even when the selected day folds. A visit row, or the
+       day's stops on the map, select an open day without folding it. */
+    const open = dayOpen(i);
     if (reviewing()) {
-      /* Each day folds on its own while the approval runs */
-      if (reviewFolded.has(i)) reviewFolded.delete(i); else reviewFolded.add(i);
-      if (i !== selectedDay) { selectedDay = i; focused = null; }
-    } else if (i === selectedDay) expanded = !expanded;
-    else { selectedDay = i; expanded = true; focused = null; }
+      if (open) reviewFolded.add(i); else reviewFolded.delete(i);
+    } else if (open) openDays.delete(i);
+    else openDays.add(i);
+    if (!open && i !== selectedDay) { selectedDay = i; focused = null; }
     render();
   });
 
@@ -1335,9 +1381,10 @@ Strings.ready.then(() => {
   });
 
   function addVisitNow(day, time) {
-    /* Bottom-up: the manager's additions are approved as they are made;
-       one the rep adds while the beat runs waits for the manager */
-    const awaiting = isBU() && !isManager() && BU.phase === 'approved';
+    /* Bottom-up: the manager's additions are approved as they are made.
+       One the rep adds while editing for a resubmission goes for approval
+       with the other changes; one added once the beat runs counts at once
+       (default until the PM says otherwise). */
     day.visits.push({
       name: avRecord.value,
       module: avRecord.module || 'Contacts',
@@ -1346,9 +1393,9 @@ Strings.ready.then(() => {
       time,
       drive: '',
       comments: avDesc.value.trim(),
-      status: awaiting ? 'awaiting' : 'pending',
+      status: 'pending',
       ...(isBU() && isManager() ? { approval: 'approved', addedByManager: true } : {}),
-      ...(awaiting ? { approval: 'pending' } : {}),
+      ...(isBU() && BU.editing ? { edited: true } : {}),
     });
     /* Every visit keeps a pin, so the map's numbers stay in step */
     const last = day.pins[day.pins.length - 1] || BEAT_HOME;
@@ -1356,17 +1403,80 @@ Strings.ready.then(() => {
     /* It starts after the day's last visit ends, so it is already the
        last in order; a re-sort here would leave the pins out of step */
 
-    if (awaiting) notify('manager', t('bottomUp.note.repAdded', { rep: THIS_REP, name: avRecord.value }));
     closeAddVisit();
     render();
-    toast(awaiting
-      ? t('bottomUp.toast.addedForApproval', { name: avRecord.value, manager: MANAGER })
-      : t('beatDetail.toast.visitAdded', { name: avRecord.value, day: day.label }));
+    toast(t('beatDetail.toast.visitAdded', { name: avRecord.value, day: day.label }));
   }
 
   /* ── Route map ─────────────────────────────────────── */
-  const BEAT_HOME   = { x: 250, y: 590 };
-  const BEAT_OFFICE = { x: 700, y: 560 };
+  /* Placed on streets of the map image (src/maps/beat-map.webp) */
+  const BEAT_HOME   = { x: 236, y: 618 };
+  const BEAT_OFFICE = { x: 688, y: 546 };
+
+  /* A day's route, leg by leg: Home, the visits still on it, Office, each
+     leg along the streets (src/beat-routes.js, traced off the map image) —
+     straight across for a pair of stops never traced, like a visit added
+     on the page. A day with no visit left on it (all rejected) has no
+     route at all. Each leg says whether it has been driven: every one up
+     to the last visit done, and the drive in once the day has ended. */
+  function dayLegs(i) {
+    const day = DAYS[i];
+    const on = day.pins.map((p, vi) => ({ p, v: day.visits[vi] || {} })).filter(s => !offRoute(s.v));
+    if (!on.length) return [];
+    const stops = [BEAT_HOME, ...on.map(s => s.p), BEAT_OFFICE];
+    let driven = 0;
+    on.forEach((s, k) => { if (s.v.status === 'done') driven = k + 1; });
+    if (day.status === 'done') driven = stops.length - 1;
+    const routes = window.BEAT_ROUTES || {};
+    const legs = [];
+    for (let k = 1; k < stops.length; k++) {
+      const a = stops[k - 1], b = stops[k];
+      const leg = routes[`${a.x},${a.y}>${b.x},${b.y}`];
+      legs.push({ pts: leg ? leg.map(([x, y]) => ({ x, y })) : [a, b], driven: k <= driven });
+    }
+    return legs;
+  }
+  /* The same route as one polyline, for hit-testing */
+  const dayRoute = i => dayLegs(i).flatMap((l, k) => (k ? l.pts.slice(1) : l.pts));
+
+  /* A visit pin grows on an ease while it is under the pointer or its
+     card is showing, and shrinks back on one once neither holds. Each map
+     keeps its own: the stops that are moving, with where each set off
+     from and when. */
+  const PICK_MS = 220;
+  const easeInOut = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  function pickValue(map, key, now) {
+    const a = map._pickAnims.get(key);
+    if (!a) return 0;
+    const dur = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : PICK_MS;
+    const t = dur ? Math.min(1, (now - a.start) / dur) : 1;
+    const v = a.from + (a.to - a.from) * easeInOut(t);
+    if (t === 1 && a.to === 0) map._pickAnims.delete(key);
+    return v;
+  }
+  const pinKey = stop => (stop && !stop.place ? `${stop.day}:${stop.visit}` : null);
+  /* Sends up the pins that should stand tall and down the rest, each from
+     wherever it is now. Called from drawing too (the card is placed on
+     every draw), so the redraw it needs waits for the next frame. */
+  function liftPins(map) {
+    const want = new Set([pinKey(map._hoverPin), pinKey(map._popPin)].filter(Boolean));
+    const now = performance.now();
+    let changed = false;
+    for (const [key, a] of map._pickAnims) {
+      if (a.to === 1 && !want.has(key)) { map._pickAnims.set(key, { from: pickValue(map, key, now), to: 0, start: now }); changed = true; }
+    }
+    for (const key of want) {
+      const a = map._pickAnims.get(key);
+      if (!a || a.to !== 1) { map._pickAnims.set(key, { from: pickValue(map, key, now), to: 1, start: now }); changed = true; }
+    }
+    if (changed && !map._pickRaf) map._pickRaf = requestAnimationFrame(() => { map._pickRaf = 0; map.draw(); });
+  }
+  function setHoverPin(map, stop) {
+    if (pinKey(stop) === pinKey(map._hoverPin)) return;
+    map._hoverPin = stop && !stop.place ? stop : null;
+    liftPins(map);
+  }
+  const pickMoving = (map, now) => [...map._pickAnims.values()].some(a => now - a.start < PICK_MS);
 
   /* Everything that makes a plain FieldMap draw *this beat*. Factored out
      because there are two of them now — the one in the card and the one in
@@ -1376,6 +1486,11 @@ Strings.ready.then(() => {
   fieldMap._beatHome      = BEAT_HOME;
   fieldMap._beatOffice    = BEAT_OFFICE;
   fieldMap._activeBeatDay = 0;
+  fieldMap._pickAnims = new Map();      /* 'day:visit' → { from, to, start } */
+  fieldMap._hoverPin = null;           /* the visit under the pointer */
+  fieldMap._popPin = null;             /* the visit whose card is showing */
+  fieldMap._lastStatus = new Map();    /* 'day:visit' → status at the last draw */
+  fieldMap._doneAnims = new Map();     /* 'day:visit' → when its turn to done began */
 
   /* The canvas's backing store has to match its box, and the box changes
      for reasons no single event reports: switching layout, the card
@@ -1383,88 +1498,349 @@ Strings.ready.then(() => {
      as part of drawing keeps the two in step wherever the change came
      from, and costs two offset reads on a frame that was going to lay the
      map out anyway. */
+  /* ── The map image ──────────────────────────────────── */
+  /* A real street map (lower Manhattan) is the backdrop, at its original
+     resolution. The beat's stops live in a 900 × 780 world inside it —
+     the area the map opens on — and the rest of the image lies round it,
+     there to pan into. Until the image has loaded and decoded, the area
+     shows a skeleton in the map's colours and nothing is plotted; if it
+     fails, the drawn map takes over. Pins and routes draw on top. */
+  const WORLD_W = 900, WORLD_H = 780;
+  /* Where the image sits in world units: 0.375 a source pixel, the beat's
+     area starting 1450 px in and 290 px down (src/maps/beat-map.webp,
+     5992 × 2670, Google's own buttons trimmed off) */
+  const IMG_PX = 0.375;
+  const IMG = { x: -1450 * IMG_PX, y: -290 * IMG_PX, w: 5992 * IMG_PX, h: 2670 * IMG_PX };
+  /* Past this the image's own pixels start to show */
+  const MAX_SCALE = 1.6;
+  const mapImg = new Image();
+  let mapState = 'loading';                 /* loading | ready | failed */
+  fieldMap.area.classList.add('bd-map-loading');
+  const settleMap = state => {
+    mapState = state;
+    fieldMap.area.classList.remove('bd-map-loading');
+    fieldMap.draw();
+  };
+  mapImg.onload = () => (mapImg.decode ? mapImg.decode() : Promise.resolve())
+    .catch(() => {}).then(() => settleMap('ready'));
+  mapImg.onerror = () => settleMap('failed');
+  mapImg.src = 'src/maps/beat-map.webp';
+
+  /* The box in CSS pixels. The canvas itself is drawn at the screen's
+     full density (devicePixelRatio) so the image and pins stay crisp on a
+     Retina display; everything that pans, zooms or hit-tests works in
+     these CSS pixels. */
+  fieldMap.viewW = 0; fieldMap.viewH = 0; fieldMap.dpr = 1;
+
+  /* The zoom the map opens at: the beat's area just filling the box */
+  const openScale = map => Math.max(map.viewW / WORLD_W, map.viewH / WORLD_H);
+  /* The furthest out: the whole image just filling the box */
+  const coverScale = map => Math.max(map.viewW / IMG.w, map.viewH / IMG.h);
+
+  /* Keep the image under the whole box: no zooming out past it, no dragging
+     an edge into view, and no zooming in past sharp */
+  fieldMap._clamp = function () {
+    if (mapState === 'failed') return FieldMap.prototype._clamp.call(this);
+    const w = this.viewW, h = this.viewH;
+    this.scale = Math.min(MAX_SCALE, Math.max(coverScale(this), this.scale));
+    this.panX = Math.min(-IMG.x * this.scale, Math.max(w - (IMG.x + IMG.w) * this.scale, this.panX));
+    this.panY = Math.min(-IMG.y * this.scale, Math.max(h - (IMG.y + IMG.h) * this.scale, this.panY));
+  };
+
   fieldMap.fit = function () {
     /* clientWidth, not offsetWidth: the sheet's map box carries a 1px
        border, and the canvas fills the content box inside it — measuring
        the border box made the backing store 2px bigger than the element
        and the whole map drew very slightly stretched. */
     const w = this.area.clientWidth, h = this.area.clientHeight;
-    if (!w || !h || (this.canvas.width === w && this.canvas.height === h)) return false;
-    this.canvas.width = w;
-    this.canvas.height = h;
-    this.scale = 0.65;
-    this.panX = w / 2 - 450 * this.scale;
-    this.panY = h / 2 - 390 * this.scale;
+    const dpr = window.devicePixelRatio || 1;
+    if (!w || !h || (this.viewW === w && this.viewH === h && this.dpr === dpr)) return false;
+    this.viewW = w; this.viewH = h; this.dpr = dpr;
+    this.canvas.width = Math.round(w * dpr);
+    this.canvas.height = Math.round(h * dpr);
+    this.canvas.style.width = `${w}px`;
+    this.canvas.style.height = `${h}px`;
+    /* Opens on the beat's area, centred and just filling the box */
+    this.scale = mapState === 'failed' ? 0.65 : openScale(this);
+    this.panX = w / 2 - (WORLD_W / 2) * this.scale;
+    this.panY = h / 2 - (WORLD_H / 2) * this.scale;
+    this._clamp();
     return true;
   };
 
   fieldMap.draw = function () {
     this.fit();
     const { ctx, canvas } = this;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
+    ctx.scale(this.dpr, this.dpr);                 /* draw in CSS pixels at full density */
     ctx.translate(this.panX, this.panY);
     ctx.scale(this.scale, this.scale);
-    this._drawBackground(); this._drawBlocks(); this._drawWater(); this._drawRoads();
+    if (mapState === 'loading') { ctx.restore(); return; }   /* the skeleton is showing */
+    if (mapState === 'ready') {
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(mapImg, IMG.x, IMG.y, IMG.w, IMG.h);
+    } else {
+      this._drawBackground(); this._drawBlocks(); this._drawWater(); this._drawRoads();
+    }
     this._drawBeatRoutes(); this._drawBeatPins();
     ctx.restore();
   };
 
+  /* The days behind the selected one draw first, so its route and pins
+     always sit on top of theirs */
+  const dayOrder = map => map._beatDays.map((d, i) => i)
+    .sort((a, b) => (a === map._activeBeatDay) - (b === map._activeBeatDay));
+
   fieldMap._drawBeatRoutes = function () {
     const { ctx } = this;
-    this._beatDays.forEach((day, i) => {
-      const active = i === this._activeBeatDay;
-      const pts = [this._beatHome, ...day.visits.filter((p, vi) => !offRoute(DAYS[i].visits[vi] || {})), this._beatOffice];
-      ctx.save();
-      ctx.strokeStyle = active ? '#6c63ff' : '#c0c7d4';
-      ctx.lineWidth   = (active ? 2.5 : 1.5) / this.scale;
-      ctx.globalAlpha = active ? 1 : 0.65;
-      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-      if (!active) ctx.setLineDash([5 / this.scale, 4 / this.scale]);
+    const stroke = (pts, color, width) => {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width / this.scale;
       ctx.beginPath();
       ctx.moveTo(pts[0].x, pts[0].y);
       pts.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
       ctx.stroke();
+    };
+    dayOrder(this).forEach(i => {
+      const active = i === this._activeBeatDay;
+      const legs = dayLegs(i);
+      ctx.save();
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      if (!active) legs.forEach(l => stroke(l.pts, PIN_GREY, 3));
+      else {
+        /* What has been driven goes grey; what is still ahead keeps the
+           link colour, drawn over it where the two meet */
+        legs.filter(l => l.driven).forEach(l => stroke(l.pts, PIN_GREY, 4));
+        legs.filter(l => !l.driven).forEach(l => stroke(l.pts, '#5464f2', 4));
+      }
       ctx.restore();
     });
   };
 
+  /* Map markers, from Figma (BP-Internal, Route Map 2:38120). A visit is a
+     pin standing on its point; Home and Office are rings centred on theirs.
+     Drawn in screen pixels, so they keep their size at any zoom. */
+  /* Selected day: 24 × 34.29, filled, a white ring round the number */
+  const PIN = new Path2D('M24 12.2857C24 21.1429 13.1163 34.2857 12 34.2857C10.8837 34.2857 0 20.8571 0 12.2857C0 5.5005 5.37258 0 12 0C18.6274 0 24 5.5005 24 12.2857Z');
+  const PIN_W = 24, PIN_H = 34.2857;
+  /* Other days: 21 × 30, white with a grey outline and dot, no number */
+  const PIN_OFF = new Path2D('M10.5 0.875C15.7964 0.875 20.125 5.27667 20.125 10.75C20.125 12.5238 19.5757 14.5735 18.6895 16.6895C17.8073 18.7954 16.6146 20.912 15.3828 22.8037C14.1516 24.6946 12.8926 26.3431 11.8887 27.5117C11.3853 28.0977 10.9562 28.5512 10.6348 28.8506C10.5881 28.8941 10.5434 28.9311 10.5039 28.9658C10.4638 28.9299 10.4187 28.8909 10.3711 28.8457C10.0491 28.54 9.61911 28.0785 9.11523 27.4824C8.11047 26.2937 6.85126 24.6204 5.61914 22.7129C4.38635 20.8043 3.19227 18.678 2.30957 16.582C1.42204 14.4745 0.875 12.458 0.875 10.75C0.875 5.27667 5.20355 0.875 10.5 0.875Z');
+  const PIN_OFF_W = 21, PIN_OFF_H = 30;
+  const PIN_GREY = '#979faf';
+  /* Home and Office: 24 across, 2px ring, 10 dot */
+  const PLACE_R = 12;
+
+  /* Into screen pixels with the origin on a world point */
+  function atPoint(map, p) {
+    map.ctx.translate(p.x, p.y);
+    map.ctx.scale(1 / map.scale, 1 / map.scale);
+  }
+
+  /* A visit on the selected day: a pin in its colour, a light ring round
+     the number. The one under the pointer stands taller, lifted off the
+     map by a shadow, growing from its tip so it stays on its point. */
+  const PIN_PICKED = 1.3;
+
+  /* A visit done: the pin turns green and its number becomes a tick (the
+     number stays in the list). Points in the pin's 24-wide box. */
+  const TICK = [[7.6, 12.4], [10.6, 15.3], [16.4, 9.0]];
+  const TICK_LEN = Math.hypot(3, 2.9) + Math.hypot(5.8, 6.3);
+  function strokeTick(ctx, progress) {
+    ctx.beginPath();
+    ctx.moveTo(...TICK[0]); ctx.lineTo(...TICK[1]); ctx.lineTo(...TICK[2]);
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    if (progress < 1) ctx.setLineDash([TICK_LEN * progress, TICK_LEN]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  /* `pick` runs 0 (resting) to 1 (hovered), part way while it moves.
+     `face` is what the pin carries: { no } a number, { tick } a tick drawn
+     that far (0–1). `flip` (0–1, with `pop` and `ring`) is the turn from
+     number to tick as a visit completes — see doneAnim(). */
+  function drawVisitPin(map, p, color, face, pick, anim) {
+    const { ctx } = map;
+    ctx.save();
+    atPoint(map, p);
+    const k = (1 + (PIN_PICKED - 1) * pick) * (anim ? anim.pop : 1);
+    ctx.scale(k, k);
+    ctx.translate(-PIN_W / 2, -PIN_H);
+    /* A ring rippling out from the head as the tick lands */
+    if (anim && anim.ring) {
+      ctx.beginPath(); ctx.arc(12, 12, 10 + 12 * anim.ring, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(18, 170, 103, ${0.45 * (1 - anim.ring)})`;
+      ctx.lineWidth = 2 * (1 - anim.ring) + 0.5; ctx.stroke();
+    }
+    /* The turn: the pin narrows to its edge about its own centre line, so
+       its tip stays on the point, and opens again showing the other face */
+    if (anim && anim.flipX < 1) {
+      ctx.translate(12, 0); ctx.scale(Math.max(0.001, anim.flipX), 1); ctx.translate(-12, 0);
+    }
+    /* A white rim keeps the pin clear of the route line under it: half
+       the stroke shows, outside the fill */
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3.5; ctx.lineJoin = 'round';
+    if (pick) {
+      /* Shadows ignore the transform: sized in device pixels */
+      ctx.shadowColor = `rgba(16, 24, 40, ${0.35 * pick})`;
+      ctx.shadowBlur = 8 * map.dpr;
+      ctx.shadowOffsetY = 3 * map.dpr;
+    }
+    ctx.stroke(PIN);
+    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = color; ctx.fill(PIN);
+    if (face.tick !== undefined) strokeTick(ctx, face.tick);
+    else {
+      /* A light ring, so the number inside it carries the pin */
+      ctx.beginPath(); ctx.arc(12, 12, 8, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `700 ${face.no > 9 ? 9 : 11}px "Zoho Puvi", Puvi, system-ui, sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(face.no, 12, 12.5);
+    }
+    ctx.restore();
+  }
+
+  /* Rejected, and missed or cancelled: a white pin, grey edge, a red disc
+     with a cross or a bar, and no number (Figma 58:568858, 58:568865) */
+  const PIN_MARK = new Path2D('M12 1C18.0531 1 23 6.03089 23 12.2861C22.9999 14.3132 22.3722 16.6552 21.3594 19.0732C20.3513 21.4801 18.9888 23.8996 17.5811 26.0615C16.1739 28.2225 14.7342 30.1068 13.5869 31.4424C13.0117 32.112 12.5216 32.6296 12.1543 32.9717C12.1005 33.0217 12.0493 33.0646 12.0039 33.1045C11.9581 33.0634 11.9069 33.0184 11.8525 32.9668C11.4845 32.6175 10.9938 32.0894 10.418 31.4082C9.26961 30.0496 7.83008 28.1372 6.42188 25.957C5.01299 23.7758 3.64844 21.3466 2.63965 18.9512C1.62534 16.5426 1.00009 14.2381 1 12.2861C1 6.03089 5.94692 1 12 1Z');
+  function drawMarkPin(map, p, mark, pick) {
+    const { ctx } = map;
+    ctx.save();
+    atPoint(map, p);
+    const k = 1 + (PIN_PICKED - 1) * pick;
+    ctx.scale(k, k);
+    ctx.translate(-PIN_W / 2, -PIN_H);
+    if (pick) {
+      ctx.shadowColor = `rgba(16, 24, 40, ${0.35 * pick})`;
+      ctx.shadowBlur = 8 * map.dpr;
+      ctx.shadowOffsetY = 3 * map.dpr;
+    }
+    ctx.fillStyle = '#ffffff'; ctx.fill(PIN_MARK);
+    ctx.shadowColor = 'transparent';
+    ctx.strokeStyle = PIN_GREY; ctx.lineWidth = 2; ctx.stroke(PIN_MARK);
+    ctx.beginPath(); ctx.arc(12, 12, 8, 0, Math.PI * 2);
+    ctx.fillStyle = '#ff5d5a'; ctx.fill();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+    ctx.beginPath();
+    if (mark === 'cross') {
+      ctx.moveTo(8.67, 8.67); ctx.lineTo(15.33, 15.33);
+      ctx.moveTo(15.33, 8.67); ctx.lineTo(8.67, 15.33);
+    } else {
+      ctx.moveTo(7.29, 12); ctx.lineTo(16.71, 12);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  /* A visit turning done on the selected day: the pin turns over like a
+     card — number on the way out, green on the way back — then the tick
+     writes itself in, the pin swells a touch and settles, and a ring
+     ripples off the head. 900 ms, on its own clock per pin. */
+  const DONE_MS = 900;
+  const clamp01 = v => Math.max(0, Math.min(1, v));
+  const easeOut = t => 1 - Math.pow(1 - t, 3);
+  function doneAnim(map, key, now) {
+    const start = map._doneAnims.get(key);
+    if (start === undefined) return null;
+    const t = (now - start) / DONE_MS;
+    if (t >= 1) { map._doneAnims.delete(key); return null; }
+    const turn = easeInOut(clamp01(t / 0.5));            /* 0 → 1 over the first half */
+    return {
+      back: turn >= 0.5,                                 /* past edge-on: the done face */
+      flipX: Math.abs(Math.cos(Math.PI * turn)),
+      tick: easeOut(clamp01((t - 0.45) / 0.35)),
+      pop: 1 + 0.12 * Math.sin(Math.PI * clamp01((t - 0.4) / 0.45)),
+      ring: t > 0.5 ? easeOut(clamp01((t - 0.5) / 0.5)) : 0,
+    };
+  }
+
+  /* An other day's pin: a slate grey dark enough not to read as disabled.
+     Hovered, it grows the same way (it opens that day). */
+  const PIN_OFF_GREY = '#616e88';
+
+  function drawOffPin(map, p, pick) {
+    const { ctx } = map;
+    ctx.save();
+    atPoint(map, p);
+    const k = 1 + (PIN_PICKED - 1) * pick;
+    ctx.scale(k, k);
+    ctx.translate(-PIN_OFF_W / 2, -PIN_OFF_H);
+    if (pick) {
+      ctx.shadowColor = `rgba(16, 24, 40, ${0.3 * pick})`;
+      ctx.shadowBlur = 8 * map.dpr;
+      ctx.shadowOffsetY = 3 * map.dpr;
+    }
+    ctx.fillStyle = '#ffffff'; ctx.fill(PIN_OFF);
+    ctx.shadowColor = 'transparent';
+    ctx.strokeStyle = PIN_OFF_GREY; ctx.lineWidth = 1.75; ctx.stroke(PIN_OFF);
+    ctx.beginPath(); ctx.arc(10.5, 10.5, 5.25, 0, Math.PI * 2);
+    ctx.fillStyle = PIN_OFF_GREY; ctx.fill();
+    ctx.restore();
+  }
+
+  function drawPlace(map, p, color) {
+    const { ctx } = map;
+    ctx.save();
+    atPoint(map, p);
+    ctx.beginPath(); ctx.arc(0, 0, PLACE_R, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff'; ctx.fill();
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, 5, 0, Math.PI * 2);
+    ctx.fillStyle = color; ctx.fill();
+    ctx.restore();
+  }
+
   /* A stop the rep has settled goes green on the map too, so the day's
      progress reads the same on both sides of the screen */
   fieldMap._drawBeatPins = function () {
-    const { ctx } = this;
-    const ACTIVE = '#6c63ff', GREY = '#9ca3af', DONE = '#12aa67', MISSED = '#ef4444';
-    const r = 11 / this.scale;
-    this._beatDays.forEach((day, i) => {
+    const now = performance.now();
+    const ACTIVE = '#5464f2', DONE = '#12aa67';
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    dayOrder(this).forEach(i => {
+      const day = this._beatDays[i];
       const active = i === this._activeBeatDay;
-      ctx.save();
-      ctx.globalAlpha = active ? 1 : 0.5;
       let no = 0;
+      const pins = [];
       day.visits.forEach((p, vi) => {
-        if (offRoute(DAYS[i].visits[vi] || {})) return;
-        no += 1;
-        const state = DAYS[i].visits[vi] ? DAYS[i].visits[vi].status : 'pending';
-        const col = state === 'done' ? DONE : state === 'missed' ? MISSED
-          : state === 'cancelled' ? GREY : active ? ACTIVE : GREY;
-        const filled = state === 'cancelled' ? false
-          : active || (state !== 'pending' && state !== 'active');
-        ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = filled ? col : '#ffffff'; ctx.fill();
-        ctx.strokeStyle = col; ctx.lineWidth = 1.5 / this.scale; ctx.stroke();
-        ctx.fillStyle = filled ? '#ffffff' : col;
-        ctx.font = `600 ${10 / this.scale}px system-ui, sans-serif`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(no, p.x, p.y);
-        /* A ring round the stop picked in the list or on the map */
-        if (focused && focused.day === i && focused.visit === vi) {
-          ctx.beginPath(); ctx.arc(p.x, p.y, r + 5 / this.scale, 0, Math.PI * 2);
-          ctx.strokeStyle = ACTIVE; ctx.lineWidth = 2 / this.scale; ctx.stroke();
-        }
+        const visit = DAYS[i].visits[vi] || {};
+        const state = visit.status || 'pending';
+        const key = `${i}:${vi}`;
+        /* A visit that has just turned done on the selected day plays its
+           turn; one already done when the page drew first does not */
+        const was = this._lastStatus.get(key);
+        if (active && !reduce && was && was !== 'done' && state === 'done') this._doneAnims.set(key, now);
+        this._lastStatus.set(key, state);
+        /* Rejected: shown on the selected day, off the route, no number.
+           Awaiting the manager: not on the map at all. */
+        const onIt = !offRoute(visit);
+        if (onIt) no += 1;
+        if (!onIt && !(active && state === 'rejected')) return;
+        if (!active) { pins.push({ p, pick: pickValue(this, key, now), draw: pk => drawOffPin(this, p, pk) }); return; }
+        const n = no;
+        const anim = state === 'done' ? doneAnim(this, key, now) : null;
+        const draw = state === 'rejected' ? pk => drawMarkPin(this, p, 'cross', pk)
+          : state === 'missed' || state === 'cancelled' ? pk => drawMarkPin(this, p, 'bar', pk)
+          : state === 'done' ? pk => (anim && !anim.back
+            ? drawVisitPin(this, p, ACTIVE, { no: n }, pk, anim)
+            : drawVisitPin(this, p, DONE, { tick: anim ? anim.tick : 1 }, pk, anim))
+          : pk => drawVisitPin(this, p, ACTIVE, { no: n }, pk);
+        pins.push({ p, pick: pickValue(this, key, now), draw, lifted: Boolean(anim) });
       });
-      ctx.restore();
+      /* A stop hovered, turning over, or on its way up or down draws last,
+         over its neighbours */
+      pins.filter(x => !x.pick && !x.lifted).forEach(x => x.draw(0));
+      pins.filter(x => x.pick || x.lifted).sort((a, b) => a.pick - b.pick).forEach(x => x.draw(x.pick));
     });
-    this._drawSinglePin(this._beatHome.x,   this._beatHome.y,   '#10b981', 0, false);
-    this._drawSinglePin(this._beatOffice.x, this._beatOffice.y, '#ef4444', 0, false);
+    drawPlace(this, this._beatHome,   '#12aa67');
+    drawPlace(this, this._beatOffice, '#ff5d5a');
+    /* Keep drawing while a pin is growing, shrinking or turning over */
+    if ((pickMoving(this, now) || this._doneAnims.size) && !this._pickRaf) {
+      this._pickRaf = requestAnimationFrame(() => { this._pickRaf = 0; this.draw(); });
+    }
   };
 
   fieldMap.resize = function () { this.fit(); this.draw(); };
@@ -1484,6 +1860,10 @@ Strings.ready.then(() => {
     return Math.hypot(px - (a.x + t * vx), py - (a.y + t * vy));
   }
 
+  /* A visit pin's tip is on its point: its head is centred HEAD_UP screen
+     pixels above it, and it stands VISIT_PIN_H tall (see drawVisitPin) */
+  const HEAD_UP = 22, VISIT_PIN_H = 35;
+
   /* Which day a point landed on, or -1. Stops are tested before the lines
      between them, so a pin always wins over a route passing behind it. The
      tolerances are in screen pixels, hence the division by scale. */
@@ -1493,14 +1873,14 @@ Strings.ready.then(() => {
 
     const pinTol = 15 / map.scale;
     DAYS.forEach((day, i) => day.pins.forEach(p => {
-      const d = Math.hypot(p.x - wx, p.y - wy);
+      const d = Math.hypot(p.x - wx, p.y - HEAD_UP / map.scale - wy);
       if (d <= pinTol && d < best) { best = d; hit = i; }
     }));
     if (hit !== -1) return hit;
 
     const lineTol = 10 / map.scale;
     DAYS.forEach((day, i) => {
-      const pts = [BEAT_HOME, ...day.pins, BEAT_OFFICE];
+      const pts = dayRoute(i);
       for (let k = 1; k < pts.length; k++) {
         const d = distToSegment(wx, wy, pts[k - 1], pts[k]);
         if (d <= lineTol && d < best) { best = d; hit = i; }
@@ -1515,19 +1895,19 @@ Strings.ready.then(() => {
     const tol = 15 / map.scale;
     let hit = null, best = Infinity;
     DAYS.forEach((day, d) => day.pins.forEach((p, v) => {
-      const dist = Math.hypot(p.x - wx, p.y - wy);
+      const dist = Math.hypot(p.x - wx, p.y - HEAD_UP / map.scale - wy);
       if (dist <= tol && dist < best && day.visits[v]) { best = dist; hit = { day: d, visit: v }; }
     }));
     return hit;
   }
 
-  /* Home and Office markers stand on their point: 28 wide, about 41 tall.
-     A hit anywhere on the marker counts, for the day on the map. */
-  const MARKER_H = 41;
+  /* Home and Office are rings centred on their point, 26 across with the
+     stroke. A hit anywhere on the ring counts, for the day on the map. */
+  const RING_R = 13;
   function placeAt(map, mx, my) {
     for (const [kind, pt] of [['home', BEAT_HOME], ['office', BEAT_OFFICE]]) {
       const [sx, sy] = map.worldToScreen(pt.x, pt.y);
-      if (Math.abs(mx - sx) <= 14 && my <= sy + 4 && my >= sy - MARKER_H) {
+      if (Math.hypot(mx - sx, my - sy) <= RING_R) {
         return { day: selectedDay, place: kind };
       }
     }
@@ -1546,13 +1926,13 @@ Strings.ready.then(() => {
 
   /* Glide the map onto one stop, zooming in if it is further out than
      this. A short ease rather than a jump, so the eye follows. */
-  const FOCUS_SCALE = 1.6;
+  const FOCUS_SCALE = 1.4;
   function panToStop(stop) {
     const map = fieldMap, pin = stopPoint(stop);
     if (!pin) return;
     const from = { s: map.scale, x: map.panX, y: map.panY };
     const s1 = Math.max(map.scale, FOCUS_SCALE);
-    const to = { s: s1, x: map.canvas.width / 2 - pin.x * s1, y: map.canvas.height / 2 - pin.y * s1 };
+    const to = { s: s1, x: map.viewW / 2 - pin.x * s1, y: map.viewH / 2 - pin.y * s1 };
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const start = performance.now(), DUR = reduce ? 0 : 350;
     cancelAnimationFrame(panToStop._raf);
@@ -1593,7 +1973,8 @@ Strings.ready.then(() => {
         focused = stop;
         popPinned = true;
         selectedDay = stop.day;
-        expanded = true;
+        openDays.add(stop.day);
+        reviewFolded.delete(stop.day);
         render();
         revealFocusedRow();
         placeVisitPop();
@@ -1602,20 +1983,29 @@ Strings.ready.then(() => {
       /* Anywhere else on the map puts a pinned card away */
       if (popPinned) { popPinned = false; placeVisitPop(); }
       const i = at(e);
-      if (i === -1 || i === selectedDay) return;
+      if (i === -1 || i === selectedDay) {
+        /* ...and sets the picked stop back down */
+        if (focused) { focused = null; render(); }
+        return;
+      }
       selectedDay = i;
-      expanded = true;
+      openDays.add(i);
+      reviewFolded.delete(i);
       focused = null;
       render();
+      revealDay(i);
     });
 
     /* So the routes read as something you can click */
     map.canvas.addEventListener('mousemove', e => {
       if (map.isDragging) return;
       map.canvas.classList.toggle('bd-over-route', at(e) !== -1);
+      const r = map.canvas.getBoundingClientRect();
+      setHoverPin(map, visitAt(map, e.clientX - r.left, e.clientY - r.top));
     });
     map.canvas.addEventListener('mouseleave', () => {
       map.canvas.classList.remove('bd-over-route');
+      setHoverPin(map, null);
     });
   }
 
@@ -1679,9 +2069,15 @@ Strings.ready.then(() => {
   }
 
   /* Whatever the card should show now: the hovered stop, else the pinned one */
+  /* The visit whose card is showing keeps its pin standing tall */
+  function popPinIs(stop) {
+    fieldMap._popPin = stop;
+    liftPins(fieldMap);
+  }
+
   function placeVisitPop() {
     const want = popHover || (popPinned && focused) || null;
-    if (!stopExists(want)) { visitPop.hidden = true; popShown = null; return; }
+    if (!stopExists(want)) { visitPop.hidden = true; popShown = null; popPinIs(null); return; }
     const key = `${want.day}:${want.place || want.visit}`;
     if (popShown !== key) {
       visitPop.innerHTML = want.place ? placePopHtml(want.place) : visitPopHtml(want.day, want.visit);
@@ -1690,14 +2086,16 @@ Strings.ready.then(() => {
     }
     const pin = stopPoint(want);
     const [px, py] = fieldMap.worldToScreen(pin.x, pin.y);
-    const W = fieldMap.canvas.width, H = fieldMap.canvas.height;
+    const W = fieldMap.viewW, H = fieldMap.viewH;
     /* A stop panned out of view takes its card with it */
-    if (px < 0 || py < 0 || px > W || py > H) { visitPop.hidden = true; return; }
+    if (px < 0 || py < 0 || px > W || py > H) { visitPop.hidden = true; popPinIs(null); return; }
     visitPop.hidden = false;
+    popPinIs(want);
     const w = visitPop.offsetWidth, h = visitPop.offsetHeight;
-    /* A visit pin is a circle round its point; a marker stands above it */
-    const topEdge = want.place ? py - MARKER_H - 8 : py - 18;
-    const bottomEdge = want.place ? py + 10 : py + 18;
+    /* A visit pin stands above its point; Home and Office ring it */
+    const pinH = VISIT_PIN_H * 1.3;   /* its pin stands tall while the card shows: PIN_PICKED */
+    const topEdge = want.place ? py - RING_R - 6 : py - pinH - 6;
+    const bottomEdge = want.place ? py + RING_R + 6 : py + 6;
     const above = topEdge - h >= 8;
     const left = Math.min(Math.max(8, px - w / 2), W - w - 8);
     visitPop.style.left = `${left}px`;
@@ -2000,24 +2398,11 @@ Strings.ready.then(() => {
   const ADDR_KEY = 'bd-show-address';
   const addrLink = $('bd-addr-link');
 
-  /* Which of the four icon sets the toggle draws (src/address-icons.js),
-     picked in the simulator and remembered for this viewer */
-  const ICON_SET_KEY = 'bd-addr-icon-set-v2';
-  /* Set 4 (the latest building with pin) unless the simulator picked another */
-  let addrIconSet = '4';
-  try { addrIconSet = localStorage.getItem(ICON_SET_KEY) || '4'; } catch { /* private mode */ }
-  if (!ADDRESS_ICONS[addrIconSet]) addrIconSet = '4';
+  /* The toggle's icon (src/address-icons.js), by state */
   function drawAddrIcon() {
     const shown = !daysEl.classList.contains('bd-hide-addr');
-    addrLink.innerHTML = ADDRESS_ICONS[addrIconSet][shown ? 'shown' : 'hidden'];
+    addrLink.innerHTML = ADDRESS_ICON[shown ? 'shown' : 'hidden'];
   }
-  const simAddrIcon = $('bd-sim-addr-icon');
-  simAddrIcon.value = addrIconSet;
-  simAddrIcon.addEventListener('change', () => {
-    addrIconSet = simAddrIcon.value;
-    try { localStorage.setItem(ICON_SET_KEY, addrIconSet); } catch { /* private mode */ }
-    drawAddrIcon();
-  });
   function setShowAddress(on) {
     addrLink.setAttribute('aria-pressed', String(on));    /* pressed = shown */
     addrLink.dataset.tip = t(on ? 'beatDetail.visits.addressToggle.hideTip' : 'beatDetail.visits.addressToggle.showTip');
@@ -2381,18 +2766,15 @@ Strings.ready.then(() => {
     ed.note.hidden = !changed;
   });
 
-  /* `mode` 'resubmit': the rep reworking a visit the manager rejected —
-     the same fields, and Save sends it back for approval */
-  let edMode = 'edit';
-  function openEdit(d, v, mode = 'edit') {
+  function openEdit(d, v) {
     vaTarget = { d, v };
-    edMode = mode;
     const visit = vaVisit();
-    const open = visit.status === 'pending' || mode === 'resubmit';
-    $('va-edit-title').textContent = mode === 'resubmit'
-      ? t('bottomUp.resubmit.title', { name: visit.name })
-      : t('editVisit.title', { name: visit.name });
-    $('va-edit-go').textContent = mode === 'resubmit' ? t('bottomUp.resubmit.confirm') : t('editVisit.submit');
+    /* Type and length can change on a visit not yet started; editing for a
+       resubmission also reopens the rejected and resubmitted ones */
+    const open = visit.status === 'pending'
+      || (isBU() && BU.editing && (visit.status === 'rejected' || visit.status === 'awaiting'));
+    $('va-edit-title').textContent = t('editVisit.title', { name: visit.name });
+    $('va-edit-go').textContent = t('editVisit.submit');
     fill(ed.type, VISIT_TYPES.map(v => [v, v]), t('visitForm.placeholder.selectVisitType'), visit.type);
     /* Its planned length, or how long it really ran once done */
     const when = visit.status === 'done' && visit.actual ? visit.actual : visit.time;
@@ -2448,16 +2830,13 @@ Strings.ready.then(() => {
       }
     }
     const day = DAYS[d];
-    if (edMode === 'resubmit') {
-      /* Back to the manager; the beat itself stays as it is */
-      visit.status = 'awaiting';
-      visit.approval = 'pending';
-      delete visit.rejectReason;
-      notify('manager', t('bottomUp.note.resubmitted', { rep: THIS_REP, name: visit.name }));
-      toast(t('bottomUp.toast.resubmitted', { name: visit.name, manager: MANAGER }));
+    if (isBU() && BU.editing) {
+      /* Part of the resubmission: it goes for approval once sent */
+      visit.edited = true;
+      toast(t('bottomUp.toast.editedForResubmit', { name: visit.name }));
     } else if (isBU() && isManager()) {
       /* The manager's edit leaves the visit undecided and tells the rep */
-      if (BU.phase === 'approving') delete visit.approval;
+      if (inReview()) delete visit.approval;
       notify('rep', t('bottomUp.note.edited', { manager: MANAGER, name: visit.name }));
       toast(t('bottomUp.toast.editedNotified', { name: visit.name, rep: THIS_REP }));
     } else {
@@ -2472,12 +2851,14 @@ Strings.ready.then(() => {
   /* ── Bottom-up approval ─────────────────────────────── */
   /* The rep submits the beat (Create Beat page); it opens here as Pending
      Approval. The manager starts a review, approves or rejects each visit
-     (reversible until done) or rejects the whole beat, then completes it:
-     visits not reviewed are approved or rejected together, rejected ones
-     leave the route, and the route is re-optimized. The rep then works the
-     beat as in top-down. A rejected visit offers the rep one thing — Edit
-     and Resubmit — and waits for the manager again without the beat going
-     back to Pending Approval. */
+     (a reason each; reversible until done) or rejects the whole beat, then
+     completes it: visits not reviewed are rejected, rejected ones leave
+     the route, and the route is re-optimized. With none approved the beat
+     is rejected instead. The rep then works the beat as in top-down.
+
+     Before it starts, the rep can Resubmit: edit or add visits, then send
+     just those for approval. The beat stays Approved; the manager reviews
+     the sent visits in the same Start / Complete Approval flow. */
 
   /* The ⋯ menu, by phase and role. After approval the manager can only
      Transfer; everything else is the rep's. */
@@ -2486,41 +2867,40 @@ Strings.ready.then(() => {
     const mgr = isManager();
     if (BU.phase === 'rejected') return [];
     if (BU.phase === 'pending') return mgr ? [] : ['edit', 'remove'];
-    /* During the review only the decision itself: a decided visit swaps
-       its tick and cross for a ⋯ that holds the opposite choice */
-    if (BU.phase === 'approving') {
-      if (!mgr || visit.status !== 'pending') return [];
+    /* During a review the rep is read-only and the manager only decides: a
+       decided visit swaps its tick and cross for a ⋯ holding the opposite
+       choice. No editing. */
+    if (inReview()) {
+      if (!mgr || !inScope(visit)) return [];
       return visit.approval === 'approved' ? ['reject'] : visit.approval === 'rejected' ? ['approve'] : [];
     }
-    if (visit.status === 'rejected') return mgr ? [] : ['resubmit'];
-    if (visit.status === 'awaiting') return mgr ? ['approve', 'reject'] : [];
+    /* Editing for a resubmission: any visit can change */
+    if (BU.editing) return !mgr && visit.status !== 'done' ? ['edit'] : [];
+    /* Earlier results, and visits waiting on the manager, are read-only */
+    if (visit.status === 'rejected' || visit.status === 'awaiting') return [];
     if (mgr) return visit.status === 'pending' || visit.status === 'active' ? ['reassign'] : [];
     return (VISIT_ACTIONS[visit.status] || []).filter(a => a !== 'reassign');
   }
 
-  /* Who can add visits when: the rep before submitting it for review, the
-     manager while reviewing and before the beat starts, then the rep again
-     once it runs — those wait for the manager */
+  /* Who can add visits when: the rep before the review starts; nobody
+     during a review; the manager while the approved beat waits to start;
+     the rep while editing a resubmission, and once the beat runs */
   function canAddVisit() {
     if (!isBU()) return true;
     const mgr = isManager();
     if (BU.phase === 'pending') return !mgr;
-    if (BU.phase === 'approving') return mgr;
-    if (BU.phase === 'rejected') return false;
-    return DAYS.some(d => d.status !== 'pending') ? !mgr : mgr;
+    if (BU.phase === 'rejected' || inReview()) return false;
+    if (BU.editing) return !mgr;
+    return beatStarted() ? !mgr : mgr;
   }
 
-  /* Tick and cross (Figma 7002:574351), always shown on a visit not yet
-     decided. Once decided they go and the ⋯ takes their place. After
-     approval, on a visit waiting for the manager. */
+  /* Tick and cross (Figma 7002:574351), always shown during a review on a
+     visit it covers and not yet decided. Once decided they go and the ⋯
+     takes their place. Never outside a review. */
   const TICK_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 9L5 12L13 4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#12AA67"/></svg>';
   const CROSS_SVG = '<svg width="8" height="8" viewBox="-0.75 -0.75 9.5 9.5" fill="none" aria-hidden="true"><path d="M8 0L0 8M0 0L8 8" stroke-width="1.5" stroke-linecap="round" stroke="#FF5D5A"/></svg>';
   function approvalIconsHtml(visit) {
-    if (!isBU() || !isManager()) return '';
-    const reviewing = BU.phase === 'approving' && visit.status === 'pending';
-    const waiting = BU.phase === 'approved' && visit.status === 'awaiting';
-    if (!reviewing && !waiting) return '';
-    if (reviewing && visit.approval) return '';
+    if (!isManager() || !inReview() || !inScope(visit) || visit.approval) return '';
     const btn = (kind, icon) => `
           <button class="bu-icon bu-${kind}" type="button" data-bu="${kind}"
                   data-tip="${escape(t(`bottomUp.visit.${kind}.tip`))}"
@@ -2530,14 +2910,14 @@ Strings.ready.then(() => {
 
   /* The reason follows the address, and stays when addresses are hidden */
   function reasonLineHtml(visit) {
-    const rejected = visit.status === 'rejected' || (isBU() && visit.approval === 'rejected');
+    const rejected = visit.status === 'rejected' || (inReview() && inScope(visit) && visit.approval === 'rejected');
     if (!rejected || !visit.rejectReason) return '';
     return `<p class="bd-visit-reason"><b>${escape(t('bottomUp.visit.reasonLabel'))}</b> ${escape(visit.rejectReason)}</p>`;
   }
 
-  /* Reviewed so far: decided visits out of all still on the beat */
+  /* Reviewed so far: decided visits out of those the review covers */
   function reviewCounts() {
-    const all = DAYS.flatMap(d => d.visits).filter(v => v.status === 'pending');
+    const all = DAYS.flatMap(d => d.visits).filter(inScope);
     const approved = all.filter(v => v.approval === 'approved').length;
     const rejected = all.filter(v => v.approval === 'rejected').length;
     return { all, total: all.length, approved, rejected, unreviewed: all.length - approved - rejected };
@@ -2567,8 +2947,17 @@ Strings.ready.then(() => {
             <button class="bd-vmenu-item" type="button" role="menuitem" data-bu-act="reject-beat">${escape(t('bottomUp.action.rejectBeat'))}</button>
           </div>
         </div>`;
-    } else if (isBU() && isManager() && BU.phase === 'approving') {
+    } else if (isBU() && isManager() && BU.review === 'waiting') {
+      /* A resubmission: the beat is approved already, so no Reject Beat */
+      headHtml = `<button class="bp-btn primary bd-btn-primary" type="button" data-bu-act="start">${escape(t('bottomUp.action.startApproval'))}</button>`;
+    } else if (isBU() && isManager() && inReview()) {
       headHtml = `<button class="bp-btn primary bd-btn-primary" type="button" data-bu-act="complete">${escape(t('bottomUp.action.completeApproval'))}</button>`;
+    } else if (isBU() && !isManager() && BU.editing) {
+      headHtml = `
+        <button class="bp-btn default" type="button" data-bu-act="edit-cancel">${escape(t('common.button.cancel'))}</button>
+        <button class="bp-btn primary bd-btn-primary" type="button" data-bu-act="edit-send">${escape(t('bottomUp.action.sendForApproval'))}</button>`;
+    } else if (isBU() && !isManager() && canResubmit()) {
+      headHtml = `<button class="bp-btn primary bd-btn-primary" type="button" data-bu-act="resubmit">${escape(t('bottomUp.action.resubmit'))}</button>`;
     }
     head.innerHTML = headHtml;
     head.hidden = !headHtml;
@@ -2576,21 +2965,33 @@ Strings.ready.then(() => {
     /* Right of the tabs: who it is waiting on, and when it last changed */
     const acts = $('bu-actions');
     let html = '';
+    const lastUpdate = `
+        <span class="bd-cancel-rule" aria-hidden="true"></span>
+        <span class="bu-wait">${CLOCK_ICON}<span>${escape(t('bottomUp.waiting.lastUpdate', { time: BU.updatedAt }))}</span></span>`;
     if (isBU() && (BU.phase === 'pending' || BU.phase === 'approving')) {
-      const c = reviewCounts();
+      const c = BU.phase === 'approving' ? reviewCounts()
+        : { approved: 0, rejected: 0, total: DAYS.reduce((n, d) => n + d.visits.filter(v => v.status === 'pending').length, 0) };
       const waiting = isManager()
         ? `${escape(t('bottomUp.waiting.manager'))} <span class="bu-wait-count">${escape(t('bottomUp.waiting.count', { done: c.approved + c.rejected, total: c.total }))}</span>`
         : escape(t('bottomUp.waiting.rep'));
-      html = `
-        <span class="bu-wait">${APPROVAL_ICON}<span>${waiting}</span></span>
-        <span class="bd-cancel-rule" aria-hidden="true"></span>
-        <span class="bu-wait">${CLOCK_ICON}<span>${escape(t('bottomUp.waiting.lastUpdate', { time: BU.updatedAt }))}</span></span>`;
+      html = `<span class="bu-wait">${APPROVAL_ICON}<span>${waiting}</span></span>${lastUpdate}`;
+    } else if (isBU() && BU.review) {
+      /* A resubmission: how many sent visits are still undecided */
+      const left = DAYS.reduce((n, d) => n + d.visits.filter(v => v.status === 'awaiting' && !(BU.review === 'reviewing' && v.approval)).length, 0);
+      const waiting = isManager()
+        ? `${escape(t('bottomUp.waiting.manager'))} <span class="bu-wait-count">${left}</span>`
+        : escape(t('bottomUp.waiting.rep'));
+      html = `<span class="bu-wait">${APPROVAL_ICON}<span>${waiting}</span></span>${lastUpdate}`;
+    } else if (isBU() && BU.editing && !isManager()) {
+      html = `<span class="bu-wait">${APPROVAL_ICON}<span>${escape(t('bottomUp.editing.note'))}</span></span>`;
     }
     acts.innerHTML = html;
     acts.hidden = !html;
 
     /* Optimize Route is the rep's, and only while the beat is theirs to change */
-    $('bd-optimize').hidden = isBU() && (isManager() || BU.phase === 'approving' || BU.phase === 'rejected');
+    $('bd-optimize').hidden = isBU() && (isManager() || BU.phase !== 'approved' || BU.review === 'reviewing');
+    /* No editing the beat while a review runs */
+    $('bd-edit').hidden = inReview();
     renderBell();
   }
 
@@ -2615,12 +3016,19 @@ Strings.ready.then(() => {
     if (e.key === 'Escape' && menu && !menu.hidden) { setSplitMenu(false); $('bu-split-more').focus(); }
   });
 
+  /* Resubmit is the rep's while the beat is approved and not started, and
+     nothing they sent is still waiting on the manager */
+  const canResubmit = () => isBU() && BU.phase === 'approved' && !beatStarted() && !BU.review && !BU.editing && !beatCancelled;
+
   function resetApproval() {
     BU.phase = 'pending';
+    BU.review = '';
+    BU.editing = false;
+    BU.snapshot = null;
     BU.rejectReason = BU.rejectedAt = BU.approvedAt = '';
     BU.notes = [];
     BU.updatedAt = SUBMITTED_AT;
-    DAYS.forEach(d => d.visits.forEach(v => { delete v.approval; delete v.rejectReason; }));
+    DAYS.forEach(d => d.visits.forEach(v => { delete v.approval; delete v.rejectReason; delete v.edited; }));
   }
 
   /* Re-optimizing after approval: the approved visits keep their order on
@@ -2705,7 +3113,9 @@ Strings.ready.then(() => {
     vaTarget = beat ? { d: selectedDay, v: -1 } : { d: target.d, v: target.v };
     const name = beat ? '' : DAYS[target.d].visits[target.v].name;
     $('bu-reason-title').textContent = beat ? t('bottomUp.rejectBeat.title') : t('bottomUp.reject.title', { name });
-    $('bu-reason-sub').textContent = beat ? t('bottomUp.rejectBeat.sub') : t('bottomUp.reject.sub');
+    $('bu-reason-sub').textContent = beat
+      ? t(target.noneApproved ? 'bottomUp.rejectBeat.noneApproved' : 'bottomUp.rejectBeat.sub')
+      : t('bottomUp.reject.sub');
     $('bu-reason-go').textContent = beat ? t('bottomUp.action.rejectBeat') : t('bottomUp.reject.confirm');
     reasonText.value = ''; setMsg(reasonText, '');
     openOverlay('bu-reason-overlay');
@@ -2717,6 +3127,8 @@ Strings.ready.then(() => {
     const target = reasonFor;
     closeOverlays();
     if (target.kind === 'beat') {
+      /* Every visit it held counts as rejected */
+      DAYS.forEach(d => d.visits.forEach(v => { delete v.approval; }));
       BU.phase = 'rejected';
       BU.rejectReason = reason;
       BU.rejectedAt = clock();
@@ -2727,13 +3139,8 @@ Strings.ready.then(() => {
       visit.approval = 'rejected';
       visit.rejectReason = reason;
       BU.updatedAt = clock();
-      if (BU.phase === 'approved') {
-        /* A visit waiting after approval is decided at once */
-        visit.status = 'rejected';
-        notify('rep', t('bottomUp.note.visitRejected', { manager: MANAGER, name: visit.name }));
-      }
       toast(t('bottomUp.toast.visitRejected', { name: visit.name }));
-      if (BU.phase === 'approving') nextReviewDay(target.d);
+      nextReviewDay(target.d);
     }
     afterChange();
   });
@@ -2742,8 +3149,10 @@ Strings.ready.then(() => {
   /* The last visit of a day decided: on to the next day still waiting,
      which is brought into view; the day just finished stays open */
   function nextReviewDay(d) {
-    if (DAYS[d].visits.some(v => v.status === 'pending' && !v.approval)) return;
-    const next = DAYS.findIndex((day, i) => i > d && day.visits.some(v => v.status === 'pending' && !v.approval));
+    if (!inReview()) return;
+    const open = v => inScope(v) && !v.approval;
+    if (DAYS[d].visits.some(open)) return;
+    const next = DAYS.findIndex((day, i) => i > d && day.visits.some(open));
     if (next === -1) return;
     selectedDay = next;
     reviewFolded.delete(next);
@@ -2755,33 +3164,27 @@ Strings.ready.then(() => {
 
   function approveVisit(d, v) {
     const visit = DAYS[d].visits[v];
-    if (BU.phase === 'approving') {
-      visit.approval = 'approved';
-      delete visit.rejectReason;
-      BU.updatedAt = clock();
-      afterChange();
-      nextReviewDay(d);
-      if (selectedDay !== d) render();
-      return;
-    }
-    /* After approval: it joins the route as the last visit of its day, or
-       of the next day not yet started if its own has closed */
-    let target = d;
-    if (isClosed(DAYS[d])) {
-      const next = DAYS.findIndex(x => x.status === 'pending');
-      if (next !== -1) target = next;
-    }
-    const { visit: moved, pin } = liftVisit(d, v);
-    const day = DAYS[target];
+    if (!inReview()) return;
+    visit.approval = 'approved';
+    delete visit.rejectReason;
+    BU.updatedAt = clock();
+    afterChange();
+    nextReviewDay(d);
+    if (selectedDay !== d) render();
+  }
+
+  /* A resubmitted visit approved: it joins the route as the last visit of
+     its day, after the travel allowance */
+  function joinRoute(day, visit) {
+    const i = day.visits.indexOf(visit);
+    const [moved] = day.visits.splice(i, 1);
+    const [pin] = i < day.pins.length ? day.pins.splice(i, 1) : [];
     const ends = onRoute(day).map(x => x.time.split(' to ')[1]).filter(x => x && /^\d/.test(x)).map(clockToMinutes);
     const start = ends.length ? minutesToClock(Math.max(...ends) + TRAVEL_MINUTES) : '9:00 AM';
-    Object.assign(moved, { status: 'pending', approval: 'approved', time: timeRange(start, spanMinutes(moved.time)) });
+    Object.assign(moved, { status: 'pending', time: timeRange(start, spanMinutes(moved.time)) });
     const routeLen = onRoute(day).length;
     day.visits.splice(routeLen, 0, moved);
     day.pins.splice(routeLen, 0, pin || { x: BEAT_HOME.x + 40, y: BEAT_HOME.y + 30 });
-    notify('rep', t('bottomUp.note.visitApproved', { manager: MANAGER, name: moved.name }));
-    toast(t('bottomUp.toast.visitApprovedLast', { name: moved.name, day: day.label, date: day.date }));
-    afterChange();
   }
 
   function rejectVisit(d, v) {
@@ -2813,11 +3216,35 @@ Strings.ready.then(() => {
   /* ── Start approval / Reject beat / Complete approval ── */
   function runApprovalAct(act) {
     if (act === 'start') {
-      BU.phase = 'approving';
+      if (BU.review === 'waiting') {
+        /* The resubmitted visits only; earlier results stay as they are */
+        BU.review = 'reviewing';
+        DAYS.forEach(d => d.visits.forEach(v => { if (v.status === 'awaiting') { delete v.approval; delete v.rejectReason; } }));
+      } else {
+        BU.phase = 'approving';
+        DAYS.forEach(d => d.visits.forEach(v => { if (v.approval !== 'approved') delete v.approval; delete v.rejectReason; }));
+      }
       BU.updatedAt = clock();
-      DAYS.forEach(d => d.visits.forEach(v => { if (v.approval !== 'approved') delete v.approval; delete v.rejectReason; }));
       toast(t('bottomUp.toast.approvalStarted'));
       afterChange();
+    } else if (act === 'resubmit') {
+      /* Stands in for the beat's edit screen: the rep edits or adds visits
+         here, then sends them. Cancel puts everything back. */
+      BU.editing = true;
+      BU.snapshot = DAYS.map(d => ({ visits: JSON.parse(JSON.stringify(d.visits)), pins: JSON.parse(JSON.stringify(d.pins)) }));
+      toast(t('bottomUp.toast.editingStarted'));
+      afterChange();
+    } else if (act === 'edit-cancel') {
+      BU.snapshot.forEach((snap, i) => {
+        DAYS[i].visits.splice(0, DAYS[i].visits.length, ...snap.visits);
+        DAYS[i].pins.splice(0, DAYS[i].pins.length, ...snap.pins);
+      });
+      BU.editing = false;
+      BU.snapshot = null;
+      toast(t('bottomUp.toast.editingCancelled'));
+      afterChange();
+    } else if (act === 'edit-send') {
+      sendResubmission();
     } else if (act === 'reject-beat') {
       openReason({ kind: 'beat' });
     } else if (act === 'complete') {
@@ -2825,17 +3252,38 @@ Strings.ready.then(() => {
     }
   }
 
-  /* Complete Beat Approval (Figma 2936:107703). With visits not yet
-     approved, the manager picks: approve them all, or go ahead with the
-     approved ones only (the rest are rejected). The Beat Details line
-     reads what the beat comes to under the choice. */
+  /* Only what was edited or added goes; every other visit keeps its
+     earlier result, and the beat stays Approved */
+  function sendResubmission() {
+    const sent = DAYS.flatMap(d => d.visits).filter(v => v.edited && v.status !== 'done');
+    if (!sent.length) { toast(t('bottomUp.toast.nothingToSend')); return; }
+    sent.forEach(v => {
+      v.status = 'awaiting';
+      delete v.approval; delete v.rejectReason; delete v.edited;
+    });
+    DAYS.forEach(reorderDay);
+    BU.editing = false;
+    BU.snapshot = null;
+    BU.review = 'waiting';
+    BU.updatedAt = clock();
+    const n = sent.length;
+    notify('manager', t(n === 1 ? 'bottomUp.note.resubmitted.one' : 'bottomUp.note.resubmitted.other', { rep: THIS_REP, count: n }));
+    afterChange();
+    toast(t(n === 1 ? 'bottomUp.toast.resubmitted.one' : 'bottomUp.toast.resubmitted.other', { count: n, manager: MANAGER }));
+  }
+
+  /* Complete Beat Approval (Figma 2936:107703). With visits still
+     unreviewed the manager picks: approve them, or go ahead with the
+     approved ones only — the rest are rejected with one reason the rep sees
+     on each, so Complete waits for it. With nothing approved, and nothing
+     left to approve, the first review rejects the beat instead: the Reject
+     Beat flow, a reason only. The Beat Details line reads what the beat
+     comes to under the choice. */
   const unreviewedChoice = () => document.querySelector('input[name="bu-unreviewed"]:checked').value;
-  /* Proceeding with the approved ones only asks for the rejection reason,
-     and Complete waits for it */
+  const rejectingRest = () => reviewCounts().unreviewed > 0 && unreviewedChoice() === 'reject';
   function syncComplete() {
-    const reject = reviewCounts().unreviewed > 0 && unreviewedChoice() === 'reject';
-    $('bu-complete-reason').hidden = !reject;
-    $('bu-complete-go').disabled = reject && !$('bu-complete-reason-box').value.trim();
+    $('bu-complete-reason').hidden = !rejectingRest();
+    $('bu-complete-go').disabled = rejectingRest() && !$('bu-complete-reason-box').value.trim();
     $('bu-complete-details').textContent = beatDetailsLine();
   }
   document.querySelectorAll('input[name="bu-unreviewed"]').forEach(r => r.addEventListener('change', () => {
@@ -2846,8 +3294,9 @@ Strings.ready.then(() => {
 
   /* Days, visits and distance of the beat the approval would leave */
   function beatDetailsLine() {
-    const keepAll = reviewCounts().unreviewed === 0 || unreviewedChoice() === 'approve';
-    const kept = v => v.status === 'pending' && (v.approval === 'approved' || (keepAll && v.approval !== 'rejected'));
+    const keepRest = !rejectingRest();
+    const kept = v => (inScope(v) ? v.approval === 'approved' || (keepRest && !v.approval)
+      : !offRoute(v) && v.status !== 'cancelled');
     const days = DAYS.filter(d => d.visits.some(kept));
     const visits = DAYS.reduce((n, d) => n + d.visits.filter(kept).length, 0);
     const kmTotal = days.reduce((n, d) => n + kmIn(HOME.drive) + d.visits.filter(kept).reduce((m, v) => m + kmIn(v.drive), 0), 0);
@@ -2864,13 +3313,16 @@ Strings.ready.then(() => {
 
   function openComplete() {
     const c = reviewCounts();
+    if (BU.phase === 'approving' && c.approved === 0 && c.unreviewed === 0) {
+      openReason({ kind: 'beat', noneApproved: true });
+      return;
+    }
     vaTarget = { d: selectedDay, v: -1 };
     const some = c.unreviewed > 0;
-    /* "3 visits are still pending approval. Select an option to proceed.",
-       one line while it fits */
-    $('bu-complete-desc').innerHTML = some
-      ? `${escape(t(c.unreviewed === 1 ? 'bottomUp.complete.desc.one' : 'bottomUp.complete.desc.other', { n: c.unreviewed }))} ${escape(t('bottomUp.complete.descSelect'))}`
-      : escape(t('bottomUp.complete.allReviewed', { total: c.total }));
+    /* "3 visits are still pending approval. Select an option to proceed." */
+    $('bu-complete-desc').textContent = some
+      ? `${t(c.unreviewed === 1 ? 'bottomUp.complete.desc.one' : 'bottomUp.complete.desc.other', { n: c.unreviewed })} ${t('bottomUp.complete.descSelect')}`
+      : t('bottomUp.complete.allReviewed', { total: c.total });
     $('bu-complete-choice').hidden = !some;
     document.querySelector('input[name="bu-unreviewed"][value="approve"]').checked = true;
     $('bu-complete-all-hint').textContent = t('bottomUp.complete.approveRemainingHint', { total: c.total - c.rejected });
@@ -2883,20 +3335,34 @@ Strings.ready.then(() => {
 
   $('bu-complete-go').addEventListener('click', () => {
     const c = reviewCounts();
-    const reject = c.unreviewed > 0 && unreviewedChoice() === 'reject';
+    const reject = rejectingRest();
     const reason = $('bu-complete-reason-box').value.trim();
     if (reject && !reason) return;
+    const first = BU.phase === 'approving';
+    /* Nothing approved after all: the first review rejects the beat */
+    if (first && reject && c.approved === 0) {
+      closeOverlays();
+      openReason({ kind: 'beat', noneApproved: true });
+      return;
+    }
     c.all.filter(v => !v.approval).forEach(v => {
       v.approval = reject ? 'rejected' : 'approved';
       if (reject) v.rejectReason = reason;
     });
-    /* Rejected visits leave the route; the route is re-optimized */
     DAYS.forEach(day => {
-      day.visits.forEach(v => { if (v.approval === 'rejected') v.status = 'rejected'; });
+      day.visits.filter(inScope).forEach(v => {
+        if (v.approval === 'rejected') v.status = 'rejected';
+        else if (!first) joinRoute(day, v);
+      });
+      /* Rejected visits leave the route; the route is re-optimized */
       reorderDay(day);
     });
+    DAYS.forEach(d => d.visits.forEach(v => { delete v.approval; }));
     BU.phase = 'approved';
+    BU.review = '';
     BU.updatedAt = clock();
+    /* A day whose time has already gone is missed as soon as it is the rep's */
+    applyClock();
     BU.approvedAt = t('bottomUp.info.approvedAt', { date: dayName(SIM.day), time: clock() });
     notify('rep', t('bottomUp.note.approvalCompleted', { manager: MANAGER }));
     closeOverlays();
@@ -2920,7 +3386,7 @@ Strings.ready.then(() => {
      during one asks first; proceeding drops them and the beat is back to
      Pending Approval when the manager returns */
   $('bd-back').addEventListener('click', () => {
-    if (isBU() && isManager() && BU.phase === 'approving') {
+    if (isBU() && isManager() && inReview()) {
       vaTarget = { d: selectedDay, v: -1 };
       openOverlay('bu-discard-overlay');
       $('bu-discard-go').focus();
@@ -2929,12 +3395,18 @@ Strings.ready.then(() => {
     location.href = 'beat-list.html';
   });
   $('bu-discard-go').addEventListener('click', () => {
-    BU.phase = 'pending';
-    BU.updatedAt = SUBMITTED_AT;
-    DAYS.forEach(d => d.visits.forEach(v => {
-      if (v.approval !== 'approved' || !v.addedByManager) delete v.approval;
-      delete v.rejectReason;
-    }));
+    if (BU.review === 'reviewing') {
+      /* A resubmission's review: its visits wait again, undecided */
+      BU.review = 'waiting';
+      DAYS.forEach(d => d.visits.forEach(v => { if (v.status === 'awaiting') { delete v.approval; delete v.rejectReason; } }));
+    } else {
+      BU.phase = 'pending';
+      BU.updatedAt = SUBMITTED_AT;
+      DAYS.forEach(d => d.visits.forEach(v => {
+        if (v.approval !== 'approved' || !v.addedByManager) delete v.approval;
+        delete v.rejectReason;
+      }));
+    }
     closeOverlays();
     location.href = 'beat-list.html';
   });
@@ -2960,8 +3432,7 @@ Strings.ready.then(() => {
 
   const VISIT_ACTION_OPEN = { forceCheckout: openForceCheckout, reschedule: openReschedule, reassign: openReassign, cancel: openCancel,
                               revise: openRevise, edit: openEdit,
-                              approve: approveVisit, reject: rejectVisit, remove: removeVisit,
-                              resubmit: (d, v) => openEdit(d, v, 'resubmit') };
+                              approve: approveVisit, reject: rejectVisit, remove: removeVisit };
 
   /* ── Optimize Route ────────────────────────────────── */
   /* In the product this re-orders the visits for the shortest route. With
@@ -3085,7 +3556,7 @@ Strings.ready.then(() => {
   /* Zoom from the middle of the canvas, which is what the buttons imply */
   const ZOOM_STEP = 1.3;
   function zoomMap(factor) {
-    fieldMap.zoom(factor, fieldMap.canvas.width / 2, fieldMap.canvas.height / 2);
+    fieldMap.zoom(factor, fieldMap.viewW / 2, fieldMap.viewH / 2);
   }
   $('bd-map-zoom-in').addEventListener('click', () => zoomMap(ZOOM_STEP));
   $('bd-map-zoom-out').addEventListener('click', () => zoomMap(1 / ZOOM_STEP));
@@ -3112,9 +3583,13 @@ Strings.ready.then(() => {
     terrainBtn.setAttribute('aria-expanded', 'false');
   });
 
+  /* One map image only: the options show, but only Map can be picked */
+  terrainMenu.querySelectorAll('.bd-terrain-opt').forEach(opt => {
+    if (opt.dataset.terrain !== 'map') { opt.setAttribute('aria-disabled', 'true'); opt.classList.add('is-off'); }
+  });
   terrainMenu.addEventListener('click', e => {
     const opt = e.target.closest('.bd-terrain-opt');
-    if (!opt) return;
+    if (!opt || opt.getAttribute('aria-disabled') === 'true') return;
     fieldMap.setTerrain(opt.dataset.terrain);
     paintTerrain();
     terrainMenu.hidden = true;
@@ -3172,7 +3647,7 @@ Strings.ready.then(() => {
       day.startedMin = day.endedMin = null;
       day.visits.forEach(v => { v.status = 'pending'; });
     });
-    selectedDay = 0; expanded = true; focused = null;
+    selectedDay = 0; openDays.clear(); openDays.add(0); focused = null;
     beatCancelled = false;
     resetApproval();
     if (announce) { applyClock(); render(); toast(t('beatDetail.toast.beatReset')); }

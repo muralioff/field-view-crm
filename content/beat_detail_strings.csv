@@ -311,7 +311,7 @@ beatDetail.sim.dateOption.before,{date} — before the beat,"Simulate today pane
 beatDetail.sim.dateOption.after,{date} — after the beat,"Simulate today panel · Date list, the day after (prototype only)","Keep {date} (filled in by the page). {date} = a date, e.g. ""4 May""."
 beatDetail.sim.time,Time,Simulate today panel · field label (prototype only),
 beatDetail.sim.viewAs,View as,Simulate today panel · field label (prototype only),
-beatDetail.sim.viewer.owner,Beat owner — Cameron Williamson,Simulate today panel · View as option (prototype only),
+beatDetail.sim.viewer.owner,Rep,Simulate today panel · View as option (prototype only),
 beatDetail.sim.viewer.manager,Manager,Simulate today panel · View as option (prototype only),
 beatDetail.sim.addressIcon,Address icon,Simulate today panel · field label (prototype only),
 beatDetail.sim.iconSet1,Set 1 — Building,Simulate today panel · Address icon option (prototype only),

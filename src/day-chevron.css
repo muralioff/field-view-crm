@@ -1,0 +1,40 @@
+/* ============================================================
+   Day chevron — shared by the day cards (Beat Detail, Create Beat)
+
+   The exported filled triangle, pointing right while the day is folded
+   and down once it opens (aria-expanded="true"). The padding widens its
+   hit area to 24 × 24; the negative margin keeps the triangle where it
+   was. Hover: a soft grey square behind it.
+
+   Beat Detail's .bd-chev (src/style-beat-detail.css) holds the same
+   values; it moves onto this file next.
+
+   Usage:
+     <button class="day-chev" type="button" aria-expanded="false" aria-label="Show Day 1 visits">
+       <img src="src/day-chevron.svg" alt="" aria-hidden="true" /></button>
+   ============================================================ */
+.day-chev {
+  width: 12px;
+  height: 12px;
+  box-sizing: content-box;
+  padding: 6px;
+  margin: -6px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-90deg);
+  transition: transform 0.18s ease;
+}
+
+.day-chev img { width: 12px; height: 6px; display: block; }
+
+.day-chev[aria-expanded="true"] { transform: none; }
+.day-chev:hover { background: rgba(97, 110, 136, 0.12); }
+.day-chev:focus-visible { outline: 2px solid #5464f2; outline-offset: 0; }
+
+@media (prefers-reduced-motion: reduce) { .day-chev { transition: none; } }

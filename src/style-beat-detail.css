@@ -33,10 +33,20 @@
 /* Figma 6522:80038: 12 left, 20 right; the Office row's 16 closes it */
 .bd-day .bp-day-body { padding: 0 20px 0 12px; }
 
-/* The exported filled triangle, pointing right until the day opens */
+/* The exported filled triangle, pointing right until the day opens. The
+   whole header folds the day; the chevron is a button too, so the fold
+   has a name and a stop for the keyboard. The padding widens its hit
+   area; the negative margin keeps the triangle where it was. */
 .bd-chev {
   width: 12px;
   height: 12px;
+  box-sizing: content-box;
+  padding: 6px;
+  margin: -6px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -48,6 +58,8 @@
 .bd-chev img { width: 12px; height: 6px; display: block; }
 
 .bd-day.expanded .bd-chev { transform: none; }
+.bd-chev:hover { background: rgba(97, 110, 136, 0.12); }
+.bd-chev:focus-visible { outline: 2px solid #5464f2; outline-offset: 0; }
 
 @media (prefers-reduced-motion: reduce) { .bd-chev { transition: none; } }
 
@@ -903,8 +915,7 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 .bd-dd-caret { display: none; flex-shrink: 0; margin-right: 8px; color: #313949; opacity: 0.6; }
 
 /* Dropdown: 34 tall, the field's full width; a 3px spacer and 10 to the
-   value, Medium 14 #313949; hovered, a #797883 outline, 6px corners. No
-   pencil: nothing here is editable. */
+   value, Medium 14 #313949. Never boxed: nothing here is editable. */
 .bd-card-details .bp-detail .bd-pick-value {
   position: relative;
   z-index: 1;
@@ -926,9 +937,9 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
   font-feature-settings: "calt" 0;
 }
 
-/* Only the part under the pointer: the label's box, or the value's. The
-   label keeps its box while its list is open; meanwhile no other field
-   reacts. */
+/* Only the label reacts: the value is not editable, so it gets no box.
+   The label keeps its box while its list is open; meanwhile no other
+   field reacts. */
 #bd-detail-grid:not(.has-open) .bd-pick-label:hover,
 .bd-pick.open .bd-pick-label,
 .bd-pick-label:focus-visible { outline: 1px solid #797883; background: #fff; font-weight: 400; color: #313949; }
@@ -937,7 +948,6 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 .bd-pick.open .bd-dd-caret,
 .bd-pick-label:focus-visible .bd-dd-caret { display: block; }
 
-#bd-detail-grid:not(.has-open) .bd-pick-value:hover { box-shadow: inset 0 0 0 1px #797883; }
 
 .bd-pick-label:focus-visible { outline: 2px solid var(--bd-link); }
 
@@ -2353,7 +2363,7 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 /* Header: Start Approval as a split primary button (Figma 6728:79291) —
    the label, then a 34px arrow half behind a 60% white rule, which opens
    Reject Beat. Hover / pressed #1344A9; disabled #ADB3EE. */
-.bu-head { display: flex; }
+.bu-head { display: flex; gap: 8px; }
 .bu-head[hidden] { display: none; }
 
 .bu-split {
@@ -2575,3 +2585,28 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 
 /* Force Checkout: the placeholder text wraps */
 .va-force-text { max-width: 460px; white-space: normal; }
+
+/* ── Map backdrop: skeleton while the image loads ─────── */
+/* The map's own cream with a soft sweep, until the street image has
+   decoded; then the image and the stops appear together */
+.bd-card-map .map-area.bd-map-loading::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.55) 50%, rgba(255, 255, 255, 0) 70%) -150% 0 / 60% 100% no-repeat,
+    repeating-linear-gradient(32deg, transparent 0 46px, #e3e8ef 46px 54px),
+    #f8f5ec;
+  animation: bd-map-sweep 1.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes bd-map-sweep { to { background-position: 250% 0, 0 0, 0 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .bd-card-map .map-area.bd-map-loading::before { animation: none; }
+}
+
+/* Layers: Satellite and Terrain show, but cannot be picked */
+.bd-terrain-opt.is-off { color: #b4bacb; cursor: not-allowed; }

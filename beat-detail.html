@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="src/style-bottom-up.css" />
   <link rel="stylesheet" href="src/map-controls.css" />
   <link rel="stylesheet" href="src/style-beat-detail.css" />
+  <!-- The map backdrop is the largest download: start it early -->
+  <link rel="preload" as="image" href="src/maps/beat-map.webp" type="image/webp" />
   <link rel="stylesheet" href="src/time-picker.css" />
   <link rel="stylesheet" href="src/record-picker.css" />
   <link rel="stylesheet" href="src/select-menu.css" />
@@ -96,17 +98,8 @@
               </label>
               <label class="bd-sim-field" data-t="beatDetail.sim.viewAs">View as
                 <select id="bd-sim-viewer">
-                  <option value="owner" data-t="beatDetail.sim.viewer.owner">Beat owner — Cameron Williamson</option>
+                  <option value="owner" data-t="beatDetail.sim.viewer.owner">Rep</option>
                   <option value="manager" data-t="beatDetail.sim.viewer.manager">Manager</option>
-                </select>
-              </label>
-              <!-- Which Figma icon set the Show / Hide Address toggle uses -->
-              <label class="bd-sim-field" data-t="beatDetail.sim.addressIcon">Address icon
-                <select id="bd-sim-addr-icon">
-                  <option value="1" data-t="beatDetail.sim.iconSet1">Set 1 — Building</option>
-                  <option value="2" data-t="beatDetail.sim.iconSet2">Set 2 — Building with pin</option>
-                  <option value="3" data-t="beatDetail.sim.iconSet3">Set 3 — Lines</option>
-                  <option value="4" selected data-t="beatDetail.sim.iconSet4">Set 4 — Building with pin (latest)</option>
                 </select>
               </label>
               <!-- Hovering any text shows its content key, so the PM can find
@@ -132,7 +125,7 @@
           <!-- Bottom-up, manager: Start Approval (its arrow holds Reject Beat,
                Figma 6728:79291), then Complete Approval. Filled by beat-detail.js. -->
           <div class="bu-head" id="bu-head" hidden></div>
-          <button class="bp-btn default" data-t="beatDetail.header.edit.label">Edit</button>
+          <button class="bp-btn default" id="bd-edit" data-t="beatDetail.header.edit.label">Edit</button>
           <!-- Beat actions (Figma 5988:150027) -->
           <div class="bd-beat-menu-wrap">
             <button class="bp-btn default bd-more-btn" type="button" id="bd-more"
@@ -842,6 +835,7 @@
   <script src="src/record-picker.js"></script>
   <script src="src/select-menu.js"></script>
   <script src="src/address-icons.js"></script>
+  <script src="src/beat-routes.js"></script>
   <script src="src/beat-detail.js"></script>
 </body>
 </html>

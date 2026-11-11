@@ -1,0 +1,104 @@
+key,text,where it appears,notes
+createBeat.header.title,Create Beat,Create Beat · header · page title,
+createBeat.header.cancel,Cancel,Create Beat · header · button,
+createBeat.header.save,Save,Create Beat · header · button,Turns on once a rep and dates are chosen and at least one day has a visit. Saving shows a message and stays on the page.
+createBeat.info.title,Beats Information,Create Beat · left panel · section heading,
+createBeat.info.rep.label,Assign Rep,Create Beat · Beats Information · field label,
+createBeat.info.rep.placeholder,Select,"Create Beat · Beats Information · Assign Rep, before a rep is chosen",
+createBeat.info.duration.label,Beat Duration,Create Beat · Beats Information · field label,
+createBeat.info.error.pastStart,The start date can't be in the past,Create Beat · Beats Information · under the dates,
+createBeat.info.error.endBeforeStart,The end date can't be before the start date,Create Beat · Beats Information · under the dates,
+createBeat.info.error.tooLong,A beat can run for up to {max} days,Create Beat · Beats Information · under the dates,Keep {max} (filled in by the page: 30).
+createBeat.unassigned.banner.one,1 unassigned visit for this rep,Create Beat · Beats Information · yellow note above Visits Information,
+createBeat.unassigned.banner.other,{count} unassigned visits for this rep,Create Beat · Beats Information · yellow note above Visits Information,Keep {count}.
+createBeat.unassigned.banner.link,View & Assign,Create Beat · Beats Information · link in the yellow note,
+createBeat.visits.title,Visits Information,Create Beat · left panel · section heading,
+createBeat.day.title,Day {n},"Create Beat · day card · title, before the date","Keep {n}, the day number."
+createBeat.day.count.one,1 visit,"Create Beat · day card · header, right",
+createBeat.day.count.other,{count} visits,"Create Beat · day card · header, right",Keep {count}.
+createBeat.day.expandAriaLabel,Show {day} visits,"Create Beat · day card · chevron, while folded (screen reader name)","Keep {day}, e.g. ""Day 1""."
+createBeat.day.collapseAriaLabel,Hide {day} visits,"Create Beat · day card · chevron, while open (screen reader name)","Keep {day}, e.g. ""Day 1""."
+createBeat.day.empty,Pick records on the map or,"Create Beat · day card · any day with no visits yet, before the Add Visit link",
+createBeat.day.addVisit,Add Visit,Create Beat · day card · link and button,
+createBeat.day.at,at,Create Beat · day card · between the start location and the start time,
+createBeat.day.start.ariaLabel,Start location: {value},Create Beat · day card · start location dropdown (screen reader name),Keep {value}.
+createBeat.day.startTime.ariaLabel,Start time: {value},Create Beat · day card · start time dropdown (screen reader name),Keep {value}.
+createBeat.day.end.ariaLabel,End location: {value},Create Beat · day card · end location dropdown (screen reader name),Keep {value}.
+createBeat.day.preview,Preview,Create Beat · day card · footer button,
+createBeat.day.reordered,Route won't be optimized due to your order preference.,Create Beat · day card · yellow note after visits are dragged into a new order,
+createBeat.day.optimize,Optimize Route,Create Beat · day card · link in the yellow note,Puts the visits back in their optimized order.
+createBeat.address.new,New Address,"Create Beat · day card · start/end location menu, last row",
+createBeat.visit.name,{name} Visit,Create Beat · day card and Records selected · a visit made from a record,"Keep {name}, the record name."
+createBeat.visit.duration.mins,{count} mins,Create Beat · map pin hover card · visit duration,Keep {count}.
+createBeat.visit.duration.ariaLabel,Visit time for {name}: {value},Create Beat · day card · visit minutes box (screen reader name),Keep {name} and {value}.
+createBeat.visit.edit.ariaLabel,Edit {name},Create Beat · day card · pencil on a visit row (screen reader name),Keep {name}.
+createBeat.visit.remove.ariaLabel,Remove {name},Create Beat · day card · close on a visit row (screen reader name),Keep {name}.
+createBeat.picked.applyAll,Apply to all,Create Beat · Records selected · menu button sets one visit type on every row,
+createBeat.picked.check.ariaLabel,Include {name},Create Beat · Records selected · row checkbox (screen reader name),Keep {name}.
+createBeat.picked.type.ariaLabel,Visit type for {name}: {type},Create Beat · Records selected · row dropdown (screen reader name),Keep {name} and {type}.
+createBeat.picked.cancel,Cancel,Create Beat · Records selected · footer button,
+createBeat.picked.add,Add Visits,Create Beat · Records selected · footer button,
+createBeat.unassigned.title,Unassigned visits,Create Beat · Unassigned visits · heading,
+createBeat.unassigned.back.ariaLabel,Back to Beats Information,Create Beat · Unassigned visits · back arrow (screen reader name),
+createBeat.unassigned.repeat,{type} • {frequency},"Create Beat · Unassigned visits · card, under the name",Keep {type} and {frequency}.
+createBeat.unassigned.assign.label,Assign,"Create Beat · Unassigned visits · card, before the day dropdown",
+createBeat.unassigned.day.ariaLabel,Day for {name}: {day},Create Beat · Unassigned visits · card day dropdown (screen reader name),Keep {name} and {day}.
+createBeat.unassigned.assign.button,Assign,Create Beat · Unassigned visits · card button,
+createBeat.unassigned.empty,No Unassigned visit records,Create Beat · Unassigned visits · when every visit is assigned,
+createBeat.toast.assigned,{name} assigned to {day} • {date},Create Beat · message after Assign,"Keep {name}, {day} and {date}."
+createBeat.toast.undo,Undo,Create Beat · message after Assign · link,
+createBeat.toast.dismiss.ariaLabel,Dismiss,Create Beat · message · close button (screen reader name),
+createBeat.tooltip.title,{day} “{name}”,"Create Beat · map · pin hover card, first line",Keep {day} and {name}.
+createBeat.lasso.ariaLabel,Lasso select,Create Beat · map · lasso button (screen reader name and hint),
+createBeat.modal.add.title,Add Visit for “{day} • {date}”,Create Beat · Add Visit dialog · title,Keep {day} and {date}.
+createBeat.modal.edit.title,Edit “{name}”,Create Beat · Edit Visit dialog · title,Keep {name}.
+createBeat.modal.record.label,Module & Record,Create Beat · Add Visit dialog · field label,
+createBeat.modal.record.placeholder,Select Record,"Create Beat · Add Visit dialog · Module & Record, before a record is picked",
+createBeat.modal.type.label,Visit Type,Create Beat · Visit dialogs · field label,
+createBeat.modal.type.placeholder,Select Visit Type,"Create Beat · Visit dialogs · Visit Type, before one is picked",
+createBeat.modal.time.label,Visit Time,Create Beat · Visit dialogs · field label,
+createBeat.modal.desc.label,Description,Create Beat · Visit dialogs · field label,
+createBeat.modal.pic.label,Visit Location Pic,Create Beat · Visit dialogs · field label,
+createBeat.modal.pic.placeholder,Upload your file,Create Beat · Visit dialogs · Visit Location Pic box,
+createBeat.modal.status.label,Location Status,Create Beat · Visit dialogs · field label,
+createBeat.modal.status.placeholder,Select Status,"Create Beat · Visit dialogs · Location Status, before one is picked",
+createBeat.modal.error.record,Select a record,Create Beat · Add Visit dialog · under Module & Record,
+createBeat.modal.error.type,Select a visit type,Create Beat · Visit dialogs · under Visit Type,
+createBeat.modal.error.time,Enter the visit time in minutes,"Create Beat · Visit dialogs · under Visit Time, left empty",
+createBeat.modal.cancel,Cancel,Create Beat · Visit dialogs · footer button,
+createBeat.modal.add.submit,Add,Create Beat · Add Visit dialog · footer button,
+createBeat.modal.edit.submit,Done,Create Beat · Edit Visit dialog · footer button,
+createBeat.info.startDate.ariaLabel,Start date,Create Beat · Beats Information · start date picker (screen reader name),
+createBeat.info.endDate.ariaLabel,End date,Create Beat · Beats Information · end date picker (screen reader name),
+createBeat.modal.time.unit,min,Create Beat · Visit dialogs and day card · after the visit minutes,
+createBeat.modal.error.timeMin,Visit time must be at least 1 min,Create Beat · Visit dialogs · under Visit Time,
+createBeat.modal.error.timeMax,Visit time can't be more than {max} mins,Create Beat · Visit dialogs · under Visit Time,Keep {max} (filled in by the page: 480).
+createBeat.toast.saved,Beat saved,Create Beat · message after Save,
+createBeat.day.customOrder,Custom order — route won't be optimized,Create Beat · folded day header · order icon (hint and screen reader name),
+createBeat.confirm.cancel,Cancel,Create Beat · confirmation dialogs · way-out button,
+createBeat.confirm.rep.title,Change the rep?,Create Beat · rep change confirmation · title,
+createBeat.confirm.rep.body,"The visits selected for {rep} will be erased, along with each day’s start and end settings.",Create Beat · rep change confirmation · text,"Keep {rep}, the rep being replaced."
+createBeat.confirm.rep.submit,Change rep,Create Beat · rep change confirmation · button,
+createBeat.confirm.shorten.title,Shorten the beat?,Create Beat · shorter dates confirmation · title,
+createBeat.confirm.shorten.body.one,1 visit is on a day outside the new dates:,"Create Beat · shorter dates confirmation · text, before the list of days",
+createBeat.confirm.shorten.body.other,{count} visits are on days outside the new dates:,"Create Beat · shorter dates confirmation · text, before the list of days",Keep {count}.
+createBeat.confirm.shorten.dayLine.one,{day} • {date} — 1 visit,Create Beat · shorter dates confirmation · one line per day dropped,Keep {day} and {date}.
+createBeat.confirm.shorten.dayLine.other,{day} • {date} — {count} visits,Create Beat · shorter dates confirmation · one line per day dropped,"Keep {day}, {date} and {count}."
+createBeat.confirm.shorten.remove,Remove visits,Create Beat · shorter dates confirmation · button,
+createBeat.confirm.shorten.move,Move to unassigned,Create Beat · shorter dates confirmation · button (default),
+createBeat.toast.moved.one,1 visit moved to unassigned visits,"Create Beat · message after shortening the dates, with Undo",
+createBeat.toast.moved.other,{count} visits moved to unassigned visits,"Create Beat · message after shortening the dates, with Undo",Keep {count}.
+createBeat.toast.removed.one,1 visit removed,"Create Beat · message after shortening the dates, with Undo",
+createBeat.toast.removed.other,{count} visits removed,"Create Beat · message after shortening the dates, with Undo",Keep {count}.
+createBeat.day.previewSoon,Coming soon,Create Beat · day card · hint on the Preview button,
+createBeat.visit.move.ariaLabel,Reorder {name}. Use the up and down arrow keys to move it.,Create Beat · day card · drag handle on a visit row (screen reader name),Keep {name}.
+createBeat.visit.moved,{name} moved to position {n} of {total},Create Beat · day card · read out after a keyboard reorder (screen reader),"Keep {name}, {n} and {total}."
+createBeat.toast.visitRemoved,{name} removed,"Create Beat · message after removing a visit, with Undo",Keep {name}.
+createBeat.picked.day.ariaLabel,Add to: {day},Create Beat · Records selected · day dropdown beside the count (screen reader name),Keep {day}.
+createBeat.lasso.hint,Draw around pins to select them · Esc to stop,Create Beat · map · hint while the lasso is on,
+createBeat.confirm.discard.title,Discard changes?,Create Beat · Cancel confirmation · title,
+createBeat.confirm.discard.body,The selections you've made will be erased.,Create Beat · Cancel confirmation · text,
+createBeat.confirm.discard.keep,Keep editing,Create Beat · Cancel confirmation · way-out button,
+createBeat.confirm.discard.submit,Discard,Create Beat · Cancel confirmation · button,
+createBeat.picked.countTo.one,1 record to,"Create Beat · Records selected · heading, before the day dropdown","Reads on into the day: ""1 record to Day 1 • 15 Nov""."
+createBeat.picked.countTo.other,{count} records to,"Create Beat · Records selected · heading, before the day dropdown","Keep {count}. Reads on into the day: ""4 records to Day 1 • 15 Nov""."

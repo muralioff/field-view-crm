@@ -1,3 +1,5 @@
+beatDetail.day.expandAriaLabel,Show {day} visits,"Beat Detail · day row · chevron, while the day is folded (screen reader name)","Keep {day} (filled in by the page), e.g. ""Day 1""."
+beatDetail.day.collapseAriaLabel,Hide {day} visits,"Beat Detail · day row · chevron, while the day is open (screen reader name)","Keep {day} (filled in by the page), e.g. ""Day 1""."
 beatList.views.ariaLabel,Views,Beat List · views row (screen reader),
 beatList.view.all,All Beats,Beat List · views row,
 beatList.view.upcoming,Upcoming,Beat List · views row,
@@ -59,7 +61,19 @@ forceCheckout.title,Force checkout “{name}”,Force Checkout dialog · title,K
 forceCheckout.text,"Once checked out, the visit will be marked as completed.","Force Checkout dialog · message, second line",
 forceCheckout.confirm,Yes,Force Checkout dialog · primary button,
 forceCheckout.toast,{name} checked out.,Toast · after Force Checkout,Keep {name}. Placeholder copy — PM to confirm
-beatDetail.sim.iconSet4,Set 4 — Building with pin (latest),Simulate today panel · Address icon option (prototype only),
 forceCheckout.ask,Are you sure you want to force checkout “{name}”?,"Force Checkout dialog · message, first line",Keep {name}
 beatDetail.details.pick.ariaLabel,{field} — change the field shown here,"Beat Details · a field's label, which opens the field list (screen reader)",Keep {field}
 beatDetail.details.pick.listLabel,Fields,Beat Details · the field list (screen reader),
+bottomUp.status.approved,Approved,"Beat Detail · bottom-up · status badge once the manager approves the beat, until the rep starts it",
+bottomUp.action.resubmit,Resubmit,"Beat Detail · bottom-up · record header button, rep, approved beat with rejected visits, before it starts",
+bottomUp.action.sendForApproval,Send for Approval,Beat Detail · bottom-up · record header button while the rep edits a resubmission,
+bottomUp.editing.note,"Edit or add visits, then send them for approval.",Beat Detail · bottom-up · right of the tabs while the rep edits a resubmission,
+bottomUp.toast.editedForResubmit,{name} updated. It goes for approval when you send.,Toast · after the rep edits a visit during a resubmission,Keep {name} (filled in by the page). {name} = the visit or record name.
+bottomUp.toast.editingStarted,"Edit or add visits, then click Send for Approval.",Toast · after the rep clicks Resubmit,
+bottomUp.toast.editingCancelled,Changes discarded.,Toast · after the rep cancels a resubmission,
+bottomUp.toast.nothingToSend,Edit or add a visit before sending for approval.,Toast · Send for Approval with no edited or added visits,
+bottomUp.rejectBeat.noneApproved,"No visits were approved, so this Beat will be marked as rejected.","Reject Beat dialog · line under the title, when Complete Approval has no approved visits",
+bottomUp.note.resubmitted.one,{rep} resubmitted {count} visit for approval.,"Bell notification · manager, after the rep resubmits one visit","Keep {rep}, {count} (filled in by the page). {rep} = the sales rep's name; {count} = a number of visits."
+bottomUp.note.resubmitted.other,{rep} resubmitted {count} visits for approval.,"Bell notification · manager, after the rep resubmits several visits","Keep {rep}, {count} (filled in by the page). {rep} = the sales rep's name; {count} = a number of visits."
+bottomUp.toast.resubmitted.one,{count} visit sent to {manager} for approval.,"Toast · rep, after Send for Approval with one visit","Keep {count}, {manager} (filled in by the page). {count} = a number of visits; {manager} = the manager's name."
+bottomUp.toast.resubmitted.other,{count} visits sent to {manager} for approval.,"Toast · rep, after Send for Approval with several visits","Keep {count}, {manager} (filled in by the page). {count} = a number of visits; {manager} = the manager's name."
