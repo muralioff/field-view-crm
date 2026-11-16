@@ -1170,7 +1170,7 @@
     "notes": ""
   },
   "transferVisit.sub": {
-    "text": "Choose a rep with an active beat, then set the new date and time",
+    "text": "Choose a rep with an active beat and a date. The visit is placed on the route by location.",
     "where": "Transfer Visit dialog · line under the title",
     "notes": ""
   },
@@ -1181,11 +1181,6 @@
   },
   "transferVisit.beat.label": {
     "text": "Active Beat",
-    "where": "Transfer Visit dialog · field label",
-    "notes": ""
-  },
-  "transferVisit.time.label": {
-    "text": "Visit Time",
     "where": "Transfer Visit dialog · field label",
     "notes": ""
   },
@@ -2459,16 +2454,6 @@
     "where": "Create Beat · day card · footer button",
     "notes": ""
   },
-  "createBeat.day.reordered": {
-    "text": "Route won't be optimized due to your order preference.",
-    "where": "Create Beat · day card · yellow note after visits are dragged into a new order",
-    "notes": ""
-  },
-  "createBeat.day.optimize": {
-    "text": "Optimize Route",
-    "where": "Create Beat · day card · link in the yellow note",
-    "notes": "Puts the visits back in their optimized order."
-  },
   "createBeat.address.new": {
     "text": "New Address",
     "where": "Create Beat · day card · start/end location menu, last row",
@@ -2700,89 +2685,14 @@
     "notes": "Keep {max} (filled in by the page: 480)."
   },
   "createBeat.toast.saved": {
-    "text": "Beat saved",
+    "text": "Beat saved successfully",
     "where": "Create Beat · message after Save",
     "notes": ""
   },
   "createBeat.day.customOrder": {
-    "text": "Custom order — route won't be optimized",
+    "text": "Visit order maintained — route won't be optimized",
     "where": "Create Beat · folded day header · order icon (hint and screen reader name)",
     "notes": ""
-  },
-  "createBeat.confirm.cancel": {
-    "text": "Cancel",
-    "where": "Create Beat · confirmation dialogs · way-out button",
-    "notes": ""
-  },
-  "createBeat.confirm.rep.title": {
-    "text": "Change the rep?",
-    "where": "Create Beat · rep change confirmation · title",
-    "notes": ""
-  },
-  "createBeat.confirm.rep.body": {
-    "text": "The visits selected for {rep} will be erased, along with each day’s start and end settings.",
-    "where": "Create Beat · rep change confirmation · text",
-    "notes": "Keep {rep}, the rep being replaced."
-  },
-  "createBeat.confirm.rep.submit": {
-    "text": "Change rep",
-    "where": "Create Beat · rep change confirmation · button",
-    "notes": ""
-  },
-  "createBeat.confirm.shorten.title": {
-    "text": "Shorten the beat?",
-    "where": "Create Beat · shorter dates confirmation · title",
-    "notes": ""
-  },
-  "createBeat.confirm.shorten.body.one": {
-    "text": "1 visit is on a day outside the new dates:",
-    "where": "Create Beat · shorter dates confirmation · text, before the list of days",
-    "notes": ""
-  },
-  "createBeat.confirm.shorten.body.other": {
-    "text": "{count} visits are on days outside the new dates:",
-    "where": "Create Beat · shorter dates confirmation · text, before the list of days",
-    "notes": "Keep {count}."
-  },
-  "createBeat.confirm.shorten.dayLine.one": {
-    "text": "{day} • {date} — 1 visit",
-    "where": "Create Beat · shorter dates confirmation · one line per day dropped",
-    "notes": "Keep {day} and {date}."
-  },
-  "createBeat.confirm.shorten.dayLine.other": {
-    "text": "{day} • {date} — {count} visits",
-    "where": "Create Beat · shorter dates confirmation · one line per day dropped",
-    "notes": "Keep {day}, {date} and {count}."
-  },
-  "createBeat.confirm.shorten.remove": {
-    "text": "Remove visits",
-    "where": "Create Beat · shorter dates confirmation · button",
-    "notes": ""
-  },
-  "createBeat.confirm.shorten.move": {
-    "text": "Move to unassigned",
-    "where": "Create Beat · shorter dates confirmation · button (default)",
-    "notes": ""
-  },
-  "createBeat.toast.moved.one": {
-    "text": "1 visit moved to unassigned visits",
-    "where": "Create Beat · message after shortening the dates, with Undo",
-    "notes": ""
-  },
-  "createBeat.toast.moved.other": {
-    "text": "{count} visits moved to unassigned visits",
-    "where": "Create Beat · message after shortening the dates, with Undo",
-    "notes": "Keep {count}."
-  },
-  "createBeat.toast.removed.one": {
-    "text": "1 visit removed",
-    "where": "Create Beat · message after shortening the dates, with Undo",
-    "notes": ""
-  },
-  "createBeat.toast.removed.other": {
-    "text": "{count} visits removed",
-    "where": "Create Beat · message after shortening the dates, with Undo",
-    "notes": "Keep {count}."
   },
   "createBeat.day.previewSoon": {
     "text": "Coming soon",
@@ -2810,28 +2720,8 @@
     "notes": "Keep {day}."
   },
   "createBeat.lasso.hint": {
-    "text": "Draw around pins to select them · Esc to stop",
+    "text": "Draw around pins to select them",
     "where": "Create Beat · map · hint while the lasso is on",
-    "notes": ""
-  },
-  "createBeat.confirm.discard.title": {
-    "text": "Discard changes?",
-    "where": "Create Beat · Cancel confirmation · title",
-    "notes": ""
-  },
-  "createBeat.confirm.discard.body": {
-    "text": "The selections you've made will be erased.",
-    "where": "Create Beat · Cancel confirmation · text",
-    "notes": ""
-  },
-  "createBeat.confirm.discard.keep": {
-    "text": "Keep editing",
-    "where": "Create Beat · Cancel confirmation · way-out button",
-    "notes": ""
-  },
-  "createBeat.confirm.discard.submit": {
-    "text": "Discard",
-    "where": "Create Beat · Cancel confirmation · button",
     "notes": ""
   },
   "createBeat.picked.countTo.one": {
@@ -2843,5 +2733,65 @@
     "text": "{count} records to",
     "where": "Create Beat · Records selected · heading, before the day dropdown",
     "notes": "Keep {count}. Reads on into the day: \"4 records to Day 1 • 15 Nov\"."
+  },
+  "createBeat.confirm.leave.title": {
+    "text": "You have not saved your changes.",
+    "where": "Create Beat · Cancel confirmation · title",
+    "notes": ""
+  },
+  "createBeat.confirm.leave.body": {
+    "text": "Are you sure you want to move away from this page?",
+    "where": "Create Beat · Cancel confirmation · text",
+    "notes": ""
+  },
+  "createBeat.confirm.leave.stay": {
+    "text": "Stay Here",
+    "where": "Create Beat · Cancel confirmation · way-out button",
+    "notes": ""
+  },
+  "createBeat.confirm.leave.submit": {
+    "text": "Yes, Leave Page",
+    "where": "Create Beat · Cancel confirmation · red button, goes to the beat list",
+    "notes": ""
+  },
+  "createBeat.map.empty": {
+    "text": "Choose a rep and dates to see records",
+    "where": "Create Beat · map · pill in the middle of the dimmed map, before a rep and dates are chosen",
+    "notes": ""
+  },
+  "transferVisit.placement": {
+    "text": "Placed by location: visit {pos} of {total} on {day} - {date}, around {time}.",
+    "where": "Transfer Visit dialog · note under Visit Duration, once a date is picked",
+    "notes": "Keep {pos}, {total}, {day}, {date}, {time}"
+  },
+  "transferVisit.placement.shift": {
+    "text": "Later visits move by {mins} min.",
+    "where": "Transfer Visit dialog · after the placement note, when visits follow it",
+    "notes": "Keep {mins}"
+  },
+  "createBeat.day.maintainOrder": {
+    "text": "Maintain Visit order",
+    "where": "Create Beat · day card · checkbox at the foot, on days with two visits or more",
+    "notes": "Ticked when the visits are dragged into a new order."
+  },
+  "createBeat.day.maintainOrderTip": {
+    "text": "Route won't be optimized for this day",
+    "where": "Create Beat · day card · hint on the i icon beside Maintain Visit order",
+    "notes": ""
+  },
+  "createBeat.toast.visitsOnDays": {
+    "text": "Some of these days have visits. Move the visits to other days, then change the dates.",
+    "where": "Create Beat · warning message when a date change would drop days that have visits (the old dates come back)",
+    "notes": ""
+  },
+  "createBeat.lasso.offAriaLabel": {
+    "text": "Back to cursor",
+    "where": "Create Beat · map · lasso button while the lasso is on (screen reader name and hint)",
+    "notes": ""
+  },
+  "createBeat.toast.emptyDays": {
+    "text": "Some days have no visits. Add visits to every day, or change the dates to leave the empty days out.",
+    "where": "Create Beat · red error message when Save is clicked with empty days",
+    "notes": ""
   }
 }

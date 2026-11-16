@@ -239,7 +239,7 @@ rescheduleVisit.sameDayTip,Same day can not be chosen for rescheduling.,"Resched
 rescheduleVisit.closedDayTip,This day is already closed.,"Reschedule Visit dialog · tooltip on a closed day, greyed in the Date list",
 rescheduleVisit.submit,Reschedule Visit,Reschedule Visit dialog · primary button,
 transferVisit.title,Transfer Visit,Transfer Visit dialog · title,
-transferVisit.sub,"Choose a rep with an active beat, then set the new date and time",Transfer Visit dialog · line under the title,
+transferVisit.sub,Choose a rep with an active beat and a date. The visit is placed on the route by location.,Transfer Visit dialog · line under the title,
 transferVisit.rep.label,Sales Rep,Transfer Visit dialog · field label,
 transferVisit.beat.label,Active Beat,Transfer Visit dialog · field label,
 transferVisit.time.label,Visit Time,Transfer Visit dialog · field label,

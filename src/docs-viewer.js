@@ -19,6 +19,7 @@
     'beat-detail-view-spec.md',
     'beat-engine-spec.md',
     'beat-planner-architecture.md',
+    'create-beat-spec.md',
     'field-rules-spec.md',
     'planner-configuration-spec.md',
     'porting-to-ui-lib.md',

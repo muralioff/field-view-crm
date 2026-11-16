@@ -114,7 +114,9 @@ const CbVisits = (() => {
     return null;
   }
 
-  /* Start: today on. End: the start to 30 days in, counting the start */
+  /* Start: today on. End: the start to 30 days in, counting the start.
+     Once days exist an out-of-range end is kept and reported instead of
+     cleared, so a slip never wipes the cards. */
   function limitDates() {
     const start = $('cb-start-date'), end = $('cb-end-date');
     const from = parseDate(start.value);
@@ -123,114 +125,88 @@ const CbVisits = (() => {
     end.max = from ? isoDate(addDays(from, MAX_DAYS - 1)) : '';
     /* An end the new start puts out of reach is cleared */
     const to = parseDate(end.value);
-    if (from && to && (to < from || to > addDays(from, MAX_DAYS - 1))) end.value = '';
+    if (!state.days.length && from && to && (to < from || to > addDays(from, MAX_DAYS - 1))) end.value = '';
   }
 
   /* The dates the day cards were last built for */
   const applied = { start: null, end: null };
 
-  /* Changing the dates once days exist:
-       a new start moves the whole beat — the end moves with it, the length
-         stays, and every day keeps its visits by day number (Day 1 stays
-         Day 1 on its new date, with its times, order and order flag)
-       a later end adds empty days at the end
-       an earlier end drops days off the end — if they hold visits, a
-         confirmation asks whether those go to Unassigned visits or are
-         removed, with Undo after
+  /* Changing the dates once days exist. Each day is its calendar date,
+     and its visits stay on that date:
+       an earlier start or a later end adds empty days at that end
+       a later start or an earlier end drops days off that end — allowed
+         only while those days are empty. A dropped day with visits stops
+         the change: the old dates come back and the message under them
+         names the days, so the visits can be moved first.
      While a date is half-picked the cards stay on screen, greyed. */
   function onDatesChanged(changed) {
     const startIn = $('cb-start-date'), endIn = $('cb-end-date');
-    const newStart = parseDate(startIn.value);
-    if (changed === startIn && state.days.length && newStart) {
-      endIn.value = isoDate(addDays(newStart, state.days.length - 1));
+    if (changed === startIn && parseDate(startIn.value) && !endIn.value) {
+      /* A first start date makes a one-day beat: the end takes the same
+         date, and a later end can be picked from there */
+      endIn.value = startIn.value;
     }
     limitDates();
     const problem = dateProblem();
-    ['start', 'end'].forEach(f =>
-      $(`cb-${f}-date`).closest('.cb-input').classList.toggle('is-invalid', problem && problem.field === f));
-    const msg = $('cb-date-msg');
-    msg.hidden = !problem;
-    msg.textContent = problem ? problem.msg : '';
+    showDateMsg(problem && problem.msg, problem && problem.field);
 
     state.start = parseDate(startIn.value);
     state.end = parseDate(endIn.value);
     if (!ready()) { render(); return; }
     if (!state.days.length) buildDays();
-    else if (!fitDays()) return;      // waiting on the confirmation
+    else {
+      const blocked = blockedDays();
+      if (blocked.length) {
+        /* Days with visits can't be dropped: put the old dates back */
+        startIn.value = isoDate(applied.start);
+        endIn.value = isoDate(applied.end);
+        limitDates();
+        state.start = applied.start;
+        state.end = applied.end;
+        showDateMsg('');
+        render();
+        toast(t('createBeat.toast.visitsOnDays'), null, 'warning');
+        return;
+      }
+      fitDays();
+    }
     applied.start = state.start;
     applied.end = state.end;
     render();
   }
 
-  /* Bring the days in line with the dates. False while a confirmation
-     is open — it finishes the change itself. */
+  function showDateMsg(text, field) {
+    ['start', 'end'].forEach(f =>
+      $(`cb-${f}-date`).closest('.cb-input').classList.toggle('is-invalid', Boolean(text) && field === f));
+    const msg = $('cb-date-msg');
+    msg.hidden = !text;
+    msg.textContent = text || '';
+  }
+
+  const outside = d => d.date < state.start || d.date > state.end;
+  /* Days the new dates would drop that still hold visits */
+  const blockedDays = () => state.days.filter(d => outside(d) && d.visits.length);
+
+  /* Rebuild the days for the new dates, each existing day kept on its
+     date with everything on it. The selected day, if dropped, passes to
+     the nearest day left. */
   function fitDays() {
-    const n = Math.round((state.end - state.start) / 864e5) + 1;
-    const redate = () => state.days.forEach((d, i) => { d.date = addDays(state.start, i); });
-    if (n >= state.days.length) {
-      while (state.days.length < n) state.days.push(newDay());
-      redate();
-      return true;
+    const prevSel = state.days[state.selected];
+    const openDays = [...state.open].map(i => state.days[i]);
+    const byDate = new Map(state.days.map(d => [isoDate(d.date), d]));
+    const days = [];
+    for (let d = new Date(state.start); d <= state.end; d = addDays(d, 1)) {
+      days.push(byDate.get(isoDate(d)) || { ...newDay(), date: new Date(d) });
     }
-    const dropped = state.days.slice(n);
-    const count = dropped.reduce((sum, d) => sum + d.visits.length, 0);
-    if (!count) { cutDays(n); redate(); return true; }
-
-    const lines = dropped.map((d, k) => d.visits.length
-      ? `<li>${esc(t(d.visits.length === 1 ? 'createBeat.confirm.shorten.dayLine.one' : 'createBeat.confirm.shorten.dayLine.other',
-            { day: dayLabel(n + k), date: shortDate(d.date), count: d.visits.length }))}</li>` : '').join('');
-    confirmDialog({
-      title: t('createBeat.confirm.shorten.title'),
-      body: `<p>${esc(plural(['createBeat.confirm.shorten.body.one', 'createBeat.confirm.shorten.body.other'], count))}</p><ul class="cbc-list">${lines}</ul>`,
-      actions: [
-        { label: t('createBeat.confirm.cancel'), run() {
-          /* Keep the old dates */
-          $('cb-end-date').value = isoDate(applied.end);
-          onDatesChanged(null);
-        } },
-        { label: t('createBeat.confirm.shorten.remove'), run: () => shorten(n, false, count) },
-        { label: t('createBeat.confirm.shorten.move'), primary: true, run: () => shorten(n, true, count) },
-      ],
-    });
-    return false;
-  }
-
-  function cutDays(n) {
-    state.days.length = n;
-    state.selected = Math.min(state.selected, n - 1);
-    state.open = new Set([...state.open].filter(i => i < n));
-    [...startPickers.keys()].forEach(i => { if (i >= n) startPickers.delete(i); });
-  }
-
-  /* Drop the days past `n`; their visits go back to Unassigned visits
-     (`toUnassigned`) or are removed. Undo puts everything back. */
-  function shorten(n, toUnassigned, count) {
-    const snap = {
-      days: state.days.map(d => ({ ...d, visits: d.visits.slice() })),
-      unassigned: state.unassigned.slice(),
-      selected: state.selected, open: new Set(state.open), end: applied.end,
-    };
-    if (toUnassigned) {
-      state.days.slice(n).forEach(d => d.visits.forEach(v => state.unassigned.push({
-        name: v.name, module: v.module, type: v.type, repeat: '', visit: v,
-        due: d.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
-      })));
+    state.days.filter(d => !days.includes(d)).forEach(d => startPickers.delete(d));
+    state.days = days;
+    let sel = days.indexOf(prevSel);
+    if (sel < 0) {
+      sel = days.reduce((best, d, i) => (Math.abs(d.date - prevSel.date) < Math.abs(days[best].date - prevSel.date) ? i : best), 0);
     }
-    cutDays(n);
-    state.days.forEach((d, i) => { d.date = addDays(state.start, i); });
-    applied.start = state.start;
-    applied.end = state.end;
-    render();
-    toast(plural(toUnassigned
-      ? ['createBeat.toast.moved.one', 'createBeat.toast.moved.other']
-      : ['createBeat.toast.removed.one', 'createBeat.toast.removed.other'], count), () => {
-      state.days = snap.days;
-      state.unassigned = snap.unassigned;
-      state.selected = snap.selected;
-      state.open = snap.open;
-      $('cb-end-date').value = isoDate(snap.end);
-      onDatesChanged(null);
-    });
+    state.selected = sel;
+    state.open = new Set(openDays.map(d => days.indexOf(d)).filter(i => i > -1));
+    state.open.add(sel);
   }
 
   /* ── Confirmation dialog ───────────────────────────── */
@@ -242,12 +218,13 @@ const CbVisits = (() => {
     $('cbc-body').innerHTML = body;
     const foot = $('cbc-foot');
     foot.innerHTML = actions.map((a, i) =>
-      `<button class="cb-btn ${a.primary ? 'cbf-btn-primary' : 'cbf-btn-default'}" type="button" data-i="${i}">${esc(a.label)}</button>`).join('');
+      `<button class="cb-btn ${a.danger ? 'cbf-btn-danger' : a.primary ? 'cbf-btn-primary' : 'cbf-btn-default'}" type="button" data-i="${i}">${esc(a.label)}</button>`).join('');
     const close = i => { $('cbc-overlay').hidden = true; confirmOpen = null; actions[i].run(); };
     foot.onclick = e => { const b = e.target.closest('button'); if (b) close(Number(b.dataset.i)); };
     confirmOpen = () => close(0);
     $('cbc-overlay').hidden = false;
-    foot.querySelector('.cbf-btn-primary, button:last-child').focus();
+    /* Focus starts on the safe choice when the other one is destructive */
+    foot.querySelector(actions.some(a => a.danger) ? 'button' : '.cbf-btn-primary, button:last-child').focus();
   }
 
   const newDay = () => ({ date: null, visits: [], manual: false, from: 'home', at: '9:00 AM', to: 'office' });
@@ -275,11 +252,18 @@ const CbVisits = (() => {
 
   /* ── Rendering ─────────────────────────────────────── */
   function render() {
+    /* Order only means something with two visits or more */
+    state.days.forEach(d => { if (d.visits.length < 2) d.manual = false; });
     const panel = $('cb-panel');
     ['info', 'picked', 'unassigned'].forEach(v => { $(`cbv-${v}`).hidden = state.view !== v; });
     panel.classList.toggle('is-sheet', state.view !== 'info');
 
     const show = ready();
+    /* The map's empty state: a dimmed map and one line saying why. Its
+       controls wait too. */
+    $('cbv-map-empty').hidden = show;
+    ['cb-lasso', 'cb-locate', 'zoom-in', 'zoom-out', 'cb-layers'].forEach(id => { $(id).disabled = !show; });
+    if (!show && lassoOn) setLassoOff();
     /* Days already built stay on screen, greyed, while a date is being
        changed; they come back to life once the dates are whole again */
     $('cbv-visits').hidden = !state.days.length;
@@ -399,15 +383,18 @@ const CbVisits = (() => {
                     aria-label="${esc(t('createBeat.day.preview'))}, ${esc(t('createBeat.day.previewSoon'))}">${esc(t('createBeat.day.preview'))}</button>
           </div>
         </div>
-        ${day.manual ? `
-          <div class="cbv-day-note">
-            <i class="ti ti-info-circle" aria-hidden="true"></i>
-            <p>${esc(t('createBeat.day.reordered'))}</p>
-            <button class="cbv-link" type="button" data-act="optimize">${esc(t('createBeat.day.optimize'))}</button>
-          </div>` : ''}`;
+        ${n >= 2 ? `
+          <label class="cbv-order">
+            <input type="checkbox" class="cbv-order-input" ${day.manual ? 'checked' : ''} />
+            <span class="cbv-order-box" aria-hidden="true"></span>
+            <span class="cbv-order-text">${esc(t('createBeat.day.maintainOrder'))}</span>
+            <span class="cbv-order-info" tabindex="0" role="img"
+                  aria-label="${esc(t('createBeat.day.maintainOrderTip'))}" data-tip="${esc(t('createBeat.day.maintainOrderTip'))}">
+              <i class="ti ti-info-circle" aria-hidden="true"></i></span>
+          </label>` : ''}`;
     }
     return `
-      <div class="cbv-day${sel ? ' is-selected' : ''}${open ? ' is-open' : ''}${open && n ? ' has-visits' : ''}${day.manual && open ? ' has-note' : ''}" data-day="${i}">
+      <div class="cbv-day${sel ? ' is-selected' : ''}${open ? ' is-open' : ''}${open && n ? ' has-visits' : ''}${open && n >= 2 ? ' has-order' : ''}" data-day="${i}">
         ${head}${body}
       </div>`;
   }
@@ -422,7 +409,7 @@ const CbVisits = (() => {
           <p class="cbv-visit-title"><span class="name">${esc(v.name)}</span><span class="dot">&nbsp;&nbsp;•&nbsp;&nbsp;</span><span class="module">${esc(v.module)}</span></p>
           <div class="cbv-visit-meta">
             <span class="cbv-visit-type">${esc(v.type)}</span>
-            <span class="cbv-visit-sep" aria-hidden="true">-</span>
+            <span class="cbv-visit-sep" aria-hidden="true">•</span>
             <!-- Minutes, typed: the visit type's duration to start with -->
             <input class="cbv-mins" type="text" inputmode="numeric" maxlength="3" autocomplete="off"
                    value="${v.mins}" aria-label="${esc(t('createBeat.visit.duration.ariaLabel', { name: v.name, value: timeLabel(v) }))}" />
@@ -439,20 +426,32 @@ const CbVisits = (() => {
 
   /* One start-time picker per day, made once and moved into each fresh
      render, so a render never leaves an old one listening */
-  const startPickers = new Map();
+  const startPickers = new Map();   // day → its picker's host
   function startPicker(i) {
-    if (!startPickers.has(i)) {
+    const day = state.days[i];
+    if (!startPickers.has(day)) {
       const host = document.createElement('span');
       host.className = 'cbv-tp';
-      const day = state.days[i];
       TimePicker.create(host, {
         value: day.at,
         ariaLabel: t('createBeat.day.startTime.ariaLabel', { value: day.at }),
-        onChange(display) { state.days[i].at = display; },
+        onChange(display) { day.at = display; },
       });
-      startPickers.set(i, host);
+      startPickers.set(day, host);
     }
-    return startPickers.get(i);
+    return startPickers.get(day);
+  }
+
+  /* Where a moved visit landed: its row blinks yellow and fades
+     (Figma BP-Internal 109:80537) */
+  function flashVisit(dayIndex, visit) {
+    const vi = state.days[dayIndex].visits.indexOf(visit);
+    const row = $('cbv-days').querySelector(`.cbv-day[data-day="${dayIndex}"] .cbv-visit[data-visit="${vi}"]`);
+    if (!row) return;
+    row.classList.remove('is-landed');
+    void row.offsetWidth;            // restart the animation if it is already running
+    row.classList.add('is-landed');
+    row.addEventListener('animationend', () => row.classList.remove('is-landed'), { once: true });
   }
 
   function renderDays() {
@@ -505,7 +504,7 @@ const CbVisits = (() => {
          so a stray click in a day being worked on never collapses it */
       const act = e.target.closest('[data-act]');
       if (!act) {
-        if (e.target.closest('button, input, .cb-module-wrap, .cbv-visit-acts')) return;
+        if (e.target.closest('button, input, .cb-module-wrap, .cbv-visit-acts, .cbv-order')) return;
         if (state.open.has(i) && state.selected === i) return;
         state.open.add(i);
         state.selected = i;
@@ -535,10 +534,6 @@ const CbVisits = (() => {
           return;
         }
         case 'move': return;
-        case 'optimize':
-          day.visits.sort((a, b) => a.seq - b.seq);
-          day.manual = false;
-          break;
         case 'preview': return;
         default: return;
       }
@@ -561,6 +556,16 @@ const CbVisits = (() => {
     host.addEventListener('keydown', e => {
       if (e.target.matches('.cbv-mins') && e.key === 'Enter') { e.preventDefault(); e.target.blur(); }
     });
+    /* The i icon explains; it doesn't toggle the box it sits beside */
+    host.addEventListener('click', e => { if (e.target.closest('.cbv-order-info')) e.preventDefault(); }, true);
+
+    /* Maintain Visit order: the day's order flag, kept as the box says */
+    host.addEventListener('change', e => {
+      if (!e.target.matches('.cbv-order-input')) return;
+      state.days[Number(e.target.closest('.cbv-day').dataset.day)].manual = e.target.checked;
+      render();
+    });
+
     /* A value that won't do stays in the box, red, with the dialogs'
        message under the row; the visit keeps its last good minutes */
     host.addEventListener('change', e => {
@@ -595,6 +600,7 @@ const CbVisits = (() => {
       day.manual = true;
       render();
       $('cbv-live').textContent = t('createBeat.visit.moved', { name: moved.name, n: to + 1, total: day.visits.length });
+      flashVisit(di, moved);
       const handle = $('cbv-days').querySelector(`.cbv-day[data-day="${di}"] .cbv-visit[data-visit="${to}"] .cbv-drag`);
       if (handle) handle.focus();
     });
@@ -646,13 +652,39 @@ const CbVisits = (() => {
       if (!dayEl || !host.contains(dayEl)) return null;
       const day = Number(dayEl.dataset.day);
       const list = dayEl.querySelector('.cbv-visits');
-      if (!list) return { day, dayEl, list: null, before: null };
+      if (!list) return { day, dayEl, list: null, before: null, folded: !state.open.has(day) };
       const rows = [...list.children].filter(n => n !== drag.li);
       const before = rows.find(n => { const r = n.getBoundingClientRect(); return y < r.top + r.height / 2; }) || null;
       return { day, dayEl, list, before };
     }
 
+    /* Over a folded day, a quick drop adds the visit at the end of that
+       day. Held there, the day opens after a pause, so the visit can be
+       placed among its visits. Passing across days on the way opens
+       nothing. */
+    const OPEN_DELAY = 600;
+    function holdOpen(at) {
+      const day = at && at.folded ? at.day : null;
+      if (day === drag.holdDay) return;
+      clearTimeout(drag.holdTimer);
+      drag.holdDay = day;
+      if (day == null) return;
+      drag.holdTimer = setTimeout(() => {
+        if (!drag || drag.holdDay !== day) return;
+        state.open.add(day);
+        renderDays();
+        /* The render made a fresh row for the visit being dragged: carry on
+           with that one, still an empty slot */
+        const from = state.days[drag.from].visits.indexOf(drag.visit);
+        drag.li = host.querySelector(`.cbv-day[data-day="${drag.from}"] .cbv-visit[data-visit="${from}"]`);
+        drag.li.classList.add('is-dragging');
+        drag.holdDay = null;
+        if (drag.lastEvent) moveDrag(drag.lastEvent);
+      }, OPEN_DELAY);
+    }
+
     function moveDrag(e) {
+      drag.lastEvent = e;
       drag.ghost.style.left = `${e.clientX - drag.dx}px`;
       drag.ghost.style.top = `${e.clientY - drag.dy}px`;
 
@@ -665,6 +697,7 @@ const CbVisits = (() => {
       host.querySelectorAll('.is-drop-day').forEach(n => n.classList.remove('is-drop-day'));
       const blocked = at && at.day !== drag.from && onDay(state.days[at.day], drag.visit.rec);
       drag.ghost.classList.toggle('is-blocked', Boolean(blocked));
+      holdOpen(blocked ? null : at);
       if (!at || blocked) { drag.target = null; return; }
       drag.target = at;
       if (at.list) {
@@ -682,6 +715,7 @@ const CbVisits = (() => {
     function endDrag(commit) {
       const d = drag;
       drag = null;
+      if (d) clearTimeout(d.holdTimer);
       document.body.classList.remove('cbv-dragging');
       if (!d || !d.on) return;
       justDropped = true;
@@ -706,6 +740,9 @@ const CbVisits = (() => {
         if (at.day === d.from ? to !== before : (at.list && to < dest.visits.length - 1)) dest.manual = true;
         /* A folded day the visit lands on opens to show it */
         state.open.add(at.day);
+        render();
+        flashVisit(at.day, d.visit);
+        return;
       }
       render();
     }
@@ -915,10 +952,16 @@ const CbVisits = (() => {
 
   /* ── Toast ─────────────────────────────────────────── */
   let toastTimer;
-  function toast(message, undo) {
+  /* kind: 'success' (default), 'warning' (an action that was refused) or
+     'error' (something to fix before going on) */
+  const TOAST_ICON = { success: 'src/toast-tick.svg', warning: 'src/pa-warn-line.svg', error: 'src/alert-warn.svg' };
+  function toast(message, undo, kind = 'success') {
     const el = $('cbv-toast');
+    el.classList.toggle('is-warning', kind === 'warning');
+    el.classList.toggle('is-error', kind === 'error');
+    el.setAttribute('role', kind === 'error' ? 'alert' : 'status');
     el.innerHTML = `
-      <img class="cbv-toast-icon" src="src/toast-tick.svg" alt="" aria-hidden="true" />
+      <img class="cbv-toast-icon" src="${TOAST_ICON[kind]}" alt="" aria-hidden="true" />
       <span class="cbv-toast-text">${esc(message)}</span>
       ${undo ? `<button class="cbv-toast-undo" type="button">${esc(t('createBeat.toast.undo'))}</button>` : ''}
       <button class="cbv-toast-close" type="button" aria-label="${esc(t('createBeat.toast.dismiss.ariaLabel'))}">
@@ -1070,6 +1113,8 @@ const CbVisits = (() => {
   }
 
   function drawPin(ctx, pin, { x, tipY, scale }) {
+    /* No pins until the rep and the dates are chosen */
+    if (!ready()) return;
     const s = pinState(pin);
     const w = PIN_W / scale, h = PIN_H / scale;
     const top = tipY - h;
@@ -1104,6 +1149,7 @@ const CbVisits = (() => {
   /* The lasso, in world points, drawn under the pins */
   let lasso = null;          // [[x, y], …] while drawing or until the picks are dealt with
   let lassoOn = false;
+  let setLassoOff = () => {};
   function drawLasso(ctx, scale) {
     if (!lasso || lasso.length < 2) return;
     ctx.save();
@@ -1170,15 +1216,22 @@ const CbVisits = (() => {
 
     /* ── Lasso ── */
     const lassoBtn = $('cb-lasso');
+    /* One button, two tools: off, it offers the lasso; on, it offers the
+       cursor back */
     const setLasso = on => {
       lassoOn = on;
       lassoBtn.classList.toggle('is-active', on);
       lassoBtn.setAttribute('aria-pressed', String(on));
+      lassoBtn.querySelector('i').className = `ti ${on ? 'ti-pointer' : 'ti-lasso'}`;
+      const label = t(on ? 'createBeat.lasso.offAriaLabel' : 'createBeat.lasso.ariaLabel');
+      lassoBtn.setAttribute('aria-label', label);
+      lassoBtn.title = label;
       canvas.classList.toggle('cbv-lasso-mode', on);
       $('cbv-lasso-hint').hidden = !on;
       tip.hidden = true;
     };
     lassoBtn.addEventListener('click', () => setLasso(!lassoOn));
+    setLassoOff = () => setLasso(false);
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && lassoOn && !modal) setLasso(false); });
 
     /* While the lasso is on, a press draws instead of panning: taken in
@@ -1224,47 +1277,42 @@ const CbVisits = (() => {
   function wireRep() {
     const wrap = $('cb-rep-wrap');
     wrap.insertAdjacentHTML('beforeend', CbMenu.html({ id: 'cb-rep-list', options: REPS.map(r => [r, r]) }));
-    const menu = wrap.querySelector('.cb-menu');
 
     function applyRep(rep) {
       state.rep = rep;
+      setDurationLocked(false);
       const val = $('cb-rep-value');
       val.textContent = rep;
       val.classList.remove('cb-placeholder');
       val.removeAttribute('data-t');
-      state.picked = [];
-      state.view = 'info';
+      /* The unassigned visits are the rep's own */
       state.unassigned = UNASSIGNED.slice();
-      if (ready()) buildDays();
-      else {
-        /* Dates mid-change: the greyed days keep their dates, lose the rest */
-        state.days = state.days.map(d => ({ ...newDay(), date: d.date }));
-        startPickers.clear();
-      }
+      if (ready() && !state.days.length) buildDays();
       render();
     }
 
     CbMenu.attach(wrap, {
       trigger: $('cb-assign-rep'),
-      onPick(rep) {
-        if (rep === state.rep) return;
-        const has = state.days.some(d => d.visits.length) || state.picked.length;
-        if (!state.rep || !has) { applyRep(rep); return; }
-        confirmDialog({
-          title: t('createBeat.confirm.rep.title'),
-          body: `<p>${esc(t('createBeat.confirm.rep.body', { rep: state.rep }))}</p>`,
-          actions: [
-            { label: t('createBeat.confirm.cancel'), run: () => CbMenu.select(menu, state.rep) },
-            { label: t('createBeat.confirm.rep.submit'), primary: true, run: () => applyRep(rep) },
-          ],
-        });
-      },
+      /* Records are not tied to a rep, so a new rep keeps every visit,
+         day and setting. Whether the new rep can take those dates is
+         checked when the beat is saved, on the server. */
+      onPick(rep) { if (rep !== state.rep) applyRep(rep); },
+    });
+  }
+
+  /* Beat Duration waits for a rep: until one is chosen its date boxes
+     are locked */
+  function setDurationLocked(locked) {
+    ['cb-start-date', 'cb-end-date'].forEach(id => {
+      $(id).disabled = locked;
+      $(id).closest('.cb-input').classList.toggle('is-disabled', locked);
     });
   }
 
   /* After Save the page starts over for the next beat */
   function resetPage() {
     state.rep = '';
+    setDurationLocked(true);
     const val = $('cb-rep-value');
     val.textContent = t('createBeat.info.rep.placeholder');
     val.classList.add('cb-placeholder');
@@ -1295,6 +1343,7 @@ const CbVisits = (() => {
     wireDate($('cb-start-date'));
     wireDate($('cb-end-date'));
     limitDates();
+    setDurationLocked(true);
     wireDays();
     wirePicked();
     wireUnassigned();
@@ -1316,11 +1365,11 @@ const CbVisits = (() => {
       const leave = () => { window.location.href = 'beat-list.html'; };
       if (!state.days.some(d => d.visits.length) && !state.picked.length) { leave(); return; }
       confirmDialog({
-        title: t('createBeat.confirm.discard.title'),
-        body: `<p>${esc(t('createBeat.confirm.discard.body'))}</p>`,
+        title: t('createBeat.confirm.leave.title'),
+        body: `<p>${esc(t('createBeat.confirm.leave.body'))}</p>`,
         actions: [
-          { label: t('createBeat.confirm.discard.keep'), run() {} },
-          { label: t('createBeat.confirm.discard.submit'), primary: true, run: leave },
+          { label: t('createBeat.confirm.leave.stay'), run() {} },
+          { label: t('createBeat.confirm.leave.submit'), danger: true, run: leave },
         ],
       });
     });
@@ -1329,6 +1378,11 @@ const CbVisits = (() => {
        side when the beat is created — nothing to show here. */
     $('cb-save').addEventListener('click', () => {
       if ($('cb-save').disabled) return;
+      /* Every day of the beat needs a visit */
+      if (state.days.some(d => !d.visits.length)) {
+        toast(t('createBeat.toast.emptyDays'), null, 'error');
+        return;
+      }
       resetPage();
       toast(t('createBeat.toast.saved'));
     });

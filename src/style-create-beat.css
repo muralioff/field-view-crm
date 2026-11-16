@@ -688,7 +688,16 @@ body {
 }
 
 .cb-btn.cbf-btn-default:hover,
-.cb-btn.cbf-btn-primary:not(:disabled):hover { filter: brightness(0.98); }
+.cb-btn.cbf-btn-primary:not(:disabled):hover,
+.cb-btn.cbf-btn-danger:hover { filter: brightness(0.98); }
+
+/* Destructive confirm (Yes, Leave Page) */
+.cb-btn.cbf-btn-danger {
+  padding: 8px 12px 8px 14px;
+  background: linear-gradient(to top, #f0003a, #ff3a60);
+  line-height: normal;
+  color: #fff;
+}
 
 /* Nothing different from what is applied: the page's own disabled primary,
    the one Save wears until a rep and a duration are chosen */
@@ -1096,7 +1105,7 @@ body {
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 0;
+  padding: 10px 0;              /* a little air: no drive time sits between visits here yet */
   cursor: grab;
   touch-action: none;
 }
@@ -1248,7 +1257,7 @@ body.cbv-dragging .cbv-visit:hover .cbv-visit-acts { opacity: 0; }
 .cbv-drag-chip .cbv-visit-title { overflow: visible; }
 .cbv-drag-chip.is-blocked { opacity: 0.55; }
 
-/* A folded or empty day the visit would join */
+/* A folded or empty day the visit would join at its end */
 .cbv-day.is-drop-day { border-color: #5464f2; background: #f7f8ff; }
 
 .cbv-add-row {
@@ -1279,21 +1288,48 @@ body.cbv-dragging .cbv-visit:hover .cbv-visit-acts { opacity: 0; }
 .cbv-link-text { font-size: 14px; font-weight: 500; line-height: 16px; color: #5464f2; }
 .cbv-add-row:hover .cbv-link-text { text-decoration: underline; }
 
-/* Route not optimized: across the card's foot, inside its border. The
-   info tint, not the notes yellow: it is the user's own choice, and
-   yellow stays for what needs attention (unassigned visits) */
-.cbv-day-note {
+/* Maintain Visit order: a checkbox at the card's foot on any day with
+   two visits or more; ticked, the day's route is not optimized on save */
+.cbv-order {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   margin: 12px calc(-1 * var(--pad-x)) calc(-1 * var(--pad-b));
-  padding: 8px 15px 8px 11px;
-  background: #f3f5ff;
+  /* The box centred on the rail: the rail runs 14px into the content */
+  padding: 8px 15px 8px calc(var(--pad-x) + 6.5px);
+  background: #f3f5ff;               /* the info tint the order note had */
   border-top: 1px solid #d9defc;
   border-radius: 0 0 13px 13px;
+  cursor: pointer;
+  transition: background 0.15s;
 }
-.cbv-day-note > .ti { flex-shrink: 0; font-size: 16px; color: #5464f2; }
-.cbv-day-note p { flex: 1; min-width: 0; font-size: 13px; line-height: 18px; color: #434d5e; }
+.cbv-order:hover { background: #e9ecfe; }
+.cbv-order-input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.cbv-order-box { width: 15px; height: 15px; flex-shrink: 0; background: #fff; border: 2px solid var(--input-outline); border-radius: 3px; }
+.cbv-order-input:checked + .cbv-order-box { border: none; background: url('create-beat/checkbox-on.svg') no-repeat center / 15px 15px; }
+.cbv-order-input:focus-visible + .cbv-order-box { outline: 2px solid #5464f2; outline-offset: 2px; }
+.cbv-order-text { margin-right: -4px; font-size: 14px; font-weight: 500; line-height: 20px; color: var(--text-base); }
+.cbv-order-info { position: relative; display: inline-flex; font-size: 15px; color: var(--text-label); cursor: default; }
+.cbv-order-info::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  background: #313949;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  color: #fff;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  z-index: 5;
+}
+.cbv-order-info:hover::after,
+.cbv-order-info:focus-visible::after { opacity: 1; }
 
 /* A folded day whose order was changed says so in its header */
 .cbv-day-order { display: flex; flex-shrink: 0; font-size: 15px; color: #5464f2; }
@@ -1713,3 +1749,90 @@ select.cbm-input.is-placeholder { color: var(--placeholder); }
 
 /* Read out, not shown */
 .cbv-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Beat Duration before a rep is chosen */
+.cb-duration .cb-input.is-disabled { background: #f5f6f8; border-color: #d2d9f1; cursor: not-allowed; }
+.cb-duration .cb-input.is-disabled .cbv-date { color: #a4abc7; cursor: not-allowed; }
+
+/* ── Map empty state: before a rep and dates are chosen ──
+   The map dimmed, and one quiet pill in its middle */
+.cbv-map-empty {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(244, 245, 250, 0.55);
+}
+.cbv-map-empty[hidden] { display: none; }
+.cbv-map-empty-pill {
+  max-width: 100%;
+  padding: 7px 16px;
+  background: #fff;
+  border: 1px solid #e2e4ee;
+  border-radius: 100px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-label);
+  text-align: center;
+}
+
+/* A refused action (dates over days with visits): the warning look */
+.cbv-toast.is-warning { background: #fffbeb; border-color: #f1d48b; }
+.cbv-toast.is-warning .cbv-toast-icon { width: 16px; height: 16px; margin: 3px; }
+.cbv-toast.is-warning .cbv-toast-text { color: #56430b; white-space: normal; }
+
+/* A moved visit's landing: #EFCA09 at 20% across the card's inner width
+   appears at once, holds a moment, then fades out — the visit is placed
+   (Figma BP-Internal 109:80537) */
+.cbv-visit.is-landed::after {
+  content: '';
+  position: absolute;
+  inset: 0 calc(-1 * var(--pad-x));
+  background: rgba(239, 202, 9, 0.2);
+  pointer-events: none;
+  animation: cbv-landed 1.6s ease-out forwards;
+}
+@keyframes cbv-landed {
+  0%, 20% { opacity: 1; }
+  100%    { opacity: 0; }
+}
+/* Until the highlight is gone, the row's hover tint stays off so the two
+   don't mix */
+.cbv-visit.is-landed:hover::before { opacity: 0; }
+
+/* ── Beat Detail's day-card typography and alignment ──
+   The chevron, the sequence numbers and the Home/Office icons share one
+   centre line, 14px into the card's content (Beat Detail: 27px from the
+   card edge). The visit name in Semibold 15, the rest of its lines in 14. */
+.cbv-day-head .day-chev { margin-left: 2px; }   /* its 24px hit area, centred on the rail */
+
+.cbv-day-count,
+.cbv-day.is-open .cbv-day-count { font-size: 14px; line-height: 20px; }
+
+.cbv-num { font-size: 13px; font-weight: 500; line-height: 17px; border-color: #c3c9d6; color: var(--text-base); }
+
+/* Name • module: the name gives way first, the module always shows whole */
+.cbv-visit-title { display: flex; align-items: baseline; min-width: 0; font-size: 15px; font-weight: 600; line-height: 20px; }
+.cbv-visit-title .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.cbv-visit-title .dot,
+.cbv-visit-title .module { flex-shrink: 0; font-size: 14px; font-weight: 400; }
+.cbv-visit-title .dot { color: #8b9bb8; }
+
+/* Type • minutes */
+.cbv-visit-type { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--text-label); }
+.cbv-visit-meta { gap: 0; white-space: nowrap; }
+.cbv-visit-sep { flex-shrink: 0; margin: 0 6px; color: #8b9bb8; }
+.cbv-visit-meta .cbv-mins { flex-shrink: 0; }
+
+/* Something to fix first (Save with empty days): the error look */
+.cbv-toast.is-error { background: #fff4f4; border-color: #f5b3b3; }
+.cbv-toast.is-error .cbv-toast-icon { width: 18px; height: 18px; margin: 2px; }
+.cbv-toast.is-error .cbv-toast-text { color: #8a1c1c; white-space: normal; }
+
+/* Map controls before a rep and dates are chosen */
+.cb-ctrl-btn:disabled,
+.cb-zoom button:disabled,
+.cb-layers:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }

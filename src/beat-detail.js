@@ -1302,10 +1302,6 @@ Strings.ready.then(() => {
     return ends.length ? minutesToClock(Math.max(...ends) + TRAVEL_MINUTES) : '9:00 AM';
   }
 
-  /* Start times the day's visits already hold (other than `except`) */
-  const takenStarts = (dayIndex, except) => DAYS[dayIndex].visits
-    .filter(v => v !== except).map(v => v.time.split(' to ')[0]).filter(t => /^\d/.test(t));
-
   /* Visit Duration is typed in minutes: whole numbers only, 1 to 480 */
   const MAX_VISIT_MINUTES = 480;
   function durationProblem(input) {
@@ -2487,7 +2483,7 @@ Strings.ready.then(() => {
      keeps its type. */
   /* `timeSel` is a time picker: locked blank until a day is chosen, then
      it opens on the visit's own start time */
-  function wireChain(beatSel, dateSel, typeSel, timeSel, beatsFor) {
+  function wireChain(beatSel, dateSel, typeSel, beatsFor, onDate) {
     beatSel.addEventListener('change', () => {
       setMsg(beatSel, '');
       const b = beatsFor().find(x => x.id === beatSel.value);
@@ -2501,20 +2497,13 @@ Strings.ready.then(() => {
       }
       unlock(dateSel);
       if (typeSel) lock(typeSel);
-      lock(timeSel);
+      if (onDate) onDate();
     });
     dateSel.addEventListener('change', () => {
       setMsg(dateSel, '');
       if (typeSel) fill(typeSel, VISIT_TYPES.map(v => [v, v]), t('visitForm.placeholder.selectVisitType'), vaVisit().type);
-      /* The time picker opens on the visit's own start time, or 9:00 AM */
-      const own = vaVisit().time.split(' to ')[0];
-      timeSel.setValue(/^\d/.test(own) ? own : '9:00 AM');
-      /* On this beat, the day's other visits keep their start times */
-      timeSel.setDisabledTimes(beatSel.value === 'BP-003'
-        ? takenStarts(Number(dateSel.value), vaVisit()) : []);
-      setMsg(timeSel.input, '');
       if (typeSel) unlock(typeSel);
-      unlock(timeSel);
+      if (onDate) onDate();
     });
     if (typeSel) typeSel.addEventListener('change', () => setMsg(typeSel, ''));
   }
@@ -2633,22 +2622,61 @@ Strings.ready.then(() => {
     afterChange();
   });
 
-  /* Transfer — another rep, one of their beats, a day, a type and a time */
+  /* Transfer — another rep, one of their beats, a day, a type and a
+     length. No time: the visit is slotted into that day's route by
+     location — between its nearest stops, the others keeping their order —
+     and the visits after it move on by its length and the drive. */
   const ra = { rep: $('va-reassign-rep'), beat: $('va-reassign-beat'), date: $('va-reassign-date'),
-               type: $('va-reassign-type'),
-               time: TimePicker.create($('va-reassign-time-host'), {
-                 inputId: 'va-reassign-time', value: '', disabled: true,
-                 onChange: () => setMsg(ra.time.input, ''),
-               }),
-               reason: $('va-reassign-reason') };
-  wireChain(ra.beat, ra.date, ra.type, ra.time, () => REP_BEATS[ra.rep.value] || []);
+               type: $('va-reassign-type'), reason: $('va-reassign-reason') };
   const raDur = $('va-reassign-dur');
+  const raPlace = $('va-reassign-place');
+  wireChain(ra.beat, ra.date, ra.type, () => REP_BEATS[ra.rep.value] || [], () => showPlacement());
   wireDuration(raDur);
+  raDur.addEventListener('input', () => showPlacement());
+
+  /* Another rep's day, as the prototype stands it in: a steady number of
+     30-minute visits from 9:00 AM, 15 minutes' drive apart, and the spot
+     the location gives this visit among them */
+  const seedOf = str => [...str].reduce((n, c) => (n * 31 + c.charCodeAt(0)) % 9973, 7);
+  function placement() {
+    const b = (REP_BEATS[ra.rep.value] || []).find(x => x.id === ra.beat.value);
+    const i = ra.date.value === '' ? -1 : Number(ra.date.value);
+    const mins = Number(raDur.value);
+    if (!b || i < 0 || !mins) return null;
+    const day = dayOfBeat(b, i);
+    const seed = seedOf(`${b.id}${i}${vaVisit().name}`);
+    const count = 2 + seed % 5;                    /* 2–6 visits already */
+    const at = seed % (count + 1);                 /* its place among them */
+    const start = BUSINESS.start + at * (30 + TRAVEL_MINUTES);
+    const shift = at < count ? mins + TRAVEL_MINUTES : 0;
+    const end = Math.max(start + mins, BUSINESS.start + (count - 1) * (30 + TRAVEL_MINUTES) + 30 + shift);
+    return { day, pos: at + 1, total: count + 1, start, shift, end };
+  }
+  function showPlacement() {
+    const p = placement();
+    raPlace.hidden = !p;
+    if (!p) return;
+    const where = t('transferVisit.placement', { pos: p.pos, total: p.total, day: p.day.label, date: p.day.date, time: minutesToClock(p.start) });
+    raPlace.textContent = p.shift ? `${where} ${t('transferVisit.placement.shift', { mins: p.shift })}` : where;
+  }
+  /* The same soft limits as adding a visit: visits per day, business hours */
+  function placementIssues(p) {
+    const issues = [];
+    if (p.total > MAX_VISITS_PER_DAY) {
+      issues.push(t('bottomUp.limit.visits', { day: p.day.label, date: p.day.date, count: p.total, max: MAX_VISITS_PER_DAY }));
+    }
+    if (p.end > BUSINESS.end) {
+      issues.push(t('bottomUp.limit.hours', { day: p.day.label, date: p.day.date,
+        end: minutesToClock(p.end), close: minutesToClock(BUSINESS.end) }));
+    }
+    return issues;
+  }
   ra.rep.addEventListener('change', () => {
     setMsg(ra.rep, '');
     fill(ra.beat, REP_BEATS[ra.rep.value].map(b => [b.id, beatLabel(b)]), t('visitForm.placeholder.selectBeat'));
     unlock(ra.beat);
-    [ra.date, ra.type, ra.time].forEach(lock);
+    [ra.date, ra.type].forEach(lock);
+    showPlacement();
   });
 
   function openReassign(d, v) {
@@ -2656,7 +2684,8 @@ Strings.ready.then(() => {
     $('va-reassign-title').textContent = t('transferVisit.title');
     fill(ra.rep, Object.keys(REP_BEATS).filter(r => r !== THIS_REP).map(r => [r, r]), t('visitForm.placeholder.selectRep'));
     setMsg(ra.rep, '');
-    [ra.beat, ra.date, ra.type, ra.time].forEach(lock);
+    [ra.beat, ra.date, ra.type].forEach(lock);
+    raPlace.hidden = true;
     ra.beat.innerHTML = `<option value="" selected disabled>${escape(t('visitForm.placeholder.selectBeat'))}</option>`;
     ra.reason.value = '';
     raDur.value = String(spanMinutes(vaVisit().time)); setMsg(raDur, '');
@@ -2666,13 +2695,19 @@ Strings.ready.then(() => {
 
   $('va-reassign-go').addEventListener('click', () => {
     const ok = [need(ra.rep, t('visitForm.error.selectRep')), need(ra.beat, t('visitForm.error.selectBeat')),
-                need(ra.date, t('visitForm.error.selectDate')), need(ra.time, t('visitForm.error.selectTime'))].every(Boolean);
+                need(ra.date, t('visitForm.error.selectDate'))].every(Boolean);
     const durMsg = durationProblem(raDur);
     if (durMsg) setMsg(raDur, durMsg);
     if (!ok || durMsg) return;
+    const p = placement();
+    $('va-reassign-overlay').hidden = true;      /* the limit check opens over it */
+    confirmLimits(placementIssues(p), () => transferNow(p), () => { $('va-reassign-overlay').hidden = false; });
+  });
+
+  function transferNow(p) {
     const { d, v } = vaTarget;
-    const b = REP_BEATS[ra.rep.value].find(x => x.id === ra.beat.value);
-    const target = dayOfBeat(b, Number(ra.date.value));
+    const b = { id: ra.beat.value };
+    const target = p.day;
     const wasActive = vaVisit().status === 'active';
     const { visit } = liftVisit(d, v);
     handOn(d, wasActive);
@@ -2680,7 +2715,7 @@ Strings.ready.then(() => {
       { name: visit.name, rep: ra.rep.value, beat: b.id, day: target.label, date: target.date }));
     closeOverlays();
     afterChange();
-  });
+  }
 
   /* Cancel — a reason, then the visit stays in its day marked Cancelled */
   const cancelReason = $('va-cancel-reason');
@@ -3087,19 +3122,27 @@ Strings.ready.then(() => {
     }
     return issues;
   }
-  let limitProceed = null;
-  function confirmLimits(issues, proceed) {
+  let limitProceed = null, limitBack = null;
+  /* back: what Go Back returns to, when the check opened over a dialog */
+  function confirmLimits(issues, proceed, back = null) {
     if (!issues.length) { proceed(); return; }
     limitProceed = proceed;
+    limitBack = back;
     $('bu-limit-list').innerHTML = issues.map(x => `<li>${escape(x)}</li>`).join('');
     $('bu-limit-overlay').hidden = false;
     $('bu-limit-go').focus();
   }
-  $('bu-limit-back').addEventListener('click', () => { $('bu-limit-overlay').hidden = true; limitProceed = null; });
+  $('bu-limit-back').addEventListener('click', () => {
+    $('bu-limit-overlay').hidden = true;
+    limitProceed = null;
+    if (limitBack) limitBack();
+    limitBack = null;
+  });
   $('bu-limit-go').addEventListener('click', () => {
     $('bu-limit-overlay').hidden = true;
     const go = limitProceed;
     limitProceed = null;
+    limitBack = null;
     if (go) go();
   });
 

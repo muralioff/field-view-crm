@@ -13,7 +13,6 @@
   <link rel="stylesheet" href="src/style-beat-detail.css" />
   <!-- The map backdrop is the largest download: start it early -->
   <link rel="preload" as="image" href="src/maps/beat-map.webp" type="image/webp" />
-  <link rel="stylesheet" href="src/time-picker.css" />
   <link rel="stylesheet" href="src/record-picker.css" />
   <link rel="stylesheet" href="src/select-menu.css" />
   <!-- First, so the copy is in before anything renders -->
@@ -453,7 +452,7 @@
     <div class="bd-modal bd-modal-add bd-va-reassign" role="dialog" aria-modal="true" aria-labelledby="va-reassign-title">
       <header class="bd-modal-head">
         <h2 class="bd-modal-title" id="va-reassign-title"></h2>
-        <p class="bd-modal-sub" data-t="transferVisit.sub">Choose a rep with an active beat, then set the new date and time</p>
+        <p class="bd-modal-sub" data-t="transferVisit.sub">Choose a rep with an active beat and a date. The visit is placed on the route by location.</p>
       </header>
       <div class="bd-modal-body">
         <div class="bd-field">
@@ -485,13 +484,6 @@
           </div>
         </div>
         <div class="bd-field">
-          <label for="va-reassign-time" data-t="transferVisit.time.label">Visit Time</label>
-          <div class="bd-control">
-            <div class="bd-tp" id="va-reassign-time-host"></div>
-            <span class="bd-msg" hidden></span>
-          </div>
-        </div>
-        <div class="bd-field">
           <label for="va-reassign-dur" data-t="visitForm.duration.label">Visit Duration</label>
           <div class="bd-control">
             <div class="bd-input-unit">
@@ -499,6 +491,9 @@
               <span class="bd-unit" aria-hidden="true" data-t="visitForm.duration.unit">min</span>
             </div>
             <span class="bd-msg" hidden></span>
+            <!-- No time is asked for: the visit goes where it fits on the
+                 route. Once a date is picked, where that is. -->
+            <p class="bd-edit-note" id="va-reassign-place" hidden></p>
           </div>
         </div>
         <div class="bd-field">
@@ -831,7 +826,6 @@
   <script src="src/data.js"></script>
   <script src="src/map.js"></script>
   <script src="src/sidebar.js"></script>
-  <script src="src/time-picker.js"></script>
   <script src="src/record-picker.js"></script>
   <script src="src/select-menu.js"></script>
   <script src="src/address-icons.js"></script>

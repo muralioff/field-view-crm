@@ -25,8 +25,6 @@ createBeat.day.start.ariaLabel,Start location: {value},Create Beat · day card �
 createBeat.day.startTime.ariaLabel,Start time: {value},Create Beat · day card · start time dropdown (screen reader name),Keep {value}.
 createBeat.day.end.ariaLabel,End location: {value},Create Beat · day card · end location dropdown (screen reader name),Keep {value}.
 createBeat.day.preview,Preview,Create Beat · day card · footer button,
-createBeat.day.reordered,Route won't be optimized due to your order preference.,Create Beat · day card · yellow note after visits are dragged into a new order,
-createBeat.day.optimize,Optimize Route,Create Beat · day card · link in the yellow note,Puts the visits back in their optimized order.
 createBeat.address.new,New Address,"Create Beat · day card · start/end location menu, last row",
 createBeat.visit.name,{name} Visit,Create Beat · day card and Records selected · a visit made from a record,"Keep {name}, the record name."
 createBeat.visit.duration.mins,{count} mins,Create Beat · map pin hover card · visit duration,Keep {count}.
@@ -73,32 +71,23 @@ createBeat.info.endDate.ariaLabel,End date,Create Beat · Beats Information · e
 createBeat.modal.time.unit,min,Create Beat · Visit dialogs and day card · after the visit minutes,
 createBeat.modal.error.timeMin,Visit time must be at least 1 min,Create Beat · Visit dialogs · under Visit Time,
 createBeat.modal.error.timeMax,Visit time can't be more than {max} mins,Create Beat · Visit dialogs · under Visit Time,Keep {max} (filled in by the page: 480).
-createBeat.toast.saved,Beat saved,Create Beat · message after Save,
-createBeat.day.customOrder,Custom order — route won't be optimized,Create Beat · folded day header · order icon (hint and screen reader name),
-createBeat.confirm.cancel,Cancel,Create Beat · confirmation dialogs · way-out button,
-createBeat.confirm.rep.title,Change the rep?,Create Beat · rep change confirmation · title,
-createBeat.confirm.rep.body,"The visits selected for {rep} will be erased, along with each day’s start and end settings.",Create Beat · rep change confirmation · text,"Keep {rep}, the rep being replaced."
-createBeat.confirm.rep.submit,Change rep,Create Beat · rep change confirmation · button,
-createBeat.confirm.shorten.title,Shorten the beat?,Create Beat · shorter dates confirmation · title,
-createBeat.confirm.shorten.body.one,1 visit is on a day outside the new dates:,"Create Beat · shorter dates confirmation · text, before the list of days",
-createBeat.confirm.shorten.body.other,{count} visits are on days outside the new dates:,"Create Beat · shorter dates confirmation · text, before the list of days",Keep {count}.
-createBeat.confirm.shorten.dayLine.one,{day} • {date} — 1 visit,Create Beat · shorter dates confirmation · one line per day dropped,Keep {day} and {date}.
-createBeat.confirm.shorten.dayLine.other,{day} • {date} — {count} visits,Create Beat · shorter dates confirmation · one line per day dropped,"Keep {day}, {date} and {count}."
-createBeat.confirm.shorten.remove,Remove visits,Create Beat · shorter dates confirmation · button,
-createBeat.confirm.shorten.move,Move to unassigned,Create Beat · shorter dates confirmation · button (default),
-createBeat.toast.moved.one,1 visit moved to unassigned visits,"Create Beat · message after shortening the dates, with Undo",
-createBeat.toast.moved.other,{count} visits moved to unassigned visits,"Create Beat · message after shortening the dates, with Undo",Keep {count}.
-createBeat.toast.removed.one,1 visit removed,"Create Beat · message after shortening the dates, with Undo",
-createBeat.toast.removed.other,{count} visits removed,"Create Beat · message after shortening the dates, with Undo",Keep {count}.
+createBeat.toast.saved,Beat saved successfully,Create Beat · message after Save,
+createBeat.day.customOrder,Visit order maintained — route won't be optimized,Create Beat · folded day header · order icon (hint and screen reader name),
 createBeat.day.previewSoon,Coming soon,Create Beat · day card · hint on the Preview button,
 createBeat.visit.move.ariaLabel,Reorder {name}. Use the up and down arrow keys to move it.,Create Beat · day card · drag handle on a visit row (screen reader name),Keep {name}.
 createBeat.visit.moved,{name} moved to position {n} of {total},Create Beat · day card · read out after a keyboard reorder (screen reader),"Keep {name}, {n} and {total}."
 createBeat.toast.visitRemoved,{name} removed,"Create Beat · message after removing a visit, with Undo",Keep {name}.
 createBeat.picked.day.ariaLabel,Add to: {day},Create Beat · Records selected · day dropdown beside the count (screen reader name),Keep {day}.
-createBeat.lasso.hint,Draw around pins to select them · Esc to stop,Create Beat · map · hint while the lasso is on,
-createBeat.confirm.discard.title,Discard changes?,Create Beat · Cancel confirmation · title,
-createBeat.confirm.discard.body,The selections you've made will be erased.,Create Beat · Cancel confirmation · text,
-createBeat.confirm.discard.keep,Keep editing,Create Beat · Cancel confirmation · way-out button,
-createBeat.confirm.discard.submit,Discard,Create Beat · Cancel confirmation · button,
+createBeat.lasso.hint,Draw around pins to select them,Create Beat · map · hint while the lasso is on,
 createBeat.picked.countTo.one,1 record to,"Create Beat · Records selected · heading, before the day dropdown","Reads on into the day: ""1 record to Day 1 • 15 Nov""."
 createBeat.picked.countTo.other,{count} records to,"Create Beat · Records selected · heading, before the day dropdown","Keep {count}. Reads on into the day: ""4 records to Day 1 • 15 Nov""."
+createBeat.confirm.leave.title,You have not saved your changes.,Create Beat · Cancel confirmation · title,
+createBeat.confirm.leave.body,Are you sure you want to move away from this page?,Create Beat · Cancel confirmation · text,
+createBeat.confirm.leave.stay,Stay Here,Create Beat · Cancel confirmation · way-out button,
+createBeat.confirm.leave.submit,"Yes, Leave Page","Create Beat · Cancel confirmation · red button, goes to the beat list",
+createBeat.map.empty,Choose a rep and dates to see records,"Create Beat · map · pill in the middle of the dimmed map, before a rep and dates are chosen",
+createBeat.day.maintainOrder,Maintain Visit order,"Create Beat · day card · checkbox at the foot, on days with two visits or more",Ticked when the visits are dragged into a new order.
+createBeat.day.maintainOrderTip,Route won't be optimized for this day,Create Beat · day card · hint on the i icon beside Maintain Visit order,
+createBeat.toast.visitsOnDays,"Some of these days have visits. Move the visits to other days, then change the dates.",Create Beat · warning message when a date change would drop days that have visits (the old dates come back),
+createBeat.lasso.offAriaLabel,Back to cursor,Create Beat · map · lasso button while the lasso is on (screen reader name and hint),
+createBeat.toast.emptyDays,"Some days have no visits. Add visits to every day, or change the dates to leave the empty days out.",Create Beat · red error message when Save is clicked with empty days,

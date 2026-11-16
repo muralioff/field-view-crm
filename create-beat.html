@@ -59,12 +59,12 @@
                    create-beat-visits.js) -->
               <div class="cb-duration">
                 <label class="cb-input date">
-                  <input class="cbv-date" id="cb-start-date" type="date" required
+                  <input class="cbv-date" id="cb-start-date" type="date" required disabled
                          data-t="createBeat.info.startDate.ariaLabel" data-t-attr="aria-label" aria-label="Start date"
                          aria-describedby="cb-date-msg" />
                 </label>
                 <label class="cb-input date">
-                  <input class="cbv-date" id="cb-end-date" type="date" required
+                  <input class="cbv-date" id="cb-end-date" type="date" required disabled
                          data-t="createBeat.info.endDate.ariaLabel" data-t-attr="aria-label" aria-label="End date"
                          aria-describedby="cb-date-msg" />
                 </label>
@@ -210,8 +210,13 @@
         <div class="map-area" id="map-area">
           <canvas id="map-canvas" aria-label="Beat map"></canvas>
 
+          <!-- Until a rep and the dates are chosen: no pins, and this says why -->
+          <div class="cbv-map-empty" id="cbv-map-empty">
+            <p class="cbv-map-empty-pill" role="status" data-t="createBeat.map.empty">Choose a rep and dates to see records</p>
+          </div>
+
           <!-- While the lasso is on, how to use it and how to stop -->
-          <p class="cbv-lasso-hint" id="cbv-lasso-hint" hidden data-t="createBeat.lasso.hint">Draw around pins to select them · Esc to stop</p>
+          <p class="cbv-lasso-hint" id="cbv-lasso-hint" hidden data-t="createBeat.lasso.hint">Draw around pins to select them</p>
 
           <!-- Hovering a pin that is on a day names the visit -->
           <div class="cbv-pin-tip" id="cbv-pin-tip" role="tooltip" hidden></div>
