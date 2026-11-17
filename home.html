@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home — Beat Planner</title>
+  <link rel="stylesheet" href="src/fonts.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="src/sidebar.css" />
+  <link rel="stylesheet" href="src/topbar.css" />
+  <!-- The detail page's sheets, for the shell, menus and the toast -->
+  <link rel="stylesheet" href="src/style-bottom-up.css" />
+  <link rel="stylesheet" href="src/style-beat-detail.css" />
+  <link rel="stylesheet" href="src/style-home.css" />
+  <!-- First, so the copy is in before anything renders -->
+  <script src="src/strings.js"></script>
+</head>
+<body>
+  <div class="bp-app">
+    <aside id="app-sidebar" class="app-sidebar" data-active="home"></aside>
+    <main class="bp-main">
+
+      <header class="bp-topbar">
+        <h1 class="bp-topbar-title" data-t="home.title">Home</h1>
+        <div class="bp-search"><i class="ti ti-search" aria-hidden="true"></i><span data-t="topbar.search.placeholder">Search records</span></div>
+        <div class="bp-topbar-icons">
+          <button class="bp-tb-btn plus" aria-label="Add" data-t="topbar.add.ariaLabel" data-t-attr="aria-label"><i class="ti ti-plus"></i></button>
+          <button class="bp-tb-btn" aria-label="Zia" data-t="topbar.zia.ariaLabel" data-t-attr="aria-label"><i class="ti ti-sparkles"></i></button>
+          <button class="bp-tb-btn" aria-label="Notifications" data-t="topbar.notifications.ariaLabel" data-t-attr="aria-label"><i class="ti ti-bell"></i><span class="bp-tb-badge">5</span></button>
+          <button class="bp-tb-btn" aria-label="Calendar" data-t="topbar.calendar.ariaLabel" data-t-attr="aria-label"><i class="ti ti-calendar"></i></button>
+          <button class="bp-tb-btn" aria-label="Help" data-t="topbar.help.ariaLabel" data-t-attr="aria-label"><i class="ti ti-help-circle"></i></button>
+          <button class="bp-tb-btn" aria-label="Settings" data-t="topbar.settings.ariaLabel" data-t-attr="aria-label"><i class="ti ti-settings"></i></button>
+          <div class="bp-avatar-photo">M</div>
+          <button class="bp-tb-btn" aria-label="Apps" data-t="topbar.apps.ariaLabel" data-t-attr="aria-label"><i class="ti ti-grid-dots"></i></button>
+        </div>
+      </header>
+
+      <div class="hm-scroll">
+        <!-- The CRM home page header: who it is for, and which home -->
+        <div class="hm-head">
+          <span class="hm-org" aria-hidden="true"><i class="ti ti-building"></i></span>
+          <h2 class="hm-welcome" id="hm-welcome"></h2>
+          <div class="hm-head-right">
+            <button class="hm-icon-btn" type="button" id="hm-refresh" aria-label="Refresh" data-t="home.refresh.ariaLabel" data-t-attr="aria-label"><i class="ti ti-refresh" aria-hidden="true"></i></button>
+            <div class="hm-switch">
+              <button class="hm-switch-btn" type="button" id="hm-switch-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="hm-switch-menu">
+                <span id="hm-switch-label"></span><i class="ti ti-chevron-down" aria-hidden="true"></i></button>
+              <div class="bd-vmenu hm-switch-menu" id="hm-switch-menu" role="menu" hidden>
+                <button class="bd-vmenu-item" type="button" role="menuitem" data-home="classic" data-t="home.switch.classic">Classic View</button>
+                <button class="bd-vmenu-item" type="button" role="menuitem" data-home="personal" id="hm-switch-personal"></button>
+                <button class="bd-vmenu-item" type="button" role="menuitem" data-home="manager" data-t="home.switch.manager">Beat Planner Manager Home</button>
+                <button class="bd-vmenu-item" type="button" role="menuitem" data-home="rep" data-t="home.switch.rep">Beat Planner Rep Home</button>
+                <span class="bd-menu-divider" role="separator"></span>
+                <button class="bd-vmenu-item hm-customize" type="button" role="menuitem" id="hm-customize" data-t="home.switch.customize">Customize Home page</button>
+              </div>
+            </div>
+            <button class="bp-btn default hm-more" type="button" id="hm-more" aria-label="More options" data-t="home.more.ariaLabel" data-t-attr="aria-label"><i class="ti ti-dots" aria-hidden="true"></i></button>
+          </div>
+        </div>
+
+        <div class="hm-content">
+
+          <!-- ── Manager home ───────────────────────────────── -->
+          <section id="home-manager">
+            <div class="hm-sec"><h3 data-t="home.mgr.sec.today">Team today</h3><span class="hm-line"></span><span class="hm-hint" id="hm-mgr-today"></span></div>
+            <div class="hm-grid">
+              <article class="hm-card c6">
+                <h4 class="hm-ct" data-t="home.mgr.beatsToday.title">Today's Beats by Status</h4>
+                <div class="hm-body"><div class="hm-score" id="m-score"></div></div>
+                <p class="hm-type" data-t="home.type.kpiScorecardBeats">KPI Scorecard · Beats</p>
+              </article>
+              <article class="hm-card c3">
+                <h4 class="hm-ct" data-t="home.mgr.visitsToday.title">Today's Team Visits: Completed vs Planned</h4>
+                <div class="hm-body" id="m-visits-today"></div>
+                <p class="hm-type" data-t="home.type.kpiBasicVisits">KPI Basic · Visits</p>
+              </article>
+              <article class="hm-card c3">
+                <h4 class="hm-ct" data-t="home.mgr.missedToday.title">Today's Missed or Overdue Visits</h4>
+                <div class="hm-body" id="m-missed-today"></div>
+                <p class="hm-type" data-t="home.type.kpiBasicVisits">KPI Basic · Visits</p>
+              </article>
+            </div>
+
+            <div class="hm-sec"><h3 data-t="home.mgr.sec.performance">Team performance</h3><span class="hm-line"></span><span class="hm-hint" id="hm-mgr-week"></span></div>
+            <div class="hm-grid">
+              <article class="hm-card c6">
+                <h4 class="hm-ct" data-t="home.mgr.target.title">This Week's Visit Target by Rep</h4>
+                <div class="hm-body"><div id="m-target"></div>
+                  <div class="hm-legend"><span><i style="background:var(--hm-blue)"></i><span data-t="home.legend.completed">Completed</span></span><span><i class="hm-tick-key"></i><span data-t="home.legend.weeklyTarget">Weekly target</span></span></div></div>
+                <p class="hm-type" data-t="home.type.targetMultiBar">Target Meter · Multiple Bar · Visits</p>
+              </article>
+              <article class="hm-card c6">
+                <h4 class="hm-ct" data-t="home.mgr.ranking.title">This Week's Rep Ranking by % of Target</h4>
+                <div class="hm-body"><ul class="hm-rank" id="m-rank"></ul></div>
+                <p class="hm-type" data-t="home.type.kpiRankings">KPI Rankings · Visits</p>
+              </article>
+              <article class="hm-card c6">
+                <h4 class="hm-ct" data-t="home.mgr.status.title">This Week's Visit Status by Rep</h4>
+                <div class="hm-body"><div id="m-stack"></div>
+                  <div class="hm-legend" id="m-stack-legend"></div></div>
+                <p class="hm-type" data-t="home.type.stackedBar">Chart · Stacked bar · Visits</p>
+              </article>
+              <article class="hm-card c6">
+                <h4 class="hm-ct" data-t="home.mgr.compare.title">This Week vs Last Week: Completed Visits</h4>
+                <p class="hm-cs" data-t="home.mgr.compare.sub">Same days compared</p>
+                <div class="hm-body" id="m-compare"></div>
+                <p class="hm-type" data-t="home.type.comparator">Comparator · Classic · Visits</p>
+              </article>
+              <article class="hm-card c6">
+                <h4 class="hm-ct" data-t="home.mgr.duration.title">This Week's Average Visit Duration by Rep</h4>
+                <p class="hm-cs" data-t="home.mgr.duration.sub">Minutes · check-in to check-out</p>
+                <div class="hm-body"><svg id="m-duration" viewBox="0 0 560 200" width="100%" height="200" role="img"></svg></div>
+                <p class="hm-type" data-t="home.type.column">Chart · Column · Visits</p>
+              </article>
+              <article class="hm-card c6">
+                <h4 class="hm-ct" data-t="home.mgr.mileage.title">This Week's Planned vs Actual Mileage by Rep</h4>
+                <p class="hm-cs" data-t="home.mgr.mileage.sub">km · Beat Days to date</p>
+                <div class="hm-body"><svg id="m-mileage" viewBox="0 0 560 200" width="100%" height="200" role="img"></svg>
+                  <div class="hm-legend"><span><i style="background:var(--hm-blue-soft)"></i><span data-t="home.legend.planned">Planned</span></span><span><i style="background:var(--hm-blue)"></i><span data-t="home.legend.actual">Actual</span></span></div></div>
+                <p class="hm-type" data-t="home.type.groupedBar">Chart · Bar (grouped) · Beat Days</p>
+              </article>
+              <article class="hm-card c12">
+                <h4 class="hm-ct" data-t="home.mgr.anomaly.title">Unusual Patterns in Completed Visits</h4>
+                <p class="hm-cs" data-t="home.mgr.anomaly.sub">Team · completed Visits per day · last 30 days to today</p>
+                <div class="hm-chips"><span class="bp-visit-tag pending" data-t="home.chip.enterprise">Enterprise and Ultimate only</span></div>
+                <div class="hm-body"><svg id="m-anomaly" viewBox="0 0 1100 190" width="100%" height="190" role="img"></svg>
+                  <div class="hm-legend"><span><i style="background:var(--hm-blue)"></i><span data-t="home.legend.completedVisits">Completed Visits</span></span><span><i style="background:#e8ebfb;border:1px solid #d5daf5"></i><span data-t="home.legend.expectedRange">Expected range</span></span><span><i style="background:var(--hm-red);border-radius:50%"></i><span data-t="home.legend.anomaly">Anomaly</span></span><span><i style="background:#fff;border:2px solid var(--hm-blue);border-radius:50%"></i><span data-t="home.legend.todayInProgress">Today (in progress)</span></span></div></div>
+                <p class="hm-type" data-t="home.type.anomaly">Anomaly Detector · Visits</p>
+              </article>
+            </div>
+
+            <div class="hm-sec"><h3 data-t="home.mgr.sec.approvals">Approvals</h3><span class="hm-line"></span></div>
+            <div class="hm-grid">
+              <article class="hm-card c3">
+                <h4 class="hm-ct" data-t="home.mgr.pendingBeats.title">Beats Pending Approval</h4>
+                <div class="hm-chips"><span class="bp-visit-tag pending" data-t="home.chip.bottomUp">Bottom-up only</span></div>
+                <div class="hm-body"><p class="hm-kpi">3</p><p class="hm-kpi-sub" data-t="home.mgr.pendingBeats.sub">Submitted by reps, awaiting you</p></div>
+                <p class="hm-type" data-t="home.type.kpiBasicBeats">KPI Basic · Beats</p>
+              </article>
+              <article class="hm-card c3">
+                <h4 class="hm-ct" data-t="home.mgr.pendingExpenses.title">Expenses Pending Approval</h4>
+                <div class="hm-chips"><span class="bp-visit-tag pending" data-t="home.chip.managerApproval">Only when Manager Approval is on</span></div>
+                <div class="hm-body"><p class="hm-kpi">7</p><p class="hm-kpi-sub" id="m-expenses-sub"></p></div>
+                <p class="hm-type" data-t="home.type.kpiBasicExpenses">KPI Basic · Expenses</p>
+              </article>
+              <article class="hm-card c6">
+                <h4 class="hm-ct" data-t="home.mgr.beatsWeek.title">This Week's Beats by Status</h4>
+                <div class="hm-body"><div id="m-donut"></div></div>
+                <p class="hm-type" data-t="home.type.donutBeats">Chart · Donut · Beats</p>
+              </article>
+            </div>
+          </section>
+
+          <!-- ── Rep home ───────────────────────────────────── -->
+          <section id="home-rep" hidden>
+            <div class="hm-sec"><h3 data-t="home.rep.sec.today">Today</h3><span class="hm-line"></span><span class="hm-hint" id="hm-rep-today"></span></div>
+            <div class="hm-grid">
+              <article class="hm-card c3">
+                <h4 class="hm-ct" data-t="home.rep.visitsToday.title">Today's Visits: Completed vs Planned</h4>
+                <div class="hm-body" id="r-visits-today"></div>
+                <p class="hm-type" data-t="home.type.kpiBasicVisits">KPI Basic · Visits</p>
+              </article>
+              <article class="hm-card c3">
+                <h4 class="hm-ct" data-t="home.mgr.missedToday.title">Today's Missed or Overdue Visits</h4>
+                <div class="hm-body" id="r-missed-today"></div>
+                <p class="hm-type" data-t="home.type.kpiBasicVisits">KPI Basic · Visits</p>
+              </article>
+              <article class="hm-card c3">
+                <h4 class="hm-ct" data-t="home.rep.checkin.title">Today's Visits by Check-in Status</h4>
+                <div class="hm-body"><div id="r-donut"></div></div>
+                <p class="hm-type" data-t="home.type.donutVisits">Chart · Donut · Visits</p>
+              </article>
+              <article class="hm-card c3">
+                <h4 class="hm-ct" data-t="home.rep.durationToday.title">Today's Visit Duration by Visit</h4>
+                <p class="hm-cs" data-t="home.rep.durationToday.sub">Minutes · checked-out Visits</p>
+                <div class="hm-body"><svg id="r-duration" viewBox="0 0 300 170" width="100%" height="170" role="img"></svg></div>
+                <p class="hm-type" data-t="home.type.bar">Chart · Bar · Visits</p>
+              </article>
+            </div>
+
+            <div class="hm-sec"><h3 data-t="home.rep.sec.week">This week</h3><span class="hm-line"></span><span class="hm-hint" id="hm-rep-week"></span></div>
+            <div class="hm-grid">
+              <article class="hm-card c3">
+                <h4 class="hm-ct" data-t="home.rep.target.title">This Week's Visit Target</h4>
+                <div class="hm-body"><svg id="r-dial" viewBox="0 0 220 132" width="100%" height="140" role="img"></svg>
+                  <div class="hm-center" id="r-dial-text"></div></div>
+                <p class="hm-type" data-t="home.type.dial">Target Meter · Dial Gauge · Visits</p>
+              </article>
+              <article class="hm-card c3">
+                <h4 class="hm-ct" data-t="home.rep.rank.title">My Rank by % of Target</h4>
+                <p class="hm-cs" id="r-rank-sub"></p>
+                <div class="hm-body"><ul class="hm-rank" id="r-rank"></ul></div>
+                <p class="hm-type" data-t="home.type.kpiRankings">KPI Rankings · Visits</p>
+              </article>
+              <article class="hm-card c3">
+                <h4 class="hm-ct" data-t="home.rep.rejected.title">This Week's Rejected Visits</h4>
+                <div class="hm-body"><p class="hm-kpi hm-amber">1</p><p class="hm-kpi-sub" data-t="home.rep.rejected.sub">Resubmit the beat before it starts</p></div>
+                <p class="hm-type" data-t="home.type.kpiBasicVisits">KPI Basic · Visits</p>
+              </article>
+              <article class="hm-card c3">
+                <h4 class="hm-ct" data-t="home.rep.upcoming.title">Upcoming Beats by Start Date</h4>
+                <p class="hm-cs" data-t="home.rep.upcoming.sub">Planned Visits per scheduled Beat</p>
+                <div class="hm-body"><svg id="r-upcoming" viewBox="0 0 300 170" width="100%" height="170" role="img"></svg></div>
+                <p class="hm-type" data-t="home.type.barBeats">Chart · Bar · Beats (scheduled, not logged)</p>
+              </article>
+            </div>
+
+            <div class="hm-sec"><h3 data-t="home.rep.sec.month">This month</h3><span class="hm-line"></span><span class="hm-hint" id="hm-rep-month"></span></div>
+            <div class="hm-grid">
+              <article class="hm-card c6">
+                <h4 class="hm-ct" data-t="home.rep.perDay.title">This Month's Completed Visits per Day</h4>
+                <p class="hm-cs" id="r-perday-sub"></p>
+                <div class="hm-body"><svg id="r-line" viewBox="0 0 560 200" width="100%" height="200" role="img"></svg></div>
+                <p class="hm-type" data-t="home.type.line">Chart · Line · Visits</p>
+              </article>
+              <article class="hm-card c6">
+                <h4 class="hm-ct" data-t="home.rep.avgDuration.title">This Month's Average Visit Duration</h4>
+                <div class="hm-body" id="r-avg"></div>
+                <p class="hm-type" data-t="home.type.kpiStandardVisits">KPI Standard · Visits</p>
+              </article>
+              <article class="hm-card c6">
+                <h4 class="hm-ct" data-t="home.rep.expenses.title">This Month's Expenses by Type</h4>
+                <div class="hm-chips"><span class="bp-visit-tag pending" data-t="home.chip.viewExpenses">Visible only when View expenses is on</span></div>
+                <div class="hm-body"><svg id="r-expenses" viewBox="0 0 560 170" width="100%" height="170" role="img"></svg></div>
+                <p class="hm-type" data-t="home.type.barExpenses">Chart · Bar · Expenses</p>
+              </article>
+              <article class="hm-card c6">
+                <h4 class="hm-ct" data-t="home.rep.distance.title">This Month's Distance Travelled</h4>
+                <div class="hm-body" id="r-distance"></div>
+                <p class="hm-type" data-t="home.type.kpiStandardBeatDays">KPI Standard · Beat Days</p>
+              </article>
+            </div>
+          </section>
+
+          <!-- ── Other homes: no components in the prototype ──── -->
+          <section id="home-placeholder" hidden>
+            <div class="hm-empty">
+              <i class="ti ti-layout-dashboard" aria-hidden="true"></i>
+              <b id="hm-empty-title"></b>
+              <span data-t="home.empty.text">No dashboard components in this prototype.</span>
+              <span class="hm-empty-hint" data-t="home.empty.hint">Switch to Beat Planner Manager Home or Beat Planner Rep Home from the menu above.</span>
+            </div>
+          </section>
+
+          <p class="hm-foot" data-t="home.foot">Example data only · not live</p>
+        </div>
+      </div>
+      <p class="bd-watermark" aria-hidden="true" data-t="beatDetail.map.watermark">UX yet to be verified</p>
+    </main>
+  </div>
+
+  <div class="bd-toast" id="bd-toast" role="status" aria-live="polite"></div>
+
+  <script src="src/sidebar.js"></script>
+  <script src="src/home.js"></script>
+</body>
+</html>

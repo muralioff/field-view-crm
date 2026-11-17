@@ -21,10 +21,12 @@
   white-space: nowrap;
 }
 
+/* Search sits at the right, just before the + and the icons, as in the
+   CRM's own top bar */
 .bp-search {
-  margin-left: 40px;
-  flex: 1;
-  max-width: 420px;
+  margin-left: auto;
+  flex: 0 1 270px;
+  min-width: 160px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -48,7 +50,7 @@
 }
 .bp-search input::placeholder { color: #8b9bb8; }
 
-.bp-topbar-icons { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.bp-topbar-icons { display: flex; align-items: center; gap: 6px; }
 
 .bp-tb-btn {
   width: 32px; height: 32px;

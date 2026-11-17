@@ -1,0 +1,226 @@
+/* ============================================================
+   Home — Beat Planner Manager / Rep Home (Zoho CRM Canvas home)
+   The cases from home-v2.html in this project's look: the page grey,
+   white cards with the shared hairline and 10px corners, Puvi, the link
+   blue for data, and the status colours of the Beat Detail pills.
+   The shell, menus and toast come from the shared sheets.
+   ============================================================ */
+:root {
+  --hm-blue:      #5464f2;   /* Primary Palette/Link */
+  --hm-blue-soft: #c9cefb;
+  --hm-blue-mid:  #9aa3f7;
+  --hm-grid:      #eef0f7;
+  --hm-track:     #eef0f7;
+  --hm-green:     #12aa67;   /* Completed */
+  --hm-orange:    #d48714;   /* In Progress */
+  --hm-violet:    #6865f1;   /* Upcoming */
+  --hm-red:       #e5484d;   /* Missed · Cancelled */
+  --hm-amber:     #f0a020;   /* Rejected */
+  --hm-grey:      #b4bacb;
+}
+
+.bp-main { display: flex; flex-direction: column; min-height: 0; }
+.hm-scroll { flex: 1; min-height: 0; overflow-y: auto; }
+
+/* ── Home header ─────────────────────────────────────── */
+.hm-head { display: flex; align-items: center; gap: 12px; padding: 16px 20px 4px; }
+
+.hm-org {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid #e6e9f2;
+  border-radius: 8px;
+  font-size: 20px;
+  color: var(--label);
+}
+
+.hm-welcome { font-size: 18px; font-weight: 600; color: var(--heading); }
+
+.hm-head-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+.hm-icon-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  font-size: 18px;
+  color: #5a6480;
+  cursor: pointer;
+}
+.hm-icon-btn:hover { background: #e4e7f2; }
+
+/* Which home: a field-like button and the page's menu */
+.hm-switch { position: relative; }
+.hm-switch-btn {
+  min-width: 240px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 10px 0 12px;
+  background: #fff;
+  border: 1px solid #c0c8e2;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--base);
+  cursor: pointer;
+}
+.hm-switch-btn i { color: #8c91ab; transition: transform 0.15s; }
+.hm-switch-btn[aria-expanded="true"] { border-color: var(--hm-blue); box-shadow: 0 0 6px rgba(76, 94, 253, 0.35); }
+.hm-switch-btn[aria-expanded="true"] i { transform: rotate(180deg); }
+.hm-switch-btn:focus-visible { outline: 2px solid var(--hm-blue); outline-offset: 2px; }
+
+.bd-vmenu.hm-switch-menu { right: 0; width: 240px; z-index: 60; }
+.hm-switch-menu .bd-vmenu-item.selected { font-weight: 600; background: #f2f5fe; }
+.hm-switch-menu .hm-customize { color: var(--hm-blue); }
+.hm-more { width: 36px; padding: 0; font-size: 16px; }
+
+/* ── Sections and the 12-column grid ─────────────────── */
+.hm-content { padding: 4px 20px 32px; }
+
+.hm-sec { display: flex; align-items: center; gap: 10px; margin: 20px 0 10px; }
+.hm-sec h3 { font-size: 14px; font-weight: 600; color: var(--heading); white-space: nowrap; }
+.hm-line { flex: 1; height: 1px; background: #dcdbee; }
+.hm-hint { font-size: 13px; color: var(--label); white-space: nowrap; }
+
+.hm-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; }
+.c3 { grid-column: span 3; }
+.c6 { grid-column: span 6; }
+.c12 { grid-column: span 12; }
+
+@media (max-width: 1280px) {
+  .c3 { grid-column: span 6; }
+  .c6 { grid-column: span 12; }
+}
+
+/* ── Cards ───────────────────────────────────────────── */
+.hm-card {
+  min-width: 0;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 18px;
+  background: #fff;
+  border: 1px solid #e6e9f2;
+  border-radius: 10px;
+}
+
+.hm-ct { font-size: 14px; font-weight: 600; line-height: 20px; color: var(--heading); }
+.hm-cs { margin-top: 2px; font-size: 13px; line-height: 18px; color: var(--label); }
+.hm-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.hm-chips .bp-visit-tag { font-size: 12px; }
+.hm-body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; margin-top: 12px; }
+.hm-type { margin-top: 12px; font-size: 11px; line-height: 14px; color: #a3a9bf; }
+.hm-center { text-align: center; }
+
+.hm-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 12px; color: var(--label); }
+.hm-legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.hm-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
+.hm-legend .hm-tick-key { width: 2px; height: 12px; border-radius: 0; background: var(--heading); }
+
+/* KPI numbers */
+.hm-kpi { font-size: 32px; font-weight: 600; line-height: 1.1; color: var(--heading); }
+.hm-kpi small { font-size: 15px; font-weight: 500; color: var(--label); }
+.hm-kpi.hm-red-text { color: var(--hm-red); }
+.hm-kpi.hm-amber { color: #b26b05; }
+.hm-kpi-sub { margin-top: 6px; font-size: 13px; line-height: 18px; color: var(--label); }
+.hm-up { font-weight: 600; color: var(--hm-green); }
+.hm-down { font-weight: 600; color: var(--hm-red); }
+
+/* Scorecard: one coloured rule a status */
+.hm-score { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.hm-score > div { padding: 4px 12px; border-left: 3px solid; }
+.hm-score .lab { font-size: 13px; color: var(--label); }
+.hm-score .v { font-size: 26px; font-weight: 600; color: var(--heading); }
+
+/* Rankings */
+.hm-rank { list-style: none; }
+.hm-rank li {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) 90px 44px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px;
+  border-bottom: 1px solid #eef1f7;
+  font-size: 13px;
+  color: var(--base);
+}
+.hm-rank li:last-child { border-bottom: none; }
+.hm-rank .pos { font-weight: 600; color: var(--label); }
+.hm-rank .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hm-rank li.me { background: #f2f5fe; border-radius: 6px; }
+.hm-rank li.me .pos { color: var(--hm-blue); }
+.hm-rank .rb { height: 6px; overflow: hidden; background: var(--hm-track); border-radius: 99px; }
+.hm-rank .rb span { display: block; height: 100%; background: var(--hm-blue); }
+.hm-rank .pc { font-weight: 600; text-align: right; }
+
+/* Bar rows: target meter, stacked status, month comparisons */
+.hm-row { display: grid; grid-template-columns: 140px minmax(0, 1fr) 64px; align-items: center; gap: 10px; padding: 5px 0; font-size: 13px; color: var(--base); }
+.hm-row .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hm-row .lab { color: var(--label); }
+.hm-track { position: relative; height: 14px; background: var(--hm-track); border-radius: 3px; }
+.hm-track .done { position: absolute; inset: 0 auto 0 0; border-radius: 3px; }
+.hm-track .tgt { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--heading); }
+.hm-stack { display: flex; height: 14px; overflow: hidden; background: var(--hm-track); border-radius: 3px; }
+.hm-stack span { display: block; height: 100%; }
+.hm-num { font-weight: 600; text-align: right; }
+
+/* Comparator */
+.hm-cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.hm-cmp > div { padding: 12px; border: 1px solid #eef1f7; border-radius: 8px; }
+.hm-cmp .hm-kpi { font-size: 28px; }
+.hm-bar { height: 10px; margin-top: 8px; overflow: hidden; background: var(--hm-track); border-radius: 99px; }
+.hm-bar span { display: block; height: 100%; }
+
+/* Charts */
+.hm-card svg text { font-family: inherit; }
+.hm-donut { display: flex; align-items: center; gap: 16px; }
+.hm-donut svg { flex-shrink: 0; }
+.hm-donut ul { flex: 1; min-width: 0; list-style: none; }
+.hm-donut li { display: flex; align-items: center; gap: 8px; padding: 2px 0; font-size: 13px; color: var(--base); }
+.hm-donut li i { width: 10px; height: 10px; flex-shrink: 0; border-radius: 2px; }
+.hm-donut li span { flex: 1; }
+.hm-nodata { font-size: 13px; color: var(--label); text-align: center; }
+
+/* Other homes */
+.hm-empty {
+  min-height: 420px;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #e6e9f2;
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--label);
+  text-align: center;
+}
+.hm-empty i { font-size: 40px; color: var(--hm-grey); }
+.hm-empty b { font-size: 15px; font-weight: 600; color: var(--heading); }
+.hm-empty-hint { font-size: 13px; }
+
+.hm-foot { margin-top: 16px; font-size: 12px; color: #a3a9bf; text-align: right; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hm-switch-btn i { transition: none; }
+}
+
+/* Narrow cards: a smaller donut, legend on one line; a shorter rank bar */
+.c3 .hm-donut { gap: 12px; }
+.c3 .hm-donut svg { width: 96px; height: 96px; }
+.hm-donut li span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c3 .hm-rank li { grid-template-columns: 18px minmax(0, 1fr) 48px 36px; }
+.hm-welcome { white-space: nowrap; }

@@ -1,6 +1,7 @@
 /* ============================================================
    Left Navigation — shared component
-   Colors/specs from Figma "Beat Planner" (node 1963:69357)
+   Colors/specs from Figma "Beat Planner" (node 1963:69357); items and
+   icons from Figma 7454:81940 (src/nav-icons)
    Rendered by src/sidebar.js into <aside id="app-sidebar" data-active="...">
    ============================================================ */
 :root {
@@ -43,8 +44,8 @@
 .sb-logo-icon {
   width: 30px;
   height: 30px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #c35bf4 0%, #5a78ff 100%);
+  border-radius: 3.75px;
+  background: #c35bf4;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -115,9 +116,14 @@
 
 .sb-item.active i { color: #fff; }
 
-/* Coloured top-group icons (Home / Planner Configuration) */
-.sb-item[data-key="home"] i    { color: var(--sb-home-icon); }
-.sb-item[data-key="config"] i  { color: var(--sb-config-icon); }
+/* The Figma icons, centred in a 24 box: the top group's own colours at
+   24, the modules' grey line icons at 16, the CRM modules' at 20 */
+.sb-icon { width: 24px; height: 24px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.sb-icon img { display: block; max-width: 24px; max-height: 24px; }
+.sb-logo-icon img { display: block; width: 18px; height: auto; }
+.sb-logo .sb-logo-caret { width: 24px; height: 24px; margin-left: -6px; }
+.sb-logo .sb-collapse img { display: block; width: 16px; height: 14px; }
+.sb-section .sb-section-icon { width: 20px; height: 20px; }
 
 /* Divider */
 .sb-divider {
@@ -134,10 +140,6 @@
   padding: 8px 20px 6px;
 }
 
-.sb-section .sb-section-icon {
-  font-size: 18px;
-  color: var(--sb-modules-icon);
-}
 
 .sb-section .sb-section-title {
   font-size: 14px;
@@ -169,7 +171,6 @@
   text-align: left;
 }
 
-.sb-folder-icon { width: 20px; height: 20px; flex-shrink: 0; fill: var(--sb-folder-icon); }
 
 .sb-item i.sb-folder-caret {
   margin-left: auto;

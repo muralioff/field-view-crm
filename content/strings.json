@@ -59,11 +59,6 @@
     "where": "Left navigation · Home item",
     "notes": ""
   },
-  "sidebar.item.config": {
-    "text": "Planner Configuration",
-    "where": "Left navigation · Planner Configuration item (not shown on Beat Detail)",
-    "notes": ""
-  },
   "sidebar.section.modules": {
     "text": "Modules",
     "where": "Left navigation · section heading above the modules",
@@ -85,12 +80,12 @@
     "notes": ""
   },
   "sidebar.item.visits": {
-    "text": "Visits",
+    "text": "Beat Visits",
     "where": "Left navigation · Visits item",
     "notes": ""
   },
   "sidebar.item.expenses": {
-    "text": "Expenses",
+    "text": "Beat Expenses",
     "where": "Left navigation · Expenses item",
     "notes": ""
   },
@@ -2793,5 +2788,630 @@
     "text": "Some days have no visits. Add visits to every day, or change the dates to leave the empty days out.",
     "where": "Create Beat · red error message when Save is clicked with empty days",
     "notes": ""
+  },
+  "sidebar.item.reports": {
+    "text": "Reports",
+    "where": "Left panel · item",
+    "notes": ""
+  },
+  "sidebar.item.dashboard": {
+    "text": "Dashboard",
+    "where": "Left panel · item",
+    "notes": ""
+  },
+  "sidebar.item.agents": {
+    "text": "Agents",
+    "where": "Left panel · item",
+    "notes": ""
+  },
+  "sidebar.item.mcp": {
+    "text": "MCP",
+    "where": "Left panel · item",
+    "notes": ""
+  },
+  "sidebar.item.addressBook": {
+    "text": "Address Book",
+    "where": "Left panel · item",
+    "notes": ""
+  },
+  "home.title": {
+    "text": "Home",
+    "where": "Home · title",
+    "notes": ""
+  },
+  "home.refresh.ariaLabel": {
+    "text": "Refresh",
+    "where": "Home · refresh.ariaLabel (screen reader)",
+    "notes": ""
+  },
+  "home.switch.classic": {
+    "text": "Classic View",
+    "where": "Home · switch.classic",
+    "notes": ""
+  },
+  "home.switch.manager": {
+    "text": "Beat Planner Manager Home",
+    "where": "Home · switch.manager",
+    "notes": ""
+  },
+  "home.switch.rep": {
+    "text": "Beat Planner Rep Home",
+    "where": "Home · switch.rep",
+    "notes": ""
+  },
+  "home.switch.customize": {
+    "text": "Customize Home page",
+    "where": "Home · switch.customize",
+    "notes": ""
+  },
+  "home.more.ariaLabel": {
+    "text": "More options",
+    "where": "Home · more.ariaLabel (screen reader)",
+    "notes": ""
+  },
+  "home.mgr.sec.today": {
+    "text": "Team today",
+    "where": "Home · mgr.sec.today",
+    "notes": ""
+  },
+  "home.mgr.beatsToday.title": {
+    "text": "Today's Beats by Status",
+    "where": "Home · mgr.beatsToday.title",
+    "notes": ""
+  },
+  "home.type.kpiScorecardBeats": {
+    "text": "KPI Scorecard · Beats",
+    "where": "Home · type.kpiScorecardBeats",
+    "notes": ""
+  },
+  "home.mgr.visitsToday.title": {
+    "text": "Today's Team Visits: Completed vs Planned",
+    "where": "Home · mgr.visitsToday.title",
+    "notes": ""
+  },
+  "home.type.kpiBasicVisits": {
+    "text": "KPI Basic · Visits",
+    "where": "Home · type.kpiBasicVisits",
+    "notes": ""
+  },
+  "home.mgr.missedToday.title": {
+    "text": "Today's Missed or Overdue Visits",
+    "where": "Home · mgr.missedToday.title",
+    "notes": ""
+  },
+  "home.mgr.sec.performance": {
+    "text": "Team performance",
+    "where": "Home · mgr.sec.performance",
+    "notes": ""
+  },
+  "home.mgr.target.title": {
+    "text": "This Week's Visit Target by Rep",
+    "where": "Home · mgr.target.title",
+    "notes": ""
+  },
+  "home.legend.completed": {
+    "text": "Completed",
+    "where": "Home · legend.completed",
+    "notes": ""
+  },
+  "home.legend.weeklyTarget": {
+    "text": "Weekly target",
+    "where": "Home · legend.weeklyTarget",
+    "notes": ""
+  },
+  "home.type.targetMultiBar": {
+    "text": "Target Meter · Multiple Bar · Visits",
+    "where": "Home · type.targetMultiBar",
+    "notes": ""
+  },
+  "home.mgr.ranking.title": {
+    "text": "This Week's Rep Ranking by % of Target",
+    "where": "Home · mgr.ranking.title",
+    "notes": ""
+  },
+  "home.type.kpiRankings": {
+    "text": "KPI Rankings · Visits",
+    "where": "Home · type.kpiRankings",
+    "notes": ""
+  },
+  "home.mgr.status.title": {
+    "text": "This Week's Visit Status by Rep",
+    "where": "Home · mgr.status.title",
+    "notes": ""
+  },
+  "home.type.stackedBar": {
+    "text": "Chart · Stacked bar · Visits",
+    "where": "Home · type.stackedBar",
+    "notes": ""
+  },
+  "home.mgr.compare.title": {
+    "text": "This Week vs Last Week: Completed Visits",
+    "where": "Home · mgr.compare.title",
+    "notes": ""
+  },
+  "home.mgr.compare.sub": {
+    "text": "Same days compared",
+    "where": "Home · mgr.compare.sub",
+    "notes": ""
+  },
+  "home.type.comparator": {
+    "text": "Comparator · Classic · Visits",
+    "where": "Home · type.comparator",
+    "notes": ""
+  },
+  "home.mgr.duration.title": {
+    "text": "This Week's Average Visit Duration by Rep",
+    "where": "Home · mgr.duration.title",
+    "notes": ""
+  },
+  "home.mgr.duration.sub": {
+    "text": "Minutes · check-in to check-out",
+    "where": "Home · mgr.duration.sub",
+    "notes": ""
+  },
+  "home.type.column": {
+    "text": "Chart · Column · Visits",
+    "where": "Home · type.column",
+    "notes": ""
+  },
+  "home.mgr.mileage.title": {
+    "text": "This Week's Planned vs Actual Mileage by Rep",
+    "where": "Home · mgr.mileage.title",
+    "notes": ""
+  },
+  "home.mgr.mileage.sub": {
+    "text": "km · Beat Days to date",
+    "where": "Home · mgr.mileage.sub",
+    "notes": ""
+  },
+  "home.legend.planned": {
+    "text": "Planned",
+    "where": "Home · legend.planned",
+    "notes": ""
+  },
+  "home.legend.actual": {
+    "text": "Actual",
+    "where": "Home · legend.actual",
+    "notes": ""
+  },
+  "home.type.groupedBar": {
+    "text": "Chart · Bar (grouped) · Beat Days",
+    "where": "Home · type.groupedBar",
+    "notes": ""
+  },
+  "home.mgr.anomaly.title": {
+    "text": "Unusual Patterns in Completed Visits",
+    "where": "Home · mgr.anomaly.title",
+    "notes": ""
+  },
+  "home.mgr.anomaly.sub": {
+    "text": "Team · completed Visits per day · last 30 days to today",
+    "where": "Home · mgr.anomaly.sub",
+    "notes": ""
+  },
+  "home.chip.enterprise": {
+    "text": "Enterprise and Ultimate only",
+    "where": "Home · chip.enterprise",
+    "notes": ""
+  },
+  "home.legend.completedVisits": {
+    "text": "Completed Visits",
+    "where": "Home · legend.completedVisits",
+    "notes": ""
+  },
+  "home.legend.expectedRange": {
+    "text": "Expected range",
+    "where": "Home · legend.expectedRange",
+    "notes": ""
+  },
+  "home.legend.anomaly": {
+    "text": "Anomaly",
+    "where": "Home · legend.anomaly",
+    "notes": ""
+  },
+  "home.legend.todayInProgress": {
+    "text": "Today (in progress)",
+    "where": "Home · legend.todayInProgress",
+    "notes": ""
+  },
+  "home.type.anomaly": {
+    "text": "Anomaly Detector · Visits",
+    "where": "Home · type.anomaly",
+    "notes": ""
+  },
+  "home.mgr.sec.approvals": {
+    "text": "Approvals",
+    "where": "Home · mgr.sec.approvals",
+    "notes": ""
+  },
+  "home.mgr.pendingBeats.title": {
+    "text": "Beats Pending Approval",
+    "where": "Home · mgr.pendingBeats.title",
+    "notes": ""
+  },
+  "home.chip.bottomUp": {
+    "text": "Bottom-up only",
+    "where": "Home · chip.bottomUp",
+    "notes": ""
+  },
+  "home.mgr.pendingBeats.sub": {
+    "text": "Submitted by reps, awaiting you",
+    "where": "Home · mgr.pendingBeats.sub",
+    "notes": ""
+  },
+  "home.type.kpiBasicBeats": {
+    "text": "KPI Basic · Beats",
+    "where": "Home · type.kpiBasicBeats",
+    "notes": ""
+  },
+  "home.mgr.pendingExpenses.title": {
+    "text": "Expenses Pending Approval",
+    "where": "Home · mgr.pendingExpenses.title",
+    "notes": ""
+  },
+  "home.chip.managerApproval": {
+    "text": "Only when Manager Approval is on",
+    "where": "Home · chip.managerApproval",
+    "notes": ""
+  },
+  "home.type.kpiBasicExpenses": {
+    "text": "KPI Basic · Expenses",
+    "where": "Home · type.kpiBasicExpenses",
+    "notes": ""
+  },
+  "home.mgr.beatsWeek.title": {
+    "text": "This Week's Beats by Status",
+    "where": "Home · mgr.beatsWeek.title",
+    "notes": ""
+  },
+  "home.type.donutBeats": {
+    "text": "Chart · Donut · Beats",
+    "where": "Home · type.donutBeats",
+    "notes": ""
+  },
+  "home.rep.sec.today": {
+    "text": "Today",
+    "where": "Home · rep.sec.today",
+    "notes": ""
+  },
+  "home.rep.visitsToday.title": {
+    "text": "Today's Visits: Completed vs Planned",
+    "where": "Home · rep.visitsToday.title",
+    "notes": ""
+  },
+  "home.rep.checkin.title": {
+    "text": "Today's Visits by Check-in Status",
+    "where": "Home · rep.checkin.title",
+    "notes": ""
+  },
+  "home.type.donutVisits": {
+    "text": "Chart · Donut · Visits",
+    "where": "Home · type.donutVisits",
+    "notes": ""
+  },
+  "home.rep.durationToday.title": {
+    "text": "Today's Visit Duration by Visit",
+    "where": "Home · rep.durationToday.title",
+    "notes": ""
+  },
+  "home.rep.durationToday.sub": {
+    "text": "Minutes · checked-out Visits",
+    "where": "Home · rep.durationToday.sub",
+    "notes": ""
+  },
+  "home.type.bar": {
+    "text": "Chart · Bar · Visits",
+    "where": "Home · type.bar",
+    "notes": ""
+  },
+  "home.rep.sec.week": {
+    "text": "This week",
+    "where": "Home · rep.sec.week",
+    "notes": ""
+  },
+  "home.rep.target.title": {
+    "text": "This Week's Visit Target",
+    "where": "Home · rep.target.title",
+    "notes": ""
+  },
+  "home.type.dial": {
+    "text": "Target Meter · Dial Gauge · Visits",
+    "where": "Home · type.dial",
+    "notes": ""
+  },
+  "home.rep.rank.title": {
+    "text": "My Rank by % of Target",
+    "where": "Home · rep.rank.title",
+    "notes": ""
+  },
+  "home.rep.rejected.title": {
+    "text": "This Week's Rejected Visits",
+    "where": "Home · rep.rejected.title",
+    "notes": ""
+  },
+  "home.rep.rejected.sub": {
+    "text": "Resubmit the beat before it starts",
+    "where": "Home · rep.rejected.sub",
+    "notes": ""
+  },
+  "home.rep.upcoming.title": {
+    "text": "Upcoming Beats by Start Date",
+    "where": "Home · rep.upcoming.title",
+    "notes": ""
+  },
+  "home.rep.upcoming.sub": {
+    "text": "Planned Visits per scheduled Beat",
+    "where": "Home · rep.upcoming.sub",
+    "notes": ""
+  },
+  "home.type.barBeats": {
+    "text": "Chart · Bar · Beats (scheduled, not logged)",
+    "where": "Home · type.barBeats",
+    "notes": ""
+  },
+  "home.rep.sec.month": {
+    "text": "This month",
+    "where": "Home · rep.sec.month",
+    "notes": ""
+  },
+  "home.rep.perDay.title": {
+    "text": "This Month's Completed Visits per Day",
+    "where": "Home · rep.perDay.title",
+    "notes": ""
+  },
+  "home.type.line": {
+    "text": "Chart · Line · Visits",
+    "where": "Home · type.line",
+    "notes": ""
+  },
+  "home.rep.avgDuration.title": {
+    "text": "This Month's Average Visit Duration",
+    "where": "Home · rep.avgDuration.title",
+    "notes": ""
+  },
+  "home.type.kpiStandardVisits": {
+    "text": "KPI Standard · Visits",
+    "where": "Home · type.kpiStandardVisits",
+    "notes": ""
+  },
+  "home.rep.expenses.title": {
+    "text": "This Month's Expenses by Type",
+    "where": "Home · rep.expenses.title",
+    "notes": ""
+  },
+  "home.chip.viewExpenses": {
+    "text": "Visible only when View expenses is on",
+    "where": "Home · chip.viewExpenses",
+    "notes": ""
+  },
+  "home.type.barExpenses": {
+    "text": "Chart · Bar · Expenses",
+    "where": "Home · type.barExpenses",
+    "notes": ""
+  },
+  "home.rep.distance.title": {
+    "text": "This Month's Distance Travelled",
+    "where": "Home · rep.distance.title",
+    "notes": ""
+  },
+  "home.type.kpiStandardBeatDays": {
+    "text": "KPI Standard · Beat Days",
+    "where": "Home · type.kpiStandardBeatDays",
+    "notes": ""
+  },
+  "home.empty.text": {
+    "text": "No dashboard components in this prototype.",
+    "where": "Home · empty.text",
+    "notes": ""
+  },
+  "home.empty.hint": {
+    "text": "Switch to Beat Planner Manager Home or Beat Planner Rep Home from the menu above.",
+    "where": "Home · empty.hint",
+    "notes": ""
+  },
+  "home.foot": {
+    "text": "Example data only · not live",
+    "where": "Home · foot",
+    "notes": ""
+  },
+  "home.date.today": {
+    "text": "Mon, 4 May 2026",
+    "where": "Home · Manager · Team today, right of the heading",
+    "notes": ""
+  },
+  "home.date.weekSoFar": {
+    "text": "This week so far · Mon 4 May",
+    "where": "Home · section hint (week)",
+    "notes": ""
+  },
+  "home.date.todayAs": {
+    "text": "Mon, 4 May 2026 · viewing as {rep}",
+    "where": "Home · Rep · Today, right of the heading",
+    "notes": "Keep {rep}"
+  },
+  "home.date.monthSoFar": {
+    "text": "1 – 4 May 2026 so far",
+    "where": "Home · Rep · This month, right of the heading",
+    "notes": ""
+  },
+  "home.kpi.ofPlanned": {
+    "text": "/ {n} planned",
+    "where": "Home · KPI, after the completed count",
+    "notes": "Keep {n}"
+  },
+  "home.kpi.completedSoFar": {
+    "text": "{pct}% completed so far today",
+    "where": "Home · KPI subtitle",
+    "notes": "Keep {pct}"
+  },
+  "home.kpi.missedOverdue": {
+    "text": "{missed} missed · {overdue} overdue",
+    "where": "Home · missed or overdue KPI subtitle",
+    "notes": "Keep {missed} and {overdue}"
+  },
+  "home.kpi.team": {
+    "text": "(team)",
+    "where": "Home · Manager · after the missed / overdue split",
+    "notes": ""
+  },
+  "home.kpi.dayNotStarted": {
+    "text": "Day 1 of BP-003 not started yet",
+    "where": "Home · Rep · today's visits subtitle",
+    "notes": ""
+  },
+  "home.kpi.claimed": {
+    "text": "{amount} total claimed",
+    "where": "Home · Manager · expenses pending approval subtitle",
+    "notes": "Keep {amount}"
+  },
+  "home.kpi.ofVisits": {
+    "text": "/ {n} Visits",
+    "where": "Home · Rep · weekly target, after the count",
+    "notes": "Keep {n}"
+  },
+  "home.kpi.ofWeeklyTarget": {
+    "text": "{pct}% of weekly target",
+    "where": "Home · Rep · weekly target subtitle",
+    "notes": "Keep {pct}"
+  },
+  "home.cmp.thisWeek": {
+    "text": "This week (Mon 4 May)",
+    "where": "Home · Manager · comparator, first box",
+    "notes": ""
+  },
+  "home.cmp.lastWeek": {
+    "text": "Last week (Mon 27 Apr)",
+    "where": "Home · Manager · comparator, second box",
+    "notes": ""
+  },
+  "home.cmp.change": {
+    "text": "({n} Visits) vs last week",
+    "where": "Home · Manager · comparator, after the change",
+    "notes": "Keep {n}"
+  },
+  "home.donut.beats": {
+    "text": "Beats",
+    "where": "Home · donut centre label",
+    "notes": ""
+  },
+  "home.donut.visits": {
+    "text": "Visits",
+    "where": "Home · donut centre label",
+    "notes": ""
+  },
+  "home.anomaly.todayTip": {
+    "text": "Today {date} (in progress): {n}",
+    "where": "Home · anomaly chart · tooltip on today",
+    "notes": "Keep {date} and {n}"
+  },
+  "home.anomaly.note": {
+    "text": "{date}: {n} (expected {lo}–{hi})",
+    "where": "Home · anomaly chart · label under the unusual day",
+    "notes": "Keep {date}, {n}, {lo}, {hi}"
+  },
+  "home.chart.today": {
+    "text": "Today",
+    "where": "Home · charts · today marker",
+    "notes": ""
+  },
+  "home.checkin.out": {
+    "text": "Checked out",
+    "where": "Home · Rep · check-in donut",
+    "notes": ""
+  },
+  "home.checkin.in": {
+    "text": "Checked in",
+    "where": "Home · Rep · check-in donut",
+    "notes": ""
+  },
+  "home.checkin.not": {
+    "text": "Not checked in",
+    "where": "Home · Rep · check-in donut",
+    "notes": ""
+  },
+  "home.empty.noCheckout": {
+    "text": "No visits checked out yet today.",
+    "where": "Home · Rep · visit duration card with no data",
+    "notes": ""
+  },
+  "home.rank.sub": {
+    "text": "This week · team of {n}",
+    "where": "Home · Rep · rank card subtitle",
+    "notes": "Keep {n}"
+  },
+  "home.rank.you": {
+    "text": "You",
+    "where": "Home · Rep · rank list, the viewer",
+    "notes": ""
+  },
+  "home.perDay.sub": {
+    "text": "Data through today, Mon 4 May",
+    "where": "Home · Rep · per-day chart subtitle",
+    "notes": ""
+  },
+  "home.unit.min": {
+    "text": "min",
+    "where": "Home · unit",
+    "notes": ""
+  },
+  "home.unit.km": {
+    "text": "km",
+    "where": "Home · unit",
+    "notes": ""
+  },
+  "home.avg.vsLast": {
+    "text": "vs April ({last})",
+    "where": "Home · Rep · average duration comparison",
+    "notes": "Keep {last}"
+  },
+  "home.month.thisSoFar": {
+    "text": "May (1–4)",
+    "where": "Home · Rep · this month bar",
+    "notes": ""
+  },
+  "home.month.last": {
+    "text": "April",
+    "where": "Home · Rep · last month bar",
+    "notes": ""
+  },
+  "home.month.thisRange": {
+    "text": "May 1–4",
+    "where": "Home · Rep · distance, this month bar",
+    "notes": ""
+  },
+  "home.month.lastRange": {
+    "text": "Apr 1–4",
+    "where": "Home · Rep · distance, last month bar",
+    "notes": ""
+  },
+  "home.expenses.total": {
+    "text": "Total {amount} · 1–4 May",
+    "where": "Home · Rep · expenses chart total",
+    "notes": "Keep {amount}"
+  },
+  "home.distance.vsLast": {
+    "text": "vs same days last month ({last})",
+    "where": "Home · Rep · distance comparison",
+    "notes": "Keep {last}"
+  },
+  "home.switch.personal": {
+    "text": "{name}'s Home",
+    "where": "Home · home menu · the viewer's own home",
+    "notes": "Keep {name}"
+  },
+  "home.welcome": {
+    "text": "Welcome {name}",
+    "where": "Home · page header",
+    "notes": "Keep {name}"
+  },
+  "home.toast.notInPrototype": {
+    "text": "{action} is not part of this prototype yet.",
+    "where": "Toast · a Home action the prototype does not build",
+    "notes": "Keep {action}"
+  },
+  "home.html": {
+    "text": "Html",
+    "where": "New — used in src/sidebar.js",
+    "notes": "Draft text, needs the PM's wording."
   }
 }
