@@ -87,6 +87,12 @@
 }
 
 .sm-opt span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+/* An option with a description: label over a quieter second line */
+.sm-opt-text { display: flex; flex-direction: column; gap: 4px; }
+.sm-opt:has(.sm-opt-desc) { align-items: flex-start; white-space: normal; padding-top: 10px; padding-bottom: 10px; }
+.sm-opt:has(.sm-opt-desc) .sm-tick { margin-top: 5px; }
+.sm-opt .sm-opt-desc { font-size: 13px; font-weight: 400; line-height: 18px; color: #616e88; overflow: visible; }
 .sm-opt.active { background: #f2f5fe; }
 .sm-opt.selected { padding-left: 10px; font-weight: 600; }
 .sm-tick { flex-shrink: 0; width: 9px; height: 7px; }

@@ -14,6 +14,8 @@
                                             fieldId: 'x', onChange(value) {} });
      sm.setOptions([{ value: '0', label: 'Day 1 • 4 May', disabled: true, tip: 'Why not' }, …]);
      sm.value → '' until picked · sm.clear() · sm.setDisabled(on) · sm.field
+     An option may carry desc: a second, quieter line under its label in
+     the list (the field shows the label only)
 
    A pinned action under the options (Beat Engine's "New Visit Type"):
      opts.footer = () => ({ label: 'New Visit Type', disabled: false, why: '' })
@@ -74,7 +76,7 @@
         const sel = o.value === value;
         return `<li class="sm-opt${sel ? ' selected' : ''}${o.disabled ? ' off' : ''}" role="option"
                     id="${id}-o${i}" data-i="${i}" aria-selected="${sel}"${o.disabled ? ' aria-disabled="true"' : ''}>
-                  ${sel ? TICK : ''}<span>${esc(o.label)}</span></li>`;
+                  ${sel ? TICK : ''}<span class="sm-opt-text"><span>${esc(o.label)}</span>${o.desc ? `<span class="sm-opt-desc">${esc(o.desc)}</span>` : ''}</span></li>`;
       }).join('') + footerHtml();
       active = options.findIndex(o => o.value === value);
       if (active < 0) active = options.findIndex(o => !o.disabled);

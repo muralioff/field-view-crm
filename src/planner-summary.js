@@ -42,10 +42,10 @@
       ['Max days per Beat', escape(E.days)],
       ...(topDown ? [['Auto-create Beats', yes(E.auto)]] : []),
       ...(topDown && E.auto ? [
-        ['Field Sales Representatives', plural(repTotal, 'selection')],
+        ['Assign Auto-Created Beats To', plural(repTotal, 'user')],
         ['Run scheduler at', time12(E.time)],
         ['Visit Frequency', plural(E.freqRules.length, 'rule')],
-        ['Conditional Rules', E.conditional ? plural(E.assignRules.length, 'rule') : 'Off — Route intelligence assigns all visits'],
+        ['Assign Visits based on', E.conditional ? `CRM Assignment Rule (${plural(E.assignRules.length, 'rule')})` : 'Optimized Route'],
       ] : []),
     ]),
     facts([

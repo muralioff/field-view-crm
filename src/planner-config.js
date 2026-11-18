@@ -124,7 +124,7 @@
     const E = S.engine;
     const parts = [];
     if (E.auto) parts.push('Auto-create Beats');
-    if (Planner.repCount(E.reps)) parts.push('its rep selection');
+    if (Planner.repCount(E.reps)) parts.push('the users Beats are assigned to');
     if (E.freqRules.length) parts.push(`${E.freqRules.length} frequency rule${E.freqRules.length === 1 ? '' : 's'}`);
     if (E.assignRules.length) parts.push(`${E.assignRules.length} assignment rule${E.assignRules.length === 1 ? '' : 's'}`);
     if (E.time !== '09:00') parts.push('the scheduler time');

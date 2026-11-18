@@ -7,11 +7,12 @@
       says what a business day is.
    B. Auto-create Beats (Top Down only; not rendered for Bottom Up). Off
       by default; turning it off with work configured warns first.
-      B1 Rep Selection — counts by category, picked in Select Users
-      B2 Run scheduler at — the shared time picker, 9:00 AM
-      B3 Visit Frequency — rules per step-1 module, first match wins
-      B4 Visit Assignment — optional conditional rules, first match wins,
-         everything else goes to Route intelligence
+      B1 Run scheduler at — the shared time picker, 9:00 AM
+      B2 Visit Frequency — rules per step-1 module, first match wins
+      B3 Visit Assignment — Assign Auto-Created Beats To (users only,
+         picked inline or in Select Users), then Assign Visits based on:
+         Optimized Route, or CRM Assignment Rule — the planner's own
+         rules, first match wins, everything else by Optimized Route
 
    Everything is written to the wizard state as it changes, so leaving
    the step and coming back keeps every value and every rule's order.
@@ -23,6 +24,10 @@
   const { COMPANY, FREQUENCIES, MODULE_FIELDS, USER_FIELDS, GROUPS, ROLES, userById, initials } = BEData;
 
   const $ = id => document.getElementById(id);
+
+  /* Auto-created Beats go to users only; a selection saved before that
+     decision loses its groups and roles */
+  E.reps = { users: [...(E.reps.users || [])], groups: {}, roles: [] };
   const bodyEl = $('be-body');
   const persist = () => Planner.save();
   const topDown = S.model === 'top-down';
@@ -98,11 +103,11 @@
   /* "the rep selection, 2 frequency rules and 1 assignment rule" */
   function lossList() {
     const parts = [];
-    if (Planner.repCount(E.reps)) parts.push('its rep selection');
+    if (Planner.repCount(E.reps)) parts.push('the users Beats are assigned to');
     if (E.freqRules.length) parts.push(plural(E.freqRules.length, 'frequency rule'));
     if (E.assignRules.length) parts.push(plural(E.assignRules.length, 'assignment rule'));
     if (E.time !== '09:00') parts.push('the scheduler time');
-    if (!parts.length && E.conditional) parts.push('the Conditional Rules setting');
+    if (!parts.length && E.conditional) parts.push('the CRM Assignment Rule setting');
     return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}` : parts[0];
   }
 
@@ -133,36 +138,149 @@
     persist();
   });
 
-  /* ── B1. Rep Selection ─────────────────────────────── */
+  /* ── B3. Assign Auto-Created Beats To ──────────────── */
+  /* Users only. Chips for the chosen users; the input filters a list
+     that toggles users in and out (it stays open for several picks);
+     the icon opens Select Users. ↑ ↓ move, Enter toggles, Escape closes,
+     Backspace in an empty input removes the last chip. */
   const picker = $('be-reps');
+  const pickInput = $('be-reps-input');
+  const pickList = $('be-reps-list');
+  let pickActive = 0;
+
+  const avatarHtml = name => `<span class="pw-avatar" aria-hidden="true">${escape(initials(name))}</span>`;
+
+  function setReps(ids) {
+    E.reps.users = ids;
+    persist();
+    renderReps();
+    if (ids.length) errors.clear(picker);
+  }
 
   function renderReps() {
     if (!picker) return;
-    const groupCount = Object.values(E.reps.groups).reduce((n, ids) => n + ids.length, 0);
-    const counts = [['User', E.reps.users.length], ['Group', groupCount], ['Roles', E.reps.roles.length]]
-      .filter(([, n]) => n > 0);
-    $('be-reps-value').innerHTML = counts.length
-      ? counts.map(([label, n]) => `<span class="be-count-chip">${label} <b>${n}</b></span>`).join('')
-      : '<span class="be-picker-placeholder">Choose Users, Groups Roles etc.,</span>';
-    const icon = $('be-reps-icon');
-    icon.className = `ti be-picker-icon ${counts.length ? 'ti-pencil' : 'ti-user-plus'}`;
+    $('be-reps-chips').innerHTML = E.reps.users.map(id => {
+      const name = userById(id)?.name || id;
+      return `<span class="pw-chip">${avatarHtml(name)}<span>${escape(name)}</span>
+        <button class="be-chip-x" type="button" data-id="${id}" aria-label="Remove ${escape(name)}"><i class="ti ti-x" aria-hidden="true"></i></button>
+      </span>`;
+    }).join('');
+    pickInput.placeholder = E.reps.users.length ? '' : 'Select users';
+    if (!pickList.hidden) renderPickList();
   }
 
-  function openReps() {
-    BEUsers.open(E.reps, picker, reps => {
-      E.reps = reps;
-      persist();
-      renderReps();
-      errors.clear(picker);
+  const pickMatches = () => {
+    const q = pickInput.value.trim().toLowerCase();
+    return BEData.USERS.filter(u => !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  };
+
+  function renderPickList() {
+    const users = pickMatches();
+    pickActive = Math.min(pickActive, Math.max(users.length - 1, 0));
+    pickList.innerHTML = users.length
+      ? users.map((u, i) => {
+          const on = E.reps.users.includes(u.id);
+          return `<li class="be-userpick-opt${i === pickActive ? ' active' : ''}" role="option" id="be-reps-o${i}"
+                      data-id="${u.id}" aria-selected="${on}">
+                    ${avatarHtml(u.name)}
+                    <span class="be-who"><span class="be-name">${escape(u.name)}</span><span class="be-email">${escape(u.email)}</span></span>
+                    ${on ? '<i class="ti ti-check be-userpick-tick" aria-hidden="true"></i>' : ''}
+                  </li>`;
+        }).join('')
+      : `<li class="be-userpick-none" role="presentation">No users match “${escape(pickInput.value.trim())}”.</li>`;
+    if (users.length) {
+      pickInput.setAttribute('aria-activedescendant', `be-reps-o${pickActive}`);
+      pickList.querySelector('.active')?.scrollIntoView({ block: 'nearest' });
+    } else {
+      pickInput.removeAttribute('aria-activedescendant');
+    }
+  }
+
+  function openPick() {
+    if (!pickList.hidden) return;
+    pickActive = 0;
+    pickList.hidden = false;
+    picker.classList.add('open');
+    pickInput.setAttribute('aria-expanded', 'true');
+    renderPickList();
+  }
+
+  function closePick() {
+    if (pickList.hidden) return;
+    pickList.hidden = true;
+    picker.classList.remove('open');
+    pickInput.setAttribute('aria-expanded', 'false');
+    pickInput.removeAttribute('aria-activedescendant');
+  }
+
+  function toggleUser(id) {
+    setReps(E.reps.users.includes(id) ? E.reps.users.filter(u => u !== id) : [...E.reps.users, id]);
+  }
+
+  if (picker) {
+    /* A click anywhere in the box, or focus moved to it by validation,
+       lands in the input */
+    picker.addEventListener('focus', () => pickInput.focus());
+    picker.addEventListener('mousedown', e => {
+      if (e.target.closest('.be-chip-x, .be-userpick-dlg')) return;
+      e.preventDefault();
+      pickInput.focus();
+      if (pickList.hidden) openPick(); else if (e.target.closest('.be-userpick-caret')) closePick();
+    });
+    pickInput.addEventListener('focus', openPick);
+    pickInput.addEventListener('input', () => { pickActive = 0; openPick(); renderPickList(); });
+    pickInput.addEventListener('blur', () => setTimeout(() => {
+      if (!picker.contains(document.activeElement)) closePick();
+    }, 0));
+
+    pickInput.addEventListener('keydown', e => {
+      const users = pickMatches();
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (pickList.hidden) { openPick(); return; }
+        pickActive = Math.min(users.length - 1, Math.max(0, pickActive + (e.key === 'ArrowDown' ? 1 : -1)));
+        renderPickList();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (!pickList.hidden && users[pickActive]) toggleUser(users[pickActive].id);
+      } else if (e.key === 'Escape' && !pickList.hidden) {
+        e.preventDefault();
+        e.stopPropagation();
+        closePick();
+      } else if (e.key === 'Backspace' && !pickInput.value && E.reps.users.length) {
+        setReps(E.reps.users.slice(0, -1));
+      } else if (e.key === 'Tab') {
+        closePick();
+      }
+    });
+
+    /* The list keeps focus in the input, so picking never blurs it */
+    pickList.addEventListener('mousedown', e => e.preventDefault());
+    pickList.addEventListener('click', e => {
+      const opt = e.target.closest('.be-userpick-opt');
+      if (!opt) return;
+      pickActive = [...pickList.querySelectorAll('.be-userpick-opt')].indexOf(opt);
+      toggleUser(opt.dataset.id);
+    });
+
+    $('be-reps-chips').addEventListener('click', e => {
+      const x = e.target.closest('.be-chip-x');
+      if (!x) return;
+      setReps(E.reps.users.filter(id => id !== x.dataset.id));
+      pickInput.focus();
+    });
+
+    $('be-reps-dialog').addEventListener('click', e => {
+      closePick();
+      BEUsers.open(E.reps.users, e.currentTarget, setReps);
+    });
+
+    document.addEventListener('mousedown', e => {
+      if (!picker.parentElement.contains(e.target)) closePick();
     });
   }
 
-  picker?.addEventListener('click', openReps);
-  picker?.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openReps(); }
-  });
-
-  /* ── B2. Run scheduler at ──────────────────────────── */
+  /* ── B1. Run scheduler at ──────────────────────────── */
   /* Saved as 24-hour HH:mm, shown as "9:00 AM", in the org time zone */
   function toDisplay(wire) {
     const [h, m] = String(wire || '09:00').split(':').map(Number);
@@ -194,7 +312,7 @@
     $('be-time')?.classList.remove('invalid');
   }
 
-  /* ── B3 / B4 shared: the Add Rule module menu ──────── */
+  /* ── B2 / B3 shared: the Add Rule module menu ──────── */
   function moduleMenu(btn, onPick) {
     const modules = mappedModules();
     const items = modules.length
@@ -211,7 +329,7 @@
     return next;
   }
 
-  /* ── B3. Visit Frequency ───────────────────────────── */
+  /* ── B2. Visit Frequency ───────────────────────────── */
   const visitTypeMissing = rule => !Planner.visitTypeExists(rule.visitType);
 
   const freqTable = topDown && BERules.mountTable({
@@ -468,34 +586,51 @@
     Planner.toast(`Visit type “${name}” created.`);
   });
 
-  /* ── B4. Visit Assignment ──────────────────────────── */
-  const condBtn = $('be-cond');
+  /* ── B3. Visit Assignment: Assign Visits based on ──── */
+  /* E.conditional is true for CRM Assignment Rule: the planner's own
+     rules run first, and records no rule matches fall back to the most
+     efficient route. Optimized Route alone is the default. */
   const condBody = $('be-cond-body');
+  const ASSIGN_BY = [
+    { value: 'route', label: 'Optimized Route',
+      desc: 'Visits are assigned based on the most efficient route for each rep, within their shift hours.' },
+    { value: 'rules', label: 'CRM Assignment Rule',
+      desc: 'Records that match your assignment rules go to the rep each rule specifies. All other records are assigned by the most efficient route.' },
+  ];
+
+  const assignBy = topDown && SelectMenu.create($('be-assign-by-host'), {
+    fieldId: 'be-assign-by',
+    async onChange(value) {
+      const on = value === 'rules';
+      /* Leaving the rules with some defined throws them away, so ask */
+      if (!on && E.assignRules.length) {
+        const ok = await Planner.confirm({
+          title: 'Switch to Optimized Route',
+          message: `Switching to Optimized Route removes ${plural(E.assignRules.length, 'assignment rule')}. Every visit will then be assigned by the most efficient route.`,
+          action: 'Switch',
+        });
+        if (!ok) { assignBy.setValue('rules'); return; }
+        E.assignRules = [];
+        renderAssign();
+      }
+      setConditional(on);
+      persist();
+    },
+  });
+
+  if (assignBy) {
+    assignBy.setOptions(ASSIGN_BY);
+    assignBy.field.setAttribute('aria-labelledby', `be-assign-by-label ${assignBy.field.id}`);
+  }
 
   function setConditional(on) {
     E.conditional = on;
-    condBtn.setAttribute('aria-checked', String(on));
+    assignBy?.setValue(on ? 'rules' : 'route');
     condBody.hidden = !on;
   }
 
-  condBtn?.addEventListener('click', async () => {
-    const on = condBtn.getAttribute('aria-checked') !== 'true';
-    if (!on && E.assignRules.length) {
-      const ok = await Planner.confirm({
-        title: 'Turn off Conditional Rules',
-        message: `Turning off Conditional Rules removes ${plural(E.assignRules.length, 'assignment rule')}. Every visit will then be assigned by Route intelligence.`,
-        action: 'Turn Off',
-      });
-      if (!ok) return;
-      E.assignRules = [];
-      renderAssign();
-    }
-    setConditional(on);
-    persist();
-  });
-
-  /* Reps chosen in B1, as the users an assignment rule may name */
-  const repUserIds = () => BEUsers.resolve(E.reps);
+  /* The users auto-created Beats go to, as the users a rule may name */
+  const repUserIds = () => E.reps.users;
 
   const CAT_KIND = { Users: 'Users', Groups: 'Group', Roles: 'Role' };
   const expandedChips = new Set();
@@ -597,7 +732,7 @@
           <div class="pc-field-cell be-as-pick" id="be-as-pick-host"></div>
         </div>
         <p class="pw-inline-warn" id="be-as-warn" role="status" hidden></p>
-        <p class="be-as-hint" id="be-as-hint" hidden>Select Field Sales Representatives in Rep Selection first. Only they can be assigned visits.</p>
+        <p class="be-as-hint" id="be-as-hint" hidden>Select users in Assign Auto-Created Beats To first. Only they can be assigned visits.</p>
         <div class="pw-chips be-as-chips" id="be-as-chips"></div>
       </div>
       <div class="be-crit-area" id="be-as-users" hidden></div>
@@ -647,7 +782,7 @@
     $('be-as-hint').hidden = !noReps;
     const noun = asDraft.catType.toLowerCase();
     targetSelect.field.querySelector('.sm-value').textContent =
-      noReps ? 'No Field Sales Representatives selected' : options.length ? `Select ${noun}` : `All ${noun} added`;
+      noReps ? 'No users selected above' : options.length ? `Select ${noun}` : `All ${noun} added`;
     targetSelect.field.setAttribute('aria-label', `Choose ${noun} to assign to`);
     $('be-as-chips').innerHTML = asDraft.targets.map(t => {
       const name = asDraft.catType === 'Users' ? userById(t)?.name || t : t;
@@ -763,7 +898,7 @@
     if (asDraft.assign === 'category') {
       if (!asDraft.targets.length) asErrors.set(targetSelect.field, 'Choose who this rule assigns to.');
       else if (reachesNobody()) {
-        asErrors.set(targetSelect.field, `None of the selected ${asDraft.catType.toLowerCase()} include a Field Sales Representative.`);
+        asErrors.set(targetSelect.field, `None of the selected ${asDraft.catType.toLowerCase()} include a user that auto-created Beats are assigned to.`);
       }
     } else {
       BERules.validateBuilder($('be-as-users').querySelector('.be-builder'), asDraft.user, asErrors);
@@ -810,7 +945,7 @@
 
     let ruleError = null;
     if (topDown && E.auto) {
-      if (!Planner.repCount(E.reps)) errors.set(picker, 'Select at least one Field Sales Representative.');
+      if (!Planner.repCount(E.reps)) errors.set(picker, 'Select at least one user to assign auto-created Beats to.');
       if (!scheduler.value) setTimeError('Set the time at which the scheduler should run.');
 
       renderFreq();

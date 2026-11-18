@@ -73,53 +73,139 @@
 .be-sub + .be-sub,
 .be-sched + .be-sub { margin-top: 30px; }
 
-/* ── B1. Rep Selection picker ────────────────────── */
-.be-reps-cell { width: 420px; max-width: 100%; }
+/* ── B3. Assign Auto-Created Beats To ────────────── */
+/* A 390 wide chip box, like the dropdown under it: chips and the filter
+   input wrap inside it, the caret and the user-search icon sit on the right */
+.be-assignto-rows { --pw-label-w: 200px; margin-top: 15px; }
 
-.be-picker {
+.be-reps-cell { position: relative; width: 390px; max-width: 100%; }
+
+.be-userpick {
+  position: relative;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  align-content: center;
+  gap: 4px 6px;
   min-height: 34px;
   height: auto;
-  padding: 4px 10px 4px 13px;
+  padding: 4px 76px 4px 13px;   /* right: room for the caret and the icon */
+  overflow: hidden;
+  cursor: text;
+}
+
+.be-userpick.open,
+.be-userpick:focus-within { border-color: var(--pc-input-focus); }
+.be-userpick.invalid { border-color: var(--pc-input-error); }
+.be-userpick:focus { outline: none; }
+
+/* Chips sit straight in the box's wrapping row, with the input after them */
+.be-userpick-chips { display: contents; }
+
+.be-userpick .pw-chip { margin: 0; }
+
+.be-userpick-input {
+  flex: 1;
+  min-width: 90px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--pc-base);
+  outline: none;
+}
+
+.be-userpick-input::placeholder { color: var(--pc-placeholder); }
+
+.be-userpick-caret {
+  position: absolute;
+  top: 0;
+  right: 40px;
+  width: 30px;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: url("icon-down-arrow-small.svg") no-repeat center / 10px 5px;
   cursor: pointer;
 }
 
-.be-picker:focus-visible { border-color: var(--pw-focus); outline: none; }
-.be-picker.invalid { border-color: var(--pc-input-error); }
-
-.be-picker-value { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 6px; }
-.be-picker-placeholder { color: var(--pc-placeholder); }
-
-.be-count-chip {
-  display: inline-flex;
+.be-userpick-dlg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 100%;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  height: 24px;
-  padding: 0 8px;
-  background: var(--pw-card-bg);
-  border: 1px solid var(--pw-card-line);
-  border-radius: 100px;
-  font-size: 13px;
-  color: var(--pc-label);
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-left: 1px solid var(--pc-input-border);
+  background: #f4f4f6;
+  color: var(--pc-base);
+  font-size: 18px;
+  cursor: pointer;
 }
 
-.be-count-chip b { font-weight: 600; color: var(--pc-heading); }
+.be-userpick-dlg:hover { color: var(--pw-link); }
+.be-userpick-dlg:focus-visible { outline: 2px solid var(--pw-focus); outline-offset: -3px; }
 
-.be-picker-icon { font-size: 16px; color: var(--pw-link); }
+/* The list under the box: toggles users, ticks the chosen ones */
+.be-userpick-list {
+  position: absolute;
+  z-index: 40;
+  left: 0;
+  right: 0;
+  top: calc(100% + 2px);
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 6px;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #ced0e1;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
 
-/* ── B2. Run scheduler at ────────────────────────── */
+.be-userpick-list[hidden] { display: none; }
+
+.be-userpick-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.be-userpick-opt .pw-avatar { width: 24px; height: 24px; font-size: 10px; }
+.be-userpick-opt.active { background: var(--pw-link-bg); }
+.be-userpick-opt[aria-selected="true"] .be-name { font-weight: 500; }
+.be-userpick-tick { font-size: 16px; color: var(--pw-link); }
+.be-userpick-none { padding: 14px 10px; font-size: 14px; color: var(--pc-label); text-align: center; }
+
+/* ── B1. Run scheduler at ────────────────────────── */
 .be-sched { margin-top: 30px; }
 .be-sched .tp { width: 120px; }
 
-/* ── B4. Conditional Rules ───────────────────────── */
-.be-cond { margin-top: 20px; }
-.be-cond-head { gap: 10px; }
-.be-cond-label { font-size: 14px; font-weight: 600; line-height: 20px; color: var(--pc-heading); }
-#be-cond-body[hidden] { display: none; }
+/* ── B3. Assign Visits based on ──────────────────── */
+.be-assign-by { width: 390px; max-width: 100%; }
 
-.be-order-line { margin-top: 10px; font-size: 14px; line-height: 20px; color: var(--pc-para); }
+/* CRM Assignment Rule: Add Rule ▾ (module menu) above the rules table */
+.be-cond-body { margin-top: 20px; }
+.be-cond-body[hidden] { display: none; }
+.be-cond-body .pc-btn.pw-add { margin-top: 0; }
+.be-cond-body .pw-limit-note { margin-top: 0; }
+
+.be-add-menu { gap: 8px; }
+.be-add-caret {
+  width: 10px;
+  height: 5px;
+  background: currentColor;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
 
 .be-assign-kind { display: block; color: var(--pc-label); }
 
@@ -141,10 +227,6 @@
 }
 
 .be-pane-title { font-size: 14px; font-weight: 600; line-height: 20px; color: var(--pc-heading); }
-
-.be-pane-filters { display: flex; gap: 10px; margin-top: 10px; }
-.be-pane-filters .pc-field { flex: 1; min-width: 0; }
-.be-pane-filters .pc-field[hidden] { display: none; }
 
 .be-search { position: relative; margin-top: 10px; }
 .be-search .ti { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--pc-label); }
@@ -214,26 +296,7 @@
 .be-selected { margin-top: 10px; overflow-y: auto; max-height: 360px; }
 .be-sel-empty { font-size: 14px; color: var(--pc-label); }
 
-.be-sel-block + .be-sel-block { margin-top: 14px; }
-
-.be-sel-head {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0;
-  border: none;
-  background: none;
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--pc-heading);
-  cursor: pointer;
-}
-
-.be-sel-head:focus-visible { outline: 2px solid var(--pw-focus); outline-offset: 2px; border-radius: 2px; }
-.be-sel-body { padding: 6px 0 0 20px; }
-.be-sel-body[hidden] { display: none; }
-.be-sel-sub { margin-top: 6px; font-size: 13px; color: var(--pc-label); }
+.be-sel-sub { margin-bottom: 8px; font-size: 13px; font-weight: 500; color: var(--pc-heading); }
 
 .be-chip-x {
   width: 14px;

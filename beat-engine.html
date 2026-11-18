@@ -118,25 +118,7 @@
 
             <div class="be-auto-body" id="be-auto-body" hidden>
 
-              <!-- B1. Field Sales Representative Selection -->
-              <div class="be-sub be-reps-section">
-                <h2 class="pw-title">Field Sales Representative Selection</h2>
-                <p class="pw-desc">Select the CRM users who will be executing the Beats created via this Beat Planner as the Field Sales representative.</p>
-                <div class="pw-rows">
-                  <div class="pw-row">
-                    <span class="pw-label" id="be-reps-label">Rep Selection</span>
-                    <div class="pc-field-cell be-reps-cell">
-                      <div class="pc-field mandatory be-picker" id="be-reps" role="button" tabindex="0"
-                           aria-haspopup="dialog" aria-labelledby="be-reps-label be-reps-value">
-                        <span class="be-picker-value" id="be-reps-value"></span>
-                        <i class="ti be-picker-icon" id="be-reps-icon" aria-hidden="true"></i>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- B2. Run scheduler at — in the org time zone shown above -->
+              <!-- B1. Run scheduler at — in the org time zone shown above -->
               <div class="pw-row be-sched">
                 <span class="pw-label strong">
                   <label for="be-time">Run scheduler at</label>
@@ -150,7 +132,7 @@
                 </div>
               </div>
 
-              <!-- B3. Visit Frequency -->
+              <!-- B2. Visit Frequency -->
               <div class="be-sub be-freq-section">
                 <h2 class="pw-title">Visit Frequency</h2>
                 <p class="pw-desc">
@@ -164,28 +146,47 @@
                 <p class="pw-limit-note" id="be-freq-limit" hidden>You can add up to 25 frequency rules.</p>
               </div>
 
-              <!-- B4. Visit Assignment -->
+              <!-- B3. Visit Assignment -->
               <div class="be-sub be-assign-section">
                 <h2 class="pw-title">Visit Assignment</h2>
-                <p class="pw-desc">By default, Assignment for the Visit records will be done based on Route intelligence powered by Routeiq.</p>
 
-                <div class="be-cond">
-                  <div class="pw-head be-cond-head">
-                    <span class="be-cond-label" id="be-cond-title">Conditional Rules</span>
-                    <button class="pw-switch" type="button" role="switch" aria-checked="false"
-                            aria-labelledby="be-cond-title" id="be-cond"></button>
+                <!-- Who auto-created Beats go to: users only. Chips, a list
+                     to pick from (type to filter), and the Select Users dialog
+                     behind the icon. -->
+                <div class="pw-rows be-assignto-rows">
+                  <div class="pw-row">
+                    <span class="pw-label" id="be-reps-label">Assign Auto-Created Beats To</span>
+                    <div class="pc-field-cell be-reps-cell">
+                      <div class="pc-field mandatory be-userpick" id="be-reps" tabindex="-1">
+                        <span class="be-userpick-chips" id="be-reps-chips"></span>
+                        <input class="be-userpick-input" id="be-reps-input" type="text" role="combobox"
+                               aria-labelledby="be-reps-label" aria-controls="be-reps-list"
+                               aria-expanded="false" aria-autocomplete="list" autocomplete="off" />
+                        <button class="be-userpick-caret" type="button" tabindex="-1" aria-label="Show users"></button>
+                        <button class="be-userpick-dlg" type="button" id="be-reps-dialog" aria-haspopup="dialog"
+                                aria-label="Find users in a dialog"><i class="ti ti-user-search" aria-hidden="true"></i></button>
+                      </div>
+                      <ul class="be-userpick-list" id="be-reps-list" role="listbox" aria-multiselectable="true"
+                          aria-labelledby="be-reps-label" hidden></ul>
+                    </div>
                   </div>
-                  <p class="pw-desc">If enabled, users will have an additional layer of rules based on CRM, Which will be used to assign users based on criteria</p>
+
+                  <!-- How visits are shared out: Optimized Route alone, or the
+                       planner's own assignment rules first -->
+                  <div class="pw-row">
+                    <span class="pw-label" id="be-assign-by-label">Assign Visits based on</span>
+                    <div class="pc-field-cell be-assign-by" id="be-assign-by-host"></div>
+                  </div>
                 </div>
 
-                <div id="be-cond-body" hidden>
-                  <p class="pw-note"><b>Note:</b> Except for the records assigned via conditional rules the other records will be assigned based on Route intelligence to create an optimised beat.</p>
-                  <p class="be-order-line">Rules are evaluated in order, and the first match assigns the visit.</p>
-                  <p class="pw-table-error" id="be-assign-error" role="alert" hidden></p>
-                  <p class="pw-empty" id="be-assign-empty">No assignment rules yet. Every visit is assigned by Route intelligence.</p>
-                  <div class="pw-rules be-assign-table" id="be-assign-table" hidden></div>
-                  <button class="pc-btn pw-add" type="button" id="be-assign-add" aria-haspopup="menu" aria-expanded="false">Add Rule</button>
+                <!-- CRM Assignment Rule: Add Rule (module menu) above the rules -->
+                <div class="be-cond-body" id="be-cond-body" hidden>
+                  <button class="pc-btn pw-add be-add-menu" type="button" id="be-assign-add" aria-haspopup="menu" aria-expanded="false">
+                    Add Rule <span class="be-add-caret" aria-hidden="true"></span></button>
                   <p class="pw-limit-note" id="be-assign-limit" hidden>You can add up to 25 assignment rules.</p>
+                  <p class="pw-table-error" id="be-assign-error" role="alert" hidden></p>
+                  <p class="pw-empty" id="be-assign-empty">No assignment rules yet. Every visit is assigned by the most efficient route.</p>
+                  <div class="pw-rules be-assign-table" id="be-assign-table" hidden></div>
                 </div>
               </div>
             </div>
@@ -206,7 +207,7 @@
     </main>
   </div>
 
-  <!-- Select Users: Available on the left, Selected on the right -->
+  <!-- Select Users: Available users on the left, Selected on the right -->
   <div class="pc-overlay" id="be-users-overlay" aria-hidden="true">
     <div class="mb-modal pw-modal wide" role="dialog" aria-modal="true" aria-labelledby="be-users-title">
       <header class="mb-head">
@@ -216,14 +217,6 @@
         <div class="be-users">
           <section class="be-pane" aria-labelledby="be-avail-title">
             <h3 class="be-pane-title" id="be-avail-title">Available</h3>
-            <div class="be-pane-filters">
-              <select class="pc-field" id="be-users-source" aria-label="Choose from">
-                <option value="users">Users</option>
-                <option value="groups">Groups</option>
-                <option value="roles">Roles</option>
-              </select>
-              <select class="pc-field" id="be-users-group" aria-label="Group" hidden></select>
-            </div>
             <div class="be-search">
               <i class="ti ti-search" aria-hidden="true"></i>
               <input class="pc-field" type="search" id="be-users-search" placeholder="Search" aria-label="Search the list" autocomplete="off" />
