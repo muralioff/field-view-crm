@@ -1,5 +1,5 @@
 /* ============================================================
-   Module & Address Mapping — layout B
+   Module & Address Mapping
    The dialog behind "Add Module" and the table's edit action. Reads and
    writes the page's module rows through window.PCModules.
 
@@ -24,52 +24,31 @@
    Labels stay right-aligned in a column, matching the rest of the app.
    Spacing and type are inherited from Figma 4979:803081.
 
-   Two designs share every behaviour here (Type switch in the top bar):
-     Type 1 — the above: label → arrow → field for each address part
-     Type 2 — Figma 6382:180018 / 6379:178413: the address parts sit in a
-              "Map fields | CRM Fields" table, the full-address field takes
-              a plain left label, and the copy is reworded throughout
+   Layout and copy: Figma 6382:180018 / 6379:178413. Address parts sit
+   in a "Map fields | CRM Fields" table; the full-address field takes a
+   plain left label with its hint under the field.
    ============================================================ */
 (function () {
   const api = window.PCModules;
   if (!api) return;
 
   const { MODULES, ADDRESS_FIELDS, ADDRESS_PARTS, CRITERIA_FIELDS,
-          OPERATORS, VALUELESS, MESSAGES, ADDRESS_TYPE_LABEL } = api.constants;
+          OPERATORS, VALUELESS, MESSAGES } = api.constants;
   const { fillSelect, escape, toast } = api.helpers;
 
-  /* The label column is as wide as that type's longest label, so the arrows
-     and fields line up down the column. "Full Address" plus its info icon
-     needs more room than "Pincode". Figma 4968:800495. */
-  const MAP_LABEL_W = { structured: 54, unstructured: 100 };
-
-  /* What the two designs say. Everything not listed is shared. */
+  /* The dialog's copy */
   const COPY = {
-    '1': {
-      title: verb => `${verb} Module and Address Mapping`,
-      sub: "Map a module's address fields so its records can be plotted on the map.",
-      addressHead: 'Address Type',
-      typeLabel: ADDRESS_TYPE_LABEL,
-      scopeHead: 'Record Scope',
-      scopeAll: 'All records',
-      scopeSpecific: 'Records matching criteria',
-    },
-    '2': {
-      title: verb => `${verb} Module`,
-      sub: 'Choose the module which contains the address and other information your sales rep need to visit',
-      addressHead: 'Map the Address fields for visit creation',
-      typeLabel: { unstructured: 'Address Field', structured: 'Address Section' },
-      scopeHead: 'Record Inclusion',
-      scopeAll: 'All Records',
-      scopeSpecific: 'Specific Records',
-      partLabel: { pincode: 'ZipCode' },
-      fullHint: 'Choose the field that stores the complete address, such as 6800 Burleson Rd, Austin.',
-    },
+    title: verb => `${verb} Module`,
+    sub: 'Choose the module which contains the address and other information your sales rep need to visit',
+    addressHead: 'Map the Address fields for visit creation',
+    typeLabel: { unstructured: 'Address Field', structured: 'Address Section' },
+    scopeHead: 'Record Inclusion',
+    scopeAll: 'All Records',
+    scopeSpecific: 'Specific Records',
+    partLabel: { pincode: 'ZipCode' },
+    fullHint: 'Choose the field that stores the complete address, such as 6800 Burleson Rd, Austin.',
   };
-
-  const LAYOUT_KEY = 'mb-layout';
-  let layout = '1';
-  const copy = () => COPY[layout];
+  const copy = () => COPY;
 
   const overlay = document.getElementById('mb-overlay');
   const modalEl = overlay.querySelector('.mb-modal');
@@ -121,7 +100,7 @@
       </div>
     </div>`;
 
-  /* Type 2's address parts: a two-column table, one part a row */
+  /* Address parts: a two-column table, one part a row */
   function addressTableHtml(parts) {
     return `
       <div class="mb2-table">
@@ -143,7 +122,7 @@
       </div>`;
   }
 
-  /* Type 2's single field: a plain left label, the hint under the field */
+  /* The single field: a plain left label, the hint under the field */
   function fullAddressHtml(part) {
     return `
       <div class="mb2-full">
@@ -172,30 +151,11 @@
           ${typeLabel.structured}
         </label>
       </div>`;
-    if (layout === '2') {
-      return `
+    return `
       <section class="mb-section mb2-address">
         <h3 class="mb-group-head">${copy().addressHead}</h3>
         ${radios}
         ${draft.addressType === 'structured' ? addressTableHtml(parts) : fullAddressHtml(parts[0])}
-      </section>`;
-    }
-    return `
-      <section class="mb-section">
-        <h3 class="mb-group-head">${copy().addressHead}</h3>
-        ${radios}
-        <div class="mb-grid" style="--mb-map-label-w:${MAP_LABEL_W[draft.addressType]}px">
-          ${parts.map(part => `
-            <div class="mb-map-row">
-              <span class="mb-label">${part.label}</span>
-              <img class="mb-map-arrow" src="src/map-arrow.svg" alt="maps to" />
-              <div class="mb-control pc-field-cell">
-                ${selectHtml(`mb-map${part.required ? ' mandatory' : ''}`,
-                             `data-part="${part.key}" aria-label="${part.label} field"`)}
-                ${part.hint ? `<p class="mb-hint">${escape(part.hint)}</p>` : ''}
-              </div>
-            </div>`).join('')}
-        </div>
       </section>`;
   }
 
@@ -464,32 +424,6 @@
 
   document.getElementById('pc-add-module-btn').addEventListener('click', () => open(null));
   document.getElementById('pc-add-module-link').addEventListener('click', () => open(null));
-
-  /* ── Type switch ───────────────────────────────────── */
-  function setLayout(type) {
-    layout = type;
-    modalEl.classList.toggle('mb-type-2', type === '2');
-    document.querySelectorAll('.mb-layout-btn').forEach(b =>
-      b.classList.toggle('active', b.dataset.layout === type));
-    document.querySelector('.mb-sub').textContent = copy().sub;
-    try { localStorage.setItem(LAYOUT_KEY, type); } catch { /* private mode */ }
-    /* An open dialog redraws in place and keeps its draft */
-    if (overlay.classList.contains('show')) {
-      document.getElementById('mb-title').textContent =
-        copy().title(editingIndex === null ? 'Add' : 'Edit');
-      errors.clearAll();
-      render();
-    }
-  }
-
-  document.querySelector('.mb-layout').addEventListener('click', e => {
-    const btn = e.target.closest('.mb-layout-btn');
-    if (btn && btn.dataset.layout !== layout) setLayout(btn.dataset.layout);
-  });
-
-  let savedLayout = '1';
-  try { savedLayout = localStorage.getItem(LAYOUT_KEY) || '1'; } catch { /* private mode */ }
-  setLayout(['1', '2'].includes(savedLayout) ? savedLayout : '1');
 
   /* The table's edit button reopens this dialog on that row */
   window.PCModuleModal = { open };

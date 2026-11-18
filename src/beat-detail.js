@@ -53,17 +53,33 @@ Strings.ready.then(() => {
     },
     {
       label: 'Day 2', date: '5 May',
-      pins: [{ x: 392, y: 256 }, { x: 434, y: 210 }, { x: 564, y: 194 }],
+      /* Day 2 has visits sharing a building — same latitude and longitude,
+         different floors (Address Line 2): two at 89 E 42nd St, three at
+         1 Liberty Plaza. Their pins share a point and draw as one stack. */
+      pins: [{ x: 392, y: 256 }, { x: 434, y: 210 }, { x: 434, y: 210 }, { x: 564, y: 194 },
+             { x: 662, y: 334 }, { x: 662, y: 334 }, { x: 662, y: 334 }],
       visits: [
-        { name: 'Priya Raman Visit',  module: 'Contacts',
+        { name: 'Priya Raman Visit',  module: 'Contacts', lat: 40.748441, lng: -73.985664,
           address: '350 5th Ave, New York, NY 10118, USA', type: 'Order Delivery', time: '10:15 AM to 10:30 AM', drive: '18 min (2.2 km)',
           actual: '10:18 AM to 10:34 AM', actualDrive: '19 min (2.3 km)' },
-        { name: 'Vikram Shah Visit',  module: 'Accounts',
-          address: '89 E 42nd St, New York, NY 10017, USA', type: 'Stock Check',    time: '11:00 AM to 11:20 AM', drive: '14 min (1.8 km)',
-          actual: '11:04 AM to 11:26 AM', actualDrive: '15 min (1.9 km)' },
-        { name: 'Nisha Kumar Visit',  module: 'Leads',
-          address: '11 Wall St, New York, NY 10005, USA',    type: 'Shop Delivery',  time: '11:50 AM to 12:05 PM', drive: '22 min (3.4 km)',
-          actual: '11:55 AM to 12:11 PM', actualDrive: '24 min (3.5 km)' },
+        { name: 'Vikram Shah Visit',  module: 'Accounts', lat: 40.751930, lng: -73.977450,
+          address: '89 E 42nd St, Floor 1, New York, NY 10017, USA', type: 'Stock Check', time: '11:00 AM to 11:20 AM', drive: '0 min (0 km)',
+          actual: '11:04 AM to 11:26 AM', actualDrive: '0 min (0 km)' },
+        { name: 'Ananya Rao Visit',   module: 'Contacts', lat: 40.751930, lng: -73.977450,
+          address: '89 E 42nd St, Floor 3, New York, NY 10017, USA', type: 'Order Approval', time: '11:25 AM to 11:40 AM', drive: '14 min (1.8 km)',
+          actual: '11:29 AM to 11:46 AM', actualDrive: '15 min (1.9 km)' },
+        { name: 'Nisha Kumar Visit',  module: 'Leads',    lat: 40.706480, lng: -74.009150,
+          address: '11 Wall St, New York, NY 10005, USA',    type: 'Shop Delivery',  time: '12:00 PM to 12:15 PM', drive: '16 min (2.1 km)',
+          actual: '12:03 PM to 12:20 PM', actualDrive: '17 min (2.2 km)' },
+        { name: 'Rohan Mehta Visit',  module: 'Leads',    lat: 40.709530, lng: -74.010820,
+          address: '1 Liberty Plaza, Floor 2, New York, NY 10006, USA', type: 'Order Delivery', time: '12:35 PM to 12:50 PM', drive: '0 min (0 km)',
+          actual: '12:38 PM to 12:55 PM', actualDrive: '0 min (0 km)' },
+        { name: 'Sara Thomas Visit',  module: 'Deals',    lat: 40.709530, lng: -74.010820,
+          address: '1 Liberty Plaza, Floor 5, New York, NY 10006, USA', type: 'Gate Approval', time: '12:55 PM to 1:10 PM', drive: '0 min (0 km)',
+          actual: '12:59 PM to 1:15 PM', actualDrive: '0 min (0 km)' },
+        { name: 'Daniel Brooks Visit', module: 'Accounts', lat: 40.709530, lng: -74.010820,
+          address: '1 Liberty Plaza, Floor 9, New York, NY 10006, USA', type: 'Stock Check', time: '1:15 PM to 1:30 PM', drive: '22 min (3.4 km)',
+          actual: '1:19 PM to 1:36 PM', actualDrive: '23 min (3.5 km)' },
       ],
     },
     {
@@ -233,6 +249,94 @@ Strings.ready.then(() => {
      made during a review takes effect when the approval is completed. */
   const offRoute = v => v.status === 'rejected' || v.status === 'awaiting';
   const onRoute = day => day.visits.filter(v => !offRoute(v));
+
+  /* ── Visits at one location ────────────────────────── */
+  /* Two visits are at the same location when their latitude and longitude
+     match, rounded to 5 decimals (about a metre) — different floors of one
+     building, say, told apart by Address Line 2. On the map they draw as
+     one stacked pin, which fans out on a click. A visit with no
+     coordinates never stacks. */
+  const spotKey = v => (v && v.lat != null && v.lng != null
+    ? `${Number(v.lat).toFixed(5)},${Number(v.lng).toFixed(5)}` : null);
+
+  /* For one day: each route visit's number, and the stack it belongs to
+     ({ key, members } — visit indices in route order) where two or more
+     share a spot */
+  function routeInfo(d) {
+    const no = {}, groups = new Map();
+    let n = 0;
+    DAYS[d].visits.forEach((v, i) => {
+      if (offRoute(v)) return;
+      no[i] = ++n;
+      const k = spotKey(v);
+      if (!k) return;
+      if (!groups.has(k)) groups.set(k, []);
+      groups.get(k).push(i);
+    });
+    const stackOf = {};
+    groups.forEach((members, key) => {
+      if (members.length > 1) members.forEach(i => { stackOf[i] = { key, members }; });
+    });
+    return { no, stackOf };
+  }
+  const stackFor = (d, v) => routeInfo(d).stackOf[v] || null;
+
+  /* A fanned stack spreads its pins on an arc above the real point, in
+     route order, in screen pixels. Each is joined to the point by a
+     dashed leader. */
+  function fanOffset(k, n) {
+    const spread = Math.min(150, 50 * (n - 1)) * Math.PI / 180;
+    const a = n === 1 ? 0 : -spread / 2 + spread * k / (n - 1);
+    const r = 48 + Math.max(0, n - 3) * 8;
+    return { dx: r * Math.sin(a), dy: -r * Math.cos(a) };
+  }
+
+  /* Where a visit's pin stands now: its own point, or its place in a
+     fanned stack */
+  function pinPoint(map, d, v) {
+    const p = DAYS[d].pins[v];
+    const f = map._fan;
+    const k = f && f.day === d ? f.members.indexOf(v) : -1;
+    if (k < 0) return p;
+    const o = fanOffset(k, f.members.length), t = fanProgress(map);
+    return { x: p.x + o.dx * t / map.scale, y: p.y + o.dy * t / map.scale };
+  }
+
+  /* Opening and folding a stack glide rather than jump: the pins travel
+     out from the shared point, and back into it, over FAN_MS. While it
+     folds the fan is kept, so the pins can be drawn on their way in. */
+  const FAN_MS = 260;
+  function fanProgress(map) {
+    if (!map._fan) return 0;
+    const a = map._fanAnim;
+    if (!a) return 1;
+    const t = Math.max(0, Math.min(1, (performance.now() - a.start) / FAN_MS));
+    const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    return a.to ? e : 1 - e;
+  }
+  /* Open (and not on its way back in) */
+  const fanOpen = map => Boolean(map._fan && (!map._fanAnim || map._fanAnim.to === 1));
+  function setFan(map, fan) {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (fan) {
+      if (fanOpen(map) && map._fan.key === fan.key && map._fan.day === fan.day) return;
+      map._fan = fan;
+      map._fanAnim = reduce ? null : { to: 1, start: performance.now() };
+    } else {
+      if (!fanOpen(map)) return;
+      if (reduce) { map._fan = null; map._fanAnim = null; }
+      else map._fanAnim = { to: 0, start: performance.now() };
+    }
+    map.draw();
+  }
+
+  /* A visit drawn inside a folded stack, behind its first pin */
+  function hiddenInStack(map, d, v) {
+    const st = stackFor(d, v);
+    if (!st || st.members[0] === v) return false;
+    return !(map._fan && map._fan.day === d && map._fan.key === st.key);
+  }
+
 
   const dayNum = i => Number(DAYS[i].date.split(' ')[0]);
   const dayName = n => {
@@ -538,8 +642,17 @@ Strings.ready.then(() => {
      time (Figma 3479:98007). Until the rep has driven it that time is an
      estimate, marked with a ~; once they arrive it is replaced by what the
      leg actually took, and the ~ comes off. */
-  function legHtml(from, travelled) {
+  function legHtml(from, travelled, to) {
     if (!from || !from.drive) return '';
+    /* Two visits in one building: no drive between them */
+    if (to && spotKey(from) && spotKey(from) === spotKey(to)) {
+      return `
+      <div class="bd-row bd-leg bd-leg-same ${travelled ? 'reached' : ''}">
+        <span class="bd-leg-rule"></span>
+        <i class="ti ti-building bd-leg-building" aria-hidden="true"></i>
+        <span class="bd-leg-text">${escape(t('beatDetail.timeline.legSameBuilding'))}</span>
+      </div>`;
+    }
     const done = travelled && from.actualDrive;
     return `
       <div class="bd-row bd-leg ${travelled ? 'reached' : ''}">
@@ -553,7 +666,7 @@ Strings.ready.then(() => {
      page reports what happened rather than offering to change it. The tick
      and cross belong to the bottom-up screen, where a manager approves.
      No card either — the stop is plain text beside the rail. */
-  function visitHtml(visit, i, day, reached, isCurrent, no) {
+  function visitHtml(visit, i, day, reached, isCurrent, no, sameAs) {
     const tag = tagFor(day, visit);
     /* Only the stop in hand answers to a click, and only while its day runs */
     const settle = day.status === 'active' && visit.status === 'active';
@@ -575,6 +688,7 @@ Strings.ready.then(() => {
             ${reasonLineHtml(visit)}
             <p class="bd-visit-meta bd-visit-when"><span class="vtime">${escape(when)}</span><span class="dot">•</span><span class="vtype" data-trunc>${escape(visit.type)}</span></p>
             ${visit.address ? `<p class="bd-visit-addr" data-trunc>${escape(visit.address)}</p>` : ''}
+            ${sameAs ? `<p class="bd-visit-same">${escape(t('beatDetail.visit.sameLocation', { no: sameAs }))}</p>` : ''}
           </div>
         </div>
         ${approvalIconsHtml(visit)}
@@ -609,11 +723,15 @@ Strings.ready.then(() => {
     /* Numbered along the route; a visit off it (rejected, or waiting on
        the manager) stays in the list with no leg and no number */
     let prev = HOME, no = 0;
+    const { no: numbers, stackOf } = routeInfo(index);
     day.visits.forEach((v, i) => {
       if (offRoute(v)) { rows.push(visitHtml(v, i, day, false, false, 0)); return; }
-      /* the leg into this stop, then the stop itself */
-      rows.push(legHtml(prev, upto >= i));
-      rows.push(visitHtml(v, i, day, upto >= i, i === upto && !allDone, ++no));
+      /* the leg into this stop, then the stop itself — one sharing a spot
+         with an earlier visit says which */
+      const st = stackOf[i];
+      const sameAs = st && st.members[0] !== i ? numbers[st.members[0]] : 0;
+      rows.push(legHtml(prev, upto >= i, v));
+      rows.push(visitHtml(v, i, day, upto >= i, i === upto && !allDone, ++no, sameAs));
       prev = v;
     });
     rows.push(legHtml(prev === HOME ? null : prev, allDone));
@@ -1217,6 +1335,9 @@ Strings.ready.then(() => {
       vrow.classList.add('bd-focus');
       /* A stop in another open day takes the map to that day */
       if (d !== selectedDay) { selectedDay = d; render(); }
+      /* One of several at a spot: fan them out so its own pin shows */
+      const st = focused.place ? null : stackFor(d, focused.visit);
+      setFan(fieldMap, st ? { day: d, key: st.key, members: st.members } : null);
       popPinned = true;
       placeVisitPop();    /* shows at once; the glide's redraws keep it on the pin */
       panToStop(focused);
@@ -1487,6 +1608,12 @@ Strings.ready.then(() => {
   fieldMap._popPin = null;             /* the visit whose card is showing */
   fieldMap._lastStatus = new Map();    /* 'day:visit' → status at the last draw */
   fieldMap._doneAnims = new Map();     /* 'day:visit' → when its turn to done began */
+  fieldMap._fan = null;                /* the stack fanned out: { day, key, members } */
+
+  /* Panning or zooming folds a fanned stack back */
+  const basePan = fieldMap.pan, baseZoom = fieldMap.zoom;
+  fieldMap.pan = function (...a) { this._fan = null; this._fanAnim = null; return basePan.apply(this, a); };
+  fieldMap.zoom = function (...a) { this._fan = null; this._fanAnim = null; return baseZoom.apply(this, a); };
 
   /* The canvas's backing store has to match its box, and the box changes
      for reasons no single event reports: switching layout, the card
@@ -1606,6 +1733,8 @@ Strings.ready.then(() => {
       ctx.lineCap = 'round'; ctx.lineJoin = 'round';
       if (!active) legs.forEach(l => stroke(l.pts, PIN_GREY, 3));
       else {
+        /* A fanned stack is what matters for now: the route steps back */
+        if (this._fan && this._fan.day === i) ctx.globalAlpha = 1 - 0.65 * fanProgress(this);
         /* What has been driven goes grey; what is still ahead keeps the
            link colour, drawn over it where the two meet */
         legs.filter(l => l.driven).forEach(l => stroke(l.pts, PIN_GREY, 4));
@@ -1790,15 +1919,139 @@ Strings.ready.then(() => {
     ctx.restore();
   }
 
+  /* A fanned stack's visits draw round, not as pins: a disc where a pin's
+     head would be (so clicks, hovers and the card find them the same),
+     joined to the real point by its leader */
+  const ROUND_R = 12;
+  function drawRoundVisit(map, p, color, face, pick) {
+    const { ctx } = map;
+    ctx.save();
+    atPoint(map, p);
+    const k = 1 + (PIN_PICKED - 1) * pick;
+    ctx.translate(0, -(PIN_H - 12));
+    ctx.scale(k, k);
+    if (pick) {
+      ctx.shadowColor = `rgba(16, 24, 40, ${0.35 * pick})`;
+      ctx.shadowBlur = 8 * map.dpr;
+      ctx.shadowOffsetY = 3 * map.dpr;
+    }
+    ctx.beginPath(); ctx.arc(0, 0, ROUND_R, 0, Math.PI * 2);
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3.5; ctx.stroke();
+    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = color; ctx.fill();
+    ctx.translate(-12, -12);              /* the pin face's own frame */
+    if (face.tick !== undefined) strokeTick(ctx, face.tick);
+    else {
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `700 ${face.no > 9 ? 9 : 11}px "Zoho Puvi", Puvi, system-ui, sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(face.no, 12, 12.5);
+    }
+    ctx.restore();
+  }
+  /* Rejected, missed or cancelled, round: white, grey edge, the red disc */
+  function drawRoundMark(map, p, mark, pick) {
+    const { ctx } = map;
+    ctx.save();
+    atPoint(map, p);
+    const k = 1 + (PIN_PICKED - 1) * pick;
+    ctx.translate(0, -(PIN_H - 12));
+    ctx.scale(k, k);
+    ctx.beginPath(); ctx.arc(0, 0, ROUND_R, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff'; ctx.fill();
+    ctx.strokeStyle = PIN_GREY; ctx.lineWidth = 2; ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI * 2);
+    ctx.fillStyle = '#ff5d5a'; ctx.fill();
+    ctx.translate(-12, -12);
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+    ctx.beginPath();
+    if (mark === 'cross') {
+      ctx.moveTo(8.67, 8.67); ctx.lineTo(15.33, 15.33);
+      ctx.moveTo(15.33, 8.67); ctx.lineTo(8.67, 15.33);
+    } else {
+      ctx.moveTo(7.29, 12); ctx.lineTo(16.71, 12);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  /* Behind a folded stack's pin: two paler pins side by side along the
+     x-axis, so the stack reads at a glance */
+  function drawStackBack(map, p) {
+    const { ctx } = map;
+    [[6, 0], [3, 0]].forEach(([dx, dy], k) => {
+      ctx.save();
+      atPoint(map, p);
+      ctx.translate(dx - PIN_W / 2, dy - PIN_H);
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+      ctx.stroke(PIN);
+      ctx.fillStyle = k ? '#a9b1f7' : '#c9cefb';
+      ctx.fill(PIN);
+      ctx.restore();
+    });
+  }
+
+  /* On it: a dark "+N" badge at the head's top right, growing with the pin */
+  function drawStackBadge(map, p, more, pick) {
+    const { ctx } = map;
+    const k = 1 + (PIN_PICKED - 1) * pick;
+    ctx.save();
+    atPoint(map, p);
+    ctx.translate(11 * k, -31 * k);
+    ctx.beginPath(); ctx.arc(0, 0, 8.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#313949'; ctx.fill();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '700 9.5px "Zoho Puvi", Puvi, system-ui, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(`+${more}`, 0, 0.5);
+    ctx.restore();
+  }
+
+  /* The real point of a fanned stack, and a leader to each of its pins */
+  function drawFanLeaders(map, d, f) {
+    const { ctx } = map;
+    const p = DAYS[d].pins[f.members[0]];
+    ctx.save();
+    ctx.globalAlpha = fanProgress(map);
+    ctx.strokeStyle = '#8c91ab';
+    ctx.lineWidth = 1.25 / map.scale;
+    ctx.setLineDash([3 / map.scale, 3 / map.scale]);
+    f.members.forEach(v => {
+      const q = pinPoint(map, d, v);
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y - (PIN_H - 12) / map.scale); ctx.stroke();
+    });
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(p.x, p.y, 4.5 / map.scale, 0, Math.PI * 2);
+    ctx.fillStyle = '#5464f2'; ctx.fill();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5 / map.scale; ctx.stroke();
+    ctx.restore();
+  }
+
   /* A stop the rep has settled goes green on the map too, so the day's
      progress reads the same on both sides of the screen */
   fieldMap._drawBeatPins = function () {
     const now = performance.now();
     const ACTIVE = '#5464f2', DONE = '#12aa67';
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /* A fan belongs to the day on show, and to a stack still there */
+    if (this._fan) {
+      const st = this._fan.day === this._activeBeatDay && stackFor(this._fan.day, this._fan.members[0]);
+      if (!st || st.key !== this._fan.key) { this._fan = null; this._fanAnim = null; }
+      else this._fan.members = st.members;
+    }
+    /* The glide out or back in: done folding, the fan goes */
+    const fanning = Boolean(this._fanAnim && now - this._fanAnim.start < FAN_MS);
+    if (this._fanAnim && !fanning) {
+      if (!this._fanAnim.to) this._fan = null;
+      this._fanAnim = null;
+    }
     dayOrder(this).forEach(i => {
       const day = this._beatDays[i];
       const active = i === this._activeBeatDay;
+      const info = active ? routeInfo(i) : null;
+      const fan = active && this._fan && this._fan.day === i ? this._fan : null;
+      if (fan) drawFanLeaders(this, i, fan);
       let no = 0;
       const pins = [];
       day.visits.forEach((p, vi) => {
@@ -1816,15 +2069,35 @@ Strings.ready.then(() => {
         if (onIt) no += 1;
         if (!onIt && !(active && state === 'rejected')) return;
         if (!active) { pins.push({ p, pick: pickValue(this, key, now), draw: pk => drawOffPin(this, p, pk) }); return; }
+        /* Visits sharing a spot: folded, the first stands for them all;
+           fanned, each stands on its place in the arc */
+        const st = onIt ? info.stackOf[vi] : null;
+        const open = Boolean(st && fan && fan.key === st.key);
+        if (st && !open && st.members[0] !== vi) return;
+        const at = open ? pinPoint(this, i, vi) : p;
         const n = no;
-        const anim = state === 'done' ? doneAnim(this, key, now) : null;
-        const draw = state === 'rejected' ? pk => drawMarkPin(this, p, 'cross', pk)
-          : state === 'missed' || state === 'cancelled' ? pk => drawMarkPin(this, p, 'bar', pk)
-          : state === 'done' ? pk => (anim && !anim.back
-            ? drawVisitPin(this, p, ACTIVE, { no: n }, pk, anim)
-            : drawVisitPin(this, p, DONE, { tick: anim ? anim.tick : 1 }, pk, anim))
-          : pk => drawVisitPin(this, p, ACTIVE, { no: n }, pk);
-        pins.push({ p, pick: pickValue(this, key, now), draw, lifted: Boolean(anim) });
+        /* A folded stack takes the colour of its next visit not yet
+           settled, so a finished stop never hides work still to do */
+        const folded = st && !open;
+        const shownVi = folded
+          ? (st.members.find(m => !['done', 'missed', 'cancelled'].includes(DAYS[i].visits[m].status)) ?? vi)
+          : vi;
+        const shown = folded ? (DAYS[i].visits[shownVi].status || 'pending') : state;
+        const anim = shown === 'done' && shownVi === vi ? doneAnim(this, key, now) : null;
+        const face = open ? (shown === 'rejected' ? pk => drawRoundMark(this, at, 'cross', pk)
+            : shown === 'missed' || shown === 'cancelled' ? pk => drawRoundMark(this, at, 'bar', pk)
+            : shown === 'done' ? pk => drawRoundVisit(this, at, DONE, { tick: anim ? anim.tick : 1 }, pk)
+            : pk => drawRoundVisit(this, at, ACTIVE, { no: n }, pk))
+          : shown === 'rejected' ? pk => drawMarkPin(this, at, 'cross', pk)
+          : shown === 'missed' || shown === 'cancelled' ? pk => drawMarkPin(this, at, 'bar', pk)
+          : shown === 'done' ? pk => (anim && !anim.back
+            ? drawVisitPin(this, at, ACTIVE, { no: n }, pk, anim)
+            : drawVisitPin(this, at, DONE, { tick: anim ? anim.tick : 1 }, pk, anim))
+          : pk => drawVisitPin(this, at, ACTIVE, { no: n }, pk);
+        const draw = folded
+          ? pk => { drawStackBack(this, at); face(pk); drawStackBadge(this, at, st.members.length - 1, pk); }
+          : face;
+        pins.push({ p: at, pick: pickValue(this, key, now), draw, lifted: Boolean(anim) });
       });
       /* A stop hovered, turning over, or on its way up or down draws last,
          over its neighbours */
@@ -1834,7 +2107,7 @@ Strings.ready.then(() => {
     drawPlace(this, this._beatHome,   '#12aa67');
     drawPlace(this, this._beatOffice, '#ff5d5a');
     /* Keep drawing while a pin is growing, shrinking or turning over */
-    if ((pickMoving(this, now) || this._doneAnims.size) && !this._pickRaf) {
+    if ((pickMoving(this, now) || this._doneAnims.size || fanning) && !this._pickRaf) {
       this._pickRaf = requestAnimationFrame(() => { this._pickRaf = 0; this.draw(); });
     }
   };
@@ -1890,9 +2163,11 @@ Strings.ready.then(() => {
     const [wx, wy] = map.screenToWorld(mx, my);
     const tol = 15 / map.scale;
     let hit = null, best = Infinity;
-    DAYS.forEach((day, d) => day.pins.forEach((p, v) => {
+    DAYS.forEach((day, d) => day.pins.forEach((_, v) => {
+      if (!day.visits[v] || hiddenInStack(map, d, v)) return;
+      const p = pinPoint(map, d, v);
       const dist = Math.hypot(p.x - wx, p.y - HEAD_UP / map.scale - wy);
-      if (dist <= tol && dist < best && day.visits[v]) { best = dist; hit = { day: d, visit: v }; }
+      if (dist <= tol && dist < best) { best = dist; hit = { day: d, visit: v }; }
     }));
     return hit;
   }
@@ -1915,7 +2190,7 @@ Strings.ready.then(() => {
 
   const stopPoint = stop => stop.place
     ? (stop.place === 'home' ? BEAT_HOME : BEAT_OFFICE)
-    : DAYS[stop.day].pins[stop.visit];
+    : pinPoint(fieldMap, stop.day, stop.visit);
 
   const stopExists = stop => Boolean(stop && DAYS[stop.day] &&
     (stop.place || DAYS[stop.day].visits[stop.visit]));
@@ -1965,6 +2240,15 @@ Strings.ready.then(() => {
       /* A stop: open its day in the list and point at its row */
       const r = map.canvas.getBoundingClientRect();
       const stop = stopAt(map, e.clientX - r.left, e.clientY - r.top);
+      /* A folded stack on the day on show: the click fans it out */
+      const st = stop && !stop.place && stop.day === map._activeBeatDay ? stackFor(stop.day, stop.visit) : null;
+      if (st && !(fanOpen(map) && map._fan.key === st.key && map._fan.day === stop.day)) {
+        popHover = null;
+        setFan(map, { day: stop.day, key: st.key, members: st.members });
+        return;
+      }
+      /* Any click that is not on a fanned pin folds the fan back */
+      if (map._fan && !(stop && st)) setFan(map, null);
       if (stop) {
         focused = stop;
         popPinned = true;
@@ -2055,6 +2339,19 @@ Strings.ready.then(() => {
         <span class="bd-vpop-addr">${escape(visit.address || t('visitCard.noAddress'))}</span></p>`;
   }
 
+  /* A folded stack: how many visits share the spot, their numbers, and the
+     building's address without the floor */
+  function stackPopHtml(d, st) {
+    const { no } = routeInfo(d);
+    const first = DAYS[d].visits[st.members[0]];
+    const building = (first.address || '').replace(/,\s*Floor [^,]+/i, '');
+    return `
+      <p class="bd-vpop-name">${escape(t('beatDetail.map.stack.title', { count: st.members.length }))}</p>
+      <p class="bd-vpop-sub">${escape(t('beatDetail.map.stack.hint', { numbers: st.members.map(m => no[m]).join(', ') }))}</p>
+      <p class="bd-vpop-row bd-vpop-addr-row"><i class="ti ti-map-pin" aria-hidden="true"></i>
+        <span class="bd-vpop-addr">${escape(building || t('visitCard.noAddress'))}</span></p>`;
+  }
+
   /* Home and Office: where the day starts or ends, and nothing more */
   function placePopHtml(kind) {
     const place = kind === 'home' ? HOME : OFFICE;
@@ -2074,9 +2371,13 @@ Strings.ready.then(() => {
   function placeVisitPop() {
     const want = popHover || (popPinned && focused) || null;
     if (!stopExists(want)) { visitPop.hidden = true; popShown = null; popPinIs(null); return; }
-    const key = `${want.day}:${want.place || want.visit}`;
+    /* Hovering a folded stack: how many visits, and their numbers */
+    const st = !want.place && want === popHover ? stackFor(want.day, want.visit) : null;
+    const asStack = Boolean(st && !(fanOpen(fieldMap) && fieldMap._fan.key === st.key && fieldMap._fan.day === want.day));
+    const key = `${want.day}:${want.place || want.visit}${asStack ? ':stack' : ''}`;
     if (popShown !== key) {
-      visitPop.innerHTML = want.place ? placePopHtml(want.place) : visitPopHtml(want.day, want.visit);
+      visitPop.innerHTML = want.place ? placePopHtml(want.place)
+        : asStack ? stackPopHtml(want.day, st) : visitPopHtml(want.day, want.visit);
       visitPop.classList.toggle('bd-vpop-place', Boolean(want.place));
       popShown = key;
     }
@@ -2127,6 +2428,11 @@ Strings.ready.then(() => {
   visitPop.addEventListener('mouseenter', () => clearTimeout(popHideTimer));
   visitPop.addEventListener('mouseleave', () => {
     popHideTimer = setTimeout(() => { popHover = null; placeVisitPop(); }, VISIT_POP_HIDE);
+  });
+
+  /* Escape folds a fanned stack back */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && fieldMap._fan) setFan(fieldMap, null);
   });
 
   /* A click anywhere but the card, a stop or a visit row puts it away */

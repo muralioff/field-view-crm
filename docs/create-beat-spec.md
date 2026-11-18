@@ -188,14 +188,13 @@ One card per date, 15px apart, under the heading "Visits Information" (14px / 60
 
 ### 6.2 Header row
 
-`Chevron · Day 1 • 4 May · [sort icon] · 4 visits`, min-height 32px, items 10px apart.
+`Chevron · Day 1 • 4 May · 4 visits`, min-height 32px, items 10px apart.
 
 | Part | Spec |
 |---|---|
 | Chevron | Shared day chevron: 12×6 triangle, 24×24 hit area (6px padding, −6px margin), radius 4. Points right when folded, down when open; rotates in 0.18s. Hover fill `rgba(97,110,136,0.12)`. Focus ring `2px #5464f2` |
 | Alignment | The chevron's centre sits on the **timeline rail** (§6.4): 14px into the card's content. The title starts 16px after that centre |
 | Title | "Day 1" 14px / 600 base · " • " `#9c9ca6` · "4 May" label colour |
-| Sort icon | Only on a **folded** day with Maintain Visit order ticked: 15px sort icon, blue, hint "Visit order maintained — route won't be optimized" |
 | Count | Right edge, 14px / 400 base: "1 visit" / "4 visits"; nothing when the day is empty |
 
 ### 6.3 Open / fold / select rules
@@ -349,7 +348,7 @@ optimization happens **only on save**, and skips days whose flag is on: those ke
   radius 3; ticked blue fill with white tick. Focus ring `2px #5464f2`, offset 2px.
 - Label "Maintain Visit order", **14px / 500** base text, 10px from the box.
 - Info icon 15px, **label grey**, 6px after the label. Hover / focus shows the dark hint
-  "Route won't be optimized for this day" above it. **Clicking the icon does not toggle** the box.
+  "Route won't be optimized if enabled for this day" above it. **Clicking the icon does not toggle** the box.
 
 ---
 
@@ -358,6 +357,13 @@ optimization happens **only on save**, and skips days whose flag is on: those ke
 ### 9.1 Pins
 
 - Pins appear only once the rep and dates are valid (§3). One colour for every module.
+- Which records have pins: the toolbar's module, Filter and page decide (toolbar spec), **plus
+  every visit of the selected day**, whatever its module, Filter match or page. Selecting another
+  day swaps those extra pins for that day's visits. Visits of other days show only where the
+  toolbar would show them anyway. The pagination count stays the toolbar's own (the extra pins are
+  not counted). Example: Day 1 has 3 Deals and 2 Leads visits; with Deals in the module menu the map
+  shows the Deals records plus Day 1's 2 Leads pins; selecting Day 2 hides those 2.
+- Hover cards, clicks and the lasso work on exactly the pins drawn.
 - Size 24 × 34.29px at every zoom level; the tip marks the location. Hit area 28px wide.
 
 | State | When | Look |
@@ -658,7 +664,7 @@ page and must be kept. Plural pairs use `.one` / `.other`. Keys are prefixed `cr
 | Header | `header.title`, `header.cancel`, `header.save` |
 | Rep and dates | `info.title`, `info.rep.label`, `info.rep.placeholder`, `info.duration.label`, `info.startDate.ariaLabel`, `info.endDate.ariaLabel`, `info.error.pastStart`, `info.error.endBeforeStart`, `info.error.tooLong` |
 | Unassigned note | `unassigned.banner.one/.other`, `unassigned.banner.link` |
-| Day card | `visits.title`, `day.title`, `day.count.one/.other`, `day.expandAriaLabel`, `day.collapseAriaLabel`, `day.empty`, `day.addVisit`, `day.at`, `day.start.ariaLabel`, `day.startTime.ariaLabel`, `day.end.ariaLabel`, `day.preview`, `day.previewSoon`, `day.maintainOrder`, `day.maintainOrderTip`, `day.customOrder`, `address.new` |
+| Day card | `visits.title`, `day.title`, `day.count.one/.other`, `day.expandAriaLabel`, `day.collapseAriaLabel`, `day.empty`, `day.addVisit`, `day.at`, `day.start.ariaLabel`, `day.startTime.ariaLabel`, `day.end.ariaLabel`, `day.preview`, `day.previewSoon`, `day.maintainOrder`, `day.maintainOrderTip`, `address.new` |
 | Visit row | `visit.name`, `visit.duration.mins`, `visit.duration.ariaLabel`, `visit.edit.ariaLabel`, `visit.remove.ariaLabel`, `visit.move.ariaLabel`, `visit.moved` |
 | Records selected | `picked.countTo.one/.other`, `picked.day.ariaLabel`, `picked.applyAll`, `picked.check.ariaLabel`, `picked.type.ariaLabel`, `picked.cancel`, `picked.add` |
 | Unassigned visits | `unassigned.title`, `unassigned.back.ariaLabel`, `unassigned.repeat`, `unassigned.assign.label`, `unassigned.day.ariaLabel`, `unassigned.assign.button`, `unassigned.empty` |

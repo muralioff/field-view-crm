@@ -9,8 +9,12 @@
   <link rel="stylesheet" href="src/sidebar.css" />
   <link rel="stylesheet" href="src/topbar.css" />
   <link rel="stylesheet" href="src/style-planner-shared.css" />
-  <link rel="stylesheet" href="src/style-beat-engine.css" />
+  <link rel="stylesheet" href="src/style-planner-config.css" />
+  <link rel="stylesheet" href="src/style-module-modal-b.css" />
+  <link rel="stylesheet" href="src/select-menu.css" />
   <link rel="stylesheet" href="src/time-picker.css" />
+  <link rel="stylesheet" href="src/style-planner-wizard.css" />
+  <link rel="stylesheet" href="src/style-beat-engine.css" />
 </head>
 <body>
   <div class="pc-app">
@@ -25,7 +29,7 @@
         <h1 class="bp-topbar-title">Beat Planner</h1>
         <div class="bp-search">
           <i class="ti ti-search" aria-hidden="true"></i>
-          <input type="text" placeholder="Search records" />
+          <input type="text" placeholder="Search records" aria-label="Search records" />
         </div>
         <div class="bp-topbar-icons">
           <button class="bp-tb-btn plus" aria-label="Add"><i class="ti ti-plus"></i></button>
@@ -42,132 +46,148 @@
       <div class="pc-content">
         <div class="pc-body" id="be-body">
 
-          <!-- Multi colour stepper -->
-          <nav class="pc-stepper" aria-label="Planner configuration steps">
-            <div class="pc-step done">
-              <span class="pc-marker" aria-hidden="true"></span>
-              <span>Planner Configuration</span>
-            </div>
-            <div class="pc-step done">
-              <span class="pc-marker" aria-hidden="true"></span>
-              <span>Visit Types</span>
-            </div>
-            <div class="pc-step active" aria-current="step">
-              <span class="pc-marker" aria-hidden="true"></span>
-              <span>Beat Engine</span>
-            </div>
-            <div class="pc-step idle">
-              <span class="pc-marker" aria-hidden="true"></span>
-              <span>Field Rules</span>
-            </div>
-            <div class="pc-step idle">
-              <span class="pc-marker" aria-hidden="true"></span>
-              <span>Notifications</span>
-            </div>
-          </nav>
+          <!-- Multi colour stepper (drawn by src/planner-wizard.js) -->
+          <nav class="pc-stepper" aria-label="Planner configuration steps"></nav>
 
-          <!-- Beat Limits. The company calendar the limits are counted in
-               sits as one line above the inputs; the summary reads the
-               limits back below them, aligned with the fields. -->
-          <section class="be-limits">
-            <h2 class="be-title">Beat Limits</h2>
-            <p class="be-desc">Set limits for each beat cycle.</p>
+          <!-- A. Beat Limits — both operating models -->
+          <section class="pw-section be-limits" aria-labelledby="be-limits-title">
+            <h2 class="pw-title" id="be-limits-title">Beat Limits</h2>
+            <p class="pw-desc">Set limits for each beat cycle.</p>
 
-            <!-- Company Settings: read-only here, changed in Company Details -->
+            <!-- Company Settings: read-only here, changed in Company Details.
+                 Says what a business day is: days per Beat count business
+                 days only, and the scheduler runs on business days only. -->
             <div class="be-company" role="group" aria-labelledby="be-company-title">
               <i class="ti ti-building" aria-hidden="true"></i>
               <span class="be-company-title" id="be-company-title">Company Settings</span>
-              <dl class="be-facts">
-                <div><dt>Business Days</dt><dd>Mon – Fri</dd></div>
-                <div><dt>Business Hours</dt><dd>09:00 AM – 07:00 PM</dd></div>
-                <div><dt>Time Zone</dt><dd>GMT +05:30 (IST)</dd></div>
-              </dl>
+              <dl class="be-facts" id="be-facts"></dl>
               <a class="be-manage" href="#" id="be-manage">Manage
                 <i class="ti ti-external-link" aria-hidden="true"></i></a>
             </div>
 
-            <div class="be-fields" id="be-fields">
-              <div class="be-field">
-                <span class="be-label">
+            <div class="pw-rows" id="be-fields">
+              <div class="pw-row">
+                <span class="pw-label">
                   <label for="be-visits">Max Visits per day</label>
-                  <button class="be-info" type="button" aria-describedby="be-tip-visits" aria-label="About Max Visits per day">
+                  <button class="pw-info" type="button" aria-label="About Max Visits per day" aria-describedby="be-tip-visits">
                     <img src="src/info-circle.svg" alt="" />
-                    <span class="be-tip" role="tooltip" id="be-tip-visits">Min value = 1 , Max value = 25</span>
+                    <span class="pw-tip" role="tooltip" id="be-tip-visits"></span>
                   </button>
                 </span>
-                <input class="pc-field mandatory be-num" id="be-visits" data-key="visits"
-                       data-max="25" type="text" inputmode="numeric" value="1" />
+                <div class="pw-control pc-field-cell">
+                  <input class="pc-field mandatory be-num" id="be-visits" data-key="visits"
+                         type="text" inputmode="numeric" autocomplete="off" />
+                </div>
               </div>
 
-              <div class="be-field">
-                <span class="be-label">
+              <div class="pw-row">
+                <span class="pw-label">
                   <label for="be-days">Max days per Beat</label>
-                  <button class="be-info" type="button" aria-describedby="be-tip-days" aria-label="About Max days per Beat">
+                  <button class="pw-info" type="button" aria-label="About Max days per Beat" aria-describedby="be-tip-days">
                     <img src="src/info-circle.svg" alt="" />
-                    <span class="be-tip" role="tooltip" id="be-tip-days">Min value = 1 , Max value = 31</span>
+                    <span class="pw-tip" role="tooltip" id="be-tip-days"></span>
                   </button>
                 </span>
-                <input class="pc-field mandatory be-num" id="be-days" data-key="days"
-                       data-max="31" type="text" inputmode="numeric" value="1" />
+                <div class="pw-control pc-field-cell">
+                  <input class="pc-field mandatory be-num" id="be-days" data-key="days"
+                         type="text" inputmode="numeric" autocomplete="off" />
+                </div>
               </div>
-
             </div>
 
-            <!-- Read-back of the two limits in plain words, starting at the
-                 fields' left edge. Rewritten on every keystroke; a limit that is
-                 empty or out of range drops its sentence rather than showing a
-                 wrong number. -->
+            <!-- The two limits read back in plain words, from the fields' left
+                 edge. Rewritten on every keystroke; a limit that is empty or
+                 out of range drops its sentence. -->
             <div class="be-summary" aria-live="polite">
               <h3 class="be-summary-title">Beat Limits Summary</h3>
               <div id="be-summary-body"></div>
             </div>
           </section>
 
-          <!-- Auto-create Beats -->
-          <section class="be-auto">
-            <div class="be-auto-head">
-              <h2 class="be-title" id="be-auto-title">Auto-create Beats</h2>
-              <button class="be-switch" type="button" role="switch" aria-checked="false"
+          <!-- B. Auto-create Beats — Top Down only; removed for Bottom Up -->
+          <section class="pw-section be-auto" id="be-auto-section" aria-labelledby="be-auto-title">
+            <div class="pw-head">
+              <h2 class="pw-title" id="be-auto-title">Auto-create Beats</h2>
+              <button class="pw-switch" type="button" role="switch" aria-checked="false"
                       aria-labelledby="be-auto-title" id="be-auto"></button>
             </div>
-            <p class="be-desc be-auto-desc">
+            <p class="pw-desc">
               Create Beats for your reps automatically by configuring the conditions for Visit
               creation and assignment. Beats stay within your configured Beat limits.
             </p>
 
             <div class="be-auto-body" id="be-auto-body" hidden>
-              <div class="be-field be-sched">
-                <span class="be-label be-label-strong">
+
+              <!-- B1. Field Sales Representative Selection -->
+              <div class="be-sub be-reps-section">
+                <h2 class="pw-title">Field Sales Representative Selection</h2>
+                <p class="pw-desc">Select the CRM users who will be executing the Beats created via this Beat Planner as the Field Sales representative.</p>
+                <div class="pw-rows">
+                  <div class="pw-row">
+                    <span class="pw-label" id="be-reps-label">Rep Selection</span>
+                    <div class="pc-field-cell be-reps-cell">
+                      <div class="pc-field mandatory be-picker" id="be-reps" role="button" tabindex="0"
+                           aria-haspopup="dialog" aria-labelledby="be-reps-label be-reps-value">
+                        <span class="be-picker-value" id="be-reps-value"></span>
+                        <i class="ti be-picker-icon" id="be-reps-icon" aria-hidden="true"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- B2. Run scheduler at — in the org time zone shown above -->
+              <div class="pw-row be-sched">
+                <span class="pw-label strong">
                   <label for="be-time">Run scheduler at</label>
-                  <button class="be-info" type="button" aria-describedby="be-tip-time" aria-label="About Run scheduler at">
+                  <button class="pw-info" type="button" aria-label="About Run scheduler at" aria-describedby="be-tip-time">
                     <img src="src/info-circle.svg" alt="" />
-                    <span class="be-tip" role="tooltip" id="be-tip-time">Beats are created from records available at this time. Runs on business days only.</span>
+                    <span class="pw-tip" role="tooltip" id="be-tip-time"></span>
                   </button>
                 </span>
-                <!-- Time picker (Figma 5988:122077); behaviour in docs/crux-time-component-behaviour.md -->
-                <div class="be-time" id="be-time-host"></div>
+                <div class="pc-field-cell">
+                  <div class="be-time" id="be-time-host"></div>
+                </div>
               </div>
 
-              <h2 class="be-title be-freq-title">Visit Frequency</h2>
-              <p class="be-desc">Visits are created automatically for records that match your conditions and recur at the frequency you set.</p>
+              <!-- B3. Visit Frequency -->
+              <div class="be-sub be-freq-section">
+                <h2 class="pw-title">Visit Frequency</h2>
+                <p class="pw-desc">
+                  Visits are created automatically for records that match your conditions and recur at the frequency you set.
+                  Rules are evaluated in order, and the first match determines the visit frequency. Records with no matching rule are excluded.
+                </p>
+                <p class="pw-table-error" id="be-freq-error" role="alert" hidden></p>
+                <p class="pw-empty" id="be-freq-empty">No frequency rules yet. Beats are created only for records that match a rule.</p>
+                <div class="pw-rules be-freq-table" id="be-freq-table" hidden></div>
+                <button class="pc-btn pw-add" type="button" id="be-freq-add" aria-haspopup="menu" aria-expanded="false">Add Rule</button>
+                <p class="pw-limit-note" id="be-freq-limit" hidden>You can add up to 25 frequency rules.</p>
+              </div>
 
-              <div class="be-freq">
-                <div class="be-freq-tr be-freq-thead">
-                  <span>Condition</span>
-                  <span>Create</span>
-                </div>
-                <div class="be-freq-module">Accounts</div>
-                <div class="be-freq-tr">
-                  <div class="be-crit">
-                    <p><span class="be-crit-i">1</span>Classification <span class="be-op">IS</span> Patricia Boyle</p>
-                    <p><span class="be-crit-i">2</span>Outlet Type <span class="be-op">CONTAINS</span> Modern Trade</p>
-                    <p class="be-crit-pattern"><span>Criteria Pattern</span>(1 and 2)</p>
+              <!-- B4. Visit Assignment -->
+              <div class="be-sub be-assign-section">
+                <h2 class="pw-title">Visit Assignment</h2>
+                <p class="pw-desc">By default, Assignment for the Visit records will be done based on Route intelligence powered by Routeiq.</p>
+
+                <div class="be-cond">
+                  <div class="pw-head be-cond-head">
+                    <span class="be-cond-label" id="be-cond-title">Conditional Rules</span>
+                    <button class="pw-switch" type="button" role="switch" aria-checked="false"
+                            aria-labelledby="be-cond-title" id="be-cond"></button>
                   </div>
-                  <p class="be-create">Monthly <span class="be-op">Visit</span> Shop Delivery</p>
+                  <p class="pw-desc">If enabled, users will have an additional layer of rules based on CRM, Which will be used to assign users based on criteria</p>
+                </div>
+
+                <div id="be-cond-body" hidden>
+                  <p class="pw-note"><b>Note:</b> Except for the records assigned via conditional rules the other records will be assigned based on Route intelligence to create an optimised beat.</p>
+                  <p class="be-order-line">Rules are evaluated in order, and the first match assigns the visit.</p>
+                  <p class="pw-table-error" id="be-assign-error" role="alert" hidden></p>
+                  <p class="pw-empty" id="be-assign-empty">No assignment rules yet. Every visit is assigned by Route intelligence.</p>
+                  <div class="pw-rules be-assign-table" id="be-assign-table" hidden></div>
+                  <button class="pc-btn pw-add" type="button" id="be-assign-add" aria-haspopup="menu" aria-expanded="false">Add Rule</button>
+                  <p class="pw-limit-note" id="be-assign-limit" hidden>You can add up to 25 assignment rules.</p>
                 </div>
               </div>
-
-              <button class="pc-btn outline-blue be-add-rule" type="button" id="be-add-rule">Add Rule</button>
             </div>
           </section>
 
@@ -175,23 +195,136 @@
 
         <!-- Footer action bar -->
         <div class="pc-footer">
-          <button class="pc-btn default" id="pc-previous">Previous</button>
+          <button class="pc-btn default" id="pc-previous" type="button">Previous</button>
           <div class="pc-footer-right">
-            <button class="pc-btn default" id="pc-cancel">Cancel</button>
-            <button class="pc-btn default" id="pc-draft">Save as Draft</button>
-            <button class="pc-btn primary" id="pc-next">Next</button>
+            <button class="pc-btn default" id="pc-cancel" type="button">Cancel</button>
+            <button class="pc-btn default" id="pc-draft" type="button">Save as Draft</button>
+            <button class="pc-btn primary" id="pc-next" type="button">Next</button>
           </div>
         </div>
       </div>
     </main>
   </div>
 
+  <!-- Select Users: Available on the left, Selected on the right -->
+  <div class="pc-overlay" id="be-users-overlay" aria-hidden="true">
+    <div class="mb-modal pw-modal wide" role="dialog" aria-modal="true" aria-labelledby="be-users-title">
+      <header class="mb-head">
+        <h2 class="mb-title" id="be-users-title">Select Users</h2>
+      </header>
+      <div class="mb-body">
+        <div class="be-users">
+          <section class="be-pane" aria-labelledby="be-avail-title">
+            <h3 class="be-pane-title" id="be-avail-title">Available</h3>
+            <div class="be-pane-filters">
+              <select class="pc-field" id="be-users-source" aria-label="Choose from">
+                <option value="users">Users</option>
+                <option value="groups">Groups</option>
+                <option value="roles">Roles</option>
+              </select>
+              <select class="pc-field" id="be-users-group" aria-label="Group" hidden></select>
+            </div>
+            <div class="be-search">
+              <i class="ti ti-search" aria-hidden="true"></i>
+              <input class="pc-field" type="search" id="be-users-search" placeholder="Search" aria-label="Search the list" autocomplete="off" />
+            </div>
+            <ul class="be-avail" id="be-users-list" aria-labelledby="be-avail-title"></ul>
+          </section>
+          <section class="be-pane" aria-labelledby="be-sel-title">
+            <h3 class="be-pane-title" id="be-sel-title">Selected</h3>
+            <div class="be-selected" id="be-users-selected"></div>
+          </section>
+        </div>
+      </div>
+      <footer class="mb-foot">
+        <button class="pc-btn default" type="button" id="be-users-cancel">Cancel</button>
+        <button class="pc-btn primary" type="button" id="be-users-done">Done</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Frequency Rules for "<Module>" -->
+  <div class="pc-overlay" id="be-freq-overlay" aria-hidden="true">
+    <div class="mb-modal pw-modal" role="dialog" aria-modal="true" aria-labelledby="be-freq-title">
+      <header class="mb-head">
+        <h2 class="mb-title" id="be-freq-title">Frequency Rules</h2>
+      </header>
+      <div class="mb-body">
+        <div class="be-dlg-form" id="be-freq-form"></div>
+      </div>
+      <footer class="mb-foot">
+        <button class="pc-btn default" type="button" id="be-freq-cancel">Cancel</button>
+        <button class="pc-btn primary" type="button" id="be-freq-done">Done</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Quick Create: Visit Type (from the Visit Type list) -->
+  <div class="pc-overlay stacked" id="be-vt-overlay" aria-hidden="true">
+    <div class="mb-modal pw-modal narrow" role="dialog" aria-modal="true" aria-labelledby="be-vt-title">
+      <header class="mb-head">
+        <h2 class="mb-title" id="be-vt-title">Quick Create: Visit Type</h2>
+      </header>
+      <div class="mb-body">
+        <div class="be-vt-form">
+          <div class="pw-row">
+            <label class="pw-label" for="be-vt-name">Name</label>
+            <div class="pc-field-cell be-vt-control">
+              <input class="pc-field mandatory" id="be-vt-name" type="text" autocomplete="off" />
+            </div>
+          </div>
+          <div class="pw-row">
+            <label class="pw-label" for="be-vt-duration">Duration</label>
+            <div class="pc-field-cell">
+              <span class="pw-affix mandatory">
+                <input id="be-vt-duration" type="text" inputmode="numeric" autocomplete="off" aria-describedby="be-vt-min" />
+                <span class="pw-affix-post" id="be-vt-min">min</span>
+              </span>
+            </div>
+          </div>
+          <div class="pw-row">
+            <span class="pw-label" id="be-vt-mand-label">Mandatory fields</span>
+            <div class="be-vt-checks" role="group" aria-labelledby="be-vt-mand-label">
+              <label><input type="checkbox" data-field="image" /> Image Upload</label>
+              <label><input type="checkbox" data-field="file" /> File Upload</label>
+              <label><input type="checkbox" data-field="notes" /> Notes</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer class="mb-foot">
+        <button class="pc-btn default" type="button" id="be-vt-cancel">Cancel</button>
+        <button class="pc-btn primary" type="button" id="be-vt-save">Save and Associate</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Assignment Rules for "<Module>" -->
+  <div class="pc-overlay" id="be-assign-overlay" aria-hidden="true">
+    <div class="mb-modal pw-modal" role="dialog" aria-modal="true" aria-labelledby="be-assign-title">
+      <header class="mb-head">
+        <h2 class="mb-title" id="be-assign-title">Assignment Rules</h2>
+      </header>
+      <div class="mb-body">
+        <div class="be-dlg-form" id="be-assign-form"></div>
+      </div>
+      <footer class="mb-foot">
+        <button class="pc-btn default" type="button" id="be-assign-cancel">Cancel</button>
+        <button class="pc-btn primary" type="button" id="be-assign-done">Done</button>
+      </footer>
+    </div>
+  </div>
+
   <div class="pc-toast" id="pc-toast" role="status" aria-live="polite"></div>
-  <div class="pc-tip" id="pc-tip" role="tooltip" aria-hidden="true"></div>
 
   <script src="src/sidebar.js"></script>
   <script src="src/field-errors.js"></script>
+  <script src="src/select-menu.js"></script>
   <script src="src/time-picker.js"></script>
+  <script src="src/planner-wizard.js"></script>
+  <script src="src/beat-engine-data.js"></script>
+  <script src="src/beat-engine-rules.js"></script>
+  <script src="src/beat-engine-users.js"></script>
   <script src="src/beat-engine.js"></script>
 </body>
 </html>

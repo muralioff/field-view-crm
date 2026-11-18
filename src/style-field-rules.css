@@ -1,0 +1,183 @@
+/* ============================================================
+   Field Rules — the wizard's step 4
+   Figma 136:7242 / 140:11943, and BP-Internal 2:16375 for the
+   Check-In and Check-Out section (label column 180, cards 300 wide
+   with 10 / 15 padding, Check-Out Mode locked at 390).
+   Route Limits label column 139; input groups 200 × 34; sections 30
+   apart. Beat Expense Tracking follows the same rows and cards.
+   Shared type, rows, switches and notes: style-planner-wizard.css
+   ============================================================ */
+
+.fr-rows-route   { --pw-label-w: 139px; }
+.fr-rows-checkin,
+.fr-rows-expense { --pw-label-w: 180px; }
+
+/* Radius: a 160 label, right-aligned, the info icon at the column's edge
+   on the first line */
+.fr-radius-label {
+  width: 180px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-top: 7px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--pc-label);
+}
+
+.fr-radius-label label { width: 160px; text-align: right; }
+
+/* Cards are taller than a field, so their label sits on the first line */
+.fr-mode-label { align-items: flex-start; min-height: 0; padding-top: 12px; }
+
+/* ── Check-Out Mode: a locked field ──────────────── */
+.fr-locked-cell { display: flex; flex-direction: column; gap: 4px; }
+
+.fr-locked {
+  display: flex;
+  align-items: center;
+  width: 390px;
+  max-width: 100%;
+  height: 34px;
+  padding: 1px 1px 1px 0;
+  background: #f5f6f8;
+  border: 1px solid #d2d9f1;
+  border-radius: 6px;
+}
+
+.fr-locked-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 10px 0 13px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--pc-base);
+  outline: none;
+  cursor: default;
+}
+
+.fr-locked:focus-within { outline: 2px solid var(--pw-focus); outline-offset: 2px; }
+
+.fr-locked-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4f4f6;
+  border-radius: 0 5px 5px 0;
+}
+
+.fr-locked-hint { font-size: 11px; line-height: 13px; color: var(--pc-para); }
+
+/* ── Check-in mode cards ─────────────────────────── */
+.fr-modes { display: flex; flex-wrap: wrap; gap: 15px; }
+
+.fr-mode {
+  position: relative;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 15px;
+  background: var(--pc-card);
+  border: 1px solid var(--pc-input-border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.fr-mode:hover { border-color: var(--pw-link); }
+
+.fr-mode[aria-checked="true"] {
+  border-color: var(--pw-link);
+  background: rgba(84, 100, 242, 0.05);
+}
+
+.fr-mode:focus-visible { outline: 2px solid var(--pw-focus); outline-offset: 2px; }
+
+.fr-mode-title { font-size: 14px; font-weight: 500; line-height: 20px; color: var(--pc-base); }
+.fr-mode-desc  { font-size: 13px; line-height: 18px; color: var(--pc-label); }
+
+/* Blue filled tick, top-right, on the selected card only */
+.fr-mode-check {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 16px;
+  height: 16px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--pw-link);
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.fr-mode-check::after {
+  content: '';
+  width: 4px;
+  height: 7px;
+  margin-top: -2px;
+  border: 1.6px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+.fr-mode[aria-checked="true"] .fr-mode-check { display: flex; }
+
+/* ── Beat Expense Tracking ───────────────────────── */
+.fr-rows-expense[hidden],
+#fr-allowance-row[hidden] { display: none; }
+
+.fr-allowance-group { width: 266px; }
+
+/* Other Expenses: the types the rep's expense subform offers */
+.fr-other { width: 615px; max-width: 100%; }
+
+.fr-exp-table {
+  border: 1px solid var(--pc-table-border);
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 14px;
+}
+
+
+.fr-exp-tr {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px 42px;
+  gap: 15px;
+  align-items: start;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--pc-row-border);
+}
+
+.fr-exp-tr:last-child { border-bottom: none; }
+
+.fr-exp-thead {
+  padding: 13px 16px;
+  border-bottom: 2px solid var(--pc-table-border);
+  font-weight: 500;
+  color: var(--pc-heading);
+}
+
+.fr-exp-actions { height: 34px; display: flex; align-items: center; gap: 10px; }
+
+.fr-exp-receipt {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 30px;
+  background: var(--pc-card) url('cb-filter/caret.svg') no-repeat right 12px center / 10px 5px;
+  cursor: pointer;
+}
+
+
+/* Manager Approval: the switch, its meaning under it */
+.fr-approval-label { align-items: flex-start; min-height: 0; padding-top: 0; }
+.fr-approval { display: flex; flex-direction: column; gap: 6px; padding-top: 1px; }
+.fr-approval-desc { font-size: 14px; line-height: 20px; color: var(--pc-para); }

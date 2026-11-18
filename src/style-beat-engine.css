@@ -1,123 +1,15 @@
 /* ============================================================
    Beat Engine — the wizard's step 3
    Figma 5988:117145 (Flow 02 Beat Engine / Screen 1) for Beat Limits
-   and the Auto-create toggle. Company Settings follows the read-only
-   settings card used in Forecast configuration; the summary and the
-   Auto-create body follow the design sketch.
-   Shell, stepper, fields, tooltip and footer: style-planner-shared.css
+   and the Auto-create toggle; the spec (beat-planner-specs/
+   02-beat-engine.md) for what the frame does not draw.
+   Shared section type, rows, switches, tables, menus and the confirm
+   dialog: style-planner-wizard.css
    ============================================================ */
 
-.pc-body {
-  --be-link:      #5464f2;
-  --be-link-bg:   #f0f1ff;
-  --be-card-bg:   #f9faff;
-  --be-card-line: #dcdbee;
-  --be-switch-off:#d7d9ea;
-  --be-switch-on: #12aa67;
-  --be-op:        #12aa67;
-}
-
-/* ── Section type ────────────────────────────────── */
-.be-title {
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 20px;
-  color: var(--pc-heading);
-}
-
-.be-desc {
-  margin-top: 4px;
-  font-size: 14px;
-  line-height: 20px;
-  color: var(--pc-para);
-}
-
-/* ── Beat Limits ─────────────────────────────────── */
-/* One column: description, company strip, the three fields, then their
-   summary — read top to bottom. 20 below the stepper. */
-.be-limits { margin-top: 20px; }
-
-.be-fields {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* 180 label column, labels right-aligned with the info icon 8 after them,
-   20 to a 200 wide field */
-.be-field {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.be-label {
-  width: 180px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  font-size: 14px;
-  color: var(--pc-label);
-  text-align: right;
-}
-
-.be-field > .pc-field { width: 200px; }
-
-/* The 3px marker a mandatory field carries inside its left edge */
-.pc-field.mandatory { box-shadow: inset 3px 0 0 var(--pc-input-error); }
-
-/* ── Info icon + tooltip ─────────────────────────── */
-/* A button, so the explanation is reachable by keyboard as well as hover */
-.be-info {
-  position: relative;
-  width: 12px;
-  height: 12px;
-  flex-shrink: 0;
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: help;
-  border-radius: 50%;
-}
-
-.be-info img { display: block; width: 12px; height: 12px; }
-
-.be-info:focus-visible { outline: 2px solid var(--be-link); outline-offset: 2px; }
-
-/* Figma tooltip 6423:1384083: white, hairline border, soft shadow, no arrow */
-.be-tip {
-  position: absolute;
-  z-index: 30;
-  left: 50%;
-  bottom: calc(100% + 8px);
-  width: max-content;
-  max-width: 280px;
-  padding: 5px 9px;          /* Figma's 6 / 10 with its 1px border drawn inside */
-  background: #fff;
-  border: 1px solid #d2d9e0;
-  border-radius: 6px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-  font-size: 13px;
-  line-height: 18px;
-  color: var(--pc-base);
-  text-align: left;
-  white-space: normal;
-  transform: translateX(-50%);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.12s, visibility 0.12s;
-  pointer-events: none;
-}
-
-.be-info:hover .be-tip,
-.be-info:focus-visible .be-tip { opacity: 1; visibility: visible; }
-
 /* ── Company Settings strip ──────────────────────── */
-/* A single line of read-only facts the limits are counted in. It spans
-   the field column and the summary below, so the block stays one width. */
+/* One line of read-only facts the limits are counted in; spans the field
+   column and the summary below, so the block stays one width */
 .be-company {
   margin-top: 15px;
   width: 960px;
@@ -127,15 +19,14 @@
   flex-wrap: wrap;
   gap: 8px 24px;
   padding: 9px 16px;
-  background: var(--be-card-bg);
-  border: 1px solid var(--be-card-line);
+  background: var(--pw-card-bg);
+  border: 1px solid var(--pw-card-line);
   border-radius: 8px;
   font-size: 14px;
   line-height: 20px;
 }
 
 .be-company > .ti { margin-right: -16px; font-size: 16px; color: var(--pc-label); }
-
 .be-company-title { font-weight: 600; color: var(--pc-heading); }
 
 .be-facts { display: flex; flex-wrap: wrap; gap: 4px 24px; }
@@ -148,141 +39,258 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--be-link);
+  color: var(--pw-link);
   text-decoration: none;
 }
 
 .be-manage:hover { text-decoration: underline; }
+.be-manage:focus-visible { outline: 2px solid var(--pw-focus); outline-offset: 2px; border-radius: 2px; }
 .be-manage i { font-size: 14px; }
 
 /* ── Beat Limits Summary ─────────────────────────── */
-/* Starts at the fields' left edge (180 label column + 20), 20 below them,
-   and ends where the strip does */
+/* From the fields' left edge (180 label column + 20), 20 below them, to
+   the strip's right edge */
 .be-summary {
   margin: 20px 0 0 200px;
-  width: 760px;               /* right edge meets the strip's */
+  width: 760px;
   max-width: calc(100% - 200px);
   padding: 14px 18px;
-  background: var(--be-card-bg);
-  border: 1px solid var(--be-card-line);
+  background: var(--pw-card-bg);
+  border: 1px solid var(--pw-card-line);
   border-radius: 8px;
 }
 
-.be-summary-title {
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 20px;
-  color: var(--pc-heading);
-}
-
-.be-summary p {
-  margin-top: 6px;
-  font-size: 14px;
-  line-height: 20px;
-  color: var(--pc-base);
-}
-
+.be-summary-title { font-size: 14px; font-weight: 600; line-height: 20px; color: var(--pc-heading); }
+.be-summary p { margin-top: 6px; font-size: 14px; line-height: 20px; color: var(--pc-base); }
 .be-summary b { font-weight: 600; color: var(--pc-heading); }
-
 .be-summary .be-summary-empty { color: var(--pc-label); }
 
-/* ── Auto-create Beats ───────────────────────────── */
-.be-auto { margin-top: 30px; }
-
-.be-auto-head { display: flex; align-items: center; gap: 15px; }
-
-.be-auto-desc { max-width: 900px; }
-
-/* Switch: Figma 132:17943, 30 × 18 with a 14 knob */
-.be-switch {
-  position: relative;
-  width: 30px;
-  height: 18px;
-  flex-shrink: 0;
-  padding: 0;
-  border: none;
-  border-radius: 100px;
-  background: var(--be-switch-off);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.be-switch::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 14px;
-  height: 14px;
-  border-radius: 100px;
-  background: #fff;
-  transition: transform 0.15s;
-}
-
-.be-switch[aria-checked="true"] { background: var(--be-switch-on); }
-.be-switch[aria-checked="true"]::after { transform: translateX(12px); }
-.be-switch:focus-visible { outline: 2px solid var(--be-link); outline-offset: 2px; }
-
-@media (prefers-reduced-motion: reduce) {
-  .be-switch, .be-switch::after, .be-tip { transition: none; }
-}
-
+/* ── Auto-create body ────────────────────────────── */
+.be-auto-body { margin-top: 20px; }
 .be-auto-body[hidden] { display: none; }
 
-/* Run scheduler at: same row geometry as the limits, label in heading weight */
-.be-sched { margin-top: 20px; }
-.be-label-strong { justify-content: flex-start; font-weight: 600; color: var(--pc-heading); }
+/* Sub-sections inside Auto-create sit 30 apart */
+.be-sub + .be-sub,
+.be-sched + .be-sub { margin-top: 30px; }
 
-/* Run scheduler at: the shared time picker (src/time-picker.css), 120 wide */
-.be-sched .tp { width: 120px; }
+/* ── B1. Rep Selection picker ────────────────────── */
+.be-reps-cell { width: 420px; max-width: 100%; }
 
-/* Visit Frequency */
-.be-freq-title { margin-top: 30px; }
-
-.be-freq {
-  margin-top: 10px;
-  width: 1000px;
-  max-width: 100%;
-  border: 1px solid var(--pc-table-border);
-  border-radius: 10px;
-  overflow: hidden;
-  font-size: 14px;
-  line-height: 20px;
+.be-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  height: auto;
+  padding: 4px 10px 4px 13px;
+  cursor: pointer;
 }
 
-.be-freq-tr {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  padding: 14px 20px;
-}
+.be-picker:focus-visible { border-color: var(--pw-focus); outline: none; }
+.be-picker.invalid { border-color: var(--pc-input-error); }
 
-.be-freq-thead {
-  padding-top: 13px;
-  padding-bottom: 13px;
-  border-bottom: 2px solid var(--pc-table-border);
-  font-weight: 500;
-  color: var(--pc-heading);
-}
+.be-picker-value { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.be-picker-placeholder { color: var(--pc-placeholder); }
 
-.be-freq-module {
-  padding: 10px 20px;
-  background: var(--be-card-bg);
-  border-bottom: 1px solid var(--pc-row-border);
-  font-weight: 500;
+.be-count-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 8px;
+  background: var(--pw-card-bg);
+  border: 1px solid var(--pw-card-line);
+  border-radius: 100px;
+  font-size: 13px;
   color: var(--pc-label);
 }
 
-.be-crit { display: flex; flex-direction: column; gap: 8px; color: var(--pc-base); }
-.be-crit-i { display: inline-block; width: 18px; color: var(--pc-label); }
-.be-crit-pattern { margin-top: 4px; color: var(--pc-base); }
-.be-crit-pattern span { margin-right: 12px; color: var(--pc-label); }
-.be-op { color: var(--be-op); }
-.be-create { color: var(--pc-base); }
+.be-count-chip b { font-weight: 600; color: var(--pc-heading); }
 
-.pc-btn.be-add-rule {
-  margin-top: 15px;
-  background: var(--be-link-bg);
-  border: 1px solid var(--be-link);
-  color: var(--be-link);
+.be-picker-icon { font-size: 16px; color: var(--pw-link); }
+
+/* ── B2. Run scheduler at ────────────────────────── */
+.be-sched { margin-top: 30px; }
+.be-sched .tp { width: 120px; }
+
+/* ── B4. Conditional Rules ───────────────────────── */
+.be-cond { margin-top: 20px; }
+.be-cond-head { gap: 10px; }
+.be-cond-label { font-size: 14px; font-weight: 600; line-height: 20px; color: var(--pc-heading); }
+#be-cond-body[hidden] { display: none; }
+
+.be-order-line { margin-top: 10px; font-size: 14px; line-height: 20px; color: var(--pc-para); }
+
+.be-assign-kind { display: block; color: var(--pc-label); }
+
+/* ── Select Users ────────────────────────────────── */
+.be-users {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  min-height: 380px;
+}
+
+.be-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--pc-table-border);
+  border-radius: 8px;
+}
+
+.be-pane-title { font-size: 14px; font-weight: 600; line-height: 20px; color: var(--pc-heading); }
+
+.be-pane-filters { display: flex; gap: 10px; margin-top: 10px; }
+.be-pane-filters .pc-field { flex: 1; min-width: 0; }
+.be-pane-filters .pc-field[hidden] { display: none; }
+
+.be-search { position: relative; margin-top: 10px; }
+.be-search .ti { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--pc-label); }
+.be-search .pc-field { padding-left: 32px; }
+
+/* The left list scrolls on its own */
+.be-avail {
+  flex: 1;
+  margin-top: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.be-avail-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 6px;
+  border-radius: 6px;
+}
+
+.be-avail-row:hover { background: var(--pw-card-bg); }
+
+.be-avatar {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #dfe3fb;
+  color: #3a49c9;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.pw-chip .be-avatar { width: 18px; height: 18px; font-size: 9px; }
+
+.be-who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.be-name { font-size: 14px; color: var(--pc-base); }
+.be-email { font-size: 12px; color: var(--pc-label); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Add appears on hover, or when it has keyboard focus */
+.be-add {
+  height: 26px;
+  padding: 0 12px;
+  border: 1px solid var(--pw-link);
+  border-radius: 6px;
+  background: var(--pw-link-bg);
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--pw-link);
+  cursor: pointer;
+  opacity: 0;
+}
+
+.be-avail-row:hover .be-add,
+.be-add:focus-visible { opacity: 1; }
+.be-add:focus-visible { outline: 2px solid var(--pw-focus); outline-offset: 2px; }
+
+.be-added { font-size: 12px; color: var(--pw-green); white-space: nowrap; }
+
+.be-avail-empty { padding: 20px 6px; font-size: 14px; color: var(--pc-label); text-align: center; }
+
+.be-selected { margin-top: 10px; overflow-y: auto; max-height: 360px; }
+.be-sel-empty { font-size: 14px; color: var(--pc-label); }
+
+.be-sel-block + .be-sel-block { margin-top: 14px; }
+
+.be-sel-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pc-heading);
+  cursor: pointer;
+}
+
+.be-sel-head:focus-visible { outline: 2px solid var(--pw-focus); outline-offset: 2px; border-radius: 2px; }
+.be-sel-body { padding: 6px 0 0 20px; }
+.be-sel-body[hidden] { display: none; }
+.be-sel-sub { margin-top: 6px; font-size: 13px; color: var(--pc-label); }
+
+.be-chip-x {
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--pc-label);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.be-chip-x:hover { color: var(--pc-input-error); }
+.be-chip-x:focus-visible { outline: 2px solid var(--pw-focus); outline-offset: 1px; }
+
+/* ── Rule dialogs ────────────────────────────────── */
+.be-dlg-form { padding-top: 4px; }
+
+.be-crit-area:empty { display: none; }
+.be-crit-area { margin-top: 16px; }
+.be-crit-area[hidden] { display: none; }
+
+.be-builder {
+  padding: 16px 16px 4px;
+  background: var(--pw-card-bg);
+  border: 1px solid var(--pw-card-line);
+  border-radius: 8px;
+}
+
+.be-builder .pc-crit-pattern { padding-bottom: 12px; }
+.be-builder .pc-crit-pattern-value .pc-field { background: var(--pc-card); }
+.be-builder .pc-crit-pattern-value .pc-field:not([readonly]) { border-color: var(--pc-input-border); }
+
+.be-crit-lead { margin-bottom: 10px; font-size: 14px; color: var(--pc-label); }
+.be-crit-readonly { margin-top: 10px; }
+
+/* Assign Record to → Category: type, then the multi-select, chips under */
+.be-as-category { margin-top: 14px; }
+.be-as-category[hidden] { display: none; }
+.be-as-cat-row { display: grid; grid-template-columns: 160px minmax(0, 360px); gap: 12px; }
+.be-as-chips { margin-top: 10px; }
+.be-as-chips:empty { display: none; }
+.be-as-hint { margin-top: 8px; font-size: 12px; color: var(--pc-label); }
+.be-as-hint[hidden] { display: none; }
+
+/* Quick Create: Visit Type */
+.be-vt-form { display: flex; flex-direction: column; gap: 20px; padding-top: 4px; --pw-label-w: 130px; }
+.be-vt-control { width: 280px; }
+.be-vt-checks { display: flex; flex-direction: column; gap: 10px; padding-top: 7px; font-size: 14px; color: var(--pc-base); }
+.be-vt-checks label { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.be-vt-checks input { width: 16px; height: 16px; accent-color: var(--pw-link); }
+
+@media (max-width: 900px) {
+  .be-summary { margin-left: 0; max-width: 100%; }
+  .be-users { grid-template-columns: 1fr; }
 }

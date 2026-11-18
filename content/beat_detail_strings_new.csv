@@ -204,3 +204,7 @@ home.switch.personal,{name}'s Home,Home · home menu · the viewer's own home,Ke
 home.welcome,Welcome {name},Home · page header,Keep {name}
 home.toast.notInPrototype,{action} is not part of this prototype yet.,Toast · a Home action the prototype does not build,Keep {action}
 home.html,Html,New — used in src/sidebar.js,"Draft text, needs the PM's wording."
+beatDetail.timeline.legSameBuilding,Same building · 0 min,Visits list · the line between two visits at the same location (same latitude and longitude),
+beatDetail.visit.sameLocation,Same location as #{no},Visits list · under the address of a visit sharing a location with an earlier one,Keep {no}
+beatDetail.map.stack.title,{count} visits here,Route map · card on hovering a stacked pin (visits at one location),Keep {count}
+beatDetail.map.stack.hint,Visits {numbers} · click to see each,Route map · second line of the stacked-pin card,"Keep {numbers} (e.g. ""5, 6, 7"")"

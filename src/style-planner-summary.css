@@ -1,0 +1,38 @@
+/* ============================================================
+   Planner summary — read-only view after Finish
+   ============================================================ */
+.ps-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  max-width: 1000px;
+}
+
+.ps-name { font-size: 20px; font-weight: 600; line-height: 26px; color: var(--pc-heading); }
+.ps-sub  { margin-top: 4px; font-size: 14px; color: var(--pc-para); }
+
+.ps-grid {
+  margin-top: 20px;
+  max-width: 1000px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 16px;
+}
+
+.ps-card {
+  padding: 16px 18px;
+  border: 1px solid var(--pc-table-border);
+  border-radius: 10px;
+}
+
+.ps-card-head { display: flex; align-items: center; justify-content: space-between; }
+
+.ps-edit-link { font-size: 14px; color: var(--pw-link); text-decoration: none; }
+.ps-edit-link:hover { text-decoration: underline; }
+.ps-edit-link:focus-visible { outline: 2px solid var(--pw-focus); outline-offset: 2px; border-radius: 2px; }
+
+.ps-facts { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 20px; }
+.ps-facts > div { display: grid; grid-template-columns: 200px 1fr; gap: 12px; }
+.ps-facts dt { color: var(--pc-label); }
+.ps-facts dd { color: var(--pc-base); overflow-wrap: anywhere; }

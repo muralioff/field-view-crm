@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="src/topbar.css" />
   <link rel="stylesheet" href="src/style-planner-shared.css" />
   <link rel="stylesheet" href="src/style-visit-types.css" />
+  <link rel="stylesheet" href="src/style-planner-wizard.css" />
 </head>
 <body>
   <div class="pc-app">
@@ -22,11 +23,6 @@
       <!-- Top Bar (shared component) -->
       <header class="bp-topbar">
         <h1 class="bp-topbar-title">Beat Planner</h1>
-        <!-- Two designs of the same step: checkboxes (1) or a visibility dropdown per field (2) -->
-        <div class="vt-layout" role="group" aria-label="Visit types design">
-          <button class="vt-layout-btn active" type="button" data-layout="1">Type 1</button>
-          <button class="vt-layout-btn" type="button" data-layout="2">Type 2</button>
-        </div>
         <div class="bp-search">
           <i class="ti ti-search" aria-hidden="true"></i>
           <input type="text" placeholder="Search records" />
@@ -70,19 +66,8 @@
             </div>
           </nav>
 
-          <p class="pc-desc vt-only-1">
-            Define the types of visits your sales reps make in the field and their maximum duration.
-          </p>
-          <p class="pc-desc vt-only-2">
+          <p class="pc-desc">
             Add the Visit types your reps perform, with a maximum duration for each.
-          </p>
-
-          <!-- Type 2 drops the banner: each field's dropdown states its rule -->
-          <p class="pc-info vt-only-1">
-            <span>
-              <b>Info:</b> All visit types support the Image Upload, File Upload, and Notes field.
-              You can select the checkboxes to make them <b>mandatory</b> for specific visit types.
-            </span>
           </p>
 
           <!-- Visit types table -->
@@ -111,6 +96,7 @@
 
   <script src="src/sidebar.js"></script>
   <script src="src/field-errors.js"></script>
+  <script src="src/planner-wizard.js"></script>
   <script src="src/visit-types.js"></script>
 </body>
 </html>

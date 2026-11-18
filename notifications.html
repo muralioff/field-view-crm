@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planner Configuration — Notifications</title>
+  <link rel="stylesheet" href="src/fonts.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="src/sidebar.css" />
+  <link rel="stylesheet" href="src/topbar.css" />
+  <link rel="stylesheet" href="src/style-planner-shared.css" />
+  <link rel="stylesheet" href="src/style-planner-wizard.css" />
+  <link rel="stylesheet" href="src/style-notifications.css" />
+</head>
+<body>
+  <div class="pc-app">
+
+    <!-- Left navigation component -->
+    <aside id="app-sidebar" class="app-sidebar" data-active="config" data-logo="true"></aside>
+
+    <main class="pc-main">
+
+      <!-- Top Bar (shared component) -->
+      <header class="bp-topbar">
+        <h1 class="bp-topbar-title">Beat Planner</h1>
+        <div class="bp-search">
+          <i class="ti ti-search" aria-hidden="true"></i>
+          <input type="text" placeholder="Search records" aria-label="Search records" />
+        </div>
+        <div class="bp-topbar-icons">
+          <button class="bp-tb-btn plus" aria-label="Add"><i class="ti ti-plus"></i></button>
+          <button class="bp-tb-btn" aria-label="Zia"><i class="ti ti-sparkles"></i></button>
+          <button class="bp-tb-btn" aria-label="Notifications"><i class="ti ti-bell"></i><span class="bp-tb-badge">5</span></button>
+          <button class="bp-tb-btn" aria-label="Calendar"><i class="ti ti-calendar"></i></button>
+          <button class="bp-tb-btn" aria-label="Help"><i class="ti ti-help-circle"></i></button>
+          <button class="bp-tb-btn" aria-label="Settings"><i class="ti ti-settings"></i></button>
+          <div class="bp-avatar-photo">M</div>
+          <button class="bp-tb-btn" aria-label="Apps"><i class="ti ti-grid-dots"></i></button>
+        </div>
+      </header>
+
+      <div class="pc-content">
+        <div class="pc-body" id="nt-body">
+
+          <!-- Multi colour stepper (drawn by src/planner-wizard.js) -->
+          <nav class="pc-stepper" aria-label="Planner configuration steps"></nav>
+
+          <!-- No design frame exists for this step yet: the layout follows the
+               other steps (spec 04-notifications.md §3 is a proposal) -->
+          <section class="pw-section" aria-labelledby="nt-title">
+            <h2 class="pw-title" id="nt-title">Notifications</h2>
+            <p class="pw-desc">Configure notification channels for visit and approval events.</p>
+
+            <p class="pw-note nt-approval-note" id="nt-approval-note" hidden></p>
+
+            <table class="nt-table">
+              <thead>
+                <tr>
+                  <th scope="col" class="nt-event">Event</th>
+                  <th scope="col" class="nt-recipient">Recipient</th>
+                  <th scope="col" class="nt-channel">
+                    <span class="nt-th-inner">Mobile App
+                      <button class="pw-info" type="button" aria-label="About Mobile App">
+                        <img src="src/info-circle.svg" alt="" />
+                        <span class="pw-tip" role="tooltip">You can't disable the In-app notifications.</span>
+                      </button>
+                    </span>
+                  </th>
+                  <th scope="col" class="nt-channel">Email</th>
+                </tr>
+              </thead>
+              <tbody id="nt-rows"></tbody>
+            </table>
+          </section>
+
+        </div>
+
+        <!-- Footer action bar: the only step with Finish instead of Next -->
+        <div class="pc-footer">
+          <button class="pc-btn default" id="pc-previous" type="button">Previous</button>
+          <div class="pc-footer-right">
+            <button class="pc-btn default" id="pc-cancel" type="button">Cancel</button>
+            <button class="pc-btn default" id="pc-draft" type="button">Save as Draft</button>
+            <button class="pc-btn primary" id="pc-finish" type="button">Finish</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="pc-toast" id="pc-toast" role="status" aria-live="polite"></div>
+
+  <script src="src/sidebar.js"></script>
+  <script src="src/planner-wizard.js"></script>
+  <script src="src/notifications.js"></script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planner Summary</title>
+  <link rel="stylesheet" href="src/fonts.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="src/sidebar.css" />
+  <link rel="stylesheet" href="src/topbar.css" />
+  <link rel="stylesheet" href="src/style-planner-shared.css" />
+  <link rel="stylesheet" href="src/style-planner-wizard.css" />
+  <link rel="stylesheet" href="src/style-planner-summary.css" />
+</head>
+<body>
+  <div class="pc-app">
+
+    <!-- Left navigation component -->
+    <aside id="app-sidebar" class="app-sidebar" data-active="config" data-logo="true"></aside>
+
+    <main class="pc-main">
+
+      <!-- Top Bar (shared component) -->
+      <header class="bp-topbar">
+        <h1 class="bp-topbar-title">Beat Planner</h1>
+        <div class="bp-search">
+          <i class="ti ti-search" aria-hidden="true"></i>
+          <input type="text" placeholder="Search records" aria-label="Search records" />
+        </div>
+        <div class="bp-topbar-icons">
+          <button class="bp-tb-btn plus" aria-label="Add"><i class="ti ti-plus"></i></button>
+          <button class="bp-tb-btn" aria-label="Notifications"><i class="ti ti-bell"></i><span class="bp-tb-badge">5</span></button>
+          <button class="bp-tb-btn" aria-label="Settings"><i class="ti ti-settings"></i></button>
+          <div class="bp-avatar-photo">M</div>
+        </div>
+      </header>
+
+      <div class="pc-content">
+        <div class="pc-body">
+          <!-- What Finish saved, read-only; each section edits its own step -->
+          <div class="ps-head">
+            <div>
+              <h2 class="ps-name" id="ps-name"></h2>
+              <p class="ps-sub" id="ps-sub"></p>
+            </div>
+            <button class="pc-btn primary" type="button" id="ps-edit">Edit</button>
+          </div>
+          <div class="ps-grid" id="ps-sections"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="pc-toast" id="pc-toast" role="status" aria-live="polite"></div>
+
+  <script src="src/sidebar.js"></script>
+  <script src="src/planner-wizard.js"></script>
+  <script src="src/planner-summary.js"></script>
+</body>
+</html>

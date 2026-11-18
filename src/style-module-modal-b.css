@@ -1,15 +1,16 @@
 /* ============================================================
-   Module & Address Mapping — layout B
+   Module & Address Mapping
    Spacing and type inherited from Figma 4979:803081
-   ("Head with Description"). Reuses the shared tokens and the
-   criteria builder's classes; everything else here is B's own.
+   ("Head with Description"); the address mapping from Figma
+   6382:180018 / 6379:178413. Reuses the shared tokens and the
+   criteria builder's classes.
 
    The measurements that frame carries, for reference:
      modal 851 wide · 30px side padding · 791px content column
      header  25 / 30 / 20      footer  20 / 30 / 30
      divider #dcdbee with 20 above and 20 below
      field column starts 110px in; fields 390 wide
-     label column 94 (plain) / 54 + arrow at 90 (mapping)
+     label column 94
      rows 20 apart · radios 20 apart · radio to its label 8
    ============================================================ */
 
@@ -65,7 +66,8 @@
   color: var(--pc-para);
 }
 
-.mb-form { margin-top: 30px; padding-top: 10px; }
+/* 20 from the description to the Module row */
+.mb-form { margin-top: 10px; padding-top: 10px; }
 
 .mb-foot {
   position: relative;
@@ -120,41 +122,6 @@
   line-height: 20px;
   color: var(--pc-label);
 }
-
-/* ── Address part mapping ────────────────────────── */
-.mb-grid { display: flex; flex-direction: column; gap: 20px; margin-top: 20px; }
-
-.mb-map-row { display: flex; align-items: flex-start; }
-
-.mb-map-row .mb-hint { margin-top: 2px; }
-
-/* Width per address type, so a long label keeps its own line and the arrows
-   still line up down the column */
-.mb-map-row .mb-label {
-  width: var(--mb-map-label-w, 54px);
-  height: 34px;
-  flex-shrink: 0;
-  padding-top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  white-space: nowrap;
-}
-
-.mb-map-arrow {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  /* 20 each side, per the frame's row gap: 54 + 20 + 16 + 20 = 110, which is
-     where the field starts. The arrow instance's reported x is its flipped
-     bounding edge, not its left, which is what made it look shoved right. */
-  margin: 9px 20px 0;
-  /* The source icon is a back-left arrow; the design mirrors it to point
-     at the field it maps onto */
-  transform: scaleX(-1);
-}
-
-.mb-map-row .mb-control { width: 390px; }
 
 /* ── Radio groups ────────────────────────────────── */
 /* Address Type and Record Scope head their group rather than taking a
@@ -213,7 +180,7 @@
 .mb-scope .mb-criteria { margin-top: 15px; }
 
 /* ── Criteria ────────────────────────────────────── */
-/* Borrows the builder from layout A; only the framing differs. Full width —
+/* Borrows the shared criteria builder; only the framing differs. Full width —
    indenting it past the label column squeezed the value input to nothing. */
 .mb-criteria {
   padding: 16px 20px 4px;
@@ -225,42 +192,7 @@
 .mb-criteria .pc-crit-pattern { padding-top: 12px; }
 .mb-criteria .pc-crit-pattern-value .pc-field { background: var(--pc-card); }
 
-/* ── Type switch (top bar) ───────────────────────── */
-/* Same pill as the Beat Detail and Visit Types toggles */
-.mb-layout {
-  display: inline-flex;
-  gap: 2px;
-  margin-left: 14px;
-  padding: 2px;
-  background: #e8ebf5;
-  border-radius: 8px;
-}
-
-.mb-layout-btn {
-  height: 26px;
-  padding: 0 12px;
-  border: none;
-  background: none;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--pc-label);
-  cursor: pointer;
-}
-
-.mb-layout-btn:hover { color: var(--pc-base); }
-
-.mb-layout-btn.active {
-  background: #fff;
-  color: var(--pc-heading);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-}
-
-/* ── Type 2 — Figma 6382:180018 / 6379:178413 ───── */
-/* Description to the Module row is 20, not Type 1's 40 */
-.mb-type-2 .mb-form { margin-top: 10px; }
-
+/* ── Address mapping ─────────────────────────────── */
 /* Full address: plain left label, 80 wide, 20 to the field; hint 10 below */
 .mb2-full {
   display: flex;

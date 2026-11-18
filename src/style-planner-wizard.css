@@ -1,0 +1,641 @@
+/* ============================================================
+   Planner wizard — steps 3 to 5 (Beat Engine, Field Rules,
+   Notifications), on top of style-planner-shared.css
+   Behaviour contract: beat-planner-specs/01-shared-wizard-conventions.md
+
+   Holds what those steps share: section type, form rows, info
+   tooltips, switches, note banners, rule tables, the row and module
+   menus, the confirm dialog, the clickable stepper, the footer's
+   Delete Planner and the saving freeze layer.
+   ============================================================ */
+:root {
+  --pw-link:       #5464f2;
+  --pw-link-bg:    #f0f1ff;
+  --pw-card-bg:    #f9faff;
+  --pw-card-line:  #dcdbee;
+  --pw-switch-off: #d7d9ea;
+  --pw-green:      #12aa67;
+  --pw-focus:      #5464f2;
+
+  /* Message Info / Notes (Figma 5679:106553) */
+  --pw-note-bg:     #ffffea;
+  --pw-note-border: #e5dec5;
+  --pw-note-text:   #56564d;
+}
+
+/* Read by screen readers, not shown */
+.pw-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ── Stepper: steps are buttons now ──────────────── */
+button.pc-step {
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button.pc-step.active { cursor: default; }
+
+/* The chevron is clipped, so the ring goes on the label inside it */
+button.pc-step:focus-visible { outline: none; }
+button.pc-step:focus-visible > span:last-child {
+  outline: 2px solid var(--pw-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ── Footer ──────────────────────────────────────── */
+.pc-footer-left { display: flex; align-items: center; gap: 12px; }
+
+.pc-btn.failure {
+  background: linear-gradient(to bottom, #fff, #f1f0f7);
+  border: 1px solid var(--pc-btn-border);
+  color: var(--pc-input-error);
+}
+
+.pc-btn:disabled { opacity: 0.6; cursor: default; }
+
+.pc-btn:focus-visible { outline: 2px solid var(--pw-focus); outline-offset: 2px; }
+
+/* While saving: a clear layer over everything, with a spinner */
+.pc-freeze {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: progress;
+}
+
+.pc-freeze.show { display: flex; }
+
+.pc-freeze-spin {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--pw-card-line);
+  border-top-color: var(--pw-link);
+  border-radius: 50%;
+  animation: pw-spin 0.8s linear infinite;
+}
+
+@keyframes pw-spin { to { transform: rotate(360deg); } }
+
+/* ── Section type ────────────────────────────────── */
+/* Every title on a step: 15 / 600 */
+.pw-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--pc-heading);
+}
+
+.pw-desc {
+  margin-top: 4px;
+  max-width: 900px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--pc-para);
+}
+
+/* 20 from the stepper to the first title, 30 between sections */
+.pw-section { margin-top: 30px; }
+.pw-section:first-of-type,
+.pc-stepper + .pw-section { margin-top: 20px; }
+
+.pw-head { display: flex; align-items: center; gap: 15px; }
+
+/* ── Form rows: right-aligned label column, then the field ── */
+.pw-rows {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pw-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.pw-label {
+  width: var(--pw-label-w, 180px);
+  flex-shrink: 0;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--pc-label);
+  text-align: right;
+}
+
+.pw-label.strong { justify-content: flex-start; font-weight: 600; color: var(--pc-heading); }
+
+.pw-control { width: 200px; }
+.pw-control > .pc-field { width: 100%; }
+
+/* The 3px marker a mandatory field carries inside its left edge */
+.pc-field.mandatory { box-shadow: inset 3px 0 0 var(--pc-input-error); }
+
+.pc-field:focus-visible { box-shadow: 0 0 0 1px var(--pw-focus); }
+.pc-field.mandatory:focus-visible { box-shadow: inset 3px 0 0 var(--pc-input-error), 0 0 0 1px var(--pw-focus); }
+
+/* Inline errors: 11–12px, straight under the field */
+.pc-field-msg { font-size: 12px; line-height: 16px; }
+
+/* ── Number + unit fields (Figma BP-Internal 125:80906) ── */
+/* Number + unit dropdown: the number box and a white unit dropdown share
+   one 200 × 34 outline, the dropdown overlapping the number by 1px */
+.pw-group {
+  display: flex;
+  width: 200px;
+  height: 34px;
+}
+
+.pw-group > .pc-field {
+  flex: 1;
+  min-width: 0;
+  border-radius: 6px 0 0 6px;
+}
+
+.pw-unit {
+  flex-shrink: 0;
+  margin-left: -1px;
+  height: 34px;
+  padding: 0 28px 0 13px;
+  background: var(--pc-card) url("icon-down-arrow-small.svg") no-repeat right 10px center / 10px 5px;
+  border: 1px solid var(--pc-input-border);
+  border-radius: 0 6px 6px 0;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--pc-base);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.pw-unit:focus { position: relative; border-color: var(--pc-input-focus); outline: none; }
+.pw-group > .pc-field:focus { position: relative; z-index: 1; }
+
+/* Number with fixed units inside one box: an optional prefix (currency)
+   and suffix (min, m, per km), each set off by a 1px divider */
+.pw-affix {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 200px;
+  height: 34px;
+  padding: 0 10px 0 13px;      /* 3px marker strip + 10 */
+  background: var(--pc-card);
+  border: 1px solid var(--pc-input-border);
+  border-radius: 6px;
+}
+
+.pw-affix.mandatory { box-shadow: inset 3px 0 0 var(--pc-input-error); }
+.pw-affix:focus-within { border-color: var(--pc-input-focus); }
+.pw-affix:has(.invalid) { border-color: var(--pc-input-error); }
+
+/* The number itself carries no frame of its own */
+.pw-affix > input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--pc-base);
+  outline: none;
+}
+
+.pw-affix-pre,
+.pw-affix-post {
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--pc-label);
+  white-space: nowrap;
+}
+
+.pw-affix-pre  { padding-right: 10px; border-right: 1px solid var(--pc-input-border); }
+.pw-affix-post { padding-left: 10px; border-left: 1px solid var(--pc-input-border); }
+
+/* ── Info icon + tooltip ─────────────────────────── */
+/* A button, so the explanation is reachable by keyboard as well as hover */
+.pw-info {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: default;
+  border-radius: 50%;
+}
+
+.pw-info img { display: block; width: 12px; height: 12px; }
+.pw-info:focus-visible { outline: 2px solid var(--pw-focus); outline-offset: 2px; }
+
+/* White, hairline border, soft shadow, no arrow */
+.pw-tip {
+  position: absolute;
+  z-index: 30;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  width: max-content;
+  max-width: 280px;
+  padding: 5px 9px;
+  background: #fff;
+  border: 1px solid #d2d9e0;
+  border-radius: 6px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--pc-base);
+  text-align: left;
+  white-space: normal;
+  transform: translateX(-50%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s, visibility 0.12s;
+  pointer-events: none;
+}
+
+.pw-info:hover .pw-tip,
+.pw-info:focus-visible .pw-tip,
+.pw-has-tip:hover .pw-tip,
+.pw-has-tip:focus-visible .pw-tip { opacity: 1; visibility: visible; }
+
+/* ── Switch: 30 × 18, 14 knob ────────────────────── */
+.pw-switch {
+  position: relative;
+  width: 30px;
+  height: 18px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 100px;
+  background: var(--pw-switch-off);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.pw-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 100px;
+  background: #fff;
+  transition: transform 0.15s;
+}
+
+.pw-switch[aria-checked="true"] { background: var(--pw-green); }
+.pw-switch[aria-checked="true"]::after { transform: translateX(12px); }
+.pw-switch:focus-visible { outline: 2px solid var(--pw-focus); outline-offset: 2px; }
+
+/* ── Note banner ─────────────────────────────────── */
+/* Message Info / Notes, Figma 5679:106553: pale yellow, hugs its text,
+   "Note:" semibold and followed by a space */
+.pw-note {
+  display: inline-block;
+  margin-top: 10px;
+  max-width: 100%;
+  padding: 7px 14px;          /* Figma's 8 / 15 with the 1px border inside */
+  background: var(--pw-note-bg);
+  border: 1px solid var(--pw-note-border);
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--pw-note-text);
+}
+
+.pw-note b { font-weight: 600; }
+
+/* ── Outlined add button ─────────────────────────── */
+.pc-btn.pw-add {
+  margin-top: 15px;
+  background: var(--pw-link-bg);
+  border: 1px solid var(--pw-link);
+  color: var(--pw-link);
+}
+
+.pc-btn.pw-add[hidden] { display: none; }
+
+.pw-limit-note { margin-top: 15px; font-size: 13px; color: var(--pc-label); }
+.pw-limit-note[hidden] { display: none; }
+
+.pw-empty { margin-top: 10px; font-size: 14px; line-height: 20px; color: var(--pc-label); }
+.pw-empty[hidden] { display: none; }
+
+/* Errors about a whole table sit above it */
+.pw-table-error {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--pc-input-error);
+}
+
+.pw-table-error[hidden] { display: none; }
+
+/* ── Rule tables ─────────────────────────────────── */
+.pw-rules {
+  margin-top: 10px;
+  width: 1000px;
+  max-width: 100%;
+  border: 1px solid var(--pc-table-border);
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.pw-rules[hidden] { display: none; }
+
+.pw-tr {
+  display: grid;
+  grid-template-columns: var(--pw-cols);
+  gap: 20px;
+  padding: 14px 20px 14px 8px;
+  align-items: start;
+}
+
+.pw-thead {
+  padding-top: 13px;
+  padding-bottom: 13px;
+  border-bottom: 2px solid var(--pc-table-border);
+  font-weight: 500;
+  color: var(--pc-heading);
+}
+
+.pw-module-row {
+  padding: 10px 20px;
+  background: var(--pw-card-bg);
+  border-bottom: 1px solid var(--pc-row-border);
+  font-weight: 500;
+  color: var(--pc-label);
+}
+
+.pw-module-row .pw-missing { margin-left: 8px; font-weight: 400; color: var(--pc-input-error); }
+
+.pw-rule { border-bottom: 1px solid var(--pc-row-border); background: var(--pc-card); }
+.pw-rule:last-child { border-bottom: none; }
+.pw-rule.dragging { opacity: 0.45; }
+.pw-rule.drop-before { box-shadow: inset 0 2px 0 var(--pw-link); }
+.pw-rule.drop-after { box-shadow: inset 0 -2px 0 var(--pw-link); }
+
+/* A rule that needs fixing before Next */
+.pw-rule.has-error { background: #fff7f7; }
+.pw-rule-flag { display: block; margin-top: 4px; font-size: 12px; color: var(--pc-input-error); }
+
+/* Drag handle and ⋯, shown on hover or keyboard focus within the row */
+.pw-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 20px;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.pw-rule:hover .pw-row-actions,
+.pw-rule:focus-within .pw-row-actions,
+.pw-rule.has-error .pw-row-actions { opacity: 1; }
+
+.pw-drag,
+.pw-more {
+  width: 18px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--pc-label);
+  font-size: 16px;
+}
+
+.pw-drag { cursor: grab; }
+.pw-more { cursor: pointer; }
+.pw-more:hover, .pw-more[aria-expanded="true"] { background: var(--pw-link-bg); color: var(--pw-link); }
+.pw-more:focus-visible { outline: 2px solid var(--pw-focus); outline-offset: 1px; }
+
+/* Criteria lines: index · field · OPERATOR (green, upper case) · value */
+.pw-crit { display: flex; flex-direction: column; gap: 8px; color: var(--pc-base); min-width: 0; }
+.pw-crit p { overflow-wrap: anywhere; }
+.pw-crit-i { display: inline-block; width: 18px; color: var(--pc-label); }
+.pw-op { color: var(--pw-green); }
+.pw-crit-pattern { margin-top: 4px; }
+.pw-crit-pattern span { margin-right: 12px; color: var(--pc-label); }
+
+.pw-see {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--pw-link);
+  cursor: pointer;
+}
+
+.pw-see:hover { text-decoration: underline; }
+.pw-see:focus-visible { outline: 2px solid var(--pw-focus); outline-offset: 2px; }
+
+/* Chips in a table cell */
+.pw-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 4px; }
+
+.pw-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 220px;
+  height: 24px;
+  padding: 0 8px 0 3px;
+  background: var(--pw-card-bg);
+  border: 1px solid var(--pw-card-line);
+  border-radius: 100px;
+  font-size: 13px;
+  color: var(--pc-base);
+  white-space: nowrap;
+}
+
+.pw-chip > span:last-child { overflow: hidden; text-overflow: ellipsis; }
+.pw-chip.plain { padding-left: 8px; }
+
+.pw-avatar {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #dfe3fb;
+  color: #3a49c9;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+/* ── Popup menu ──────────────────────────────────── */
+.pw-menu {
+  position: fixed;
+  z-index: 220;
+  min-width: 150px;
+  padding: 6px 0;
+  background: #fff;
+  border: 1px solid #ced0e1;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.pw-menu-item {
+  display: block;
+  width: 100%;
+  padding: 7px 16px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--pc-base);
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pw-menu-item:hover,
+.pw-menu-item:focus { background: var(--pw-link-bg); outline: none; }
+.pw-menu-item.danger { color: var(--pc-input-error); }
+
+/* ── Confirm dialog ──────────────────────────────── */
+.pw-confirm-overlay { z-index: 120; align-items: center; }
+
+.pw-confirm {
+  width: 460px;
+  max-width: calc(100vw - 32px);
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 14px 16px;
+  padding: 24px 24px 20px;
+  background: var(--pc-card);
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+}
+
+.pw-confirm-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff4e5;
+  color: #f08a00;
+  font-size: 18px;
+}
+
+.pw-confirm-title { font-size: 16px; font-weight: 600; line-height: 22px; color: var(--pc-heading); }
+.pw-confirm-msg { margin-top: 6px; font-size: 14px; line-height: 20px; color: var(--pc-para); }
+
+.pw-confirm-foot {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* ── Dialog shell additions ──────────────────────── */
+/* mb-modal (style-module-modal-b.css) gives the shell; these are sizes */
+.pw-modal { width: 850px; max-height: 90vh; border-radius: 8px; }
+.pw-modal.narrow { width: 520px; }
+.pw-modal.wide { width: 900px; }
+.pc-overlay.stacked { z-index: 80; }
+.pw-modal .mb-body { padding-bottom: 6px; }
+.pw-modal:focus { outline: none; }
+
+.pw-dlg-section + .pw-dlg-section { margin-top: 24px; }
+
+.pw-dlg-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--pc-heading);
+}
+
+.pw-radios { display: flex; flex-wrap: wrap; gap: 30px; margin-top: 12px; }
+
+.pw-radio-wrap { display: inline-flex; align-items: center; gap: 8px; }
+
+.pw-loading,
+.pw-dlg-error { margin-top: 12px; font-size: 13px; color: var(--pc-label); }
+.pw-dlg-error { color: var(--pc-input-error); }
+
+.pw-inline-warn {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 16px;
+  color: #b26b00;
+}
+
+/* Two labelled fields side by side, half each */
+.pw-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 14px; }
+.pw-pair-field { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
+.pw-pair-field > .pw-pair-label { padding-top: 7px; font-size: 14px; color: var(--pc-label); white-space: nowrap; }
+
+/* Select-menu list footer: "New Visit Type" pinned under the options */
+.sm-foot {
+  position: sticky;
+  bottom: -6px;
+  margin: 6px 0 -6px;
+  padding: 4px 6px;
+  background: #fff;
+  border-top: 1px solid var(--pc-row-border);
+  list-style: none;
+}
+
+.sm-foot-btn {
+  width: 100%;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--pw-link);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sm-foot-btn:hover,
+.sm-foot.active .sm-foot-btn { background: var(--pw-link-bg); }
+.sm-foot-btn:disabled { color: var(--pc-placeholder); cursor: not-allowed; background: none; }
+.sm-foot-why { display: block; padding: 0 10px 4px; font-size: 12px; color: var(--pc-label); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pw-switch, .pw-switch::after, .pw-tip, .pw-row-actions { transition: none; }
+  .pc-freeze-spin { animation: none; }
+}

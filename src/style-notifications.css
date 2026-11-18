@@ -1,0 +1,76 @@
+/* ============================================================
+   Notifications — the wizard's step 5
+   No design frame yet: the shared rule-table look (radius 10, 2px
+   header rule, group rows) with Event 40 · Recipient 30 · channels 15
+   each, channels centred.
+   ============================================================ */
+
+.nt-approval-note[hidden] { display: none; }
+
+.nt-table {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 1000px;
+  border: 1px solid var(--pc-table-border);
+  border-radius: 10px;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--pc-base);
+}
+
+.nt-approval-note + .nt-table { margin-top: 15px; }
+
+.nt-table th,
+.nt-table td {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--pc-row-border);
+  text-align: left;
+  vertical-align: middle;
+  font-weight: 400;
+}
+
+.nt-table tbody tr:last-child > * { border-bottom: none; }
+
+.nt-table thead th {
+  padding-top: 13px;
+  padding-bottom: 13px;
+  border-bottom: 2px solid var(--pc-table-border);
+  font-weight: 500;
+  color: var(--pc-heading);
+}
+
+.nt-event     { width: 40%; }
+.nt-recipient { width: 30%; color: var(--pc-label); }
+.nt-table .nt-channel { width: 15%; text-align: center; }
+
+.nt-th-inner { display: inline-flex; align-items: center; gap: 8px; }
+
+.nt-group th {
+  padding: 10px 20px;
+  background: var(--pw-card-bg);
+  font-weight: 500;
+  color: var(--pc-label);
+}
+
+/* Rows that cannot fire for this planner */
+.nt-table tr.is-off .nt-event,
+.nt-table tr.is-off .nt-recipient { color: var(--pc-placeholder); }
+
+.nt-check { position: relative; display: inline-flex; }
+
+.nt-check input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--pw-link);
+  cursor: pointer;
+}
+
+.nt-check input[aria-disabled="true"] { cursor: not-allowed; opacity: 0.55; }
+.nt-check input:focus-visible { outline: 2px solid var(--pw-focus); outline-offset: 2px; }
+
+/* The reason shows on keyboard focus as well as hover */
+.nt-check.pw-has-tip:focus-within .pw-tip { opacity: 1; visibility: visible; }

@@ -1331,8 +1331,6 @@ body.cbv-dragging .cbv-visit:hover .cbv-visit-acts { opacity: 0; }
 .cbv-order-info:hover::after,
 .cbv-order-info:focus-visible::after { opacity: 1; }
 
-/* A folded day whose order was changed says so in its header */
-.cbv-day-order { display: flex; flex-shrink: 0; font-size: 15px; color: #5464f2; }
 
 /* ── Records selected ─────────────────────────────── */
 .cbv-ghost-sm {

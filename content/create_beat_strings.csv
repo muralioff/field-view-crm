@@ -72,7 +72,6 @@ createBeat.modal.time.unit,min,Create Beat · Visit dialogs and day card · afte
 createBeat.modal.error.timeMin,Visit time must be at least 1 min,Create Beat · Visit dialogs · under Visit Time,
 createBeat.modal.error.timeMax,Visit time can't be more than {max} mins,Create Beat · Visit dialogs · under Visit Time,Keep {max} (filled in by the page: 480).
 createBeat.toast.saved,Beat saved successfully,Create Beat · message after Save,
-createBeat.day.customOrder,Visit order maintained — route won't be optimized,Create Beat · folded day header · order icon (hint and screen reader name),
 createBeat.day.previewSoon,Coming soon,Create Beat · day card · hint on the Preview button,
 createBeat.visit.move.ariaLabel,Reorder {name}. Use the up and down arrow keys to move it.,Create Beat · day card · drag handle on a visit row (screen reader name),Keep {name}.
 createBeat.visit.moved,{name} moved to position {n} of {total},Create Beat · day card · read out after a keyboard reorder (screen reader),"Keep {name}, {n} and {total}."
@@ -87,7 +86,7 @@ createBeat.confirm.leave.stay,Stay Here,Create Beat · Cancel confirmation · wa
 createBeat.confirm.leave.submit,"Yes, Leave Page","Create Beat · Cancel confirmation · red button, goes to the beat list",
 createBeat.map.empty,Choose a rep and dates to see records,"Create Beat · map · pill in the middle of the dimmed map, before a rep and dates are chosen",
 createBeat.day.maintainOrder,Maintain Visit order,"Create Beat · day card · checkbox at the foot, on days with two visits or more",Ticked when the visits are dragged into a new order.
-createBeat.day.maintainOrderTip,Route won't be optimized for this day,Create Beat · day card · hint on the i icon beside Maintain Visit order,
+createBeat.day.maintainOrderTip,Route won't be optimized if enabled for this day,Create Beat · day card · hint on the i icon beside Maintain Visit order,
 createBeat.toast.visitsOnDays,"Some of these days have visits. Move the visits to other days, then change the dates.",Create Beat · warning message when a date change would drop days that have visits (the old dates come back),
 createBeat.lasso.offAriaLabel,Back to cursor,Create Beat · map · lasso button while the lasso is on (screen reader name and hint),
 createBeat.toast.emptyDays,"Some days have no visits. Add visits to every day, or change the dates to leave the empty days out.",Create Beat · red error message when Save is clicked with empty days,

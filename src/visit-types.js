@@ -2,18 +2,20 @@
    Visit Types — the wizard's step 2
    Row behaviour taken from the reference frames:
      4115:774722 — initial state: one empty row, add (+) only,
-                   duration prefilled, nothing checked
+                   duration prefilled, every field Visible
      4115:775129 — every row gets remove (−), the last row also gets
                    add (+); invalid fields are outlined red
    Return in the visit-type field adds the next row.
 
-   Two designs share every behaviour above (Type switch in the top bar):
-     Type 1 — a checkbox per field marks it mandatory
-     Type 2 — Figma 6339:176759: a dropdown per field picks
-              Visible / Mandatory / Hide, and Notes becomes Comments
+   Figma 6339:176759: a dropdown per field picks Visible / Mandatory /
+   Hide, and the Notes field is labelled Comments.
 
    Error outlines and the shared tooltip live in src/field-errors.js.
    Full behaviour contract: docs/visit-types-spec.md
+
+   The rows are written to the wizard state as they change: Beat Engine's
+   Visit Type list is this same list, and a type created there with
+   Quick Create shows up here.
    ============================================================ */
 (function () {
   /* Duration a fresh row starts with, per the reference frames */
@@ -26,8 +28,8 @@
     zeroDuration:  'Duration must be above 0.',
   };
 
-  /* Type 2's choices for each field. Visible is the default: the rep sees
-     the field and may leave it empty, as an unticked Type 1 checkbox does. */
+  /* Each field's choices. Visible is the default: the rep sees the field
+     and may leave it empty. */
   const VISIBILITY = [
     ['visible',   'Visible'],
     ['mandatory', 'Mandatory'],
@@ -39,11 +41,8 @@
   const FIELDS = [
     { key: 'image', label: 'Image Upload' },
     { key: 'file',  label: 'File Upload' },
-    { key: 'notes', label: 'Notes', label2: 'Comments' },
+    { key: 'notes', label: 'Comments' },
   ];
-
-  const LAYOUT_KEY = 'vt-layout';
-  let layout = '1';
 
   const rowsEl = document.getElementById('pc-rows');
   const headEl = document.getElementById('pc-thead');
@@ -57,9 +56,7 @@
   });
 
   function headHtml() {
-    const fields = FIELDS.map(f => layout === '2'
-      ? `<span>${f.label2 || f.label}</span>`
-      : `<span class="pc-center">${f.label}</span>`).join('');
+    const fields = FIELDS.map(f => `<span>${f.label}</span>`).join('');
     return `
       <span>Visit Type Name</span>
       <span>Duration <span class="pc-unit">(min)</span></span>
@@ -68,17 +65,12 @@
   }
 
   function fieldCell(f, value) {
-    const label = f.label2 || f.label;
-    if (layout === '2') {
-      const options = VISIBILITY.map(([v, text]) =>
-        `<option value="${v}"${v === value ? ' selected' : ''}>${text}</option>`).join('');
-      return `
-      <span class="pc-cell">
-        <select class="pc-field vt-visibility" data-field="${f.key}" aria-label="${label}">${options}</select>
-      </span>`;
-    }
+    const options = VISIBILITY.map(([v, text]) =>
+      `<option value="${v}"${v === value ? ' selected' : ''}>${text}</option>`).join('');
     return `
-      <span class="pc-cell-center"><input type="checkbox" data-field="${f.key}" aria-label="${label} mandatory" ${value === 'mandatory' ? 'checked' : ''}></span>`;
+      <span class="pc-cell">
+        <select class="pc-field vt-visibility" data-field="${f.key}" aria-label="${f.label}">${options}</select>
+      </span>`;
   }
 
   function rowHtml(row) {
@@ -192,58 +184,34 @@
     return errors.showFirst();
   }
 
-  document.getElementById('pc-next').addEventListener('click', () => {
-    if (validate()) toast(`${rowsEl.children.length} visit type(s) saved — next: Beat Engine.`);
-  });
+  /* Previous, Cancel, Save as Draft and Next are wired by the wizard */
+  function persist() {
+    Planner.state.visitTypes = readRows();
+    Planner.save();
+  }
 
-  document.getElementById('pc-draft').addEventListener('click', () => toast('Saved as draft.'));
-  document.getElementById('pc-previous').addEventListener('click', () => { window.location.href = 'planner-config.html'; });
-  document.getElementById('pc-cancel').addEventListener('click', () => { window.location.href = 'index.html'; });
+  rowsEl.addEventListener('input', persist);
+  rowsEl.addEventListener('change', persist);
+  rowsEl.addEventListener('click', e => { if (e.target.closest('.pc-icon-btn')) persist(); });
 
-  /* ── Type switch ───────────────────────────────────── */
-  /* Reads the rows back so a switch keeps what was typed. A ticked box is
-     Mandatory; an unticked one is Visible, and Hide has no Type 1 form, so
-     it comes back as an unticked box. */
+  /* The rows as the wizard state holds them */
   function readRows() {
     return [...rowsEl.children].map(tr => {
       const row = {
         name: tr.querySelector('.pc-name').value,
         duration: tr.querySelector('.pc-duration').value,
       };
-      FIELDS.forEach(f => {
-        const el = tr.querySelector(`[data-field="${f.key}"]`);
-        row[f.key] = el.type === 'checkbox'
-          ? (el.checked ? 'mandatory' : DEFAULT_VISIBILITY)
-          : el.value;
-      });
+      FIELDS.forEach(f => { row[f.key] = tr.querySelector(`[data-field="${f.key}"]`).value; });
       return row;
     });
   }
 
-  function setLayout(type) {
-    const rows = rowsEl.children.length ? readRows() : [{}];
-    layout = type;
-    bodyEl.classList.toggle('vt-type-2', type === '2');
-    document.querySelectorAll('.vt-layout-btn').forEach(b =>
-      b.classList.toggle('active', b.dataset.layout === type));
-    try { localStorage.setItem(LAYOUT_KEY, type); } catch { /* private mode */ }
-    headEl.innerHTML = headHtml();
-    errors.clearAll();
-    rowsEl.innerHTML = '';
-    rows.forEach(row => addRow(row));
-  }
-
-  document.querySelector('.vt-layout').addEventListener('click', e => {
-    const btn = e.target.closest('.vt-layout-btn');
-    if (btn && btn.dataset.layout !== layout) setLayout(btn.dataset.layout);
-  });
-
-  let savedLayout = '1';
-  try { savedLayout = localStorage.getItem(LAYOUT_KEY) || '1'; } catch { /* private mode */ }
-  if (!['1', '2'].includes(savedLayout)) savedLayout = '1';
-
-  /* Initial state, in both types: one empty row, duration prefilled,
-     nothing checked (Type 1) or every field Visible (Type 2) */
-  setLayout(savedLayout);
+  /* Initial state: the rows saved for this planner, or one empty row with
+     the duration prefilled and every field Visible */
+  const saved = Planner.state.visitTypes;
+  headEl.innerHTML = headHtml();
+  (saved.length ? saved : [{}]).forEach(row => addRow(row));
+  persist();
   rowsEl.querySelector('.pc-name').focus();
+  Planner.initPage({ index: 1, validate });
 })();

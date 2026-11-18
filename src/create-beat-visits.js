@@ -330,9 +330,6 @@ const CbVisits = (() => {
                 aria-label="${esc(t(open ? 'createBeat.day.collapseAriaLabel' : 'createBeat.day.expandAriaLabel', { day: label }))}">
           <img src="src/day-chevron.svg" alt="" aria-hidden="true" /></button>
         <p class="cbv-day-title">${esc(label)}<span class="dot">&nbsp;&nbsp;•&nbsp;&nbsp;</span><span class="date">${esc(shortDate(day.date))}</span></p>
-        ${!open && day.manual ? `<span class="cbv-day-order" role="img"
-              aria-label="${esc(t('createBeat.day.customOrder'))}" title="${esc(t('createBeat.day.customOrder'))}">
-              <i class="ti ti-arrows-sort" aria-hidden="true"></i></span>` : ''}
         ${n ? `<span class="cbv-day-count">${esc(plural(['createBeat.day.count.one', 'createBeat.day.count.other'], n))}</span>` : ''}
       </div>`;
     let body = '';
@@ -1177,6 +1174,18 @@ const CbVisits = (() => {
   function wireMap() {
     PIN = { off: pinImg('src/create-beat/pin-off.svg'), on: pinImg('src/distribute/pin-selected.svg') };
     fieldMap.setPinRenderer(drawPin);
+    /* The selected day's visits keep their pins whatever the module menu,
+       the Filter or the page shows; other days' visits show only where the
+       toolbar shows them. Switching the selected day swaps them. Pins drawn,
+       hovered, clicked and lassoed all come from this one list. */
+    const toolbarPins = fieldMap._visiblePins.bind(fieldMap);
+    fieldMap._visiblePins = () => {
+      const pins = toolbarPins();
+      const day = ready() && curDay();
+      if (!day) return pins;
+      const extra = day.visits.map(v => v.rec).filter(r => r && r.x != null && !pins.includes(r));
+      return extra.length ? pins.concat(extra) : pins;
+    };
     const drawPins = fieldMap._drawPins.bind(fieldMap);
     fieldMap._drawPins = () => { drawLasso(fieldMap.ctx, fieldMap.scale); drawPins(); };
 

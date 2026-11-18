@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="src/style-planner-shared.css" />
   <link rel="stylesheet" href="src/style-planner-config.css" />
   <link rel="stylesheet" href="src/style-module-modal-b.css" />
+  <link rel="stylesheet" href="src/style-planner-wizard.css" />
 </head>
 <body>
   <div class="pc-app">
@@ -23,11 +24,6 @@
       <!-- Top Bar (shared component) -->
       <header class="bp-topbar">
         <h1 class="bp-topbar-title">Beat Planner</h1>
-        <!-- Two designs of the Add Module dialog; behaviour is identical -->
-        <div class="mb-layout" role="group" aria-label="Add Module design">
-          <button class="mb-layout-btn active" type="button" data-layout="1">Type 1</button>
-          <button class="mb-layout-btn" type="button" data-layout="2">Type 2</button>
-        </div>
         <div class="bp-search">
           <i class="ti ti-search" aria-hidden="true"></i>
           <input type="text" placeholder="Search records" />
@@ -103,6 +99,17 @@
             </div>
           </div>
 
+          <!-- Bottom Up only: whether a rep's beat waits for the manager.
+               Step 5 enables the approval notifications from this. -->
+          <div class="pc-row inline pc-approval-row" id="pc-approval-row" hidden>
+            <span class="pc-row-label" id="pc-approval-label">Beat Approval</span>
+            <div class="pc-approval">
+              <button class="pw-switch" type="button" role="switch" aria-checked="false"
+                      aria-labelledby="pc-approval-label pc-approval-text" id="pc-approval"></button>
+              <span class="pc-approval-text" id="pc-approval-text">Beats created by reps need the manager's approval</span>
+            </div>
+          </div>
+
           <!-- 3. Modules & address mapping -->
           <div class="pc-section-head">
             <h2 class="pc-section-title">Modules &amp; Address Mapping</h2>
@@ -144,10 +151,10 @@
   <div class="pc-overlay" id="mb-overlay" aria-hidden="true">
     <div class="mb-modal" role="dialog" aria-modal="true" aria-labelledby="mb-title">
       <header class="mb-head">
-        <h2 class="mb-title" id="mb-title">Add Module and Address Mapping</h2>
+        <h2 class="mb-title" id="mb-title">Add Module</h2>
       </header>
       <div class="mb-body">
-        <p class="mb-sub">Map a module's address fields so its records can be plotted on the map.</p>
+        <p class="mb-sub">Choose the module which contains the address and other information your sales rep need to visit</p>
         <div class="mb-form" id="mb-body"></div>
       </div>
       <footer class="mb-foot">
@@ -162,6 +169,7 @@
 
   <script src="src/sidebar.js"></script>
   <script src="src/field-errors.js"></script>
+  <script src="src/planner-wizard.js"></script>
   <script src="src/planner-config.js"></script>
   <script src="src/module-modal-b.js"></script>
 </body>

@@ -14,6 +14,10 @@
                                             fieldId: 'x', onChange(value) {} });
      sm.setOptions([{ value: '0', label: 'Day 1 • 4 May', disabled: true, tip: 'Why not' }, …]);
      sm.value → '' until picked · sm.clear() · sm.setDisabled(on) · sm.field
+
+   A pinned action under the options (Beat Engine's "New Visit Type"):
+     opts.footer = () => ({ label: 'New Visit Type', disabled: false, why: '' })
+     opts.onFooter()   runs when it is clicked, or picked with ↓ and Enter
    ============================================================ */
 (function () {
   let uid = 0;
@@ -71,14 +75,40 @@
         return `<li class="sm-opt${sel ? ' selected' : ''}${o.disabled ? ' off' : ''}" role="option"
                     id="${id}-o${i}" data-i="${i}" aria-selected="${sel}"${o.disabled ? ' aria-disabled="true"' : ''}>
                   ${sel ? TICK : ''}<span>${esc(o.label)}</span></li>`;
-      }).join('');
+      }).join('') + footerHtml();
       active = options.findIndex(o => o.value === value);
       if (active < 0) active = options.findIndex(o => !o.disabled);
       mark(false);
     }
+    /* The footer counts as one more row for the arrow keys while usable */
+    const foot = () => (opts.footer ? opts.footer() : null);
+    const lastIndex = () => options.length - 1 + (foot() && !foot().disabled ? 1 : 0);
+
+    function footerHtml() {
+      const f = foot();
+      if (!f) return '';
+      return `<li class="sm-foot" id="${id}-foot" role="presentation">
+                <button class="sm-foot-btn" type="button" tabindex="-1" ${f.disabled ? 'disabled' : ''}>
+                  <i class="ti ti-plus" aria-hidden="true"></i> ${esc(f.label)}</button>
+                ${f.disabled && f.why ? `<span class="sm-foot-why">${esc(f.why)}</span>` : ''}
+              </li>`;
+    }
+
+    function runFooter() {
+      close();
+      if (opts.onFooter) opts.onFooter();
+    }
+
     function mark(withTip) {
-      const items = [...list.children];
+      const items = [...list.querySelectorAll('.sm-opt')];
       items.forEach((li, i) => li.classList.toggle('active', i === active));
+      list.querySelector('.sm-foot')?.classList.toggle('active', active === options.length);
+      if (active === options.length) {
+        field.removeAttribute('aria-activedescendant');
+        list.querySelector('.sm-foot')?.scrollIntoView({ block: 'nearest' });
+        hideTip();
+        return;
+      }
       const li = items[active];
       if (li) {
         field.setAttribute('aria-activedescendant', li.id);
@@ -134,11 +164,11 @@
       if (!isOpen) return;
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         e.preventDefault();
-        active = Math.min(options.length - 1, Math.max(0, active + (e.key === 'ArrowDown' ? 1 : -1)));
+        active = Math.min(lastIndex(), Math.max(0, active + (e.key === 'ArrowDown' ? 1 : -1)));
         mark(true);
       } else if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        pick(active);
+        if (active === options.length) runFooter(); else pick(active);
       } else if (e.key === 'Escape') {
         e.preventDefault(); e.stopPropagation();
         close();
@@ -150,6 +180,8 @@
 
     list.addEventListener('mousedown', e => e.preventDefault());
     list.addEventListener('click', e => {
+      const footBtn = e.target.closest('.sm-foot-btn');
+      if (footBtn) { if (!footBtn.disabled) runFooter(); return; }
       const li = e.target.closest('.sm-opt');
       if (li) pick(Number(li.dataset.i));
     });

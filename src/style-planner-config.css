@@ -12,7 +12,6 @@
   --pc-badge-border:    #c5c4d3;
   --pc-summary-op:      #20b8a8;
   --pc-primary-disable: #adb3ee;
-  --pc-overlay:         rgba(32, 33, 35, 0.45);
   --pc-divider-3:       #dcdbee;
 }
 
@@ -43,6 +42,10 @@
 
 /* The 3px marker a mandatory field carries inside its left edge */
 .pc-field.mandatory { box-shadow: inset 3px 0 0 var(--pc-input-error); }
+
+/* Beat Approval (Bottom Up only): switch, then what it means */
+.pc-approval-row[hidden] { display: none; }
+.pc-approval { display: flex; align-items: center; gap: 10px; min-height: 22px; font-size: 14px; color: var(--pc-base); }
 
 /* ── Operating model cards ───────────────────────── */
 .pc-models { display: flex; gap: 15px; }
@@ -221,33 +224,7 @@
 .pc-field:has(option[value=""]:checked) { color: var(--pc-placeholder); }
 
 /* ── Modal ───────────────────────────────────────── */
-.pc-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: none;
-  align-items: flex-start;
-  justify-content: center;
-  background: var(--pc-overlay);
-}
-
-.pc-overlay.show { display: flex; animation: pc-overlay-in 0.16s ease-out; }
-
-/* The dialog drops in from above rather than appearing in place */
-@keyframes pc-overlay-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes pc-modal-drop {
-  from { opacity: 0; transform: translateY(-40px); }
-  to   { opacity: 1; transform: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pc-overlay.show,
-  .pc-overlay.show .pc-modal { animation: none; }
-}
+/* Overlay and its animations: style-planner-shared.css */
 
 /* ── Criteria builder ────────────────────────────── */
 .pc-criteria { margin-top: 20px; }

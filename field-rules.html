@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planner Configuration — Field Rules</title>
+  <link rel="stylesheet" href="src/fonts.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="src/sidebar.css" />
+  <link rel="stylesheet" href="src/topbar.css" />
+  <link rel="stylesheet" href="src/style-planner-shared.css" />
+  <link rel="stylesheet" href="src/style-planner-wizard.css" />
+  <link rel="stylesheet" href="src/style-field-rules.css" />
+</head>
+<body>
+  <div class="pc-app">
+
+    <!-- Left navigation component -->
+    <aside id="app-sidebar" class="app-sidebar" data-active="config" data-logo="true"></aside>
+
+    <main class="pc-main">
+
+      <!-- Top Bar (shared component) -->
+      <header class="bp-topbar">
+        <h1 class="bp-topbar-title">Beat Planner</h1>
+        <div class="bp-search">
+          <i class="ti ti-search" aria-hidden="true"></i>
+          <input type="text" placeholder="Search records" aria-label="Search records" />
+        </div>
+        <div class="bp-topbar-icons">
+          <button class="bp-tb-btn plus" aria-label="Add"><i class="ti ti-plus"></i></button>
+          <button class="bp-tb-btn" aria-label="Zia"><i class="ti ti-sparkles"></i></button>
+          <button class="bp-tb-btn" aria-label="Notifications"><i class="ti ti-bell"></i><span class="bp-tb-badge">5</span></button>
+          <button class="bp-tb-btn" aria-label="Calendar"><i class="ti ti-calendar"></i></button>
+          <button class="bp-tb-btn" aria-label="Help"><i class="ti ti-help-circle"></i></button>
+          <button class="bp-tb-btn" aria-label="Settings"><i class="ti ti-settings"></i></button>
+          <div class="bp-avatar-photo">M</div>
+          <button class="bp-tb-btn" aria-label="Apps"><i class="ti ti-grid-dots"></i></button>
+        </div>
+      </header>
+
+      <div class="pc-content">
+        <div class="pc-body" id="fr-body">
+
+          <!-- Multi colour stepper (drawn by src/planner-wizard.js) -->
+          <nav class="pc-stepper" aria-label="Planner configuration steps"></nav>
+
+          <!-- S1. Route Limits -->
+          <section class="pw-section fr-route" aria-labelledby="fr-route-title">
+            <h2 class="pw-title" id="fr-route-title">Route Limits</h2>
+            <p class="pw-desc">Limit how far reps travel each day and the buffer time between Visits.</p>
+
+            <div class="pw-rows fr-rows-route">
+              <div class="pw-row">
+                <label class="pw-label" for="fr-mileage">Max Distance per Day</label>
+                <div class="pc-field-cell">
+                  <span class="pw-group">
+                    <input class="pc-field" id="fr-mileage" type="text" inputmode="numeric" autocomplete="off" />
+                    <select class="pw-unit" id="fr-unit" aria-label="Unit for Max Distance per Day">
+                      <option value="km">km</option>
+                      <option value="mile">mile</option>
+                    </select>
+                  </span>
+                </div>
+              </div>
+
+              <div class="pw-row">
+                <label class="pw-label" for="fr-buffer">Buffer Between Visits</label>
+                <div class="pc-field-cell">
+                  <span class="pw-affix">
+                    <input id="fr-buffer" type="text" inputmode="numeric" autocomplete="off" aria-describedby="fr-buffer-unit" />
+                    <span class="pw-affix-post" id="fr-buffer-unit">min</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- S2. Ad Hoc Visits -->
+          <section class="pw-section" aria-labelledby="fr-adhoc-title">
+            <div class="pw-head">
+              <h2 class="pw-title" id="fr-adhoc-title">Ad Hoc Visits</h2>
+              <button class="pw-switch" type="button" role="switch" aria-checked="false"
+                      aria-labelledby="fr-adhoc-title" id="fr-adhoc"></button>
+            </div>
+            <p class="pw-desc">Reps can add ad hoc Visits for an active Beat they own.</p>
+          </section>
+
+          <!-- S3. Preferred Start and End Location -->
+          <section class="pw-section" aria-labelledby="fr-loc-title">
+            <div class="pw-head">
+              <h2 class="pw-title" id="fr-loc-title">Allow Sales reps to set preferred Start and End Locations</h2>
+              <button class="pw-switch" type="button" role="switch" aria-checked="false"
+                      aria-labelledby="fr-loc-title" id="fr-loc"></button>
+            </div>
+            <p class="pw-desc">Reps can set addresses from the Address Book as their start and end locations. Auto-created Beats use these locations.</p>
+            <p class="pw-note"><b>Note:</b> When disabled, the Start and end locations for all reps will be taken as the Company Address from Company Settings</p>
+          </section>
+
+          <!-- S4. Check-In and Check-Out Settings (Figma BP-Internal 2:16375) -->
+          <section class="pw-section" aria-labelledby="fr-checkin-title">
+            <h2 class="pw-title" id="fr-checkin-title">Check-In and Check-Out Settings</h2>
+            <p class="pw-desc">Enter a radius from 25 to 200 meters.</p>
+
+            <div class="pw-rows fr-rows-checkin">
+              <div class="pw-row">
+                <span class="fr-radius-label">
+                  <label for="fr-radius">Check-In and Check-Out Radius</label>
+                  <button class="pw-info" type="button" aria-label="About Check-In and Check-Out Radius" aria-describedby="fr-tip-radius">
+                    <img src="src/info-circle.svg" alt="" />
+                    <span class="pw-tip" role="tooltip" id="fr-tip-radius">Reps can check in and check out only within this geofence radius.</span>
+                  </button>
+                </span>
+                <div class="pc-field-cell">
+                  <span class="pw-affix">
+                    <input id="fr-radius" type="text" inputmode="numeric" autocomplete="off" aria-describedby="fr-radius-unit" />
+                    <span class="pw-affix-post" id="fr-radius-unit">m</span>
+                  </span>
+                </div>
+              </div>
+
+              <div class="pw-row">
+                <span class="pw-label fr-mode-label" id="fr-mode-label">Check-In Mode</span>
+                <div class="fr-modes" role="radiogroup" aria-labelledby="fr-mode-label" id="fr-modes">
+                  <div class="fr-mode" role="radio" data-mode="Manual" aria-checked="true" tabindex="0" aria-describedby="fr-mode-manual">
+                    <span class="fr-mode-title">Manual</span>
+                    <span class="fr-mode-desc" id="fr-mode-manual">Reps check in manually when they arrive at the customer location.</span>
+                    <span class="fr-mode-check" aria-hidden="true"></span>
+                  </div>
+                  <div class="fr-mode" role="radio" data-mode="Automatic" aria-checked="false" tabindex="-1" aria-describedby="fr-mode-auto">
+                    <span class="fr-mode-title">Automatic</span>
+                    <span class="fr-mode-desc" id="fr-mode-auto">Beat Planner checks reps in automatically when they enter the geofence.</span>
+                    <span class="fr-mode-check" aria-hidden="true"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Check-out is never automatic: shown locked, not offered -->
+              <div class="pw-row fr-checkout-row">
+                <label class="pw-label" for="fr-checkout">Check-Out Mode</label>
+                <div class="fr-locked-cell">
+                  <span class="fr-locked">
+                    <input class="fr-locked-input" id="fr-checkout" type="text" value="Manual" readonly
+                           aria-readonly="true" aria-describedby="fr-checkout-hint" />
+                    <span class="fr-locked-icon" aria-hidden="true"><img src="src/icon-lock.svg" width="16" height="16" alt="" /></span>
+                  </span>
+                  <p class="fr-locked-hint" id="fr-checkout-hint">Check-out is always manual. Reps fill in Visit details before ending each Visit.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- S5. Beat Expense Tracking — the last section. Everything below
+               the switch shows only while it is on. -->
+          <section class="pw-section fr-expense" aria-labelledby="fr-exp-title">
+            <div class="pw-head">
+              <h2 class="pw-title" id="fr-exp-title">Beat Expense Tracking</h2>
+              <button class="pw-switch" type="button" role="switch" aria-checked="false"
+                      aria-labelledby="fr-exp-title" id="fr-exp"></button>
+            </div>
+
+            <div class="pw-rows fr-rows-expense" id="fr-exp-body" hidden>
+              <!-- Fuel Expense -->
+              <div class="pw-row">
+                <span class="pw-label fr-mode-label" id="fr-fuel-label">Fuel Expense</span>
+                <div class="fr-modes" role="radiogroup" aria-labelledby="fr-fuel-label" id="fr-fuel">
+                  <div class="fr-mode" role="radio" data-mode="manual" aria-checked="true" tabindex="0" aria-describedby="fr-fuel-manual">
+                    <span class="fr-mode-title">Record Manually</span>
+                    <span class="fr-mode-desc" id="fr-fuel-manual">Reps add fuel expenses in the Beat Expenses module.</span>
+                    <span class="fr-mode-check" aria-hidden="true"></span>
+                  </div>
+                  <div class="fr-mode" role="radio" data-mode="automatic" aria-checked="false" tabindex="-1" aria-describedby="fr-fuel-auto">
+                    <span class="fr-mode-title">Record Automatically</span>
+                    <span class="fr-mode-desc" id="fr-fuel-auto">A fuel expense is created at the end of each Beat day, based on the distance the rep traveled.</span>
+                    <span class="fr-mode-check" aria-hidden="true"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Only for Record Automatically: the rate the expense is worked out at -->
+              <div class="pw-row" id="fr-allowance-row" hidden>
+                <label class="pw-label" for="fr-allowance">Fuel Allowance</label>
+                <div class="pc-field-cell">
+                  <span class="pw-affix mandatory fr-allowance-group">
+                    <span class="pw-affix-pre" id="fr-currency">USD</span>
+                    <input id="fr-allowance" type="text" inputmode="decimal" autocomplete="off"
+                           aria-describedby="fr-currency fr-allowance-unit" />
+                    <span class="pw-affix-post" id="fr-allowance-unit">per km</span>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Other Expenses: each type becomes a row the rep fills in the
+                   expense's Other Expenses subform -->
+              <div class="pw-row">
+                <span class="pw-label fr-mode-label" id="fr-other-label">Other Expenses</span>
+                <div class="fr-other">
+                  <div class="fr-exp-table" role="table" aria-labelledby="fr-other-label">
+                    <div class="fr-exp-tr fr-exp-thead" role="row">
+                      <span role="columnheader">Expense Type</span>
+                      <span role="columnheader">Receipt Required</span>
+                      <span role="columnheader"><span class="pw-sr">Actions</span></span>
+                    </div>
+                    <div id="fr-exp-rows" role="rowgroup"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Expense approval — separate from the Beat approval in step 1 -->
+              <div class="pw-row">
+                <span class="pw-label fr-approval-label" id="fr-exp-approval-label">Manager Approval</span>
+                <div class="fr-approval">
+                  <button class="pw-switch" type="button" role="switch" aria-checked="false"
+                          aria-labelledby="fr-exp-approval-label" aria-describedby="fr-exp-approval-desc" id="fr-exp-approval"></button>
+                  <p class="fr-approval-desc" id="fr-exp-approval-desc">Expenses that reps submit go to their manager for approval, based on your CRM role hierarchy.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Footer action bar -->
+        <div class="pc-footer">
+          <button class="pc-btn default" id="pc-previous" type="button">Previous</button>
+          <div class="pc-footer-right">
+            <button class="pc-btn default" id="pc-cancel" type="button">Cancel</button>
+            <button class="pc-btn default" id="pc-draft" type="button">Save as Draft</button>
+            <button class="pc-btn primary" id="pc-next" type="button">Next</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="pc-toast" id="pc-toast" role="status" aria-live="polite"></div>
+  <div class="pc-tip" id="pc-tip" role="tooltip" aria-hidden="true"></div>
+
+  <script src="src/sidebar.js"></script>
+  <script src="src/field-errors.js"></script>
+  <script src="src/planner-wizard.js"></script>
+  <script src="src/field-rules.js"></script>
+</body>
+</html>

@@ -20,7 +20,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HOME, OFFICE = (236, 618), (688, 546)
 DAYS = [
     [(186, 314), (218, 468), (286, 510), (362, 562)],
-    [(392, 256), (434, 210), (564, 194)],
+    # Day 2 has visits sharing a building: two at (434, 210), three at (662, 334)
+    [(392, 256), (434, 210), (434, 210), (564, 194), (662, 334), (662, 334), (662, 334)],
     [(530, 370), (616, 480)],
 ]
 
@@ -29,7 +30,9 @@ def main():
     pairs = []
     for pins in DAYS:
         stops = [HOME, *pins, OFFICE]
-        pairs += [(stops[i], stops[j]) for i in range(len(stops)) for j in range(i + 1, len(stops))]
+        # Two visits at one point have no leg between them
+        pairs += [(stops[i], stops[j]) for i in range(len(stops)) for j in range(i + 1, len(stops))
+                  if stops[i] != stops[j]]
     pairs = list(dict.fromkeys(pairs))
 
     with tempfile.TemporaryDirectory() as tmp:

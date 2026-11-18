@@ -1,6 +1,7 @@
 /* ============================================================
    Planner Configuration wizard — shared chrome
-   Used by planner-config.html (step 1) and visit-types.html (step 2).
+   Used by every step of the wizard (planner-config, visit-types,
+   beat-engine, field-rules, notifications).
    Sidebar lives in src/sidebar.css, top bar in src/topbar.css.
 
    Holds the tokens, page shell, stepper, form fields, the error
@@ -49,6 +50,9 @@
   --pc-btn-border:    #d5d8e9;
   --pc-primary-top:   #5767f6;
   --pc-primary-bot:   #124dc3;
+
+  /* Dialogs */
+  --pc-overlay:       rgba(32, 33, 35, 0.45);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -269,6 +273,26 @@ body {
   transform: rotate(45deg);
 }
 
+/* ── Row remove (−) / add (+) icon buttons ────────── */
+.pc-icon-btn {
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pc-icon-btn[hidden] { display: none; }
+.pc-icon-btn.remove { color: var(--pc-remove); }
+.pc-icon-btn.add { color: var(--pc-add); }
+.pc-icon-btn:focus-visible { outline: 2px solid var(--pc-input-focus); outline-offset: 2px; border-radius: 50%; }
+
 /* ── Footer action bar ───────────────────────────── */
 .pc-footer {
   flex-shrink: 0;
@@ -328,3 +352,32 @@ body {
 }
 
 .pc-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── Modal ───────────────────────────────────────── */
+.pc-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  background: var(--pc-overlay);
+}
+
+.pc-overlay.show { display: flex; animation: pc-overlay-in 0.16s ease-out; }
+
+/* The dialog drops in from above rather than appearing in place */
+@keyframes pc-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pc-modal-drop {
+  from { opacity: 0; transform: translateY(-40px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-overlay.show,
+  .pc-overlay.show .pc-modal { animation: none; }
+}

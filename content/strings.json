@@ -494,6 +494,11 @@
     "where": "Beat Detail · day timeline · planned drive between stops, before it is driven",
     "notes": "Keep {drive} (filled in by the page). {drive} = the drive, e.g. \"8 min (1.5 km)\"."
   },
+  "beatDetail.timeline.legSameBuilding": {
+    "text": "Same building · 0 min",
+    "where": "Visits list · the line between two visits at the same location (same latitude and longitude)",
+    "notes": ""
+  },
   "beatDetail.visit.completeHint": {
     "text": "Mark this visit completed",
     "where": "Beat Detail · day timeline · hover hint on the visit in progress",
@@ -613,6 +618,16 @@
     "text": "Terrain",
     "where": "Beat Detail · map · Layers menu option",
     "notes": ""
+  },
+  "beatDetail.map.stack.title": {
+    "text": "{count} visits here",
+    "where": "Route map · card on hovering a stacked pin (visits at one location)",
+    "notes": "Keep {count}"
+  },
+  "beatDetail.map.stack.hint": {
+    "text": "Visits {numbers} · click to see each",
+    "where": "Route map · second line of the stacked-pin card",
+    "notes": "Keep {numbers} (e.g. \"5, 6, 7\")"
   },
   "visitCard.ariaLabel": {
     "text": "Visit details",
@@ -2219,6 +2234,11 @@
     "where": "Beat Detail · visit ⋯ menu on the visit in progress",
     "notes": ""
   },
+  "beatDetail.visit.sameLocation": {
+    "text": "Same location as #{no}",
+    "where": "Visits list · under the address of a visit sharing a location with an earlier one",
+    "notes": "Keep {no}"
+  },
   "forceCheckout.title": {
     "text": "Force checkout “{name}”",
     "where": "Force Checkout dialog · title",
@@ -2684,11 +2704,6 @@
     "where": "Create Beat · message after Save",
     "notes": ""
   },
-  "createBeat.day.customOrder": {
-    "text": "Visit order maintained — route won't be optimized",
-    "where": "Create Beat · folded day header · order icon (hint and screen reader name)",
-    "notes": ""
-  },
   "createBeat.day.previewSoon": {
     "text": "Coming soon",
     "where": "Create Beat · day card · hint on the Preview button",
@@ -2770,7 +2785,7 @@
     "notes": "Ticked when the visits are dragged into a new order."
   },
   "createBeat.day.maintainOrderTip": {
-    "text": "Route won't be optimized for this day",
+    "text": "Route won't be optimized if enabled for this day",
     "where": "Create Beat · day card · hint on the i icon beside Maintain Visit order",
     "notes": ""
   },

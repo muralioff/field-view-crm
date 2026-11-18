@@ -36,8 +36,9 @@ window.PCErrors = (function () {
       msg.setAttribute('role', 'alert');
       msg.textContent = message;
       /* Straight under the field, above any hint the cell carries — the
-         thing to fix reads first, the guidance second */
-      field.after(msg);
+         thing to fix reads first, the guidance second. A field joined to
+         its unit (number + km / min) takes the message under the pair. */
+      (field.closest('.pw-group, .pw-affix') || field).after(msg);
     }
 
     function clearInline(field) {

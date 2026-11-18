@@ -2610,3 +2610,16 @@ select.bd-input:has(option[value=""]:checked) { color: #7c8bae; }
 
 /* Layers: Satellite and Terrain show, but cannot be picked */
 .bd-terrain-opt.is-off { color: #b4bacb; cursor: not-allowed; }
+
+/* ── Visits at one location ─────────────────────────── */
+/* The leg between two visits in one building: no drive, a building icon */
+.bd-leg-building { font-size: 16px; line-height: 16px; color: #979faf; flex-shrink: 0; }
+.bd-leg-same .bd-leg-text { color: var(--label); }
+
+/* Under a visit sharing an earlier visit's location: which one */
+.bd-visit-same {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--label);
+}
