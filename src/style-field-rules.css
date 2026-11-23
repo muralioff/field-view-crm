@@ -103,33 +103,19 @@
 .fr-mode-title { font-size: 14px; font-weight: 500; line-height: 20px; color: var(--pc-base); }
 .fr-mode-desc  { font-size: 13px; line-height: 18px; color: var(--pc-label); }
 
-/* Blue filled tick, top-right, on the selected card only */
+/* The selected-card tick (Figma 2:12458), top-right, 5 outside the card;
+   the 20 × 20 icon includes a 2px white ring, hence -7 */
 .fr-mode-check {
   position: absolute;
-  top: -5px;
-  right: -5px;
-  width: 16px;
-  height: 16px;
+  top: -7px;
+  right: -7px;
+  width: 20px;
+  height: 20px;
   display: none;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: var(--pw-link);
-  box-shadow: 0 0 0 2px #fff;
+  background: url("icon-selected-tick.svg") no-repeat center / 20px 20px;
 }
 
-.fr-mode-check::after {
-  content: '';
-  width: 4px;
-  height: 7px;
-  margin-top: -2px;
-  border: 1.6px solid #fff;
-  border-top: none;
-  border-left: none;
-  transform: rotate(45deg);
-}
-
-.fr-mode[aria-checked="true"] .fr-mode-check { display: flex; }
+.fr-mode[aria-checked="true"] .fr-mode-check { display: block; }
 
 /* ── Beat Expense Tracking ───────────────────────── */
 .fr-rows-expense[hidden],

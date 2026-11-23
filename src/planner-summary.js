@@ -30,7 +30,7 @@
 
   const sections = [
     facts([
-      ['Operating Model', topDown ? 'Top Down' : 'Bottom Up'],
+      ['Operating Model', topDown ? 'Top-Down' : 'Bottom-Up'],
       ...(topDown ? [] : [['Beat Approval', S.approval ? 'Required' : 'Not required']]),
       ['Modules', escape(S.modules.map(m => m.module).join(', ') || '—')],
     ]),

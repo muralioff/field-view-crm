@@ -139,8 +139,8 @@
       const loss = model === 'bottom-up' ? autoBeatLoss() : '';
       if (loss) {
         const ok = await Planner.confirm({
-          title: 'Switch to Bottom Up',
-          message: `Switching to Bottom Up removes ${loss}. Reps build their own beats, so nothing is generated or assigned.`,
+          title: 'Switch to Bottom-Up',
+          message: `Switching to Bottom-Up removes ${loss}. Reps build their own beats, so nothing is generated or assigned.`,
           action: 'Switch',
         });
         if (!ok) return;

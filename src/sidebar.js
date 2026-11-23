@@ -12,14 +12,13 @@
      here is the fallback for pages that do not */
   const T = (key, fallback) => (window.Strings ? Strings.t(key, null, fallback) : fallback);
 
-  /* Items and icons from Figma 7454:81940 (src/nav-icons). Planner
-     Configuration has moved to Settings, so it is no longer listed. */
+  /* Items and icons from Figma 7454:81940 (src/nav-icons). Configuration
+     (the planner wizard) takes the place Agents and MCP had. */
   const TOP_ITEMS = [
     { key: 'home',      tkey: 'home',      label: 'Home',      icon: 'home',      href: 'home.html' },
     { key: 'reports',   tkey: 'reports',   label: 'Reports',   icon: 'reports',   href: '#' },
     { key: 'dashboard', tkey: 'dashboard', label: 'Dashboard', icon: 'dashboard', href: '#' },
-    { key: 'agents',    tkey: 'agents',    label: 'Agents',    icon: 'agents',    href: '#' },
-    { key: 'mcp',       tkey: 'mcp',       label: 'MCP',       icon: 'mcp',       href: '#' },
+    { key: 'config',    tkey: 'configuration', label: 'Configuration', icon: 'configuration', href: 'planner-config.html' },
   ];
 
   const MODULE_ITEMS = [

@@ -59,6 +59,11 @@
     "where": "Left navigation · Home item",
     "notes": ""
   },
+  "sidebar.item.configuration": {
+    "text": "Configuration",
+    "where": "Left navigation · Configuration item (opens the planner configuration)",
+    "notes": ""
+  },
   "sidebar.section.modules": {
     "text": "Modules",
     "where": "Left navigation · section heading above the modules",
