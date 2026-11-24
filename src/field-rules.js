@@ -9,7 +9,7 @@
    Start and End    a switch; its note (what happens when off) always shows
    Check-In and     radius 25–200 m with an info tooltip, Manual / Automatic
    Check-Out        cards — a radiogroup with exactly one always selected —
-                    and Check-Out Mode shown locked at Manual
+                    and Check-Out Mode as a dropdown with Manual only
    Beat Expense     a switch; while on: Fuel Expense (Record Manually /
    Tracking         Record Automatically, which asks for a Fuel Allowance
                     per km or mile), Other Expenses (the expense types and

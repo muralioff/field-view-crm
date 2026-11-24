@@ -135,15 +135,13 @@
                 </div>
               </div>
 
-              <!-- Check-out is never automatic: shown locked, not offered -->
+              <!-- Check-out is never automatic: a dropdown whose only option is Manual -->
               <div class="pw-row fr-checkout-row">
                 <label class="pw-label" for="fr-checkout">Check-Out Mode</label>
                 <div class="fr-locked-cell">
-                  <span class="fr-locked">
-                    <input class="fr-locked-input" id="fr-checkout" type="text" value="Manual" readonly
-                           aria-readonly="true" aria-describedby="fr-checkout-hint" />
-                    <span class="fr-locked-icon" aria-hidden="true"><img src="src/icon-lock.svg" width="16" height="16" alt="" /></span>
-                  </span>
+                  <select class="pc-field fr-checkout" id="fr-checkout" aria-describedby="fr-checkout-hint">
+                    <option value="Manual" selected>Manual</option>
+                  </select>
                   <p class="fr-locked-hint" id="fr-checkout-hint">Check-out is always manual. Reps fill in Visit details before ending each Visit.</p>
                 </div>
               </div>
@@ -180,13 +178,13 @@
               <!-- Only for Record Automatically: the rate the expense is worked out at -->
               <div class="pw-row" id="fr-allowance-row" hidden>
                 <label class="pw-label" for="fr-allowance">Fuel Allowance</label>
-                <div class="pc-field-cell">
+                <div class="pc-field-cell fr-allowance-line">
                   <span class="pw-affix mandatory fr-allowance-group">
                     <span class="pw-affix-pre" id="fr-currency">USD</span>
                     <input id="fr-allowance" type="text" inputmode="decimal" autocomplete="off"
                            aria-describedby="fr-currency fr-allowance-unit" />
-                    <span class="pw-affix-post" id="fr-allowance-unit">per km</span>
                   </span>
+                  <span class="fr-allowance-unit" id="fr-allowance-unit">per km</span>
                 </div>
               </div>
 
